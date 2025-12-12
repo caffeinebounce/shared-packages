@@ -1,0 +1,393 @@
+"use client";
+
+import type { LucideIcon } from "lucide-react";
+import { Check } from "lucide-react";
+import { type ReactNode, useCallback, useEffect, useMemo } from "react";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
+import { cn } from "../../utils";
+
+/**
+ * Step validation status for progress indicator styling
+ */
+export type StepStatus =
+  | "not-started"
+  | "in-progress"
+  | "incomplete"
+  | "complete"
+  | "error";
+
+/**
+ * A single step definition for the FormWizard
+ */
+export interface FormWizardStep {
+  /** Unique identifier for the step */
+  id: string;
+  /** Display label for the step */
+  label: string;
+  /** Icon component from lucide-react */
+  icon: LucideIcon;
+}
+
+/**
+ * Style configuration returned for a step based on its status
+ */
+export interface StepStatusStyles {
+  /** Border/background classes for the icon circle */
+  border: string;
+  /** Text color classes for the label */
+  text: string;
+  /** The icon element to render */
+  icon: ReactNode;
+  /** Optional tooltip message (for error/incomplete states) */
+  tooltip: string | null;
+}
+
+/**
+ * Function type for computing step status
+ */
+export type GetStepStatus = (stepIndex: number) => StepStatus;
+
+/**
+ * Function type for computing step tooltip content
+ */
+export type GetStepTooltip = (
+  stepIndex: number,
+  status: StepStatus,
+) => string | null;
+
+/**
+ * Props for the FormWizard component
+ */
+export interface FormWizardProps {
+  /** Array of step definitions */
+  steps: FormWizardStep[];
+  /** Current active step index (0-based) */
+  currentStep: number;
+  /** Callback when step changes */
+  onStepChange: (stepIndex: number) => void;
+  /** Function to compute the status of each step */
+  getStepStatus: GetStepStatus;
+  /** Optional function to get tooltip content for a step */
+  getStepTooltip?: GetStepTooltip;
+  /** Enable keyboard navigation with Alt/Option+Arrow keys */
+  enableKeyboardNavigation?: boolean;
+  /** Scope keyboard navigation to elements with role="dialog" */
+  scopeToDialog?: boolean;
+  /** The step content to render */
+  children: ReactNode;
+  /** Additional class name for the container */
+  className?: string;
+}
+
+/**
+ * FormWizard provides a multi-step form interface with:
+ * - Step progress indicator with icons and animated connectors
+ * - Step validation status styling (not-started, in-progress, incomplete, complete, error)
+ * - Tooltips for steps with errors or incomplete status
+ * - Optional keyboard navigation (Alt/Option+Arrow keys)
+ *
+ * This component handles the step navigation and progress display,
+ * while the actual form fields and validation logic are provided by the parent.
+ *
+ * @example
+ * ```tsx
+ * <FormWizard
+ *   steps={[
+ *     { id: "basic", label: "Basic Info", icon: Building2 },
+ *     { id: "details", label: "Details", icon: FileText },
+ *   ]}
+ *   currentStep={currentStep}
+ *   onStepChange={setCurrentStep}
+ *   getStepStatus={(index) => stepStatuses[index]}
+ *   getStepTooltip={(index, status) =>
+ *     status === "error" ? "Missing required fields" : null
+ *   }
+ *   enableKeyboardNavigation
+ * >
+ *   {currentStep === 0 && <BasicInfoFields />}
+ *   {currentStep === 1 && <DetailsFields />}
+ * </FormWizard>
+ * ```
+ */
+export function FormWizard({
+  steps,
+  currentStep,
+  onStepChange,
+  getStepStatus,
+  getStepTooltip,
+  enableKeyboardNavigation = true,
+  scopeToDialog = true,
+  children,
+  className,
+}: FormWizardProps) {
+  const totalSteps = steps.length;
+  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === totalSteps - 1;
+
+  // Calculate step statuses for all steps
+  const stepStatuses = useMemo((): StepStatus[] => {
+    return steps.map((_, index) => getStepStatus(index));
+  }, [steps, getStepStatus]);
+
+  const handleStepClick = useCallback(
+    (stepIndex: number) => {
+      onStepChange(stepIndex);
+    },
+    [onStepChange],
+  );
+
+  const handleNext = useCallback(() => {
+    if (!isLastStep) {
+      onStepChange(currentStep + 1);
+    }
+  }, [currentStep, isLastStep, onStepChange]);
+
+  const handleBack = useCallback(() => {
+    if (!isFirstStep) {
+      onStepChange(currentStep - 1);
+    }
+  }, [currentStep, isFirstStep, onStepChange]);
+
+  // Keyboard navigation: Alt/Option+ArrowLeft/ArrowRight for Back/Next
+  useEffect(() => {
+    if (!enableKeyboardNavigation) return;
+
+    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      // Optionally scope to dialog
+      if (scopeToDialog) {
+        const target = e.target as HTMLElement;
+        const isInDialog = target.closest('[role="dialog"]');
+        if (!isInDialog) return;
+      }
+
+      if (!e.altKey) return;
+
+      if (e.key === "ArrowLeft" && !isFirstStep) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleBack();
+      } else if (e.key === "ArrowRight" && !isLastStep) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleNext();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [
+    enableKeyboardNavigation,
+    scopeToDialog,
+    isFirstStep,
+    isLastStep,
+    handleBack,
+    handleNext,
+  ]);
+
+  /**
+   * Get styling for a step based on its status
+   */
+  const getStatusStyles = useCallback(
+    (stepIndex: number): StepStatusStyles => {
+      const status = stepStatuses[stepIndex];
+      const isCurrent = stepIndex === currentStep;
+      const step = steps[stepIndex];
+      const Icon = step.icon;
+      const tooltip = getStepTooltip?.(stepIndex, status) ?? null;
+
+      switch (status) {
+        case "error":
+          return {
+            border: "border-destructive bg-destructive",
+            text: "text-destructive",
+            icon: <Icon className="w-5 h-5 text-white" />,
+            tooltip: tooltip || "This section has errors",
+          };
+        case "complete":
+          return {
+            border: "border-foreground bg-foreground text-background",
+            text: "text-foreground",
+            icon: <Check className="w-5 h-5" />,
+            tooltip: null,
+          };
+        case "incomplete":
+          return {
+            border: "border-yellow-500 bg-yellow-500 text-white",
+            text: "text-yellow-600 dark:text-yellow-500",
+            icon: <Icon className="w-5 h-5" />,
+            tooltip: tooltip || "This section is incomplete",
+          };
+        case "in-progress":
+          return {
+            border: "border-primary bg-primary text-primary-foreground",
+            text: "text-primary",
+            icon: <Icon className="w-5 h-5" />,
+            tooltip: null,
+          };
+        default: // not-started
+          return {
+            border: isCurrent
+              ? "border-muted-foreground bg-muted-foreground text-background dark:border-muted dark:bg-muted dark:text-foreground"
+              : "border-transparent bg-background",
+            text: isCurrent ? "text-foreground" : "text-muted-foreground",
+            icon: <Icon className="w-5 h-5" />,
+            tooltip: null,
+          };
+      }
+    },
+    [stepStatuses, currentStep, steps, getStepTooltip],
+  );
+
+  return (
+    <TooltipProvider>
+      <div className={cn("space-y-8", className)}>
+        {/* Progress Section */}
+        <div className="space-y-4">
+          {/* Step indicators */}
+          <div className="relative flex items-center justify-between">
+            {/* Connection lines - positioned absolutely behind icons */}
+            <div className="absolute top-5 left-0 right-0 flex items-center px-5">
+              {steps.slice(0, -1).map((step, index) => {
+                const status = stepStatuses[index];
+                const nextStatus = stepStatuses[index + 1];
+                // Line is filled if both current and next step are complete
+                const isFilled =
+                  status === "complete" && nextStatus !== "not-started";
+                return (
+                  <div
+                    key={`connector-${step.id}`}
+                    className="flex-1 h-0.5 bg-muted relative overflow-hidden"
+                  >
+                    <div
+                      className={cn(
+                        "absolute inset-0 bg-foreground origin-left transition-transform duration-500 ease-out",
+                        isFilled ? "scale-x-100" : "scale-x-0",
+                      )}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Step icons */}
+            {steps.map((step, index) => {
+              const styles = getStatusStyles(index);
+
+              const stepButton = (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => handleStepClick(index)}
+                  aria-label={`Step ${index + 1}: ${step.label}`}
+                  aria-current={index === currentStep ? "step" : undefined}
+                  className={cn(
+                    "relative z-10 flex flex-col items-center gap-2 transition-colors cursor-pointer",
+                    styles.text,
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors",
+                      styles.border,
+                    )}
+                  >
+                    {styles.icon}
+                  </div>
+                  <span className="text-xs font-medium hidden sm:block">
+                    {step.label}
+                  </span>
+                </button>
+              );
+
+              // Wrap in tooltip if there's a message to show
+              if (styles.tooltip) {
+                return (
+                  <Tooltip key={step.id}>
+                    <TooltipTrigger asChild>{stepButton}</TooltipTrigger>
+                    <TooltipContent className="whitespace-pre-line">
+                      {styles.tooltip}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              }
+
+              return stepButton;
+            })}
+          </div>
+        </div>
+
+        {/* Step content */}
+        {children}
+      </div>
+    </TooltipProvider>
+  );
+}
+
+/**
+ * Context for navigation controls - allows children to trigger navigation
+ */
+export interface FormWizardNavigation {
+  /** Go to the next step */
+  goNext: () => void;
+  /** Go to the previous step */
+  goBack: () => void;
+  /** Go to a specific step */
+  goToStep: (index: number) => void;
+  /** Whether currently on the first step */
+  isFirstStep: boolean;
+  /** Whether currently on the last step */
+  isLastStep: boolean;
+  /** Current step index */
+  currentStep: number;
+  /** Total number of steps */
+  totalSteps: number;
+}
+
+/**
+ * Hook-compatible helper to create navigation handlers
+ */
+export function useFormWizardNavigation(
+  currentStep: number,
+  totalSteps: number,
+  onStepChange: (step: number) => void,
+): FormWizardNavigation {
+  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === totalSteps - 1;
+
+  const goNext = useCallback(() => {
+    if (!isLastStep) {
+      onStepChange(currentStep + 1);
+    }
+  }, [currentStep, isLastStep, onStepChange]);
+
+  const goBack = useCallback(() => {
+    if (!isFirstStep) {
+      onStepChange(currentStep - 1);
+    }
+  }, [currentStep, isFirstStep, onStepChange]);
+
+  const goToStep = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < totalSteps) {
+        onStepChange(index);
+      }
+    },
+    [totalSteps, onStepChange],
+  );
+
+  return {
+    goNext,
+    goBack,
+    goToStep,
+    isFirstStep,
+    isLastStep,
+    currentStep,
+    totalSteps,
+  };
+}

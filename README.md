@@ -1,0 +1,82 @@
+# Shared Packages
+
+Shared UI components and utilities for Capital Collective projects.
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| `@caffeinebounce/ui` | Shared UI components (Button, Card, Dialog, etc.) |
+| `@caffeinebounce/email` | Email templates and Resend client |
+| `@caffeinebounce/logger` | Logging utilities with Logtail |
+| `@caffeinebounce/ai-assistant` | AI chat panel components |
+
+## Installation
+
+These packages are published to GitHub Packages. Configure your `.npmrc`:
+
+```ini
+@caffeinebounce:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+Then install:
+
+```bash
+yarn add @caffeinebounce/ui@latest
+```
+
+## Development
+
+### Prerequisites
+
+- Node.js 20.9+
+- Yarn 4.11.0 (Berry)
+- `GITHUB_TOKEN` environment variable with `read:packages` and `write:packages` scopes
+
+### Setup
+
+```bash
+# Install dependencies
+yarn install
+
+# Build all packages
+yarn build
+
+# Development mode (watch)
+yarn dev
+
+# Lint
+yarn lint
+```
+
+### Publishing
+
+We use [Changesets](https://github.com/changesets/changesets) for version management.
+
+```bash
+# Create a changeset (after making changes)
+yarn changeset
+
+# Version packages (CI does this automatically)
+yarn version-packages
+
+# Publish (CI does this on main branch)
+yarn release
+```
+
+## Usage in Projects
+
+```typescript
+import { Button, Card, Spinner } from "@caffeinebounce/ui";
+import { sendEmail } from "@caffeinebounce/email";
+import { logger } from "@caffeinebounce/logger";
+```
+
+## Contributing
+
+1. Create a feature branch
+2. Make changes
+3. Run `yarn changeset` to describe your changes
+4. Submit a PR
+5. After merge, CI will publish new versions
