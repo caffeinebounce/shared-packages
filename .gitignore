@@ -32,5 +32,9 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+# Temporary files used when purging secrets
+replacements.txt
+repo-backup-*.git
+
 # Test coverage
 coverage/

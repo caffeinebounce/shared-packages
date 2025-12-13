@@ -17,6 +17,8 @@ export interface BackgroundRippleEffectProps {
   cellSize?: number;
   /** Additional className for the container */
   className?: string;
+  /** Whether to apply the radial mask (fades out edges). Default: true */
+  mask?: boolean;
 }
 
 /**
@@ -36,6 +38,7 @@ export function BackgroundRippleEffect({
   cols = 27,
   cellSize = 56,
   className,
+  mask = true,
 }: BackgroundRippleEffectProps) {
   const [clickedCell, setClickedCell] = useState<{
     row: number;
@@ -58,7 +61,10 @@ export function BackgroundRippleEffect({
         <div className="pointer-events-none absolute inset-0 z-2 h-full w-full overflow-hidden" />
         <DivGrid
           key={`base-${rippleKey}`}
-          className="mask-radial-from-70% mask-radial-at-top opacity-80"
+          className={cn(
+            "opacity-80",
+            mask && "mask-radial-from-70% mask-radial-at-top"
+          )}
           rows={rows}
           cols={cols}
           cellSize={cellSize}
