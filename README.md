@@ -91,6 +91,17 @@ gh workflow run update-shared-packages.yml --repo caffeinebounce/compass
 - Consumer guide (Compass): [../compass/docs/updating-shared-packages.md](../compass/docs/updating-shared-packages.md)
 - Agent/automation guidance: [.github/copilot-instructions.md](.github/copilot-instructions.md)
 
+## Reference Dev Scripts
+
+Reusable shell scripts for env management and Yarn auth are available in `scripts/`:
+
+- `scripts/export-env.sh [path]` — source variables from an env file (default `./.env.local`)
+- `scripts/with-env.sh [path] -- <cmd>` — run a command with env loaded
+- `scripts/sync-env.sh [example] [local]` — add missing keys from `.env.example` to `.env.local`
+- `scripts/update-yarnrc-local.sh [env]` — write `GITHUB_TOKEN` to `.yarnrc.local.yml`
+
+These are reference implementations to copy into consuming repos. Paths default to repo root; pass explicit paths (e.g., `apps/web/.env.local`) as needed.
+
 ## Conventions
 
 - Conventional commits: `type(scope): description` (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
