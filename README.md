@@ -63,6 +63,29 @@ cp .env.example .env
 
 - If you use `.npmrc` locally, make sure it references `${GITHUB_TOKEN}` (and not the raw value) as shown above. We also replaced the old token in `.yarnrc.yml` to read from the environment as well.
 
+#### Avoid re-exporting the token every time (recommended: direnv)
+
+If you want Yarn to work without manually exporting `GITHUB_TOKEN` each session, use [direnv](https://direnv.net) to auto-load `.env`:
+
+```bash
+brew install direnv
+echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
+```
+
+In the repo root, create an untracked `.envrc` (gitignored) with:
+
+```bash
+dotenv
+```
+
+Then allow it once:
+
+```bash
+direnv allow
+```
+
+From then on, entering the repo directory will load `GITHUB_TOKEN` from your `.env` automatically for Yarn/npm without re-exporting.
+
 **Security note:** This project previously included a committed personal access token in `.yarnrc.yml`. Please revoke that token immediately and create a new one with the `read:packages` and `write:packages` scopes. If you need to remove the secret from your git history, follow GitHub's guidance for removing sensitive data from a repository (for example, using `git filter-repo` or the BFG Repo Cleaner), but rotate the token first.
 
 ### Publishing
