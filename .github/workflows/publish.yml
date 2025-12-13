@@ -40,7 +40,7 @@ jobs:
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+        run: echo "dir=$(yarn config get cacheFolder | tail -n1)" >> $GITHUB_OUTPUT
 
       - name: Restore yarn cache
         uses: actions/cache@v4
