@@ -1,0 +1,68 @@
+#!/bin/bash
+# Pre-commit hook with auto-restage for auto-fixable issues
+# This wraps pre-commit to automatically restage files that were modified by hooks
+
+set -e
+
+MAX_RETRIES=2
+RETRY_COUNT=0
+
+# Get list of staged files before running hooks
+get_staged_files() {
+    git diff --cached --name-only --diff-filter=d
+}
+
+# Run pre-commit and handle auto-fixes
+run_pre_commit() {
+    if pre-commit run --hook-stage pre-commit; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Main loop
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    STAGED_BEFORE=$(get_staged_files)
+
+    if run_pre_commit; then
+        # All hooks passed
+        exit 0
+    fi
+
+    # Check if any previously staged files were modified
+    MODIFIED_FILES=""
+    for file in $STAGED_BEFORE; do
+        if [ -f "$file" ] && ! git diff --quiet -- "$file" 2>/dev/null; then
+            MODIFIED_FILES="$MODIFIED_FILES $file"
+        fi
+    done
+
+    if [ -z "$MODIFIED_FILES" ]; then
+        # No files were auto-fixed, genuine failure
+        echo ""
+        echo "❌ Pre-commit hooks failed (no auto-fixes applied)"
+        exit 1
+    fi
+
+    # Re-stage the modified files
+    echo ""
+    echo "🔧 Auto-fixes applied, re-staging files..."
+    for file in $MODIFIED_FILES; do
+        echo "   → $file"
+        git add "$file"
+    done
+
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    echo "🔄 Retrying pre-commit (attempt $((RETRY_COUNT + 1))/$((MAX_RETRIES + 1)))..."
+    echo ""
+done
+
+# If we've exhausted retries, run one final time to show the error
+if ! run_pre_commit; then
+    echo ""
+    echo "❌ Pre-commit hooks still failing after auto-fixes"
+    exit 1
+fi
+
+exit 0

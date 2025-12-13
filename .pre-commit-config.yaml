@@ -1,0 +1,61 @@
+# Pre-commit hooks for Shared Packages monorepo
+# Install: pre-commit install && pre-commit install --hook-type commit-msg
+
+repos:
+  # ── Basic file hygiene ──
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: \.lock$|\.snap$
+      - id: end-of-file-fixer
+        exclude: \.lock$|\.snap$
+      - id: check-yaml
+      - id: check-json
+        exclude: tsconfig.*\.json$  # tsconfig allows comments
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  # ── Biome (linting + formatting) ──
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.0.0-beta.1
+    hooks:
+      - id: biome-check
+        additional_dependencies: ["@biomejs/biome@2.3.8"]
+
+  # ── TypeScript type checking ──
+  - repo: local
+    hooks:
+      - id: tsc-type-check
+        name: typescript type check
+        entry: yarn turbo run build --dry-run -- --noEmit
+        language: system
+        pass_filenames: false
+        types: [ts, tsx]
+        stages: [pre-commit]
+
+  # ── Secrets scanning ──
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: detect secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: yarn\.lock$|\.env\.example$|\.tsbuildinfo$
+
+  # ── Conventional commits ──
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.6.0
+    hooks:
+      - id: conventional-pre-commit
+        name: conventional commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]
+
+# Global exclusions
+exclude: (?x)^(\.turbo/|node_modules/|dist/|build/|coverage/|\.yarn/)

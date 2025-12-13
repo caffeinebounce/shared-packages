@@ -1,120 +1,105 @@
+yarn build
+yarn dev
+yarn lint
+echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
+direnv allow
+yarn changeset
+yarn version-packages
+yarn release
 # Shared Packages
 
-Shared UI components and utilities for Capital Collective projects.
+Reusable packages for Capital Collective projects published to GitHub Packages under the `@caffeinebounce/*` scope. The monorepo uses Turborepo, React 19, TypeScript (strict), Tailwind CSS v4, Biome, Vitest, Tsup, and Changesets.
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
-| `@caffeinebounce/ui` | Shared UI components (Button, Card, Dialog, etc.) |
+| `@caffeinebounce/ui` | Shared UI primitives and blocks (Button, Card, Dialog, layouts) |
+| `@caffeinebounce/identity` | Auth components and handlers |
 | `@caffeinebounce/email` | Email templates and Resend client |
-| `@caffeinebounce/logger` | Logging utilities with Logtail |
 | `@caffeinebounce/ai-assistant` | AI chat panel components |
+| `@caffeinebounce/logger` | Structured logging utilities |
 
-## Installation
+## Requirements & Registry
 
-These packages are published to GitHub Packages. Configure your `.npmrc`:
+- Node.js 20.9+, Yarn 4.11 (Berry)
+- `GITHUB_TOKEN` with `read:packages` and `write:packages`
+- `.npmrc` (or user-level config):
 
 ```ini
 @caffeinebounce:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
 
-Then install:
+## Quick Start
 
 ```bash
-yarn add @caffeinebounce/ui@latest
+cd shared-packages
+yarn install          # Installs deps and runs ./scripts/setup-hooks.sh via prepare
+yarn dev              # Watch mode for all packages
+yarn build            # Type-check & build
+yarn lint             # Biome lint/format check
 ```
 
-## Development
-
-### Prerequisites
-
-- Node.js 20.9+
-- Yarn 4.11.0 (Berry)
-- `GITHUB_TOKEN` environment variable with `read:packages` and `write:packages` scopes
-
-### Setup
+### Day-to-day workflow
 
 ```bash
-# Install dependencies
-yarn install
-
-# Build all packages
-yarn build
-
-# Development mode (watch)
-yarn dev
-
-# Lint
-yarn lint
+git checkout -b feat/my-change
+# edit code
+git commit -m "feat(ui): add Button variant"   # Hooks validate & auto-fix
+yarn changeset                                  # Track version bump
+git commit -m "chore: add changeset"           # Commit the changeset
+git push && open PR                             # CI builds, publish flows after merge
 ```
 
-### Auth token (GitHub Packages)
+## Pre-Commit Hooks
 
-- Copy `.env.example` to `.env` and fill in your token:
+Hooks install automatically via the `prepare` script, or run `./scripts/setup-hooks.sh`.
 
-```bash
-cp .env.example .env
-# edit .env and set GITHUB_TOKEN=ghp_... (do NOT commit `.env`)
-```
+They check and auto-fix:
+- File hygiene (trailing whitespace, EOF, conflict markers)
+- Biome lint/format (auto-fix + re-stage)
+- TypeScript type checks
+- Secrets detection (uses `.secrets.baseline`)
+- Conventional commit message format
 
-- The repository reads the token from the `GITHUB_TOKEN` environment variable. `.env` is ignored by git by default.
+## Versioning, Publishing, and Consumer Updates
 
-- If you use `.npmrc` locally, make sure it references `${GITHUB_TOKEN}` (and not the raw value) as shown above. We also replaced the old token in `.yarnrc.yml` to read from the environment as well.
+1. Create a changeset with `yarn changeset` (choose patch/minor/major).
+2. Merge feature PRs; Changesets action opens a version-bump PR.
+3. Merge the version-bump PR; `publish.yml` builds and publishes to GitHub Packages.
+4. After publish, `publish.yml` dispatches to Compass; Compass `update-shared-packages.yml` updates dependencies, runs lint/build, and opens an update PR.
 
-#### Avoid re-exporting the token every time (recommended: direnv)
-
-If you want Yarn to work without manually exporting `GITHUB_TOKEN` each session, use [direnv](https://direnv.net) to auto-load `.env`:
-
-```bash
-brew install direnv
-echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
-```
-
-In the repo root, create an untracked `.envrc` (gitignored) with:
+Manual publishing (maintainers):
 
 ```bash
-dotenv
-```
 
-Then allow it once:
-
-```bash
-direnv allow
-```
-
-From then on, entering the repo directory will load `GITHUB_TOKEN` from your `.env` automatically for Yarn/npm without re-exporting.
-
-**Security note:** This project previously included a committed personal access token in `.yarnrc.yml`. Please revoke that token immediately and create a new one with the `read:packages` and `write:packages` scopes. If you need to remove the secret from your git history, follow GitHub's guidance for removing sensitive data from a repository (for example, using `git filter-repo` or the BFG Repo Cleaner), but rotate the token first.
-
-### Publishing
-
-We use [Changesets](https://github.com/changesets/changesets) for version management.
-
-```bash
-# Create a changeset (after making changes)
-yarn changeset
-
-# Version packages (CI does this automatically)
-yarn version-packages
-
-# Publish (CI does this on main branch)
 yarn release
 ```
 
-## Usage in Projects
+Compass manual update (if needed):
 
-```typescript
-import { Button, Card, Spinner } from "@caffeinebounce/ui";
-import { sendEmail } from "@caffeinebounce/email";
-import { logger } from "@caffeinebounce/logger";
+```bash
+gh workflow run update-shared-packages.yml --repo caffeinebounce/compass
 ```
 
-## Contributing
+## Docs
 
-1. Create a feature branch
-2. Make changes
-3. Run `yarn changeset` to describe your changes
-4. Submit a PR
-5. After merge, CI will publish new versions
+- Repository overview, quick start, and workflows: this README
+- Detailed system guides: [docs/auto-publish-system.md](docs/auto-publish-system.md), [docs/setup-hooks-and-publish.md](docs/setup-hooks-and-publish.md)
+- Visuals: [docs/ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)
+- Consumer guide (Compass): [../compass/docs/updating-shared-packages.md](../compass/docs/updating-shared-packages.md)
+- Agent/automation guidance: [.github/copilot-instructions.md](.github/copilot-instructions.md)
+
+## Conventions
+
+- Conventional commits: `type(scope): description` (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
+- Strict TypeScript; export new public APIs from package entry points
+- Prefer server-safe code by default; mark client components with `"use client"`
+
+## Support
+
+- Re-run hooks: `./scripts/setup-hooks.sh`
+- Auto-fix formatting: `yarn format`
+- Type errors: `yarn build`
+
