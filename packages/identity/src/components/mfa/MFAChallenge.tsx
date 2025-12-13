@@ -1,6 +1,9 @@
 "use client";
 
-import { MFAChallenge as MFAChallengeUI, type MFAFactor } from "@caffeinebounce/ui";
+import {
+  MFAChallenge as MFAChallengeUI,
+  type MFAFactor,
+} from "@caffeinebounce/ui";
 import type { Factor } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";

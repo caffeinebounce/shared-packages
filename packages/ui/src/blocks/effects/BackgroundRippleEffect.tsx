@@ -63,7 +63,7 @@ export function BackgroundRippleEffect({
           key={`base-${rippleKey}`}
           className={cn(
             "opacity-80",
-            mask && "mask-radial-from-70% mask-radial-at-top"
+            mask && "mask-radial-from-70% mask-radial-at-top",
           )}
           rows={rows}
           cols={cols}

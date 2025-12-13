@@ -1,11 +1,13 @@
 "use client";
 
-import { type DeviceInfo, MFARecovery as MFARecoveryUI } from "@caffeinebounce/ui";
-import { generateDeviceFingerprint } from "../../utils";
+import {
+  type DeviceInfo,
+  MFARecovery as MFARecoveryUI,
+} from "@caffeinebounce/ui";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-
 import type { CreateClientFn } from "../../types";
+import { generateDeviceFingerprint } from "../../utils";
 
 export interface MFARecoveryProps {
   /** Supabase client factory */

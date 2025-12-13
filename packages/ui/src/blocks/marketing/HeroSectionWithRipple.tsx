@@ -38,11 +38,7 @@ export function HeroSectionWithRipple({
       {/* Content layer - pointer-events-none allows clicks through to ripple, 
           but interactive elements (buttons, links) have pointer-events-auto */}
       <div className="relative z-10 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_input]:pointer-events-auto">
-        <HeroSection 
-          {...props} 
-          padding="sm"
-          className={className}
-        />
+        <HeroSection {...props} padding="sm" className={className} />
       </div>
     </div>
   );

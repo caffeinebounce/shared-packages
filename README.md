@@ -102,6 +102,22 @@ Reusable shell scripts for env management and Yarn auth are available in `script
 
 These are reference implementations to copy into consuming repos. Paths default to repo root; pass explicit paths (e.g., `apps/web/.env.local`) as needed.
 
+Examples:
+
+```bash
+# Run with env (repo-root default)
+./scripts/with-env.sh -- yarn dev
+
+# Run with explicit app env
+./scripts/with-env.sh apps/web/.env.local -- yarn build
+
+# Sync envs using explicit paths
+./scripts/sync-env.sh apps/web/.env.example apps/web/.env.local
+
+# Update Yarn auth token from explicit env file
+./scripts/update-yarnrc-local.sh apps/web/.env.local
+```
+
 ## Conventions
 
 - Conventional commits: `type(scope): description` (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)

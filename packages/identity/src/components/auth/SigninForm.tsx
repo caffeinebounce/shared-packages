@@ -1,6 +1,12 @@
 "use client";
 
-import { Button, cn, FieldLabel, Input, PasswordInput } from "@caffeinebounce/ui";
+import {
+  Button,
+  cn,
+  FieldLabel,
+  Input,
+  PasswordInput,
+} from "@caffeinebounce/ui";
 import { AlertCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type ComponentType, useEffect, useRef, useState } from "react";

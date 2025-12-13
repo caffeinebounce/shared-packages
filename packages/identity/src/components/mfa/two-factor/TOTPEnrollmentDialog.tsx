@@ -14,12 +14,12 @@ import {
   InputOTPSlot,
   Label,
 } from "@caffeinebounce/ui";
-import { generateRecoveryCodes } from "../../../utils";
 import type { Factor } from "@supabase/supabase-js";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { AlertTriangle, Check, Copy, Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { CreateClientFn } from "../../../types";
+import { generateRecoveryCodes } from "../../../utils";
 import { ConfirmAccessDialog } from "../../security/ConfirmAccessDialog";
 
 export interface TOTPEnrollmentDialogProps {

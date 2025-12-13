@@ -1,6 +1,11 @@
 "use client";
 
-import { Button, FieldError, FieldLabel, PasswordInput } from "@caffeinebounce/ui";
+import {
+  Button,
+  FieldError,
+  FieldLabel,
+  PasswordInput,
+} from "@caffeinebounce/ui";
 import { type ComponentType, useEffect, useState } from "react";
 
 import type { AuthFormConfig, AuthLinks } from "../../types";

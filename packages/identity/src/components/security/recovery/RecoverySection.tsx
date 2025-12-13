@@ -10,7 +10,6 @@ import {
   Input,
   Label,
 } from "@caffeinebounce/ui";
-import { generateRecoveryCodes } from "../../../utils";
 import {
   AlertTriangle,
   Check,
@@ -22,8 +21,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-
 import type { CreateClientFn } from "../../../types";
+import { generateRecoveryCodes } from "../../../utils";
 import { ConfirmAccessDialog, type MFAFactor } from "../ConfirmAccessDialog";
 
 export interface RecoverySectionProps {
