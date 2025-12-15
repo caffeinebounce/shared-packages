@@ -27,6 +27,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "dev:email": "email dev --dir src/templates",
     "test": "vitest run",
     "test:watch": "vitest",
     "clean": "rm -rf dist",

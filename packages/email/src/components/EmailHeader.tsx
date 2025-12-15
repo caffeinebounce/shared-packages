@@ -1,43 +1,36 @@
 import { Column, Img, Row, Section, Text } from "@react-email/components";
+import type { BrandConfig } from "../types/brand";
+import { defaultBrandConfig } from "../types/brand";
 
-interface EmailHeaderProps {
-  /** URL to the logo image */
-  logoUrl?: string;
-  /** Logo width in pixels */
-  logoWidth?: number;
-  /** Logo height in pixels */
-  logoHeight?: number;
-  /** Alt text for the logo */
-  logoAlt?: string;
+export interface EmailHeaderProps {
+  /** Brand configuration */
+  brand?: Partial<BrandConfig>;
 }
 
 /**
  * Reusable header block for all transactional emails.
- * Displays the Capital Compass logo and brand name.
+ * Displays logo and brand name based on configuration.
  */
-export function EmailHeader({
-  logoUrl = "https://compass.thecapitalcollective.org/logo.png",
-  logoWidth = 56,
-  logoHeight = 56,
-  logoAlt = "Capital Collective",
-}: EmailHeaderProps) {
+export function EmailHeader({ brand = {} }: EmailHeaderProps) {
+  const config = { ...defaultBrandConfig, ...brand };
+
   return (
     <Section style={headerSection}>
       <Row>
         <Column align="center">
           <Img
-            src={logoUrl}
-            width={logoWidth}
-            height={logoHeight}
-            alt={logoAlt}
+            src={config.logoUrl}
+            width={config.logoWidth || 56}
+            height={config.logoHeight || 56}
+            alt={config.logoAlt || config.name}
             style={logo}
           />
         </Column>
       </Row>
       <Row>
         <Column align="center">
-          <Text style={brandName}>CAPITAL COMPASS</Text>
-          <Text style={brandTagline}>by The Capital Collective</Text>
+          <Text style={brandName}>{config.name.toUpperCase()}</Text>
+          {config.tagline && <Text style={brandTagline}>{config.tagline}</Text>}
         </Column>
       </Row>
     </Section>
@@ -59,7 +52,7 @@ const logo = {
 };
 
 const brandName = {
-  color: "#18181b", // zinc-900
+  color: "#18181b",
   fontSize: "14px",
   fontWeight: "800",
   letterSpacing: "0.12em",
@@ -68,7 +61,7 @@ const brandName = {
 };
 
 const brandTagline = {
-  color: "#71717a", // zinc-500
+  color: "#71717a",
   fontSize: "12px",
   margin: "2px 0 0 0",
 };

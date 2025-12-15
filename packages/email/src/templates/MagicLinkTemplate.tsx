@@ -1,6 +1,6 @@
 import { BaseEmailLayout } from "../components/BaseEmailLayout";
-import { EmailFooter } from "../components/EmailFooter";
 import { EmailHeader } from "../components/EmailHeader";
+import { EmailFooter } from "../components/EmailFooter";
 import {
   EmailButton,
   EmailContent,
@@ -10,9 +10,9 @@ import {
 import type { BrandConfig, ColorPalette } from "../types/brand";
 import { defaultBrandConfig, defaultColors } from "../types/brand";
 
-export interface VerifyEmailTemplateProps {
-  /** The verification link */
-  verificationLink: string;
+export interface MagicLinkTemplateProps {
+  /** The magic link for signing in */
+  magicLink: string;
   /** Brand configuration */
   brand?: Partial<BrandConfig>;
   /** Color palette overrides */
@@ -28,18 +28,18 @@ export interface VerifyEmailTemplateProps {
 }
 
 /**
- * Generic email verification template.
+ * Generic magic link (passwordless sign-in) email template.
  * All brand-specific content is configurable via props.
  */
-export function VerifyEmailTemplate({
-  verificationLink,
+export function MagicLinkTemplate({
+  magicLink,
   brand = {},
   colors = {},
-  heading = "Verify your email address",
+  heading = "Your sign-in link",
   bodyText,
-  buttonText = "Verify Email Address",
-  expiryText = "This link will expire in 24 hours.",
-}: VerifyEmailTemplateProps) {
+  buttonText,
+  expiryText = "This link will expire in 1 hour.",
+}: MagicLinkTemplateProps) {
   const config = { ...defaultBrandConfig, ...brand };
   // Use brand's primaryColor for button if not explicitly overridden
   const palette = {
@@ -48,11 +48,12 @@ export function VerifyEmailTemplate({
     ...colors,
   };
 
-  const defaultBodyText = `Thanks for joining ${config.name}! Please verify your email to get started.`;
+  const defaultBodyText = `Click the button below to securely sign in to your ${config.name} account.`;
+  const defaultButtonText = `Sign In to ${config.name}`;
 
   return (
     <BaseEmailLayout
-      preview={`Verify your email address for ${config.name}`}
+      preview={`Your sign-in link for ${config.name}`}
       colors={palette}
     >
       <EmailHeader brand={config} />
@@ -62,8 +63,8 @@ export function VerifyEmailTemplate({
 
         <EmailText colors={palette}>{bodyText || defaultBodyText}</EmailText>
 
-        <EmailButton href={verificationLink} colors={palette}>
-          {buttonText}
+        <EmailButton href={magicLink} colors={palette}>
+          {buttonText || defaultButtonText}
         </EmailButton>
 
         <EmailText variant="expiry" colors={palette}>
@@ -73,10 +74,10 @@ export function VerifyEmailTemplate({
 
       <EmailFooter
         brand={config}
-        reasonText={`You received this email because you signed up for ${config.name}.`}
+        reasonText={`You received this email because a sign-in was requested for your ${config.name} account.`}
       />
     </BaseEmailLayout>
   );
 }
 
-export default VerifyEmailTemplate;
+export default MagicLinkTemplate;
