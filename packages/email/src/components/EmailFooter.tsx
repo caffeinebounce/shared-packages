@@ -41,22 +41,46 @@ export function EmailFooter({ brand = {}, reasonText }: EmailFooterProps) {
         <Text style={socialContainer}>
           {config.socialLinks.website && (
             <Link href={config.socialLinks.website} style={iconLink}>
-              <Img src={icons.website} width="20" height="20" alt="Website" style={iconStyle} />
+              <Img
+                src={icons.website}
+                width="20"
+                height="20"
+                alt="Website"
+                style={iconStyle}
+              />
             </Link>
           )}
           {config.socialLinks.twitter && (
             <Link href={config.socialLinks.twitter} style={iconLink}>
-              <Img src={icons.twitter} width="20" height="20" alt="Twitter" style={iconStyle} />
+              <Img
+                src={icons.twitter}
+                width="20"
+                height="20"
+                alt="Twitter"
+                style={iconStyle}
+              />
             </Link>
           )}
           {config.socialLinks.linkedin && (
             <Link href={config.socialLinks.linkedin} style={iconLink}>
-              <Img src={icons.linkedin} width="20" height="20" alt="LinkedIn" style={iconStyle} />
+              <Img
+                src={icons.linkedin}
+                width="20"
+                height="20"
+                alt="LinkedIn"
+                style={iconStyle}
+              />
             </Link>
           )}
           {config.socialLinks.github && (
             <Link href={config.socialLinks.github} style={iconLink}>
-              <Img src={icons.github} width="20" height="20" alt="GitHub" style={iconStyle} />
+              <Img
+                src={icons.github}
+                width="20"
+                height="20"
+                alt="GitHub"
+                style={iconStyle}
+              />
             </Link>
           )}
         </Text>

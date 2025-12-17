@@ -86,15 +86,24 @@ export function createAuthCallbackHandler({
         } = await supabase.auth.getUser();
 
         if (user) {
-          // Fetch user's admin role from profiles
+          // Fetch user's role and admin approval status from profiles
           const { data: profile } = await supabase
             .from("profiles")
-            .select("admin_role")
+            .select("role, admin_approval_status")
             .eq("id", user.id)
             .single();
 
-          // If user has an admin role, redirect to admin dashboard
-          if (profile?.admin_role) {
+          // Check if user has an admin role (admin:super or admin:program)
+          const isAdmin = profile?.role?.startsWith("admin:");
+          const isPendingApproval =
+            profile?.admin_approval_status === "pending";
+
+          if (isAdmin) {
+            // If admin is pending approval, redirect to pending page
+            if (isPendingApproval) {
+              return NextResponse.redirect(`${origin}/admin-pending`);
+            }
+
             // Check if we should use admin subdomain
             const url = new URL(origin);
             const hostname = url.hostname;

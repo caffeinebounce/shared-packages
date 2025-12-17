@@ -1,6 +1,6 @@
 import { BaseEmailLayout } from "../components/BaseEmailLayout";
-import { EmailHeader } from "../components/EmailHeader";
 import { EmailFooter } from "../components/EmailFooter";
+import { EmailHeader } from "../components/EmailHeader";
 import {
   EmailButton,
   EmailContent,

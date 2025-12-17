@@ -193,6 +193,19 @@ export {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./components/ui/collapsible";
+export type { ComboboxOption, ComboboxProps } from "./components/ui/combobox";
+export { Combobox } from "./components/ui/combobox";
+export {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "./components/ui/command";
 // Layout components
 export type { ContainerProps, ContainerSize } from "./components/ui/container";
 export { Container } from "./components/ui/container";
@@ -259,6 +272,12 @@ export {
   extendedPasswordRules,
   PasswordRequirements,
 } from "./components/ui/password-requirements";
+export {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+  PopoverTrigger,
+} from "./components/ui/popover";
 export { Progress } from "./components/ui/progress";
 export type { ProgressBarProps } from "./components/ui/progress-bar";
 export { ProgressBar } from "./components/ui/progress-bar";

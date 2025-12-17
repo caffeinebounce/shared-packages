@@ -109,7 +109,9 @@ export function EmailText({
     },
   };
 
-  return <Text style={{ ...variantStyles[variant], ...style }}>{children}</Text>;
+  return (
+    <Text style={{ ...variantStyles[variant], ...style }}>{children}</Text>
+  );
 }
 
 // =============================================================================
@@ -128,7 +130,11 @@ export interface EmailHeadingProps {
 /**
  * Styled heading for emails.
  */
-export function EmailHeading({ children, as = "h1", style }: EmailHeadingProps) {
+export function EmailHeading({
+  children,
+  as = "h1",
+  style,
+}: EmailHeadingProps) {
   const headingStyles: Record<string, CSSProperties> = {
     h1: {
       color: "#18181b",
@@ -168,7 +174,10 @@ export interface EmailContentProps {
 /**
  * Content section wrapper.
  */
-export function EmailContent({ children, padding = "0 20px" }: EmailContentProps) {
+export function EmailContent({
+  children,
+  padding = "0 20px",
+}: EmailContentProps) {
   return <Section style={{ padding }}>{children}</Section>;
 }
 
@@ -197,10 +206,23 @@ export function EmailLinkText({
 
   return (
     <>
-      <Text style={{ color: palette.textMuted, fontSize: "12px", margin: "24px 0 4px 0" }}>
+      <Text
+        style={{
+          color: palette.textMuted,
+          fontSize: "12px",
+          margin: "24px 0 4px 0",
+        }}
+      >
         {label}
       </Text>
-      <Text style={{ color: palette.link, fontSize: "12px", wordBreak: "break-all", margin: "0 0 16px 0" }}>
+      <Text
+        style={{
+          color: palette.link,
+          fontSize: "12px",
+          wordBreak: "break-all",
+          margin: "0 0 16px 0",
+        }}
+      >
         <Link href={href} style={{ color: palette.link }}>
           {href}
         </Link>

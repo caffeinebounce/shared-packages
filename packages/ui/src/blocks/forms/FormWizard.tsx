@@ -79,6 +79,10 @@ export interface FormWizardProps {
   enableKeyboardNavigation?: boolean;
   /** Scope keyboard navigation to elements with role="dialog" */
   scopeToDialog?: boolean;
+  /** Callback when Escape is pressed (for cancel functionality) */
+  onCancel?: () => void;
+  /** Callback when Cmd/Ctrl+Enter is pressed (for submit functionality) */
+  onSubmit?: () => void;
   /** The step content to render */
   children: ReactNode;
   /** Additional class name for the container */
@@ -109,6 +113,8 @@ export interface FormWizardProps {
  *     status === "error" ? "Missing required fields" : null
  *   }
  *   enableKeyboardNavigation
+ *   onCancel={() => setDialogOpen(false)}
+ *   onSubmit={handleFormSubmit}
  * >
  *   {currentStep === 0 && <BasicInfoFields />}
  *   {currentStep === 1 && <DetailsFields />}
@@ -123,6 +129,8 @@ export function FormWizard({
   getStepTooltip,
   enableKeyboardNavigation = true,
   scopeToDialog = true,
+  onCancel,
+  onSubmit,
   children,
   className,
 }: FormWizardProps) {
@@ -155,6 +163,7 @@ export function FormWizard({
   }, [currentStep, isFirstStep, onStepChange]);
 
   // Keyboard navigation: Alt/Option+ArrowLeft/ArrowRight for Back/Next
+  // Escape for cancel, Cmd/Ctrl+Enter for submit
   useEffect(() => {
     if (!enableKeyboardNavigation) return;
 
@@ -166,6 +175,23 @@ export function FormWizard({
         if (!isInDialog) return;
       }
 
+      // Escape to cancel
+      if (e.key === "Escape" && onCancel) {
+        e.preventDefault();
+        e.stopPropagation();
+        onCancel();
+        return;
+      }
+
+      // Cmd/Ctrl+Enter to submit
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && onSubmit) {
+        e.preventDefault();
+        e.stopPropagation();
+        onSubmit();
+        return;
+      }
+
+      // Alt+Arrow navigation
       if (!e.altKey) return;
 
       if (e.key === "ArrowLeft" && !isFirstStep) {
@@ -188,6 +214,8 @@ export function FormWizard({
     isLastStep,
     handleBack,
     handleNext,
+    onCancel,
+    onSubmit,
   ]);
 
   /**

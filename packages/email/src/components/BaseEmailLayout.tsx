@@ -1,10 +1,4 @@
-import {
-  Body,
-  Container,
-  Head,
-  Html,
-  Preview,
-} from "@react-email/components";
+import { Body, Container, Head, Html, Preview } from "@react-email/components";
 import type { ReactNode } from "react";
 import type { ColorPalette } from "../types/brand";
 import { defaultColors } from "../types/brand";
@@ -48,7 +42,9 @@ export function BaseEmailLayout({
       </Head>
       <Preview>{preview}</Preview>
       <Body style={{ ...main, backgroundColor: palette.background }}>
-        <Container style={{ ...container, maxWidth, backgroundColor: palette.surface }}>
+        <Container
+          style={{ ...container, maxWidth, backgroundColor: palette.surface }}
+        >
           {children}
         </Container>
       </Body>
