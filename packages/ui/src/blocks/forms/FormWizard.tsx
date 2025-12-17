@@ -83,6 +83,12 @@ export interface FormWizardProps {
   onCancel?: () => void;
   /** Callback when Cmd/Ctrl+Enter is pressed (for submit functionality) */
   onSubmit?: () => void;
+  /**
+   * CSS selector for the element to auto-focus when the wizard mounts.
+   * Useful for focusing the first input field in a dialog.
+   * @example 'input[name="name"]' or '[role="dialog"] input:first-of-type'
+   */
+  autoFocusSelector?: string;
   /** The step content to render */
   children: ReactNode;
   /** Additional class name for the container */
@@ -131,12 +137,26 @@ export function FormWizard({
   scopeToDialog = true,
   onCancel,
   onSubmit,
+  autoFocusSelector,
   children,
   className,
 }: FormWizardProps) {
   const totalSteps = steps.length;
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === totalSteps - 1;
+
+  // Auto-focus the specified element on mount
+  useEffect(() => {
+    if (!autoFocusSelector) return;
+
+    // Use setTimeout to ensure the DOM is ready (especially in dialogs)
+    const timeoutId = setTimeout(() => {
+      const element = document.querySelector<HTMLElement>(autoFocusSelector);
+      element?.focus();
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
+  }, [autoFocusSelector]);
 
   // Calculate step statuses for all steps
   const stepStatuses = useMemo((): StepStatus[] => {
