@@ -1,10 +1,8 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
 import { cn } from "../../utils";
 
 export interface DataTableToolbarProps extends React.ComponentProps<"div"> {
@@ -14,10 +12,100 @@ export interface DataTableToolbarProps extends React.ComponentProps<"div"> {
   searchPlaceholder?: string;
   /** Callback when search value changes */
   onSearchChange?: (value: string) => void;
-  /** Whether filters are currently applied */
-  isFiltered?: boolean;
-  /** Callback to reset all filters */
-  onResetFilters?: () => void;
+}
+
+/**
+ * Expandable search input for the data table.
+ * Starts as a search icon and expands into a full input on click.
+ */
+export function DataTableSearch({
+  searchValue = "",
+  searchPlaceholder = "Search...",
+  onSearchChange,
+  className,
+}: {
+  searchValue?: string;
+  searchPlaceholder?: string;
+  onSearchChange?: (value: string) => void;
+  className?: string;
+}) {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // Auto-expand if there's a search value
+  React.useEffect(() => {
+    if (searchValue && !isExpanded) {
+      setIsExpanded(true);
+    }
+  }, [searchValue, isExpanded]);
+
+  // Focus input when expanded
+  React.useEffect(() => {
+    if (isExpanded && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isExpanded]);
+
+  const handleBlur = () => {
+    // Only collapse if empty
+    if (!searchValue) {
+      setIsExpanded(false);
+    }
+  };
+
+  const handleClear = () => {
+    onSearchChange?.("");
+    setIsExpanded(false);
+  };
+
+  return (
+    <div className={cn("relative flex items-center", className)}>
+      <div
+        className={cn(
+          "flex items-center rounded-md border border-transparent transition-all duration-200 ease-out",
+          isExpanded
+            ? "w-48 border-input bg-background"
+            : "w-7 hover:bg-accent/50 cursor-pointer",
+        )}
+      >
+        <button
+          type="button"
+          onClick={() => !isExpanded && setIsExpanded(true)}
+          className={cn(
+            "flex items-center justify-center shrink-0 transition-colors",
+            isExpanded ? "size-7 cursor-default" : "size-7",
+          )}
+          aria-label={isExpanded ? undefined : "Search"}
+        >
+          <Search className="size-4 text-muted-foreground" />
+        </button>
+
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder={searchPlaceholder}
+          value={searchValue}
+          onChange={(e) => onSearchChange?.(e.target.value)}
+          onBlur={handleBlur}
+          className={cn(
+            "h-7 bg-transparent text-sm outline-none placeholder:text-muted-foreground transition-all duration-200",
+            isExpanded ? "w-full pr-7 opacity-100" : "w-0 opacity-0",
+          )}
+        />
+
+        {isExpanded && searchValue && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute right-1.5 flex items-center justify-center size-5 rounded-sm hover:bg-accent/50"
+            aria-label="Clear search"
+          >
+            <X className="size-3.5 text-muted-foreground" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -28,8 +116,6 @@ export function DataTableToolbar({
   searchValue = "",
   searchPlaceholder = "Search...",
   onSearchChange,
-  isFiltered = false,
-  onResetFilters,
   className,
   children,
   ...props
@@ -39,36 +125,19 @@ export function DataTableToolbar({
       role="toolbar"
       aria-orientation="horizontal"
       className={cn(
-        "flex w-full items-start justify-between gap-2 p-1",
+        "flex w-full items-center justify-end gap-1 px-1",
         className,
       )}
       {...props}
     >
-      <div className="flex flex-1 flex-wrap items-center gap-2">
-        {onSearchChange && (
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-            <Input
-              placeholder={searchPlaceholder}
-              value={searchValue}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="h-9 w-[150px] pl-8 lg:w-[250px]"
-            />
-          </div>
-        )}
-        {children}
-        {isFiltered && onResetFilters && (
-          <Button
-            aria-label="Reset filters"
-            variant="ghost"
-            onClick={onResetFilters}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X className="ml-2 size-4" />
-          </Button>
-        )}
-      </div>
+      {onSearchChange && (
+        <DataTableSearch
+          searchValue={searchValue}
+          searchPlaceholder={searchPlaceholder}
+          onSearchChange={onSearchChange}
+        />
+      )}
+      {children}
     </div>
   );
 }

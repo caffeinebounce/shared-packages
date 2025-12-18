@@ -1,14 +1,13 @@
 "use client";
 
 import { Check, ChevronsUpDown, Plus } from "lucide-react";
-import type * as React from "react";
 import {
+  type KeyboardEvent,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type KeyboardEvent,
 } from "react";
 
 import { cn } from "../../utils";
@@ -169,7 +168,13 @@ export function Combobox({
         handleCreateNew();
       }
     },
-    [allowCreate, exactMatch, filteredOptions.length, searchValue, handleCreateNew],
+    [
+      allowCreate,
+      exactMatch,
+      filteredOptions.length,
+      searchValue,
+      handleCreateNew,
+    ],
   );
 
   return (
@@ -255,22 +260,25 @@ export function Combobox({
                 </CommandItem>
               ))}
             </CommandGroup>
-            {allowCreate && searchValue && !exactMatch && filteredOptions.length > 0 && (
-              <>
-                <CommandSeparator />
-                <CommandGroup>
-                  <CommandItem
-                    onSelect={handleCreateNew}
-                    className="cursor-pointer"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    <span>
-                      {createLabel}: &quot;{searchValue}&quot;
-                    </span>
-                  </CommandItem>
-                </CommandGroup>
-              </>
-            )}
+            {allowCreate &&
+              searchValue &&
+              !exactMatch &&
+              filteredOptions.length > 0 && (
+                <>
+                  <CommandSeparator />
+                  <CommandGroup>
+                    <CommandItem
+                      onSelect={handleCreateNew}
+                      className="cursor-pointer"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      <span>
+                        {createLabel}: &quot;{searchValue}&quot;
+                      </span>
+                    </CommandItem>
+                  </CommandGroup>
+                </>
+              )}
           </CommandList>
         </Command>
       </PopoverContent>

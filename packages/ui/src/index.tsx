@@ -14,22 +14,35 @@ export type {
 } from "./blocks/auth";
 export { MFAChallenge, MFARecovery, SignOutButton } from "./blocks/auth";
 export type {
+  ColumnType,
+  DataTableColumnFilterProps,
   DataTableColumnHeaderProps,
+  DataTableColumnMeta,
+  DataTableFilter,
+  DataTableFilterBadgesProps,
   DataTablePaginationProps,
   DataTableProps,
   DataTableRowAction,
   DataTableRowActionsProps,
   DataTableSkeletonProps,
+  DataTableTab,
   DataTableToolbarProps,
+  DataTableTopperProps,
   DataTableViewOptionsProps,
+  FilterOption,
+  FilterType,
 } from "./blocks/data-table";
 export {
   DataTable,
+  DataTableColumnFilter,
   DataTableColumnHeader,
+  DataTableFilterBadges,
   DataTablePagination,
   DataTableRowActions,
+  DataTableSearch,
   DataTableSkeleton,
   DataTableToolbar,
+  DataTableTopper,
   DataTableViewOptions,
 } from "./blocks/data-table";
 export type { BackgroundRippleEffectProps } from "./blocks/effects";

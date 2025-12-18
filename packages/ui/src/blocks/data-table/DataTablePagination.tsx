@@ -64,7 +64,7 @@ export function DataTablePagination({
       )}
       {...props}
     >
-      <div className="flex-1 whitespace-nowrap text-sm text-muted-foreground">
+      <div className="flex-1 whitespace-nowrap text-xs font-light text-muted-foreground">
         {selectedCount > 0 ? (
           <>
             {selectedCount} of {totalCount ?? pageCount * pageSize} row(s)
@@ -76,7 +76,9 @@ export function DataTablePagination({
       </div>
       <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
         <div className="flex items-center space-x-2">
-          <p className="whitespace-nowrap text-sm font-medium">Rows per page</p>
+          <p className="whitespace-nowrap text-xs font-light text-muted-foreground">
+            Rows per page
+          </p>
           <Select
             value={`${pageSize}`}
             onValueChange={(value) => onPageSizeChange(Number(value))}
@@ -93,7 +95,7 @@ export function DataTablePagination({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+        <div className="flex w-[100px] items-center justify-center text-xs font-light text-muted-foreground">
           Page {page} of {pageCount}
         </div>
         <div className="flex items-center space-x-2">
