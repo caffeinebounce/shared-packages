@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import { Plus, X } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 
 import {
   DropdownMenu,
@@ -86,9 +86,9 @@ export function DataTableFilterBadges({
             >
               {filter.icon && (
                 <span className="text-muted-foreground shrink-0 [&>svg]:size-3">
-                  {typeof filter.icon === 'function' 
-                    ? (() => { const Icon = filter.icon as LucideIcon; return <Icon className="size-3" />; })()
-                    : filter.icon}
+                  {React.isValidElement(filter.icon) 
+                    ? filter.icon
+                    : (() => { const Icon = filter.icon as LucideIcon; return <Icon className="size-3" />; })()}
                 </span>
               )}
               <span className="text-muted-foreground">{filter.label}</span>
