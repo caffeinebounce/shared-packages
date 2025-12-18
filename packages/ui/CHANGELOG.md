@@ -1,5 +1,11 @@
 # @caffeinebounce/ui
 
+## 0.8.6
+
+### Patch Changes
+
+- c2d60cf: Fix icon rendering in filter badges - use React.isValidElement to detect already-rendered React elements vs Lucide forwardRef components
+
 ## 0.8.5
 
 ### Patch Changes
