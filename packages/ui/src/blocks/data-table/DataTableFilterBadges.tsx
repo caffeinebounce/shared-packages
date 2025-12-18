@@ -1,5 +1,6 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import { Plus, X } from "lucide-react";
 import type * as React from "react";
 
@@ -24,8 +25,8 @@ export interface DataTableFilter {
   value: string;
   /** Raw/underlying value for the filter */
   rawValue?: string;
-  /** Optional icon to show */
-  icon?: React.ReactNode;
+  /** Optional icon to show (can be a React element or a Lucide icon component) */
+  icon?: React.ReactNode | LucideIcon;
   /** Underlying column id (optional) */
   columnId?: string;
   /** Filter UI type */
@@ -85,7 +86,9 @@ export function DataTableFilterBadges({
             >
               {filter.icon && (
                 <span className="text-muted-foreground shrink-0 [&>svg]:size-3">
-                  {filter.icon}
+                  {typeof filter.icon === 'function' 
+                    ? (() => { const Icon = filter.icon as LucideIcon; return <Icon className="size-3" />; })()
+                    : filter.icon}
                 </span>
               )}
               <span className="text-muted-foreground">{filter.label}</span>
