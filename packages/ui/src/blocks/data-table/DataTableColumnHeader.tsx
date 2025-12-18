@@ -180,20 +180,18 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn("flex items-center -mx-2", className)}>
+    <div className={cn("flex items-center h-full -mx-2 -my-0", className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
             className={cn(
-              "flex items-center gap-1.5 w-full px-2 py-1 text-left",
+              "flex items-center gap-1.5 w-full h-10 px-2 text-left",
               "hover:bg-accent/50 data-[state=open]:bg-accent transition-colors",
-              "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+              "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             )}
           >
-            {Icon && (
-              <Icon className="size-3.5 text-muted-foreground shrink-0" />
-            )}
+            {Icon && <Icon className="size-3.5 text-muted-foreground shrink-0" />}
             <span className="text-xs font-medium">{title}</span>
             {/* Show filter indicator when column is filtered */}
             {isFiltered && <Filter className="size-3 text-primary shrink-0" />}
@@ -273,10 +271,7 @@ export function DataTableColumnHeader<TData, TValue>({
                 {isSorted && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => column.clearSorting()}
-                      className="text-xs"
-                    >
+                    <DropdownMenuItem onClick={() => column.clearSorting()} className="text-xs">
                       Clear sort
                     </DropdownMenuItem>
                   </>
@@ -289,10 +284,7 @@ export function DataTableColumnHeader<TData, TValue>({
           {canHide && (
             <>
               {canSort && <DropdownMenuSeparator />}
-              <DropdownMenuItem
-                onClick={() => column.toggleVisibility(false)}
-                className="text-xs"
-              >
+              <DropdownMenuItem onClick={() => column.toggleVisibility(false)} className="text-xs">
                 <EyeOff className="mr-2 size-3.5 text-muted-foreground" />
                 Hide
               </DropdownMenuItem>
