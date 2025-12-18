@@ -180,13 +180,13 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn("flex items-center h-full -mx-2 -my-0", className)}>
+    <div className={cn("flex h-full", className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
             className={cn(
-              "flex items-center gap-1.5 w-full h-10 px-2 text-left",
+              "flex items-center gap-1.5 w-full h-full px-2 text-left cursor-pointer",
               "hover:bg-accent/50 data-[state=open]:bg-accent transition-colors",
               "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             )}

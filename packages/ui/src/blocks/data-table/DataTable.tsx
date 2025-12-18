@@ -24,6 +24,9 @@ import {
 /** Display density mode for the data table */
 export type DataTableDensity = "compact" | "comfy";
 
+/** Font size for data table content */
+export type DataTableFontSize = "xs" | "sm" | "md" | "lg";
+
 export interface DataTableProps<TData, TValue>
   extends React.ComponentProps<"div"> {
   /** TanStack Table instance */
@@ -46,6 +49,8 @@ export interface DataTableProps<TData, TValue>
   onAddFilter?: () => void;
   /** Display density mode - affects row/cell padding */
   density?: DataTableDensity;
+  /** Font size for table content */
+  fontSize?: DataTableFontSize;
   /** Enable column resizing by dragging */
   enableColumnResizing?: boolean;
 }
@@ -79,61 +84,63 @@ export function DataTable<TData, TValue>({
   onClearAllFilters,
   onAddFilter,
   density = "comfy",
+  fontSize = "sm",
   enableColumnResizing = false,
   className,
   children,
   ...props
 }: DataTableProps<TData, TValue>) {
-  // Density-based classes - compact uses minimal padding
-  const cellPadding = density === "compact" ? "px-2 py-1" : "px-4 py-2";
-  const headerPadding = density === "compact" ? "px-2 py-0" : "px-4 py-0";
+  // Density-based classes - compact is tighter, comfy has more breathing room
+  const cellPadding = density === "compact" ? "px-1.5 py-0.5" : "px-3 py-2";
+  const headerHeight = density === "compact" ? "h-8" : "h-10";
+  
+  // Font size classes
+  const fontSizeClass = {
+    xs: "text-[10px]",
+    sm: "text-xs",
+    md: "text-sm",
+    lg: "text-base",
+  }[fontSize];
 
   // Column resizing state
-  const [columnSizing, setColumnSizing] = React.useState<
-    Record<string, number>
-  >({});
-  const [resizingColumn, setResizingColumn] = React.useState<string | null>(
-    null,
-  );
+  const [columnSizing, setColumnSizing] = React.useState<Record<string, number>>({});
+  const [resizingColumn, setResizingColumn] = React.useState<string | null>(null);
 
   // Handle resize start - track initial position for smooth dragging
-  const handleResizeStart = React.useCallback(
-    (columnId: string, startX: number, startWidth: number) => {
-      setResizingColumn(columnId);
+  const handleResizeStart = React.useCallback((columnId: string, startX: number, startWidth: number) => {
+    setResizingColumn(columnId);
+    
+    // Store the offset between mouse and column edge
+    let lastX = startX;
+    let currentWidth = startWidth;
 
-      // Store the offset between mouse and column edge
-      let lastX = startX;
-      let currentWidth = startWidth;
+    const handleMouseMove = (e: MouseEvent) => {
+      // Calculate delta from last position for smoother tracking
+      const delta = e.clientX - lastX;
+      currentWidth = Math.max(30, currentWidth + delta);
+      lastX = e.clientX;
+      
+      // Use requestAnimationFrame for smoother updates
+      requestAnimationFrame(() => {
+        setColumnSizing(prev => ({ ...prev, [columnId]: currentWidth }));
+      });
+    };
 
-      const handleMouseMove = (e: MouseEvent) => {
-        // Calculate delta from last position for smoother tracking
-        const delta = e.clientX - lastX;
-        currentWidth = Math.max(30, currentWidth + delta);
-        lastX = e.clientX;
+    const handleMouseUp = () => {
+      setResizingColumn(null);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
 
-        // Use requestAnimationFrame for smoother updates
-        requestAnimationFrame(() => {
-          setColumnSizing((prev) => ({ ...prev, [columnId]: currentWidth }));
-        });
-      };
-
-      const handleMouseUp = () => {
-        setResizingColumn(null);
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-        document.body.style.cursor = "";
-        document.body.style.userSelect = "";
-      };
-
-      // Prevent text selection while dragging
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
-
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-    },
-    [],
-  );
+    // Prevent text selection while dragging
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  }, []);
 
   return (
     <div
@@ -155,7 +162,7 @@ export function DataTable<TData, TValue>({
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-md border mx-1">
+      <div className={cn("overflow-hidden rounded-md border mx-1", fontSizeClass)}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -169,16 +176,13 @@ export function DataTable<TData, TValue>({
                       key={header.id}
                       colSpan={header.colSpan}
                       className={cn(
-                        headerPadding,
+                        "p-0", // No padding - header button handles all styling
+                        headerHeight,
                         "relative",
-                        !isLastColumn && "border-r border-border/30",
+                        !isLastColumn && "border-r border-border/30"
                       )}
                       style={{
-                        width:
-                          columnWidth ??
-                          (header.getSize() !== 150
-                            ? header.getSize()
-                            : undefined),
+                        width: columnWidth ?? (header.getSize() !== 150 ? header.getSize() : undefined),
                         minWidth: columnWidth ? columnWidth : undefined,
                       }}
                     >
@@ -197,17 +201,13 @@ export function DataTable<TData, TValue>({
                             e.preventDefault();
                             const th = e.currentTarget.parentElement;
                             if (th) {
-                              handleResizeStart(
-                                header.id,
-                                e.clientX,
-                                th.offsetWidth,
-                              );
+                              handleResizeStart(header.id, e.clientX, th.offsetWidth);
                             }
                           }}
                           className={cn(
                             "absolute right-0 top-0 h-full w-1 cursor-col-resize border-0 bg-transparent p-0",
                             "hover:bg-primary/30 transition-colors",
-                            resizingColumn === header.id && "bg-primary/50",
+                            resizingColumn === header.id && "bg-primary/50"
                           )}
                         />
                       )}
@@ -225,8 +225,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell, index) => {
-                    const isLastColumn =
-                      index === row.getVisibleCells().length - 1;
+                    const isLastColumn = index === row.getVisibleCells().length - 1;
                     const columnWidth = columnSizing[cell.column.id];
 
                     return (
@@ -235,7 +234,7 @@ export function DataTable<TData, TValue>({
                         className={cn(
                           cellPadding,
                           "whitespace-nowrap overflow-hidden",
-                          !isLastColumn && "border-r border-border/30",
+                          !isLastColumn && "border-r border-border/30"
                         )}
                         style={{
                           width: columnWidth,

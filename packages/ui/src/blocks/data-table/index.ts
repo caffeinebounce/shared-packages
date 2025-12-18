@@ -1,8 +1,4 @@
-export {
-  DataTable,
-  type DataTableDensity,
-  type DataTableProps,
-} from "./DataTable";
+export { DataTable, type DataTableDensity, type DataTableFontSize, type DataTableProps } from "./DataTable";
 export {
   DataTableColumnFilter,
   DataTableColumnFilterContent,
@@ -17,10 +13,7 @@ export {
   type DataTableColumnHeaderProps,
   type DataTableColumnMeta,
 } from "./DataTableColumnHeader";
-export {
-  DataTableColumnMenuSub,
-  type DataTableColumnMenuSubProps,
-} from "./DataTableColumnMenuSub";
+export { DataTableColumnMenuSub, type DataTableColumnMenuSubProps } from "./DataTableColumnMenuSub";
 export {
   type DataTableFilter,
   DataTableFilterBadges,
