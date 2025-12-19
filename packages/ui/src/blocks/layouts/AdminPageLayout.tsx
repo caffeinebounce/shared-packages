@@ -46,7 +46,7 @@ export function AdminPageLayout({
   const showHeader = Boolean(title || description || actions);
 
   return (
-    <div className={cn("flex flex-1 flex-col gap-4 p-4", className)}>
+    <div className={cn("flex flex-1 flex-col gap-4 p-4 min-w-0", className)}>
       {showHeader && (
         <div className="flex items-center justify-between">
           <div>

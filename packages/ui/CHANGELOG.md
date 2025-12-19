@@ -1,5 +1,11 @@
 # @caffeinebounce/ui
 
+## 0.9.10
+
+### Patch Changes
+
+- Add min-w-0 to SidebarInset and AdminPageLayout to prevent overflow
+
 ## 0.9.9
 
 ### Patch Changes
