@@ -1,4 +1,6 @@
 // Blocks - composed UI components
+
+export { toast } from "sonner";
 export type {
   ClarityAnalyticsProps,
   GoogleAnalyticsProps,
@@ -359,7 +361,6 @@ export {
 } from "./components/ui/sidebar";
 export { Skeleton } from "./components/ui/skeleton";
 export { Toaster } from "./components/ui/sonner";
-export { toast } from "sonner";
 export type { SpinnerProps } from "./components/ui/spinner";
 export { Spinner, spinnerVariants } from "./components/ui/spinner";
 export type { StepperProps, StepperStep } from "./components/ui/stepper";

@@ -55,7 +55,7 @@
     }
   },
   "dependencies": {
-    "@caffeinebounce/ui": "^0.4.0",
+    "@caffeinebounce/ui": "^0.9.10",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.49.4",
     "input-otp": "^1.4.2",

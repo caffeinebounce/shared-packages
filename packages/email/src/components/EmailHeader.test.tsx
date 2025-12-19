@@ -18,7 +18,9 @@ describe("EmailHeader", () => {
 
   it("renders with custom logo URL", () => {
     const { container } = render(
-      <EmailHeader brand={{ logoUrl: "https://example.com/custom-logo.png" }} />,
+      <EmailHeader
+        brand={{ logoUrl: "https://example.com/custom-logo.png" }}
+      />,
     );
 
     const img = container.querySelector("img");
