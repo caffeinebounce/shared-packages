@@ -1,4 +1,10 @@
-export { DataTable, type DataTableDensity, type DataTableFontSize, type DataTableProps } from "./DataTable";
+export {
+  DataTable,
+  type DataTableDensity,
+  type DataTableFontSize,
+  type DataTableProps,
+  type RowSelectionStyle,
+} from "./DataTable";
 export {
   DataTableColumnFilter,
   DataTableColumnFilterContent,
@@ -13,7 +19,10 @@ export {
   type DataTableColumnHeaderProps,
   type DataTableColumnMeta,
 } from "./DataTableColumnHeader";
-export { DataTableColumnMenuSub, type DataTableColumnMenuSubProps } from "./DataTableColumnMenuSub";
+export {
+  DataTableColumnMenuSub,
+  type DataTableColumnMenuSubProps,
+} from "./DataTableColumnMenuSub";
 export {
   type DataTableFilter,
   DataTableFilterBadges,
@@ -33,6 +42,13 @@ export {
   type DataTableSkeletonProps,
 } from "./DataTableSkeleton";
 export {
+  type ColumnDataType,
+  type ColumnSummaryConfig,
+  DataTableSummary,
+  type DataTableSummaryProps,
+  type SummaryType,
+} from "./DataTableSummary";
+export {
   DataTableSearch,
   DataTableToolbar,
   type DataTableToolbarProps,
@@ -46,3 +62,9 @@ export {
   DataTableViewOptions,
   type DataTableViewOptionsProps,
 } from "./DataTableViewOptions";
+export {
+  type DataTableView,
+  type DataTableViewState,
+  DataTableViews,
+  type DataTableViewsProps,
+} from "./DataTableViews";

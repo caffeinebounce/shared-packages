@@ -21,12 +21,14 @@ export interface DataTableFilter {
   id: string;
   /** Column or field name */
   label: string;
-  /** Display value of the filter */
+  /** Display value of the filter (text) */
   value: string;
   /** Raw/underlying value for the filter */
   rawValue?: string;
   /** Optional icon to show (can be a React element or a Lucide icon component) */
   icon?: React.ReactNode | LucideIcon;
+  /** Custom badge(s) to display as the value (takes precedence over value text) */
+  valueBadge?: React.ReactNode;
   /** Underlying column id (optional) */
   columnId?: string;
   /** Filter UI type */
@@ -86,16 +88,25 @@ export function DataTableFilterBadges({
             >
               {filter.icon && (
                 <span className="text-muted-foreground shrink-0 [&>svg]:size-3">
-                  {React.isValidElement(filter.icon) 
+                  {React.isValidElement(filter.icon)
                     ? filter.icon
-                    : (() => { const Icon = filter.icon as LucideIcon; return <Icon className="size-3" />; })()}
+                    : (() => {
+                        const Icon = filter.icon as LucideIcon;
+                        return <Icon className="size-3" />;
+                      })()}
                 </span>
               )}
               <span className="text-muted-foreground">{filter.label}</span>
               <span className="text-muted-foreground/50">·</span>
-              <span className="font-medium truncate max-w-28">
-                {filter.value}
-              </span>
+              {filter.valueBadge ? (
+                <span className="inline-flex items-center">
+                  {filter.valueBadge}
+                </span>
+              ) : (
+                <span className="font-medium truncate max-w-28">
+                  {filter.value}
+                </span>
+              )}
               <button
                 type="button"
                 onClick={(e) => {
@@ -143,14 +154,14 @@ export function DataTableFilterBadges({
         </button>
       )}
 
-      {/* Clear all link */}
-      {onClearAll && filters.length > 1 && (
+      {/* Clear link */}
+      {onClearAll && filters.length > 0 && (
         <button
           type="button"
           onClick={onClearAll}
           className="text-xs text-muted-foreground hover:text-foreground ml-0.5"
         >
-          Clear all
+          Clear
         </button>
       )}
     </div>

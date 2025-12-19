@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import type * as React from "react";
 
 import { cn } from "../../utils";
 
@@ -20,6 +20,8 @@ export interface DataTableTopperProps extends React.ComponentProps<"div"> {
   activeTab?: string;
   /** Callback when tab changes */
   onTabChange?: (tabId: string) => void;
+  /** Gutter width for left offset (aligns with DataTable gutter) */
+  gutterWidth?: number;
 }
 
 /**
@@ -49,6 +51,7 @@ export function DataTableTopper({
   tabs,
   activeTab,
   onTabChange,
+  gutterWidth = 0,
   className,
   children,
   ...props
@@ -64,8 +67,12 @@ export function DataTableTopper({
       )}
       {...props}
     >
-      {/* Left side: Tabs */}
+      {/* Left side: Gutter spacer + Tabs */}
       <div className="flex min-w-0 shrink-0 items-center gap-0.5">
+        {/* Gutter spacer to align with DataTable gutter */}
+        {gutterWidth > 0 && (
+          <div className="shrink-0" style={{ width: gutterWidth }} />
+        )}
         {tabs?.map((tab) => (
           <button
             key={tab.id}

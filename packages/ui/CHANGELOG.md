@@ -1,5 +1,30 @@
 # @caffeinebounce/ui
 
+## 0.9.8
+
+### Patch Changes
+
+- Fix summary row hover effects: remove background hover, keep "Calculate" text visible when dropdown is open
+
+## 0.9.7
+
+### Patch Changes
+
+- DataTable improvements:
+  - Fix text/number filter in column header submenu (removed problematic onBlur, added Apply button back)
+  - Prevent duplicate view names with real-time validation
+  - Add hover actions (star for default, trash for delete) on individual views in dropdown
+  - Remove old menu items for "Set as default" and "Delete view" since they're now available on hover
+
+## 0.9.6
+
+### Patch Changes
+
+- Fix DataTable filter behavior:
+  - Remove Apply button from text and number filters
+  - Add onBlur handler so filters auto-apply when clicking away
+  - Filters now apply on Enter key or blur (no Apply button needed)
+
 ## 0.8.6
 
 ### Patch Changes
