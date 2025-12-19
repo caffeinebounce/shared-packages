@@ -5,8 +5,6 @@ import {
   type EmailClientConfig,
   EmailHeader,
   type SendEmailResult,
-  SocialLinks,
-  UnsubscribeBlock,
 } from "./index";
 
 // Mock console.warn to suppress expected warnings when creating client without API key
@@ -29,16 +27,6 @@ describe("package exports", () => {
   it("exports EmailHeader component", () => {
     expect(EmailHeader).toBeDefined();
     expect(typeof EmailHeader).toBe("function");
-  });
-
-  it("exports SocialLinks component", () => {
-    expect(SocialLinks).toBeDefined();
-    expect(typeof SocialLinks).toBe("function");
-  });
-
-  it("exports UnsubscribeBlock component", () => {
-    expect(UnsubscribeBlock).toBeDefined();
-    expect(typeof UnsubscribeBlock).toBe("function");
   });
 
   it("exports EmailClient type", () => {
@@ -68,8 +56,6 @@ describe("package exports", () => {
     const exports = {
       createEmailClient,
       EmailHeader,
-      SocialLinks,
-      UnsubscribeBlock,
     };
 
     Object.values(exports).forEach((exportedValue) => {
