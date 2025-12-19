@@ -1,5 +1,11 @@
 # @caffeinebounce/ui
 
+## 0.9.9
+
+### Patch Changes
+
+- d9d4f64: fix(ui): detach DataTable width from page width to allow horizontal scrolling
+
 ## 0.9.8
 
 ### Patch Changes
