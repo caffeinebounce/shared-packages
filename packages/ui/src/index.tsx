@@ -14,6 +14,8 @@ export type {
 } from "./blocks/auth";
 export { MFAChallenge, MFARecovery, SignOutButton } from "./blocks/auth";
 export type {
+  ColumnDataType,
+  ColumnSummaryConfig,
   ColumnType,
   DataTableColumnFilterProps,
   DataTableColumnHeaderProps,
@@ -25,12 +27,18 @@ export type {
   DataTableRowAction,
   DataTableRowActionsProps,
   DataTableSkeletonProps,
+  DataTableSummaryProps,
   DataTableTab,
   DataTableToolbarProps,
   DataTableTopperProps,
+  DataTableView,
   DataTableViewOptionsProps,
+  DataTableViewState,
+  DataTableViewsProps,
   FilterOption,
   FilterType,
+  RowSelectionStyle,
+  SummaryType,
 } from "./blocks/data-table";
 export {
   DataTable,
@@ -41,9 +49,11 @@ export {
   DataTableRowActions,
   DataTableSearch,
   DataTableSkeleton,
+  DataTableSummary,
   DataTableToolbar,
   DataTableTopper,
   DataTableViewOptions,
+  DataTableViews,
 } from "./blocks/data-table";
 export type { BackgroundRippleEffectProps } from "./blocks/effects";
 export { BackgroundRippleEffect } from "./blocks/effects";
