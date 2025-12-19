@@ -9,16 +9,16 @@ describe("EmailHeader", () => {
     const img = container.querySelector("img");
     expect(img).toBeDefined();
     expect(img?.getAttribute("src")).toBe(
-      "https://compass.thecapitalcollective.org/logo.png",
+      "https://placehold.co/56x56/18181b/ffffff?text=A",
     );
     expect(img?.getAttribute("width")).toBe("56");
     expect(img?.getAttribute("height")).toBe("56");
-    expect(img?.getAttribute("alt")).toBe("Capital Collective");
+    expect(img?.getAttribute("alt")).toBe("Acme Logo");
   });
 
   it("renders with custom logo URL", () => {
     const { container } = render(
-      <EmailHeader logoUrl="https://example.com/custom-logo.png" />,
+      <EmailHeader brand={{ logoUrl: "https://example.com/custom-logo.png" }} />,
     );
 
     const img = container.querySelector("img");
@@ -29,7 +29,7 @@ describe("EmailHeader", () => {
 
   it("renders with custom logo dimensions", () => {
     const { container } = render(
-      <EmailHeader logoWidth={100} logoHeight={100} />,
+      <EmailHeader brand={{ logoWidth: 100, logoHeight: 100 }} />,
     );
 
     const img = container.querySelector("img");
@@ -38,7 +38,9 @@ describe("EmailHeader", () => {
   });
 
   it("renders with custom logo alt text", () => {
-    const { container } = render(<EmailHeader logoAlt="Custom Alt Text" />);
+    const { container } = render(
+      <EmailHeader brand={{ logoAlt: "Custom Alt Text" }} />,
+    );
 
     const img = container.querySelector("img");
     expect(img?.getAttribute("alt")).toBe("Custom Alt Text");
@@ -48,14 +50,14 @@ describe("EmailHeader", () => {
     const { container } = render(<EmailHeader />);
 
     const brandName = container.textContent;
-    expect(brandName).toContain("CAPITAL COMPASS");
+    expect(brandName).toContain("ACME APP");
   });
 
   it("renders brand tagline", () => {
     const { container } = render(<EmailHeader />);
 
     const tagline = container.textContent;
-    expect(tagline).toContain("by The Capital Collective");
+    expect(tagline).toContain("by Acme Corp");
   });
 
   it("renders all elements with correct structure", () => {
@@ -66,7 +68,7 @@ describe("EmailHeader", () => {
     expect(img).toBeDefined();
 
     // Check for text content
-    expect(container.textContent).toContain("CAPITAL COMPASS");
-    expect(container.textContent).toContain("by The Capital Collective");
+    expect(container.textContent).toContain("ACME APP");
+    expect(container.textContent).toContain("by Acme Corp");
   });
 });
