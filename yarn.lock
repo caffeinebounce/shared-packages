@@ -2140,8 +2140,8 @@ __metadata:
   linkType: hard
 
 "@react-email/components@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@react-email/components@npm:1.0.1"
+  version: 1.0.2
+  resolution: "@react-email/components@npm:1.0.2"
   dependencies:
     "@react-email/body": "npm:0.2.0"
     "@react-email/button": "npm:0.2.0"
@@ -2161,11 +2161,11 @@ __metadata:
     "@react-email/render": "npm:2.0.0"
     "@react-email/row": "npm:0.0.12"
     "@react-email/section": "npm:0.0.16"
-    "@react-email/tailwind": "npm:2.0.1"
+    "@react-email/tailwind": "npm:2.0.2"
     "@react-email/text": "npm:0.1.5"
   peerDependencies:
     react: ^18.0 || ^19.0 || ^19.0.0-rc
-  checksum: 10c0/67dc6fc261f30808766379156604da7e56f76c192204cb2b2f964e287e3d8fb45a4aceb13dd3bdca4f0958e36cfcdbd27ed7a7ccd6edae9a39ca73f82c9678f0
+  checksum: 10c0/633214a42fea0d3fbc5a3f0f3104d38a2d305b411dfb7c60f9422bfb5af5ddafd11c7da8c162194b49e2fcec18a4fbf72cc42f6ffd150ffb6292f37a05d3e484
   languageName: node
   linkType: hard
 
@@ -2292,11 +2292,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-email/tailwind@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@react-email/tailwind@npm:2.0.1"
+"@react-email/tailwind@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@react-email/tailwind@npm:2.0.2"
   dependencies:
-    tailwindcss: "npm:^4.1.12"
+    tailwindcss: "npm:^4.1.18"
   peerDependencies:
     "@react-email/body": 0.2.0
     "@react-email/button": 0.2.0
@@ -2331,7 +2331,7 @@ __metadata:
       optional: true
     "@react-email/preview":
       optional: true
-  checksum: 10c0/6a439ffd774fd1d0730fc3537ef4d7887a5938ba211e6e6bdd2fd71a8e00e8ffd6814e368afb3937655d1953c162ae26286c10390c3d65938d76a69513da9848
+  checksum: 10c0/b0a045b8b94aa2c5981d7e8855a9eece82499cf92f326a0ebedc36c5b143df20d209c9aa4cd7416cca67466e812abb7067b27d45fdefcfb55311d6d62dd6cc53
   languageName: node
   linkType: hard
 
@@ -5237,7 +5237,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^4.1.12":
+"tailwindcss@npm:^4.1.18":
   version: 4.1.18
   resolution: "tailwindcss@npm:4.1.18"
   checksum: 10c0/c79263cea0b2c577859b02f28284caa4eb3844e4d0f563686726ca97817c045c5c395a55bc776daaa351ba9e4aefa9a75bfbb43c22d86f3c573eecc2b87d6bf1
@@ -5638,9 +5638,9 @@ __metadata:
   linkType: hard
 
 "validator@npm:^13.15.15":
-  version: 13.15.23
-  resolution: "validator@npm:13.15.23"
-  checksum: 10c0/22a05ec6a98d48d2b6fb34d43ce854af61d15842362d142e64cfca0325d4d0c2d1051d9f9d3a0f741e58ea888f73a35baf7a2a810f5aed0f89183bd5040f0177
+  version: 13.15.26
+  resolution: "validator@npm:13.15.26"
+  checksum: 10c0/d66041685c531423f6b514d0481228503b96682fe30ed7925ad77ff3cd08c3983dc94f45e18457e44f62f89027b94a3342009d65421800ce65f6e0d2c6eaf7fc
   languageName: node
   linkType: hard
 

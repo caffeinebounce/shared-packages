@@ -301,14 +301,17 @@ export function DataTableViews({
       </div>
 
       {/* Save new view dialog */}
-      <Dialog open={saveDialogOpen} onOpenChange={(open) => {
-        setSaveDialogOpen(open);
-        if (!open) {
-          setNewViewName("");
-          setSetAsDefault(false);
-          setNameError(null);
-        }
-      }}>
+      <Dialog
+        open={saveDialogOpen}
+        onOpenChange={(open) => {
+          setSaveDialogOpen(open);
+          if (!open) {
+            setNewViewName("");
+            setSetAsDefault(false);
+            setNameError(null);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Save View</DialogTitle>
@@ -357,7 +360,10 @@ export function DataTableViews({
             <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveNewView} disabled={!newViewName.trim() || !!nameError}>
+            <Button
+              onClick={handleSaveNewView}
+              disabled={!newViewName.trim() || !!nameError}
+            >
               Save View
             </Button>
           </DialogFooter>

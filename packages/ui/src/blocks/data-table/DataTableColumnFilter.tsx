@@ -229,7 +229,11 @@ export function DataTableColumnFilterContent({
               autoFocus
             />
             <div className="flex justify-end mt-2">
-              <Button size="sm" className="h-6 text-xs px-2.5" onClick={handleApply}>
+              <Button
+                size="sm"
+                className="h-6 text-xs px-2.5"
+                onClick={handleApply}
+              >
                 Apply
               </Button>
             </div>
@@ -253,7 +257,11 @@ export function DataTableColumnFilterContent({
               autoFocus
             />
             <div className="flex justify-end mt-2">
-              <Button size="sm" className="h-6 text-xs px-2.5" onClick={handleApply}>
+              <Button
+                size="sm"
+                className="h-6 text-xs px-2.5"
+                onClick={handleApply}
+              >
                 Apply
               </Button>
             </div>
