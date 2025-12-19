@@ -1,5 +1,11 @@
 # @caffeinebounce/identity
 
+## 0.1.5
+
+### Patch Changes
+
+- Export MFAConfirmDialog component
+
 ## 0.1.4
 
 ### Patch Changes

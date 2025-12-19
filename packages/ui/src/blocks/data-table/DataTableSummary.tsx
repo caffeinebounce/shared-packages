@@ -319,7 +319,7 @@ export function DataTableSummary<TData>({
           currentType,
           dataType,
         );
-        const currentOption = options.find((o) => o.value === currentType);
+        // const currentOption = options.find((o) => o.value === currentType);
         const isHovered = hoveredColumnId === columnId;
 
         return (
@@ -369,11 +369,13 @@ function SummaryCell<TData>({
   const showCalculate = currentType === "none" && (isHovered || isOpen);
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: Hover state for visual feedback only
     <div
       className="flex items-center px-3 py-1.5 min-w-0"
       style={{ width: column.getSize(), minWidth: column.getSize() }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      role="presentation"
     >
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>

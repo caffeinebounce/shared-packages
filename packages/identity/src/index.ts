@@ -17,6 +17,8 @@ export {
   type LinkedAccountsSectionProps,
   MFAChallenge,
   type MFAChallengeProps,
+  MFAConfirmDialog,
+  type MFAConfirmDialogProps,
   MFAProvider,
   type MFAProviderProps,
   MFARecovery,
