@@ -9,7 +9,6 @@ import { GripVertical } from "lucide-react";
 import * as React from "react";
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,

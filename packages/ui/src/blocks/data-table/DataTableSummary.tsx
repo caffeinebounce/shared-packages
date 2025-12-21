@@ -350,7 +350,6 @@ export function DataTableSummary<TData>({
 /** Individual summary cell component to track dropdown open state */
 function SummaryCell<TData>({
   columnId,
-  column,
   currentType,
   summaryValue,
   options,

@@ -3,7 +3,7 @@
 import { Check, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
+import type { z } from "zod";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
@@ -14,7 +14,7 @@ interface EditableCellProps {
   rowId: string;
   columnId: string;
   endpoint: string;
-  schema?: z.ZodType<any>;
+  schema?: z.ZodType<unknown>;
   onSuccess?: (newValue: string | number) => void;
   type?: "text" | "number" | "email" | "url" | "textarea";
 }
@@ -53,7 +53,7 @@ export function EditableCell({
     if (schema) {
       const result = schema.safeParse(value);
       if (!result.success) {
-        // @ts-ignore - Zod error handling
+        // @ts-expect-error - Zod error handling
         toast.error(result.error.errors?.[0]?.message || result.error.message);
         return;
       }
@@ -99,10 +99,12 @@ export function EditableCell({
 
   if (isEditing) {
     return (
-      <div className={cn(
-        "flex items-center gap-1 min-w-[150px] relative z-10",
-        type === "textarea" ? "min-w-[300px] items-start" : ""
-      )}>
+      <div
+        className={cn(
+          "flex items-center gap-1 min-w-[150px] relative z-10",
+          type === "textarea" ? "min-w-[300px] items-start" : "",
+        )}
+      >
         {type === "textarea" ? (
           <Textarea
             ref={textareaRef}
@@ -124,7 +126,11 @@ export function EditableCell({
             ref={inputRef}
             type={type}
             value={value}
-            onChange={(e) => setValue(type === "number" ? e.target.valueAsNumber : e.target.value)}
+            onChange={(e) =>
+              setValue(
+                type === "number" ? e.target.valueAsNumber : e.target.value,
+              )
+            }
             onKeyDown={handleKeyDown}
             disabled={isLoading}
             className={cn(
@@ -134,7 +140,9 @@ export function EditableCell({
             )}
           />
         )}
-        <div className={cn("flex", type === "textarea" ? "flex-col gap-1" : "")}>
+        <div
+          className={cn("flex", type === "textarea" ? "flex-col gap-1" : "")}
+        >
           <Button
             size="icon"
             variant="ghost"
@@ -159,12 +167,15 @@ export function EditableCell({
   }
 
   return (
-    <div
-      className="group flex items-center gap-2 min-h-[32px] cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors"
+    <button
+      type="button"
+      className="group flex items-center w-full text-left gap-2 min-h-[32px] cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors"
       onClick={() => setIsEditing(true)}
       title="Click to edit"
     >
-      <span className="truncate">{value || <span className="text-muted-foreground italic">Empty</span>}</span>
-    </div>
+      <span className="truncate">
+        {value || <span className="text-muted-foreground italic">Empty</span>}
+      </span>
+    </button>
   );
 }

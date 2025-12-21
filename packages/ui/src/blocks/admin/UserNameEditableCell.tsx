@@ -35,7 +35,10 @@ export function UserNameEditableCell({
   }, [isEditing]);
 
   const handleSave = async () => {
-    if (firstName === (initialFirstName || "") && lastName === (initialLastName || "")) {
+    if (
+      firstName === (initialFirstName || "") &&
+      lastName === (initialLastName || "")
+    ) {
       setIsEditing(false);
       return;
     }
@@ -91,7 +94,9 @@ export function UserNameEditableCell({
           onKeyDown={handleKeyDown}
           placeholder="First"
           disabled={isLoading}
-          className={cn("h-8 text-sm w-24 shadow-none focus-visible:ring-0 focus-visible:border-primary")}
+          className={cn(
+            "h-8 text-sm w-24 shadow-none focus-visible:ring-0 focus-visible:border-primary",
+          )}
         />
         <Input
           value={lastName}
@@ -99,7 +104,9 @@ export function UserNameEditableCell({
           onKeyDown={handleKeyDown}
           placeholder="Last"
           disabled={isLoading}
-          className={cn("h-8 text-sm w-24 shadow-none focus-visible:ring-0 focus-visible:border-primary")}
+          className={cn(
+            "h-8 text-sm w-24 shadow-none focus-visible:ring-0 focus-visible:border-primary",
+          )}
         />
         <Button
           size="icon"
@@ -123,17 +130,22 @@ export function UserNameEditableCell({
     );
   }
 
-  const fullName = [initialFirstName, initialLastName].filter(Boolean).join(" ");
+  const fullName = [initialFirstName, initialLastName]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <div
-      className="group flex items-center gap-2 min-h-[32px] cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors"
+    <button
+      type="button"
+      className="group flex items-center w-full text-left gap-2 min-h-[32px] cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors"
       onClick={() => setIsEditing(true)}
       title="Click to edit name"
     >
       <span className="truncate font-medium">
-        {fullName || <span className="text-muted-foreground italic">No Name</span>}
+        {fullName || (
+          <span className="text-muted-foreground italic">No Name</span>
+        )}
       </span>
-    </div>
+    </button>
   );
 }

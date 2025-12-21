@@ -1,6 +1,5 @@
 "use client";
 
-import { Check, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
@@ -90,26 +89,42 @@ export function CompanyNameEditableCell({
     return (
       <div className="flex flex-col gap-2 min-w-[250px] p-2 bg-background border rounded-md shadow-sm z-10 absolute">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">Company Name</label>
+          <label
+            htmlFor="company-name-input"
+            className="text-xs font-medium text-muted-foreground"
+          >
+            Company Name
+          </label>
           <Input
+            id="company-name-input"
             ref={firstInputRef}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Company Name"
             disabled={isLoading}
-            className={cn("h-8 text-sm shadow-none focus-visible:ring-0 focus-visible:border-primary")}
+            className={cn(
+              "h-8 text-sm shadow-none focus-visible:ring-0 focus-visible:border-primary",
+            )}
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">DBA (Optional)</label>
+          <label
+            htmlFor="dba-name-input"
+            className="text-xs font-medium text-muted-foreground"
+          >
+            DBA (Optional)
+          </label>
           <Input
+            id="dba-name-input"
             value={dbaName}
             onChange={(e) => setDbaName(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="DBA Name"
             disabled={isLoading}
-            className={cn("h-8 text-sm shadow-none focus-visible:ring-0 focus-visible:border-primary")}
+            className={cn(
+              "h-8 text-sm shadow-none focus-visible:ring-0 focus-visible:border-primary",
+            )}
           />
         </div>
         <div className="flex justify-end gap-2 mt-1">
@@ -137,8 +152,9 @@ export function CompanyNameEditableCell({
   }
 
   return (
-    <div
-      className="group flex flex-col cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors py-1"
+    <button
+      type="button"
+      className="group flex flex-col w-full text-left cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors py-1"
       onClick={() => setIsEditing(true)}
       title="Click to edit company details"
     >
@@ -148,6 +164,6 @@ export function CompanyNameEditableCell({
           DBA: {dbaName}
         </span>
       )}
-    </div>
+    </button>
   );
 }

@@ -1,6 +1,10 @@
 // Blocks - composed UI components
 
 export { toast } from "sonner";
+// Admin Blocks
+export { CompanyNameEditableCell } from "./blocks/admin/CompanyNameEditableCell";
+export { EditableCell } from "./blocks/admin/EditableCell";
+export { UserNameEditableCell } from "./blocks/admin/UserNameEditableCell";
 export type {
   ClarityAnalyticsProps,
   GoogleAnalyticsProps,
@@ -388,7 +392,6 @@ export {
 } from "./components/ui/tooltip";
 export type { VerificationCodeInputProps } from "./components/ui/verification-code-input";
 export { VerificationCodeInput } from "./components/ui/verification-code-input";
-
 // Theme configuration
 export {
   type Animation,
@@ -425,10 +428,6 @@ export {
   useBreakpoints,
   useMediaQuery,
 } from "./hooks/useMediaQuery";
-// Admin Blocks
-export { CompanyNameEditableCell } from "./blocks/admin/CompanyNameEditableCell";
-export { EditableCell } from "./blocks/admin/EditableCell";
-export { UserNameEditableCell } from "./blocks/admin/UserNameEditableCell";
 // Utilities
 export {
   type AvatarGradient,
