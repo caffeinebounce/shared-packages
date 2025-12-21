@@ -33,7 +33,7 @@ repos:
     hooks:
       - id: tsc-type-check
         name: typescript type check
-        entry: yarn turbo run build --dry-run -- --noEmit
+        entry: yarn turbo run build
         language: system
         pass_filenames: false
         types: [ts, tsx]
