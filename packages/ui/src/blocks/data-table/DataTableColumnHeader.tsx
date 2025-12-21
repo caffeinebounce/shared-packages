@@ -77,7 +77,7 @@ const defaultColumnIcons: Record<ColumnType, LucideIcon> = {
  */
 export interface DataTableColumnMeta {
   /** User-friendly display name for View Options and other UI */
-  displayName?: string;
+  displayName: string;
   /** Column data type for default icon selection */
   columnType?: ColumnType;
   /** Custom icon override (Lucide icon component) */

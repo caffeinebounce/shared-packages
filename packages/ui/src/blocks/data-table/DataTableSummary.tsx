@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
+import { TableCell, TableRow } from "../../components/ui/table";
 import { cn } from "../../utils";
 
 /** Summary calculation type */
@@ -302,10 +303,10 @@ export function DataTableSummary<TData>({
   );
 
   return (
-    <div className={cn("flex items-stretch", className)}>
+    <TableRow className={cn("hover:bg-transparent border-t", className)}>
       {/* Gutter spacer to align with DataTable gutter */}
       {gutterWidth > 0 && (
-        <div className="shrink-0" style={{ width: gutterWidth }} />
+        <TableCell className="p-0 border-r-0" style={{ width: gutterWidth }} />
       )}
 
       {visibleColumns.map((column) => {
@@ -323,21 +324,26 @@ export function DataTableSummary<TData>({
         const isHovered = hoveredColumnId === columnId;
 
         return (
-          <SummaryCell
+          <TableCell
             key={columnId}
-            columnId={columnId}
-            column={column}
-            currentType={currentType}
-            summaryValue={summaryValue}
-            options={options}
-            isHovered={isHovered}
-            onSummaryChange={onSummaryChange}
-            onMouseEnter={() => setHoveredColumnId(columnId)}
-            onMouseLeave={() => setHoveredColumnId(null)}
-          />
+            className="p-0 border-r border-border/30"
+            style={{ width: column.getSize(), minWidth: column.getSize() }}
+          >
+            <SummaryCell
+              columnId={columnId}
+              column={column}
+              currentType={currentType}
+              summaryValue={summaryValue}
+              options={options}
+              isHovered={isHovered}
+              onSummaryChange={onSummaryChange}
+              onMouseEnter={() => setHoveredColumnId(columnId)}
+              onMouseLeave={() => setHoveredColumnId(null)}
+            />
+          </TableCell>
         );
       })}
-    </div>
+    </TableRow>
   );
 }
 
@@ -372,7 +378,6 @@ function SummaryCell<TData>({
     // biome-ignore lint/a11y/noStaticElementInteractions: Hover state for visual feedback only
     <div
       className="flex items-center px-3 py-1.5 min-w-0"
-      style={{ width: column.getSize(), minWidth: column.getSize() }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       role="presentation"

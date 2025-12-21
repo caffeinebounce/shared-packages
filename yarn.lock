@@ -145,7 +145,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/ai-assistant@workspace:packages/ai-assistant"
   dependencies:
-    "@caffeinebounce/ui": "npm:^0.9.10"
+    "@caffeinebounce/ui": "npm:0.9.14"
     "@types/node": "npm:^24.10.1"
     "@types/react": "npm:^19.2.1"
     "@types/react-dom": "npm:^19.2.1"
@@ -183,7 +183,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/identity@workspace:packages/identity"
   dependencies:
-    "@caffeinebounce/ui": "npm:^0.9.10"
+    "@caffeinebounce/ui": "npm:0.9.14"
     "@supabase/ssr": "npm:^0.7.0"
     "@supabase/supabase-js": "npm:^2.49.4"
     "@types/node": "npm:^22.15.29"
@@ -230,7 +230,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@caffeinebounce/ui@npm:^0.9.10, @caffeinebounce/ui@workspace:packages/ui":
+"@caffeinebounce/ui@npm:0.9.14, @caffeinebounce/ui@workspace:packages/ui":
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/ui@workspace:packages/ui"
   dependencies:
@@ -262,6 +262,7 @@ __metadata:
     tsup: "npm:^8.5.0"
     typescript: "npm:^5.9.3"
     vaul: "npm:^1.1.2"
+    zod: "npm:^4.2.1"
   peerDependencies:
     next: ">=14.0.0"
     react: ^18 || ^19
@@ -5860,5 +5861,12 @@ __metadata:
   version: 5.0.0
   resolution: "yallist@npm:5.0.0"
   checksum: 10c0/a499c81ce6d4a1d260d4ea0f6d49ab4da09681e32c3f0472dee16667ed69d01dae63a3b81745a24bd78476ec4fcf856114cb4896ace738e01da34b2c42235416
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "zod@npm:4.2.1"
+  checksum: 10c0/ecb5219bddf76a42d092a843fb98ad4cb78f1e1077082772b03ef032ee5cbc80790a4051836b962d26fb4af854323bc784d628bd1b8d9898149eba7af21c5560
   languageName: node
   linkType: hard

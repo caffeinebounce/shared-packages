@@ -1,5 +1,31 @@
 # @caffeinebounce/ui
 
+## 0.9.14
+
+### Patch Changes
+
+- Fix DataTable summary row rendering and scroll behavior by moving summary into tfoot.
+
+## 0.9.13
+
+### Patch Changes
+
+- Add summary prop to DataTable to allow rendering summary rows inside the scrollable container.
+  Remove internal Table wrapper to ensure summary scrolls with table content.
+  Style scrollbar track to be transparent.
+
+## 0.9.12
+
+### Patch Changes
+
+- Make displayName mandatory in DataTableColumnMeta to enforce cosmetic names for columns.
+
+## 0.9.11
+
+### Patch Changes
+
+- 7f9884e: Fix sidebar overlap issue by adding overflow-x-hidden to SidebarInset
+
 ## 0.9.10
 
 ### Patch Changes

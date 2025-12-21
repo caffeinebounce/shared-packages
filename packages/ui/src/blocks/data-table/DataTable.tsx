@@ -63,6 +63,8 @@ export interface DataTableProps<TData, TValue>
   enableRowDrag?: boolean;
   /** Callback when row order changes via drag */
   onRowDragEnd?: (fromIndex: number, toIndex: number) => void;
+  /** Optional summary component to render below the table but inside the scroll container */
+  summary?: React.ReactNode;
 }
 
 /**
@@ -99,6 +101,7 @@ export function DataTable<TData, TValue>({
   rowSelectionStyle = "always",
   enableRowDrag = false,
   onRowDragEnd,
+  summary,
   className,
   children,
   ...props
@@ -190,8 +193,8 @@ export function DataTable<TData, TValue>({
 
       {/* Table with gutter for selection/drag handles */}
       <div className={cn("mx-1 max-w-full", fontSizeClass)}>
-        <div className="overflow-x-auto rounded-md border w-full">
-          <Table>
+        <div className="overflow-x-auto rounded-md border w-full pb-2 [&::-webkit-scrollbar-track]:bg-transparent">
+          <table className="w-full caption-bottom text-sm">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="hover:bg-transparent">
@@ -417,7 +420,10 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               )}
             </TableBody>
-          </Table>
+            {summary && (
+              <tfoot className="bg-muted/50 font-medium">{summary}</tfoot>
+            )}
+          </table>
         </div>
       </div>
       {actionBar &&

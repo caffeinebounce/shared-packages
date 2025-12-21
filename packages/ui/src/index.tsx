@@ -425,6 +425,10 @@ export {
   useBreakpoints,
   useMediaQuery,
 } from "./hooks/useMediaQuery";
+// Admin Blocks
+export { CompanyNameEditableCell } from "./blocks/admin/CompanyNameEditableCell";
+export { EditableCell } from "./blocks/admin/EditableCell";
+export { UserNameEditableCell } from "./blocks/admin/UserNameEditableCell";
 // Utilities
 export {
   type AvatarGradient,
