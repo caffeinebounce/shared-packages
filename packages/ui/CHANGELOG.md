@@ -1,5 +1,15 @@
 # @caffeinebounce/ui
 
+## 0.10.0
+
+### Minor Changes
+
+- bc310ab: Add admin editable cell components: EditableCell, UserNameEditableCell, CompanyNameEditableCell
+
+### Patch Changes
+
+- bc310ab: Fix DataTable scrollbar overlapping summary row by adding bottom padding to scroll container.
+
 ## 0.9.14
 
 ### Patch Changes
