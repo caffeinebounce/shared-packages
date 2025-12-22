@@ -11,6 +11,10 @@ export {
   type NavItem,
 } from "./AppSidebar";
 export {
+  DashboardGrid,
+  type DashboardGridProps,
+} from "./DashboardGrid";
+export {
   FloatingUserMenu,
   type FloatingUserMenuProps,
   type FloatingUserMenuUser,
