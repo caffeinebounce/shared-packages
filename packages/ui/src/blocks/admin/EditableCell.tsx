@@ -17,16 +17,26 @@ import { Switch } from "../../components/ui/switch";
 import { Textarea } from "../../components/ui/textarea";
 import { cn } from "../../utils";
 
-interface EditableCellProps {
+interface BaseEditableCellProps {
   value: string | number | boolean | null | undefined;
   rowId: string;
   columnId: string;
   endpoint: string;
   schema?: z.ZodType<unknown>;
   onSuccess?: (newValue: string | number | boolean) => void;
-  type?: "text" | "number" | "email" | "url" | "textarea" | "select" | "boolean";
-  options?: { label: string; value: string }[];
 }
+
+type EditableCellProps = BaseEditableCellProps &
+  (
+    | {
+        type?: "text" | "number" | "email" | "url" | "textarea" | "boolean";
+        options?: never;
+      }
+    | {
+        type: "select";
+        options: { label: string; value: string }[];
+      }
+  );
 
 export function EditableCell({
   value: initialValue,
@@ -36,7 +46,7 @@ export function EditableCell({
   schema,
   onSuccess,
   type = "text",
-  options = [],
+  options,
 }: EditableCellProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState<string | number | boolean>(
@@ -59,7 +69,16 @@ export function EditableCell({
   const handleSave = async (newValue?: string | number | boolean) => {
     const valueToSave = newValue !== undefined ? newValue : value;
 
-    if (valueToSave === (initialValue ?? (type === "boolean" ? false : ""))) {
+    const hasChanged =
+      initialValue === null || initialValue === undefined
+        ? !(
+            valueToSave === null ||
+            valueToSave === undefined ||
+            valueToSave === ""
+          )
+        : valueToSave !== initialValue;
+
+    if (!hasChanged) {
       setIsEditing(false);
       return;
     }
@@ -91,8 +110,6 @@ export function EditableCell({
       toast.success("Updated successfully");
       setIsEditing(false);
       onSuccess?.(valueToSave);
-      // Update local state to match saved value
-      setValue(valueToSave);
     } catch (error) {
       console.error("Update error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to update");
@@ -157,14 +174,17 @@ export function EditableCell({
         ) : type === "select" ? (
           <Select
             value={value as string}
-            onValueChange={(val) => setValue(val)}
+            onValueChange={(val) => {
+              setValue(val);
+              handleSave(val);
+            }}
             disabled={isLoading}
           >
             <SelectTrigger className="h-8 text-sm shadow-none focus:ring-0 focus:border-primary">
               <SelectValue placeholder="Select..." />
             </SelectTrigger>
             <SelectContent>
-              {options.map((option) => (
+              {options?.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -216,10 +236,28 @@ export function EditableCell({
     );
   }
 
-  const displayValue =
-    type === "select"
-      ? options.find((o) => o.value === value)?.label || value
-      : value;
+  let displayValue = value;
+
+  if (type === "select" && options) {
+    const selectedOption = options.find((o) => o.value === value);
+
+    if (selectedOption) {
+      displayValue = selectedOption.label;
+    } else if (value !== null && value !== undefined && value !== "") {
+      if (process.env.NODE_ENV !== "production") {
+        // Warn during development when a select value does not match any option.
+        // This helps catch misconfigurations or stale data.
+        // eslint-disable-next-line no-console
+        console.warn(
+          "EditableCell: select value does not match any provided option.",
+          { value, options, columnId, rowId },
+        );
+      }
+      displayValue = "Unknown";
+    } else {
+      displayValue = null;
+    }
+  }
 
   return (
     <button
