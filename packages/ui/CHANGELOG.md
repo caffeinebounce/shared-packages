@@ -1,5 +1,11 @@
 # @caffeinebounce/ui
 
+## 0.11.0
+
+### Minor Changes
+
+- Add support for select and boolean types to EditableCell
+
 ## 0.10.0
 
 ### Minor Changes
