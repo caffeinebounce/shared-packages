@@ -6,17 +6,26 @@ import { toast } from "sonner";
 import type { z } from "zod";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import { Switch } from "../../components/ui/switch";
 import { Textarea } from "../../components/ui/textarea";
 import { cn } from "../../utils";
 
 interface EditableCellProps {
-  value: string | number | null | undefined;
+  value: string | number | boolean | null | undefined;
   rowId: string;
   columnId: string;
   endpoint: string;
   schema?: z.ZodType<unknown>;
-  onSuccess?: (newValue: string | number) => void;
-  type?: "text" | "number" | "email" | "url" | "textarea";
+  onSuccess?: (newValue: string | number | boolean) => void;
+  type?: "text" | "number" | "email" | "url" | "textarea" | "select" | "boolean";
+  options?: { label: string; value: string }[];
 }
 
 export function EditableCell({
@@ -27,9 +36,12 @@ export function EditableCell({
   schema,
   onSuccess,
   type = "text",
+  options = [],
 }: EditableCellProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState<string | number>(initialValue || "");
+  const [value, setValue] = useState<string | number | boolean>(
+    initialValue ?? (type === "boolean" ? false : ""),
+  );
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -44,17 +56,21 @@ export function EditableCell({
     }
   }, [isEditing, type]);
 
-  const handleSave = async () => {
-    if (value === (initialValue || "")) {
+  const handleSave = async (newValue?: string | number | boolean) => {
+    const valueToSave = newValue !== undefined ? newValue : value;
+
+    if (valueToSave === (initialValue ?? (type === "boolean" ? false : ""))) {
       setIsEditing(false);
       return;
     }
 
     if (schema) {
-      const result = schema.safeParse(value);
+      const result = schema.safeParse(valueToSave);
       if (!result.success) {
         // @ts-expect-error - Zod error handling
         toast.error(result.error.errors?.[0]?.message || result.error.message);
+        // Revert if boolean toggle failed validation (unlikely but possible)
+        if (type === "boolean") setValue(initialValue ?? false);
         return;
       }
     }
@@ -64,7 +80,7 @@ export function EditableCell({
       const response = await fetch(`${endpoint}/${rowId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [columnId]: value }),
+        body: JSON.stringify({ [columnId]: valueToSave }),
       });
 
       if (!response.ok) {
@@ -74,18 +90,20 @@ export function EditableCell({
 
       toast.success("Updated successfully");
       setIsEditing(false);
-      onSuccess?.(value);
+      onSuccess?.(valueToSave);
+      // Update local state to match saved value
+      setValue(valueToSave);
     } catch (error) {
       console.error("Update error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to update");
-      setValue(initialValue || ""); // Revert on error
+      setValue(initialValue ?? (type === "boolean" ? false : "")); // Revert on error
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-    setValue(initialValue || "");
+    setValue(initialValue ?? (type === "boolean" ? false : ""));
     setIsEditing(false);
   };
 
@@ -96,6 +114,21 @@ export function EditableCell({
       handleCancel();
     }
   };
+
+  if (type === "boolean") {
+    return (
+      <div className="flex items-center h-8">
+        <Switch
+          checked={!!value}
+          onCheckedChange={(checked) => {
+            setValue(checked);
+            handleSave(checked);
+          }}
+          disabled={isLoading}
+        />
+      </div>
+    );
+  }
 
   if (isEditing) {
     return (
@@ -108,7 +141,7 @@ export function EditableCell({
         {type === "textarea" ? (
           <Textarea
             ref={textareaRef}
-            value={value}
+            value={value as string}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -121,11 +154,28 @@ export function EditableCell({
             disabled={isLoading}
             className="min-h-[80px] text-sm shadow-none focus-visible:ring-0 focus-visible:border-primary resize-y"
           />
+        ) : type === "select" ? (
+          <Select
+            value={value as string}
+            onValueChange={(val) => setValue(val)}
+            disabled={isLoading}
+          >
+            <SelectTrigger className="h-8 text-sm shadow-none focus:ring-0 focus:border-primary">
+              <SelectValue placeholder="Select..." />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ) : (
           <Input
             ref={inputRef}
             type={type}
-            value={value}
+            value={value as string | number}
             onChange={(e) =>
               setValue(
                 type === "number" ? e.target.valueAsNumber : e.target.value,
@@ -147,7 +197,7 @@ export function EditableCell({
             size="icon"
             variant="ghost"
             className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-            onClick={handleSave}
+            onClick={() => handleSave()}
             disabled={isLoading}
           >
             <Check className="h-4 w-4" />
@@ -166,6 +216,11 @@ export function EditableCell({
     );
   }
 
+  const displayValue =
+    type === "select"
+      ? options.find((o) => o.value === value)?.label || value
+      : value;
+
   return (
     <button
       type="button"
@@ -174,7 +229,9 @@ export function EditableCell({
       title="Click to edit"
     >
       <span className="truncate">
-        {value || <span className="text-muted-foreground italic">Empty</span>}
+        {displayValue || (
+          <span className="text-muted-foreground italic">Empty</span>
+        )}
       </span>
     </button>
   );
