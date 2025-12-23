@@ -3,6 +3,7 @@
 import {
   type ColumnDef,
   flexRender,
+  type Row,
   type Table as TanStackTable,
 } from "@tanstack/react-table";
 import { GripVertical } from "lucide-react";
@@ -62,6 +63,8 @@ export interface DataTableProps<TData, TValue>
   enableRowDrag?: boolean;
   /** Callback when row order changes via drag */
   onRowDragEnd?: (fromIndex: number, toIndex: number) => void;
+  /** Callback when a row is clicked */
+  onRowClick?: (row: Row<TData>) => void;
   /** Optional summary component to render below the table but inside the scroll container */
   summary?: React.ReactNode;
 }
@@ -100,6 +103,7 @@ export function DataTable<TData, TValue>({
   rowSelectionStyle = "always",
   enableRowDrag = false,
   onRowDragEnd,
+  onRowClick,
   summary,
   className,
   children,
@@ -295,7 +299,11 @@ export function DataTable<TData, TValue>({
                       data-hovered={isHovered}
                       onMouseEnter={() => setHoveredRowId(row.id)}
                       onMouseLeave={() => setHoveredRowId(null)}
-                      className="group/row"
+                      onClick={() => onRowClick?.(row)}
+                      className={cn(
+                        "group/row",
+                        onRowClick && "cursor-pointer hover:bg-muted/50",
+                      )}
                     >
                       {/* Gutter cell with controls - inside the row so perfectly aligned */}
                       {(rowSelectionStyle === "hover" || enableRowDrag) && (

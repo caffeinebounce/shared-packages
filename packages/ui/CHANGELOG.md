@@ -1,5 +1,22 @@
 # @caffeinebounce/ui
 
+## 0.13.0
+
+### Minor Changes
+
+- Add onRowClick prop to DataTable
+
+## 0.12.0
+
+### Minor Changes
+
+- 965b44c: feat: add DashboardGrid layout component for consistent dashboard spacing
+- DashboardGrid fix
+
+### Patch Changes
+
+- df90d1c: Upgrade dependencies and align versions.
+
 ## 0.11.0
 
 ### Minor Changes
