@@ -1,5 +1,15 @@
 # @caffeinebounce/ui
 
+## 0.12.0
+
+### Minor Changes
+
+- 965b44c: feat: add DashboardGrid layout component for consistent dashboard spacing
+
+### Patch Changes
+
+- df90d1c: Upgrade dependencies and align versions.
+
 ## 0.11.0
 
 ### Minor Changes
