@@ -1,5 +1,11 @@
 # @caffeinebounce/ui
 
+## 0.14.0
+
+### Minor Changes
+
+- fa443a8: Make DataTableViews handlers optional and update DashboardGrid padding.
+
 ## 0.13.0
 
 ### Minor Changes
