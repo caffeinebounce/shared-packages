@@ -1,5 +1,14 @@
 # @caffeinebounce/identity
 
+## 0.1.10
+
+### Patch Changes
+
+- df90d1c: Upgrade dependencies and align versions.
+- Updated dependencies [965b44c]
+- Updated dependencies [df90d1c]
+  - @caffeinebounce/ui@0.12.0
+
 ## 0.1.9
 
 ### Patch Changes
