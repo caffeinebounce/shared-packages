@@ -76,15 +76,15 @@ export interface DataTableViewsProps {
   /** Callback when a view is selected */
   onSelectView: (view: DataTableView) => void;
   /** Callback to save a new view */
-  onSaveView: (
+  onSaveView?: (
     view: Omit<DataTableView, "id" | "createdAt" | "updatedAt">,
   ) => void;
   /** Callback to update an existing view */
-  onUpdateView: (id: string, updates: Partial<DataTableView>) => void;
+  onUpdateView?: (id: string, updates: Partial<DataTableView>) => void;
   /** Callback to delete a view */
-  onDeleteView: (id: string) => void;
+  onDeleteView?: (id: string) => void;
   /** Callback to set default view */
-  onSetDefaultView: (id: string) => void;
+  onSetDefaultView?: (id: string) => void;
   /** Optional class name */
   className?: string;
 }
@@ -175,14 +175,16 @@ export function DataTableViews({
       return;
     }
 
-    onSaveView({
-      name: trimmedName,
-      columnVisibility: currentState.columnVisibility,
-      columnOrder: currentState.columnOrder,
-      filters: currentState.filters,
-      sorting: currentState.sorting,
-      isDefault: setAsDefault,
-    });
+    if (onSaveView) {
+      onSaveView({
+        name: trimmedName,
+        columnVisibility: currentState.columnVisibility,
+        columnOrder: currentState.columnOrder,
+        filters: currentState.filters,
+        sorting: currentState.sorting,
+        isDefault: setAsDefault,
+      });
+    }
 
     setNewViewName("");
     setSetAsDefault(false);
@@ -191,7 +193,7 @@ export function DataTableViews({
   };
 
   const handleUpdateCurrentView = () => {
-    if (!activeViewId) return;
+    if (!activeViewId || !onUpdateView) return;
 
     onUpdateView(activeViewId, {
       columnVisibility: currentState.columnVisibility,
@@ -245,7 +247,7 @@ export function DataTableViews({
                     </DropdownMenuItem>
                     {/* Hover actions */}
                     <div className="absolute right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {!view.isDefault && (
+                      {!view.isDefault && onSetDefaultView && (
                         <button
                           type="button"
                           onClick={(e) => {
@@ -258,7 +260,7 @@ export function DataTableViews({
                           <Star className="size-3" />
                         </button>
                       )}
-                      {views.length > 1 && (
+                      {views.length > 1 && onDeleteView && (
                         <button
                           type="button"
                           onClick={(e) => {
@@ -279,13 +281,15 @@ export function DataTableViews({
             ) : null}
 
             {/* Save as new view */}
-            <DropdownMenuItem onClick={() => setSaveDialogOpen(true)}>
-              <Plus className="mr-2 size-3.5" />
-              Save as new view
-            </DropdownMenuItem>
+            {onSaveView && (
+              <DropdownMenuItem onClick={() => setSaveDialogOpen(true)}>
+                <Plus className="mr-2 size-3.5" />
+                Save as new view
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
-
+onUpdateView && 
         {/* Save changes button (appears when there are unsaved changes) */}
         {hasChanges && activeView && (
           <Button
