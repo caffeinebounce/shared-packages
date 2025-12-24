@@ -49,6 +49,6 @@ export interface DashboardGridProps {
  */
 export function DashboardGrid({ children, className }: DashboardGridProps) {
   return (
-    <div className={cn("flex flex-col gap-8 px-8", className)}>{children}</div>
+    <div className={cn("flex flex-col gap-6", className)}>{children}</div>
   );
 }

@@ -280,6 +280,14 @@ export function DataTableViews({
               </>
             ) : null}
 
+            {/* Save changes to current view */}
+            {onUpdateView && hasChanges && activeView && (
+              <DropdownMenuItem onClick={handleUpdateCurrentView}>
+                <Save className="mr-2 size-3.5" />
+                Save changes
+              </DropdownMenuItem>
+            )}
+
             {/* Save as new view */}
             {onSaveView && (
               <DropdownMenuItem onClick={() => setSaveDialogOpen(true)}>
@@ -289,19 +297,6 @@ export function DataTableViews({
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-onUpdateView && 
-        {/* Save changes button (appears when there are unsaved changes) */}
-        {hasChanges && activeView && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleUpdateCurrentView}
-            className="h-7 gap-1 px-2 text-xs font-normal text-primary hover:text-primary"
-          >
-            <Save className="size-3.5" />
-            <span className="hidden sm:inline">Save</span>
-          </Button>
-        )}
       </div>
 
       {/* Save new view dialog */}
