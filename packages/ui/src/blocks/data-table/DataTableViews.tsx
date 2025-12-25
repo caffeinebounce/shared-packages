@@ -5,15 +5,7 @@ import type {
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
-import {
-  Check,
-  ChevronDown,
-  LayoutGrid,
-  Plus,
-  Save,
-  Star,
-  Trash2,
-} from "lucide-react";
+import { Check, LayoutGrid, Plus, Save, Star, Trash2 } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "../../components/ui/button";
@@ -76,15 +68,15 @@ export interface DataTableViewsProps {
   /** Callback when a view is selected */
   onSelectView: (view: DataTableView) => void;
   /** Callback to save a new view */
-  onSaveView: (
+  onSaveView?: (
     view: Omit<DataTableView, "id" | "createdAt" | "updatedAt">,
   ) => void;
   /** Callback to update an existing view */
-  onUpdateView: (id: string, updates: Partial<DataTableView>) => void;
+  onUpdateView?: (id: string, updates: Partial<DataTableView>) => void;
   /** Callback to delete a view */
-  onDeleteView: (id: string) => void;
+  onDeleteView?: (id: string) => void;
   /** Callback to set default view */
-  onSetDefaultView: (id: string) => void;
+  onSetDefaultView?: (id: string) => void;
   /** Optional class name */
   className?: string;
 }
@@ -175,14 +167,16 @@ export function DataTableViews({
       return;
     }
 
-    onSaveView({
-      name: trimmedName,
-      columnVisibility: currentState.columnVisibility,
-      columnOrder: currentState.columnOrder,
-      filters: currentState.filters,
-      sorting: currentState.sorting,
-      isDefault: setAsDefault,
-    });
+    if (onSaveView) {
+      onSaveView({
+        name: trimmedName,
+        columnVisibility: currentState.columnVisibility,
+        columnOrder: currentState.columnOrder,
+        filters: currentState.filters,
+        sorting: currentState.sorting,
+        isDefault: setAsDefault,
+      });
+    }
 
     setNewViewName("");
     setSetAsDefault(false);
@@ -191,7 +185,7 @@ export function DataTableViews({
   };
 
   const handleUpdateCurrentView = () => {
-    if (!activeViewId) return;
+    if (!activeViewId || !onUpdateView) return;
 
     onUpdateView(activeViewId, {
       columnVisibility: currentState.columnVisibility,
@@ -211,13 +205,17 @@ export function DataTableViews({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 gap-1 px-2 text-xs font-normal"
+              className={cn(
+                "h-7 gap-1 text-xs font-normal text-muted-foreground hover:text-foreground data-[state=open]:text-foreground",
+                // When label is hidden, behave like an icon button (size-7, no padding)
+                // When label is shown, add padding
+                "!px-0 w-7 @min-[450px]:w-auto @min-[450px]:!px-2",
+              )}
             >
-              <LayoutGrid className="size-3.5" />
-              <span className="hidden sm:inline">
+              <LayoutGrid className="size-4" />
+              <span className="hidden @min-[450px]:inline">
                 {activeView?.name ?? "Default View"}
               </span>
-              <ChevronDown className="size-3 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
@@ -245,7 +243,7 @@ export function DataTableViews({
                     </DropdownMenuItem>
                     {/* Hover actions */}
                     <div className="absolute right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {!view.isDefault && (
+                      {!view.isDefault && onSetDefaultView && (
                         <button
                           type="button"
                           onClick={(e) => {
@@ -258,7 +256,7 @@ export function DataTableViews({
                           <Star className="size-3" />
                         </button>
                       )}
-                      {views.length > 1 && (
+                      {views.length > 1 && onDeleteView && (
                         <button
                           type="button"
                           onClick={(e) => {
@@ -278,26 +276,23 @@ export function DataTableViews({
               </>
             ) : null}
 
+            {/* Save changes to current view */}
+            {onUpdateView && hasChanges && activeView && (
+              <DropdownMenuItem onClick={handleUpdateCurrentView}>
+                <Save className="mr-2 size-3.5" />
+                Save changes
+              </DropdownMenuItem>
+            )}
+
             {/* Save as new view */}
-            <DropdownMenuItem onClick={() => setSaveDialogOpen(true)}>
-              <Plus className="mr-2 size-3.5" />
-              Save as new view
-            </DropdownMenuItem>
+            {onSaveView && (
+              <DropdownMenuItem onClick={() => setSaveDialogOpen(true)}>
+                <Plus className="mr-2 size-3.5" />
+                Save as new view
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Save changes button (appears when there are unsaved changes) */}
-        {hasChanges && activeView && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleUpdateCurrentView}
-            className="h-7 gap-1 px-2 text-xs font-normal text-primary hover:text-primary"
-          >
-            <Save className="size-3.5" />
-            <span className="hidden sm:inline">Save</span>
-          </Button>
-        )}
       </div>
 
       {/* Save new view dialog */}

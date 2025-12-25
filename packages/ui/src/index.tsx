@@ -87,6 +87,10 @@ export type {
   FloatingUserMenuProps,
   FloatingUserMenuUser,
   HeaderLink,
+  HelpBreadcrumb,
+  HelpLayoutProps,
+  HelpPageLayoutProps,
+  HelpPanelLayoutProps,
   LegalLayoutProps,
   LegalSectionProps,
   MarketingLayoutProps,
@@ -106,6 +110,9 @@ export {
   AppSidebar,
   DashboardGrid,
   FloatingUserMenu,
+  HelpLayout,
+  HelpPageLayout,
+  HelpPanelLayout,
   LegalLayout,
   LegalSection,
   MarketingLayout,
@@ -190,6 +197,27 @@ export type {
   UserAvatarMenuUser,
 } from "./blocks/user";
 export { UserAvatarMenu } from "./blocks/user";
+export type {
+  HelpArticle,
+  HelpArticleGroup,
+  HelpArticleIndexProps,
+  HelpArticleViewProps,
+  HelpButtonProps,
+  HelpContextValue,
+  HelpProviderProps,
+  HelpSearchResult,
+  HelpSearchResultsProps,
+  HelpTooltipProps,
+} from "./components/help";
+export {
+  HelpArticleIndex,
+  HelpArticleView,
+  HelpButton,
+  HelpProvider,
+  HelpSearchResults,
+  HelpTooltip,
+  useHelp,
+} from "./components/help";
 export {
   Alert,
   AlertDescription,
@@ -217,6 +245,12 @@ export {
   CardHeader,
   CardTitle,
 } from "./components/ui/card";
+export type { ChartConfig } from "./components/ui/chart";
+export {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "./components/ui/chart";
 export type { CheckboxProps } from "./components/ui/checkbox";
 export { Checkbox } from "./components/ui/checkbox";
 export {
@@ -386,6 +420,7 @@ export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 export { Textarea } from "./components/ui/textarea";
 export type { TimeEstimateProps } from "./components/ui/time-estimate";
 export { TimeEstimate } from "./components/ui/time-estimate";
+export { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
 export {
   Tooltip,
   TooltipContent,

@@ -19,6 +19,19 @@ export {
   type FloatingUserMenuProps,
   type FloatingUserMenuUser,
 } from "./FloatingUserMenu";
+export {
+  HelpLayout,
+  type HelpLayoutProps,
+} from "./HelpLayout";
+export {
+  type HelpBreadcrumb,
+  HelpPageLayout,
+  type HelpPageLayoutProps,
+} from "./HelpPageLayout";
+export {
+  HelpPanelLayout,
+  type HelpPanelLayoutProps,
+} from "./HelpPanelLayout";
 export { LegalLayout, type LegalLayoutProps } from "./LegalLayout";
 export { LegalSection, type LegalSectionProps } from "./LegalSection";
 export { MarketingLayout, type MarketingLayoutProps } from "./MarketingLayout";
