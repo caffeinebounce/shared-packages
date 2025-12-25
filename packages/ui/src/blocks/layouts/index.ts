@@ -32,3 +32,8 @@ export {
   themeScript,
 } from "./RootLayout";
 export { WizardLayout, type WizardLayoutProps } from "./WizardLayout";
+export {
+  HelpPageLayout,
+  type HelpBreadcrumb,
+  type HelpPageLayoutProps,
+} from "./HelpPageLayout";

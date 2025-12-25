@@ -72,12 +72,12 @@ export function DataTableSearch({
           type="button"
           onClick={() => !isExpanded && setIsExpanded(true)}
           className={cn(
-            "flex items-center justify-center shrink-0 transition-colors",
+            "flex items-center justify-center shrink-0 transition-colors rounded-md hover:bg-accent hover:text-foreground text-muted-foreground",
             isExpanded ? "size-7 cursor-default" : "size-7",
           )}
           aria-label={isExpanded ? undefined : "Search"}
         >
-          <Search className="size-4 text-muted-foreground" />
+          <Search className="size-4" />
         </button>
 
         <input

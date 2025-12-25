@@ -5,15 +5,7 @@ import type {
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
-import {
-  Check,
-  ChevronDown,
-  LayoutGrid,
-  Plus,
-  Save,
-  Star,
-  Trash2,
-} from "lucide-react";
+import { Check, LayoutGrid, Plus, Save, Star, Trash2 } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "../../components/ui/button";
@@ -213,13 +205,17 @@ export function DataTableViews({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 gap-1 px-2 text-xs font-normal"
+              className={cn(
+                "h-7 gap-1 text-xs font-normal text-muted-foreground hover:text-foreground data-[state=open]:text-foreground",
+                // When label is hidden, behave like an icon button (size-7, no padding)
+                // When label is shown, add padding
+                "!px-0 w-7 @min-[450px]:w-auto @min-[450px]:!px-2",
+              )}
             >
-              <LayoutGrid className="size-3.5" />
-              <span className="hidden sm:inline">
+              <LayoutGrid className="size-4" />
+              <span className="hidden @min-[450px]:inline">
                 {activeView?.name ?? "Default View"}
               </span>
-              <ChevronDown className="size-3 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">

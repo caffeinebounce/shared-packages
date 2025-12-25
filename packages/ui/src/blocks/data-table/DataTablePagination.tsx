@@ -59,7 +59,7 @@ export function DataTablePagination({
   return (
     <div
       className={cn(
-        "flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 sm:flex-row sm:gap-8",
+        "flex w-full flex-row items-center justify-between gap-3 overflow-auto p-1 sm:gap-8",
         className,
       )}
       {...props}
@@ -70,14 +70,13 @@ export function DataTablePagination({
             {selectedCount} of {totalCount ?? pageCount * pageSize} row(s)
             selected.
           </>
-        ) : totalCount !== undefined ? (
-          <>{totalCount} total row(s).</>
         ) : null}
       </div>
-      <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
+      <div className="flex items-center justify-end gap-1 sm:gap-2 lg:gap-6">
         <div className="flex items-center space-x-2">
           <p className="whitespace-nowrap text-xs font-light text-muted-foreground">
-            Rows per page
+            <span className="hidden lg:inline">Rows per page</span>
+            <span className="lg:hidden">Rows</span>
           </p>
           <Select
             value={`${pageSize}`}
@@ -95,10 +94,7 @@ export function DataTablePagination({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-[100px] items-center justify-center text-xs font-light text-muted-foreground">
-          Page {page} of {pageCount}
-        </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
           <Button
             aria-label="Go to first page"
             variant="outline"
@@ -117,6 +113,14 @@ export function DataTablePagination({
           >
             <ChevronLeft className="size-4" />
           </Button>
+          <div className="flex items-center justify-center text-xs font-light text-muted-foreground whitespace-nowrap px-1">
+            <span className="hidden lg:inline">
+              Page {page} of {pageCount}
+            </span>
+            <span className="lg:hidden">
+              {page} / {pageCount}
+            </span>
+          </div>
           <Button
             aria-label="Go to next page"
             variant="outline"

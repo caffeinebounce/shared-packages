@@ -4,6 +4,7 @@ import type { Table } from "@tanstack/react-table";
 import { Settings2 } from "lucide-react";
 import * as React from "react";
 
+import { Button } from "../../components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -76,13 +77,14 @@ export function DataTableViewOptions<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon"
           aria-label="Toggle columns"
-          className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+          className="size-7 text-muted-foreground hover:text-foreground data-[state=open]:text-foreground"
         >
           <Settings2 className="size-4" />
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
         <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
