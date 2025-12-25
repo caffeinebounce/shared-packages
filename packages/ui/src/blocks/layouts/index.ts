@@ -37,3 +37,11 @@ export {
   type HelpBreadcrumb,
   type HelpPageLayoutProps,
 } from "./HelpPageLayout";
+export {
+  HelpPanelLayout,
+  type HelpPanelLayoutProps,
+} from "./HelpPanelLayout";
+export {
+  HelpLayout,
+  type HelpLayoutProps,
+} from "./HelpLayout";

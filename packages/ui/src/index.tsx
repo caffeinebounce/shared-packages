@@ -78,6 +78,27 @@ export { FormWizard, useFormWizardNavigation } from "./blocks/forms";
 export type { KeyboardShortcutProps } from "./blocks/keyboard";
 export { KeyboardShortcut } from "./blocks/keyboard";
 export type {
+  HelpArticle,
+  HelpArticleGroup,
+  HelpArticleIndexProps,
+  HelpArticleViewProps,
+  HelpButtonProps,
+  HelpContextValue,
+  HelpProviderProps,
+  HelpSearchResult,
+  HelpSearchResultsProps,
+  HelpTooltipProps,
+} from "./components/help";
+export {
+  HelpArticleIndex,
+  HelpArticleView,
+  HelpButton,
+  HelpProvider,
+  HelpSearchResults,
+  HelpTooltip,
+  useHelp,
+} from "./components/help";
+export type {
   AdminPageLayoutProps,
   AppHeaderProps,
   AppLayoutProps,
@@ -89,6 +110,8 @@ export type {
   HeaderLink,
   HelpBreadcrumb,
   HelpPageLayoutProps,
+  HelpPanelLayoutProps,
+  HelpLayoutProps,
   LegalLayoutProps,
   LegalSectionProps,
   MarketingLayoutProps,
@@ -109,6 +132,8 @@ export {
   DashboardGrid,
   FloatingUserMenu,
   HelpPageLayout,
+  HelpPanelLayout,
+  HelpLayout,
   LegalLayout,
   LegalSection,
   MarketingLayout,
@@ -222,6 +247,12 @@ export {
 } from "./components/ui/card";
 export type { CheckboxProps } from "./components/ui/checkbox";
 export { Checkbox } from "./components/ui/checkbox";
+export type { ChartConfig } from "./components/ui/chart";
+export {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "./components/ui/chart";
 export {
   Collapsible,
   CollapsibleContent,
@@ -389,6 +420,7 @@ export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 export { Textarea } from "./components/ui/textarea";
 export type { TimeEstimateProps } from "./components/ui/time-estimate";
 export { TimeEstimate } from "./components/ui/time-estimate";
+export { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
 export {
   Tooltip,
   TooltipContent,

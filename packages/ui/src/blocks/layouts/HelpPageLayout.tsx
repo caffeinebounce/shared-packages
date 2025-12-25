@@ -20,6 +20,8 @@ export interface HelpPageLayoutProps {
   description?: string;
   /** Main content */
   children: ReactNode;
+  /** Sidebar content */
+  sidebar?: ReactNode;
   /** Additional content (e.g. related articles) displayed below main content or in a sidebar */
   relatedContent?: ReactNode;
   /** Additional class names for the container */
@@ -39,13 +41,14 @@ export function HelpPageLayout({
   title,
   description,
   children,
+  sidebar,
   relatedContent,
   className,
   contentClassName,
   homeHref = "/admin/help",
 }: HelpPageLayoutProps) {
   return (
-    <div className={cn("flex flex-1 flex-col gap-8 p-4 max-w-5xl mx-auto w-full", className)}>
+    <div className={cn("flex flex-1 flex-col gap-6 p-4 max-w-7xl w-full", className)}>
       {/* Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="flex items-center text-sm text-muted-foreground">
         <Link 
@@ -72,27 +75,41 @@ export function HelpPageLayout({
         ))}
       </nav>
 
-      {/* Header */}
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-        {description && (
-          <p className="text-lg text-muted-foreground max-w-3xl">
-            {description}
-          </p>
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        {/* Sidebar */}
+        {sidebar && (
+          <aside className="w-full lg:w-64 shrink-0 hidden lg:block">
+            <div className="sticky top-8">
+              {sidebar}
+            </div>
+          </aside>
         )}
-      </div>
 
-      {/* Main Content */}
-      <div className={cn("space-y-8", contentClassName)}>
-        {children}
-      </div>
+        {/* Main Content Area */}
+        <div className="flex-1 min-w-0">
+          {/* Header */}
+          <div className="space-y-1 mb-4">
+            <h1 className="text-xl font-semibold">{title}</h1>
+            {description && (
+              <p className="text-xs text-muted-foreground max-w-3xl">
+                {description}
+              </p>
+            )}
+          </div>
 
-      {/* Related Content / Footer Navigation */}
-      {relatedContent && (
-        <div className="pt-8 border-t mt-8">
-          {relatedContent}
+          {/* Main Content */}
+          <div className={contentClassName}>
+            {children}
+          </div>
+
+          {/* Related Content / Footer Navigation */}
+          {relatedContent && (
+            <div className="pt-8 border-t mt-8">
+              {relatedContent}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
