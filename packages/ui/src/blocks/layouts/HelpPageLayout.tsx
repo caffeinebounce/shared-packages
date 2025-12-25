@@ -48,11 +48,19 @@ export function HelpPageLayout({
   homeHref = "/admin/help",
 }: HelpPageLayoutProps) {
   return (
-    <div className={cn("flex flex-1 flex-col gap-6 p-4 max-w-7xl w-full", className)}>
+    <div
+      className={cn(
+        "flex flex-1 flex-col gap-6 p-4 max-w-7xl w-full",
+        className,
+      )}
+    >
       {/* Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="flex items-center text-sm text-muted-foreground">
-        <Link 
-          href={homeHref} 
+      <nav
+        aria-label="Breadcrumb"
+        className="flex items-center text-sm text-muted-foreground"
+      >
+        <Link
+          href={homeHref}
           className="flex items-center hover:text-foreground transition-colors"
           data-prevent-help-intercept="true"
         >
@@ -62,11 +70,12 @@ export function HelpPageLayout({
         {breadcrumbs.map((crumb, index) => (
           <div key={crumb.href} className="flex items-center">
             <ChevronRight className="size-4 mx-2" />
-            <Link 
+            <Link
               href={crumb.href}
               className={cn(
                 "hover:text-foreground transition-colors",
-                index === breadcrumbs.length - 1 && "text-foreground font-medium pointer-events-none"
+                index === breadcrumbs.length - 1 &&
+                  "text-foreground font-medium pointer-events-none",
               )}
             >
               {crumb.label}
@@ -79,34 +88,28 @@ export function HelpPageLayout({
         {/* Sidebar */}
         {sidebar && (
           <aside className="w-full lg:w-64 shrink-0 hidden lg:block">
-            <div className="sticky top-8">
-              {sidebar}
-            </div>
+            <div className="sticky top-8">{sidebar}</div>
           </aside>
         )}
 
         {/* Main Content Area */}
         <div className="flex-1 min-w-0">
           {/* Header */}
-          <div className="space-y-1 mb-4">
-            <h1 className="text-xl font-semibold">{title}</h1>
+          <div className="space-y-2 mb-8">
+            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
             {description && (
-              <p className="text-xs text-muted-foreground max-w-3xl">
+              <p className="text-lg text-muted-foreground max-w-3xl">
                 {description}
               </p>
             )}
           </div>
 
           {/* Main Content */}
-          <div className={contentClassName}>
-            {children}
-          </div>
+          <div className={contentClassName}>{children}</div>
 
           {/* Related Content / Footer Navigation */}
           {relatedContent && (
-            <div className="pt-8 border-t mt-8">
-              {relatedContent}
-            </div>
+            <div className="pt-8 border-t mt-8">{relatedContent}</div>
           )}
         </div>
       </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import { HelpCircle } from "lucide-react";
-import { Button } from "../ui/button";
 import { cn } from "../../utils/cn";
+import { Button } from "../ui/button";
 import { useHelp } from "./HelpProvider";
 
 export interface HelpButtonProps {

@@ -45,6 +45,8 @@ export interface HelpContextValue {
   searchQuery: string;
   /** Set search query */
   setSearchQuery: (query: string) => void;
+  /** Perform a search and open the panel */
+  performSearch: (query: string) => void;
   /** Search results */
   searchResults: HelpSearchResult[];
   /** Open help for a specific feature */
@@ -152,16 +154,26 @@ export function HelpProvider({
     setSearchQuery("");
   }, []);
 
+  // Perform search
+  const performSearch = useCallback((query: string) => {
+    setIsOpen(true);
+    setSearchQuery(query);
+    setActiveArticleSlug(null);
+  }, []);
+
   // Open help for a specific feature
-  const openFeatureHelp = useCallback((featureKey: string) => {
-    const articleSlug = getArticleForFeature(featureKey);
-    if (articleSlug) {
-      setIsOpen(true);
-      setActiveArticleSlug(articleSlug);
-      setHistory([]);
-      setSearchQuery("");
-    }
-  }, [getArticleForFeature]);
+  const openFeatureHelp = useCallback(
+    (featureKey: string) => {
+      const articleSlug = getArticleForFeature(featureKey);
+      if (articleSlug) {
+        setIsOpen(true);
+        setActiveArticleSlug(articleSlug);
+        setHistory([]);
+        setSearchQuery("");
+      }
+    },
+    [getArticleForFeature],
+  );
 
   // Navigate to an article (with history)
   const navigateToArticle = useCallback(
@@ -239,6 +251,7 @@ export function HelpProvider({
     helpContext,
     searchQuery,
     setSearchQuery,
+    performSearch,
     searchResults,
     openFeatureHelp,
     navigateToArticle,

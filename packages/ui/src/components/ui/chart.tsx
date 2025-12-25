@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "../../utils/cn";
 import * as React from "react";
 import { ResponsiveContainer, Tooltip } from "recharts";
+import { cn } from "../../utils/cn";
 
 // Format: { theme: { light: string, dark: string } }
 export type ChartConfig = Record<

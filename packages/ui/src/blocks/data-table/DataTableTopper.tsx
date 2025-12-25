@@ -111,9 +111,7 @@ export function DataTableTopper({
           <div
             className={cn(
               "items-center gap-0.5 overflow-x-auto no-scrollbar",
-              tabs && tabs.length > 0
-                ? "hidden @min-[450px]:flex"
-                : "flex",
+              tabs && tabs.length > 0 ? "hidden @min-[450px]:flex" : "flex",
             )}
           >
             {tabs?.map((tab) => (

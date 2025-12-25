@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "../../utils/cn";
 import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group";
 import * as React from "react";
+import { cn } from "../../utils/cn";
 
 const ToggleGroup = React.forwardRef<
   React.ElementRef<typeof ToggleGroupPrimitive.Root>,

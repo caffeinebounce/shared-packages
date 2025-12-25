@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { cn } from "../../utils";
 
 export interface HelpLayoutProps {
@@ -12,7 +12,12 @@ export interface HelpLayoutProps {
  * HelpLayout wraps content and shifts it when the help panel is open.
  * This allows users to continue working while viewing help.
  */
-export function HelpLayout({ children, panel, isOpen, className }: HelpLayoutProps) {
+export function HelpLayout({
+  children,
+  panel,
+  isOpen,
+  className,
+}: HelpLayoutProps) {
   return (
     <div className={cn("flex min-h-screen", className)}>
       {/* Main content area - shrinks when panel is open */}

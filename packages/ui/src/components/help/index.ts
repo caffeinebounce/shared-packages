@@ -1,7 +1,20 @@
-export { HelpButton, type HelpButtonProps } from "./HelpButton";
-export { HelpProvider, useHelp, type HelpProviderProps, type HelpContextValue, type HelpArticle, type HelpSearchResult } from "./HelpProvider";
-export { HelpTooltip, type HelpTooltipProps } from "./HelpTooltip";
-export { HelpSearchResults, type HelpSearchResultsProps } from "./HelpSearchResults";
+export {
+  type HelpArticleGroup,
+  HelpArticleIndex,
+  type HelpArticleIndexProps,
+} from "./HelpArticleIndex";
 export { HelpArticleView, type HelpArticleViewProps } from "./HelpArticleView";
-export { HelpArticleIndex, type HelpArticleIndexProps, type HelpArticleGroup } from "./HelpArticleIndex";
-
+export { HelpButton, type HelpButtonProps } from "./HelpButton";
+export {
+  type HelpArticle,
+  type HelpContextValue,
+  HelpProvider,
+  type HelpProviderProps,
+  type HelpSearchResult,
+  useHelp,
+} from "./HelpProvider";
+export {
+  HelpSearchResults,
+  type HelpSearchResultsProps,
+} from "./HelpSearchResults";
+export { HelpTooltip, type HelpTooltipProps } from "./HelpTooltip";

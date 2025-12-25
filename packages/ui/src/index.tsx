@@ -78,27 +78,6 @@ export { FormWizard, useFormWizardNavigation } from "./blocks/forms";
 export type { KeyboardShortcutProps } from "./blocks/keyboard";
 export { KeyboardShortcut } from "./blocks/keyboard";
 export type {
-  HelpArticle,
-  HelpArticleGroup,
-  HelpArticleIndexProps,
-  HelpArticleViewProps,
-  HelpButtonProps,
-  HelpContextValue,
-  HelpProviderProps,
-  HelpSearchResult,
-  HelpSearchResultsProps,
-  HelpTooltipProps,
-} from "./components/help";
-export {
-  HelpArticleIndex,
-  HelpArticleView,
-  HelpButton,
-  HelpProvider,
-  HelpSearchResults,
-  HelpTooltip,
-  useHelp,
-} from "./components/help";
-export type {
   AdminPageLayoutProps,
   AppHeaderProps,
   AppLayoutProps,
@@ -109,9 +88,9 @@ export type {
   FloatingUserMenuUser,
   HeaderLink,
   HelpBreadcrumb,
+  HelpLayoutProps,
   HelpPageLayoutProps,
   HelpPanelLayoutProps,
-  HelpLayoutProps,
   LegalLayoutProps,
   LegalSectionProps,
   MarketingLayoutProps,
@@ -131,9 +110,9 @@ export {
   AppSidebar,
   DashboardGrid,
   FloatingUserMenu,
+  HelpLayout,
   HelpPageLayout,
   HelpPanelLayout,
-  HelpLayout,
   LegalLayout,
   LegalSection,
   MarketingLayout,
@@ -218,6 +197,27 @@ export type {
   UserAvatarMenuUser,
 } from "./blocks/user";
 export { UserAvatarMenu } from "./blocks/user";
+export type {
+  HelpArticle,
+  HelpArticleGroup,
+  HelpArticleIndexProps,
+  HelpArticleViewProps,
+  HelpButtonProps,
+  HelpContextValue,
+  HelpProviderProps,
+  HelpSearchResult,
+  HelpSearchResultsProps,
+  HelpTooltipProps,
+} from "./components/help";
+export {
+  HelpArticleIndex,
+  HelpArticleView,
+  HelpButton,
+  HelpProvider,
+  HelpSearchResults,
+  HelpTooltip,
+  useHelp,
+} from "./components/help";
 export {
   Alert,
   AlertDescription,
@@ -245,14 +245,14 @@ export {
   CardHeader,
   CardTitle,
 } from "./components/ui/card";
-export type { CheckboxProps } from "./components/ui/checkbox";
-export { Checkbox } from "./components/ui/checkbox";
 export type { ChartConfig } from "./components/ui/chart";
 export {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "./components/ui/chart";
+export type { CheckboxProps } from "./components/ui/checkbox";
+export { Checkbox } from "./components/ui/checkbox";
 export {
   Collapsible,
   CollapsibleContent,

@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, Search, X } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { cn } from "../../utils";
 
 export interface HelpPanelLayoutProps {
@@ -168,17 +168,11 @@ export function HelpPanelLayout({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4">
-          {children}
-        </div>
+        <div className="p-4">{children}</div>
       </div>
 
       {/* Footer */}
-      {footer && (
-        <div className="border-t px-3 py-2">
-          {footer}
-        </div>
-      )}
+      {footer && <div className="border-t px-3 py-2">{footer}</div>}
     </aside>
   );
 }
