@@ -1,5 +1,35 @@
 # @caffeinebounce/ui
 
+## 0.15.0
+
+### Minor Changes
+
+- 92f0a7a: Add HelpPageLayout component and fix help navigation interception
+- 92f0a7a: Enhance Help system with in-page search support and improved layouts.
+  - Update `HelpProvider` to support search state management.
+  - Update `HelpPageLayout` and `HelpPanelLayout` for better consistency.
+  - Fix `DataTableTopper` and other UI components.
+- 92f0a7a: Add Chart and ToggleGroup components, refactor Help system components.
+
+### Patch Changes
+
+- 92f0a7a: Align DataTableTopper icon styles and responsive layout:
+  - Remove chevron from View Picker
+  - Standardize icon sizes to size-4
+  - Consistent text-muted-foreground and hover:text-foreground across Search, View Picker, and Column Picker
+  - DataTableTopper now stays in a single line on mobile
+  - Tabs collapse into a dropdown on screens < 450px
+- 92f0a7a: Fix DataTableTopper overflow issue on small screens by removing self-end alignment
+- 92f0a7a: Fix DataTableTopper responsiveness using container queries
+- 92f0a7a: Hide DataTableViews name label on small container widths (<600px)
+- 92f0a7a: Refine DataTableTopper responsiveness and align icon styles
+
+  - Lower container query breakpoint to 450px for less aggressive flexing
+  - Standardize icon button styles (hover effects, colors) across Search, View Picker, and Column Picker
+  - Ensure View Picker icon color matches other toolbar icons
+
+- 92f0a7a: Update DataTableTopper to use explicit 600px container query breakpoint for better responsiveness
+
 ## 0.14.1
 
 ### Patch Changes
