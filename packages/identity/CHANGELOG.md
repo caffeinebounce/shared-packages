@@ -1,5 +1,25 @@
 # @caffeinebounce/identity
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @caffeinebounce/ui@0.15.2
+
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @caffeinebounce/ui@0.15.1
+
+## 0.2.0
+
+### Minor Changes
+
+- Email verification fix
+
 ## 0.1.14
 
 ### Patch Changes

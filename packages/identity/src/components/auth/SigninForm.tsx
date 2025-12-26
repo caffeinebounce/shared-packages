@@ -17,6 +17,7 @@ import { AuthFormLayout } from "../shared/AuthFormLayout";
 import { AuthHeader } from "../shared/AuthHeader";
 import { GoogleIcon, MicrosoftIcon } from "../shared/OAuthIcons";
 import { OrDivider } from "../shared/OrDivider";
+import { EmailVerificationPending } from "./EmailVerificationPending";
 
 /**
  * Authentication event logging callbacks
@@ -111,6 +112,8 @@ export function SigninForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
+  const [emailVerificationPending, setEmailVerificationPending] =
+    useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -137,6 +140,20 @@ export function SigninForm({
       passwordRef.current.focus();
     }
   }, [showPassword]);
+
+  // Show email verification pending if sign-in failed due to unverified email
+  if (emailVerificationPending) {
+    return (
+      <EmailVerificationPending
+        email={email}
+        logo={logo}
+        ImageComponent={Image}
+        createClient={createClient}
+        redirectTo={redirectTo}
+        className={className}
+      />
+    );
+  }
 
   async function handleOAuthSignIn(provider: OAuthProvider) {
     setError(null);
@@ -215,8 +232,11 @@ export function SigninForm({
           setError("Invalid email or password. Please try again.");
           errorReason = "invalid_credentials";
         } else if (lowerMessage.includes("email not confirmed")) {
-          setError("Please verify your email address first.");
+          // Show email verification pending screen instead of error
+          setEmailVerificationPending(true);
           errorReason = "email_not_confirmed";
+          setLoading(false);
+          return;
         } else if (
           lowerMessage.includes("too many requests") ||
           lowerMessage.includes("rate limit")

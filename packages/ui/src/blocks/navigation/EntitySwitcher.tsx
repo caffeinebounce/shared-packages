@@ -247,26 +247,28 @@ export function EntitySwitcher<T extends Entity>({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
-                {activeEntity.avatarUrl && (
-                  <AvatarImage src={activeEntity.avatarUrl} alt={displayName} />
-                )}
-                <AvatarFallback
-                  className="rounded-lg text-xs font-medium text-white"
-                  style={getAvatarGradient(activeEntity.id).style}
-                >
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  {activeEntity.avatarUrl && (
+                    <AvatarImage src={activeEntity.avatarUrl} alt={displayName} />
+                  )}
+                  <AvatarFallback
+                    className="rounded-lg text-xs font-medium text-white"
+                    style={getAvatarGradient(activeEntity.id).style}
+                  >
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-semibold">{displayName}</span>
               </div>
               {openShortcutDisplay && (
-                <Shortcut className="ml-auto hidden text-xs text-muted-foreground md:inline-flex">
+                <Shortcut className="ml-auto hidden text-xs text-muted-foreground md:inline-flex group-data-[collapsible=icon]:hidden">
                   {openShortcutDisplay}
                 </Shortcut>
               )}
-              <ChevronsUpDown className="ml-1" />
+              <ChevronsUpDown className="ml-1 group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

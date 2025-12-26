@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/identity",
-  "version": "0.1.14",
+  "version": "0.2.2",
   "description": "Authentication components and handlers for Caffeine Bounce projects",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

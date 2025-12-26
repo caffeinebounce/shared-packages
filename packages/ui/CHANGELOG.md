@@ -1,5 +1,17 @@
 # @caffeinebounce/ui
 
+## 0.15.2
+
+### Patch Changes
+
+- fix(ui): correct sidebar menu button size for lg variant when collapsed
+
+## 0.15.1
+
+### Patch Changes
+
+- fix(ui): correct sidebar menu button size for lg variant when collapsed
+
 ## 0.15.0
 
 ### Minor Changes
