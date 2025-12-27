@@ -15,7 +15,8 @@ export interface HelpArticle {
   title: string;
   description: string;
   category: string;
-  [key: string]: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 export interface HelpSearchResult {
@@ -23,7 +24,8 @@ export interface HelpSearchResult {
   title: string;
   description: string;
   category: string;
-  [key: string]: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 export interface HelpContextValue {
