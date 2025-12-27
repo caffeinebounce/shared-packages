@@ -1,5 +1,11 @@
 # @caffeinebounce/ui
 
+## 0.17.0
+
+### Minor Changes
+
+- Make `children` optional in UserPageLayout and AdminPageLayout props to ease consumption in apps without explicit children content.
+
 ## 0.16.0
 
 ### Minor Changes

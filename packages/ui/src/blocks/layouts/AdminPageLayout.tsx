@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 
 import { BasePageLayout, type BasePageLayoutProps } from "./BasePageLayout";
 
-export interface AdminPageLayoutProps extends BasePageLayoutProps {}
+export interface AdminPageLayoutProps
+  extends Omit<BasePageLayoutProps, "children"> {
+  children?: ReactNode;
+}
 
 /**
  * Shared layout component for admin pages.
@@ -23,5 +26,6 @@ export interface AdminPageLayoutProps extends BasePageLayoutProps {}
  * </AdminPageLayout>
  */
 export function AdminPageLayout(props: AdminPageLayoutProps) {
-  return <BasePageLayout {...props} />;
+  const { children, ...rest } = props;
+  return <BasePageLayout {...rest}>{children ?? null}</BasePageLayout>;
 }
