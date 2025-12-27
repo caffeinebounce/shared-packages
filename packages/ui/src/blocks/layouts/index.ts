@@ -11,6 +11,10 @@ export {
   type NavItem,
 } from "./AppSidebar";
 export {
+  BasePageLayout,
+  type BasePageLayoutProps,
+} from "./BasePageLayout";
+export {
   DashboardGrid,
   type DashboardGridProps,
 } from "./DashboardGrid";
@@ -35,7 +39,6 @@ export {
 export { LegalLayout, type LegalLayoutProps } from "./LegalLayout";
 export { LegalSection, type LegalSectionProps } from "./LegalSection";
 export { MarketingLayout, type MarketingLayoutProps } from "./MarketingLayout";
-export { PageLayout, type PageLayoutProps, type PageTab } from "./PageLayout";
 export {
   RootLayout,
   type RootLayoutAnalytics,
@@ -44,4 +47,8 @@ export {
   type RootLayoutToast,
   themeScript,
 } from "./RootLayout";
+export {
+  UserPageLayout,
+  type UserPageLayoutProps,
+} from "./UserPageLayout";
 export { WizardLayout, type WizardLayoutProps } from "./WizardLayout";

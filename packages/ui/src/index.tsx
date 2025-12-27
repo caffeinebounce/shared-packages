@@ -83,6 +83,7 @@ export type {
   AppLayoutProps,
   AppSidebarProps,
   AppSidebarUser,
+  BasePageLayoutProps,
   DashboardGridProps,
   FloatingUserMenuProps,
   FloatingUserMenuUser,
@@ -95,12 +96,11 @@ export type {
   LegalSectionProps,
   MarketingLayoutProps,
   NavItem,
-  PageLayoutProps,
-  PageTab,
   RootLayoutAnalytics,
   RootLayoutFont,
   RootLayoutProps,
   RootLayoutToast,
+  UserPageLayoutProps,
   WizardLayoutProps,
 } from "./blocks/layouts";
 export {
@@ -108,6 +108,7 @@ export {
   AppHeader,
   AppLayout,
   AppSidebar,
+  BasePageLayout,
   DashboardGrid,
   FloatingUserMenu,
   HelpLayout,
@@ -116,9 +117,9 @@ export {
   LegalLayout,
   LegalSection,
   MarketingLayout,
-  PageLayout,
   RootLayout,
   themeScript,
+  UserPageLayout,
   WizardLayout,
 } from "./blocks/layouts";
 export type { ContactInfoProps } from "./blocks/legal";

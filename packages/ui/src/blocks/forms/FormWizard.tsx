@@ -2,7 +2,14 @@
 
 import type { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
-import { type ReactNode, useCallback, useEffect, useMemo } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   Tooltip,
@@ -10,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../components/ui/tooltip";
+import { useDebounce, useLocalStorage } from "../../hooks";
 import { cn } from "../../utils";
 
 /**
@@ -64,7 +72,7 @@ export type GetStepTooltip = (
 /**
  * Props for the FormWizard component
  */
-export interface FormWizardProps {
+export interface FormWizardProps<T = unknown> {
   /** Array of step definitions */
   steps: FormWizardStep[];
   /** Current active step index (0-based) */
@@ -83,12 +91,23 @@ export interface FormWizardProps {
   onCancel?: () => void;
   /** Callback when Cmd/Ctrl+Enter is pressed (for submit functionality) */
   onSubmit?: () => void;
+  /** Callback when Ctrl+Shift+R is pressed (for reset functionality) */
+  onReset?: () => void;
   /**
    * CSS selector for the element to auto-focus when the wizard mounts.
    * Useful for focusing the first input field in a dialog.
    * @example 'input[name="name"]' or '[role="dialog"] input:first-of-type'
    */
   autoFocusSelector?: string;
+  /**
+   * Key to use for localStorage persistence.
+   * If provided, form data will be automatically saved to localStorage.
+   */
+  persistKey?: string;
+  /** The form data to persist (required if persistKey is provided) */
+  formData?: T;
+  /** Callback when data is restored from storage */
+  onDataRestored?: (data: T) => void;
   /** The step content to render */
   children: ReactNode;
   /** Additional class name for the container */
@@ -127,7 +146,7 @@ export interface FormWizardProps {
  * </FormWizard>
  * ```
  */
-export function FormWizard({
+export function FormWizard<T = unknown>({
   steps,
   currentStep,
   onStepChange,
@@ -137,13 +156,140 @@ export function FormWizard({
   scopeToDialog = true,
   onCancel,
   onSubmit,
+  onReset,
   autoFocusSelector,
+  persistKey,
+  formData,
+  onDataRestored,
   children,
   className,
-}: FormWizardProps) {
+}: FormWizardProps<T>) {
   const totalSteps = steps.length;
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === totalSteps - 1;
+
+  // Persistence logic
+  const [storedValue, setStoredValue, , isLoaded] = useLocalStorage<T | null>(
+    persistKey,
+    null,
+  );
+  const debouncedData = useDebounce(formData, 500);
+  const [hasRestored, setHasRestored] = useState(false);
+  const isRestoring = useRef(false);
+  const formDataRef = useRef(formData);
+  const restoredDataRef = useRef<T | null>(null); // Track what we restored to validate save
+
+  // Keep ref in sync with formData for unmount saving
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
+
+  // Check if the data has actually received the restored values
+  // This prevents saving stale empty data before the form has updated
+  const hasRestoredDataPropagated = useCallback(() => {
+    if (!restoredDataRef.current) return true; // No restore pending
+
+    const restored = restoredDataRef.current as Record<string, unknown>;
+    const current = debouncedData as Record<string, unknown>;
+
+    // Check if at least one non-empty restored field matches the current data
+    for (const key of Object.keys(restored)) {
+      const restoredVal = restored[key];
+      const currentVal = current?.[key];
+
+      // Skip empty restored values
+      if (!restoredVal || restoredVal === "") continue;
+
+      // Use deep equality for objects and arrays, shallow equality for primitives
+      const isObjectLike =
+        typeof restoredVal === "object" && restoredVal !== null;
+      const valuesMatch = isObjectLike
+        ? JSON.stringify(currentVal) === JSON.stringify(restoredVal)
+        : currentVal === restoredVal;
+
+      if (valuesMatch) {
+        restoredDataRef.current = null; // Clear the ref, we're done waiting
+        return true;
+      }
+    }
+
+    return false;
+  }, [debouncedData]);
+
+  // Save to storage when data changes (debounced)
+  useEffect(() => {
+    if (hasRestored && persistKey && debouncedData) {
+      // If we are in the "restoring" grace period, skip saving
+      if (isRestoring.current) {
+        return;
+      }
+
+      // Check if restored data has actually propagated to the form
+      // This prevents saving empty data before the form has updated
+      if (restoredDataRef.current && !hasRestoredDataPropagated()) {
+        return;
+      }
+
+      setStoredValue(debouncedData);
+    }
+  }, [
+    hasRestored,
+    persistKey,
+    debouncedData,
+    setStoredValue,
+    hasRestoredDataPropagated,
+  ]);
+
+  // Save on unmount to capture latest changes that haven't been debounced yet
+  useEffect(() => {
+    return () => {
+      if (hasRestored && persistKey && formDataRef.current) {
+        // If we are still in the restoring grace period, do not save on unmount.
+        if (isRestoring.current) {
+          return;
+        }
+
+        // If restored data hasn't propagated yet, don't save empty data
+        if (restoredDataRef.current) {
+          return;
+        }
+
+        try {
+          window.localStorage.setItem(
+            persistKey,
+            JSON.stringify(formDataRef.current),
+          );
+        } catch (e) {
+          console.error("[FormWizard] Failed to save on unmount", e);
+        }
+      }
+    };
+  }, [hasRestored, persistKey]);
+
+  // Restore from storage on mount
+  useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
+    if (persistKey && storedValue && !hasRestored && onDataRestored) {
+      // Store what we're restoring so we can validate it propagated
+      restoredDataRef.current = storedValue;
+
+      onDataRestored(storedValue);
+
+      // Block saving for slightly longer than the debounce delay
+      isRestoring.current = true;
+      setTimeout(() => {
+        isRestoring.current = false;
+      }, 600);
+
+      setHasRestored(true);
+    } else if (persistKey && !storedValue && !hasRestored) {
+      // Nothing to restore, but we are ready to save
+      setHasRestored(true);
+    }
+  }, [isLoaded, persistKey, storedValue, hasRestored, onDataRestored]);
 
   // Auto-focus the specified element on mount
   useEffect(() => {
@@ -211,6 +357,25 @@ export function FormWizard({
         return;
       }
 
+      // Alt+Shift+R to reset (avoids browser conflicts with Ctrl+Shift combinations)
+      if (e.key === "R" && e.altKey && e.shiftKey && onReset) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Clear localStorage if we have a persistKey
+        if (persistKey) {
+          try {
+            window.localStorage.removeItem(persistKey);
+            setStoredValue(null);
+          } catch (err) {
+            console.error("[FormWizard] Failed to clear storage on reset", err);
+          }
+        }
+
+        onReset();
+        return;
+      }
+
       // Alt+Arrow navigation
       if (!e.altKey) return;
 
@@ -236,6 +401,9 @@ export function FormWizard({
     handleNext,
     onCancel,
     onSubmit,
+    onReset,
+    persistKey,
+    setStoredValue,
   ]);
 
   /**

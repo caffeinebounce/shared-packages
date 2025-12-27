@@ -43,7 +43,7 @@ export function ComingSoonButton({
           type="button"
           disabled
           className={cn(
-            "group inline-flex h-7 cursor-not-allowed items-center justify-center gap-1 rounded-lg border border-border bg-muted/50 px-2 pr-1.5 text-xs font-normal text-muted-foreground opacity-60 transition-colors",
+            "group inline-flex h-8 cursor-not-allowed items-center justify-center gap-1 rounded-lg border border-border bg-muted/50 px-2 text-xs font-normal text-muted-foreground opacity-60 transition-colors",
             className,
           )}
           aria-label={`${label} (${tooltip})`}
