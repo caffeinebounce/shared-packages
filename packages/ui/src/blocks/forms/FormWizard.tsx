@@ -401,6 +401,9 @@ export function FormWizard<T = unknown>({
     handleNext,
     onCancel,
     onSubmit,
+    onReset,
+    persistKey,
+    setStoredValue,
   ]);
 
   /**

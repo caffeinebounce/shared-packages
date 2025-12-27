@@ -15,7 +15,7 @@ export interface HelpArticle {
   title: string;
   description: string;
   category: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface HelpSearchResult {
@@ -23,7 +23,7 @@ export interface HelpSearchResult {
   title: string;
   description: string;
   category: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface HelpContextValue {
