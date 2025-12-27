@@ -58,10 +58,6 @@ export function UserPageLayout({
   tabs,
   defaultTab,
 }: UserPageLayoutProps) {
-  if (loading && loadingSkeleton) {
-    return <div className={className}>{loadingSkeleton}</div>;
-  }
-
   return (
     <BasePageLayout
       title={title}
@@ -70,7 +66,9 @@ export function UserPageLayout({
       className={className}
       contentClassName={contentClassName}
     >
-      {tabs && tabs.length > 0 ? (
+      {loading && loadingSkeleton ? (
+        loadingSkeleton
+      ) : tabs && tabs.length > 0 ? (
         <Tabs defaultValue={defaultTab || tabs[0].value} className="space-y-6">
           <TabsList>
             {tabs.map((tab) => (
