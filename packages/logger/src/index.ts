@@ -1,23 +1,22 @@
 /**
- * @compass/logger
+ * @caffeinebounce/logger
  *
  * Shared logging utility for Better Stack integration.
  * Provides structured logging for both server and client-side code.
  *
  * @example
  * ```typescript
- * import { logger, authLogger } from "@compass/logger";
+ * import { logger, authLogger, useErrorLogger, useFormErrorLogger } from "@caffeinebounce/logger";
  *
- * // Use the universal logger (auto-detects runtime)
+ * // Universal logger (works on server and client)
  * logger.info("Something happened", { event: "my.event", userId: "123" });
  *
- * // Use auth-specific helpers
+ * // Auth-specific helpers
  * authLogger.signInSuccess("user-id", "user@example.com");
  *
- * // Use the useLogger hook in client components (recommended)
- * import { useLogger } from "@compass/logger";
- * const log = useLogger();
- * log.info("User action", { userId: 42 });
+ * // Client component hooks (recommended)
+ * const { logError } = useErrorLogger();
+ * const logFormError = useFormErrorLogger();
  * ```
  */
 
@@ -31,6 +30,38 @@ export {
   Logger,
   logger,
 } from "./logger";
+
+// Error logging utilities
+export {
+  createApiErrorResponse,
+  extractErrorMessage,
+  extractErrorStack,
+  extractErrorType,
+  extractSupabaseErrorContext,
+  extractValidationErrorContext,
+  getOrGenerateCorrelationId,
+} from "./error-logger";
+
+export type {
+  ApiErrorContext,
+  ApiErrorResponse,
+} from "./error-logger";
+
+// Client-side error logging hooks
+export {
+  useErrorLogger,
+  type ErrorLogContext,
+} from "./use-error-logger";
+
+// Form error logging utilities
+export {
+  logFormNetworkError,
+  logFormSubmissionError,
+  logFormValidationError,
+  useFormErrorLogger,
+  type FormErrorContext,
+  type FormErrorType,
+} from "./form-error-logger";
 
 export type {
   AuthLogContext,
