@@ -112,35 +112,37 @@ export function Navbar({
         {logo}
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-4 lg:gap-6">
+        <div className="hidden md:flex items-center gap-2">
           {/* Navigation Links */}
-          {links.map((link) =>
-            link.external ? (
-              <a
-                key={link.href}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors whitespace-nowrap"
-              >
-                {link.icon}
-                {link.label}
-              </a>
-            ) : (
-              <LinkEl
-                key={link.href}
-                href={link.href}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors whitespace-nowrap"
-              >
-                {link.icon}
-                {link.label}
-              </LinkEl>
-            ),
-          )}
+          <nav className="flex items-center gap-2">
+            {links.map((link) =>
+              link.external ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors whitespace-nowrap"
+                >
+                  {link.icon}
+                  {link.label}
+                </a>
+              ) : (
+                <LinkEl
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors whitespace-nowrap"
+                >
+                  {link.icon}
+                  {link.label}
+                </LinkEl>
+              ),
+            )}
+          </nav>
 
           {/* Right Content */}
-          {rightContent}
-        </nav>
+          <div className="flex items-center gap-2">{rightContent}</div>
+        </div>
 
         {/* Mobile: Right content + Menu Button */}
         <div className="flex items-center gap-2 md:hidden">

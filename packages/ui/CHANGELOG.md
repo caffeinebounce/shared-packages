@@ -1,5 +1,17 @@
 # @caffeinebounce/ui
 
+## 0.16.0
+
+### Minor Changes
+
+- 3b2e926: Local storage on modal forms
+
+### Patch Changes
+
+- Fix AppHeader grouping and ComingSoonButton padding.
+- 643fdb6: Ensure UserPageLayout renders BasePageLayout when loading to preserve layout structure.
+- 898eda5: Remove unused PageLayout component.
+
 ## 0.15.2
 
 ### Patch Changes

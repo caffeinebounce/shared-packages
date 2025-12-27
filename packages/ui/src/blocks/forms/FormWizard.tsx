@@ -91,6 +91,8 @@ export interface FormWizardProps<T = unknown> {
   onCancel?: () => void;
   /** Callback when Cmd/Ctrl+Enter is pressed (for submit functionality) */
   onSubmit?: () => void;
+  /** Callback when Ctrl+Shift+R is pressed (for reset functionality) */
+  onReset?: () => void;
   /**
    * CSS selector for the element to auto-focus when the wizard mounts.
    * Useful for focusing the first input field in a dialog.
@@ -154,6 +156,7 @@ export function FormWizard<T = unknown>({
   scopeToDialog = true,
   onCancel,
   onSubmit,
+  onReset,
   autoFocusSelector,
   persistKey,
   formData,
@@ -333,6 +336,25 @@ export function FormWizard<T = unknown>({
         e.preventDefault();
         e.stopPropagation();
         onSubmit();
+        return;
+      }
+
+      // Ctrl+Shift+F to reset (Ctrl only, not Cmd to avoid browser conflict on Mac)
+      if (e.key === "F" && e.ctrlKey && e.shiftKey && !e.metaKey && onReset) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Clear localStorage if we have a persistKey
+        if (persistKey) {
+          try {
+            window.localStorage.removeItem(persistKey);
+            setStoredValue(null);
+          } catch (err) {
+            console.error("[FormWizard] Failed to clear storage on reset", err);
+          }
+        }
+        
+        onReset();
         return;
       }
 
