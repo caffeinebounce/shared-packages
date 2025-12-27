@@ -2,6 +2,14 @@ export {
   AdminPageLayout,
   type AdminPageLayoutProps,
 } from "./AdminPageLayout";
+export {
+  BasePageLayout,
+  type BasePageLayoutProps,
+} from "./BasePageLayout";
+export {
+  UserPageLayout,
+  type UserPageLayoutProps,
+} from "./UserPageLayout";
 export { AppHeader, type AppHeaderProps, type HeaderLink } from "./AppHeader";
 export { AppLayout, type AppLayoutProps } from "./AppLayout";
 export {

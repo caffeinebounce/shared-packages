@@ -79,6 +79,8 @@ export type { KeyboardShortcutProps } from "./blocks/keyboard";
 export { KeyboardShortcut } from "./blocks/keyboard";
 export type {
   AdminPageLayoutProps,
+  BasePageLayoutProps,
+  UserPageLayoutProps,
   AppHeaderProps,
   AppLayoutProps,
   AppSidebarProps,
@@ -105,6 +107,8 @@ export type {
 } from "./blocks/layouts";
 export {
   AdminPageLayout,
+  BasePageLayout,
+  UserPageLayout,
   AppHeader,
   AppLayout,
   AppSidebar,
