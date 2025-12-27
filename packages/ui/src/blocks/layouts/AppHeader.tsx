@@ -145,14 +145,10 @@ export function AppHeader({
       {showSidebarTrigger && <SidebarTrigger className="-ml-1" />}
       {leadingContent}
       <div className="flex-1" />
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {actions}
-        {(helpConfig || aboutConfig) && (
-          <nav className="flex items-center gap-2">
-            {helpConfig && renderLink(helpConfig)}
-            {aboutConfig && renderLink(aboutConfig)}
-          </nav>
-        )}
+        {helpConfig && renderLink(helpConfig)}
+        {aboutConfig && renderLink(aboutConfig)}
         {showThemeToggle && (
           <ThemeToggle
             shortcutDisplay={themeToggleShortcut}
