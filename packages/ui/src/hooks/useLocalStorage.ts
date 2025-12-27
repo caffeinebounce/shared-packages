@@ -6,23 +6,23 @@ import { useCallback, useEffect, useState } from "react";
  * Hook for reading and writing to localStorage with SSR safety.
  * Automatically syncs across tabs via the storage event.
  *
- * @param key - The localStorage key
+ * @param key - The localStorage key (pass null to disable)
  * @param initialValue - The initial value if nothing is stored
- * @returns A tuple of [storedValue, setValue, removeValue]
+ * @returns A tuple of [storedValue, setValue, removeValue, isLoaded]
  *
  * @example
  * ```tsx
- * const [theme, setTheme, removeTheme] = useLocalStorage("theme", "light");
+ * const [theme, setTheme, removeTheme, isLoaded] = useLocalStorage("theme", "light");
  * ```
  */
 export function useLocalStorage<T>(
-  key: string,
+  key: string | null | undefined,
   initialValue: T,
-): [T, (value: T | ((val: T) => T)) => void, () => void] {
+): [T, (value: T | ((val: T) => T)) => void, () => void, boolean] {
   // Get initial value from localStorage or use provided initial value
   const readValue = useCallback((): T => {
     // SSR safety check
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || !key) {
       return initialValue;
     }
 
@@ -36,42 +36,47 @@ export function useLocalStorage<T>(
   }, [initialValue, key]);
 
   const [storedValue, setStoredValue] = useState<T>(initialValue);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Read the actual value after mount (SSR safety)
   useEffect(() => {
     setStoredValue(readValue());
+    setIsLoaded(true);
   }, [readValue]);
 
   // Setter function that persists to localStorage
   const setValue = useCallback(
     (value: T | ((val: T) => T)) => {
       try {
-        // Allow value to be a function for same API as useState
-        const valueToStore =
-          value instanceof Function ? value(storedValue) : value;
-        setStoredValue(valueToStore);
+        setStoredValue((prevStoredValue) => {
+          // Allow value to be a function for same API as useState
+          const valueToStore =
+            value instanceof Function ? value(prevStoredValue) : value;
 
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem(key, JSON.stringify(valueToStore));
-          // Dispatch storage event for cross-tab sync
-          window.dispatchEvent(
-            new StorageEvent("storage", {
-              key,
-              newValue: JSON.stringify(valueToStore),
-            }),
-          );
-        }
+          if (typeof window !== "undefined" && key) {
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+            // Dispatch storage event for cross-tab sync
+            window.dispatchEvent(
+              new StorageEvent("storage", {
+                key,
+                newValue: JSON.stringify(valueToStore),
+              }),
+            );
+          }
+
+          return valueToStore;
+        });
       } catch (error) {
         console.warn(`Error setting localStorage key "${key}":`, error);
       }
     },
-    [key, storedValue],
+    [key],
   );
 
   // Remove the key from localStorage
   const removeValue = useCallback(() => {
     try {
-      if (typeof window !== "undefined") {
+      if (typeof window !== "undefined" && key) {
         window.localStorage.removeItem(key);
         window.dispatchEvent(
           new StorageEvent("storage", {
@@ -88,6 +93,8 @@ export function useLocalStorage<T>(
 
   // Sync across tabs
   useEffect(() => {
+    if (!key) return;
+
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === key && event.newValue !== null) {
         try {
@@ -104,5 +111,5 @@ export function useLocalStorage<T>(
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [initialValue, key]);
 
-  return [storedValue, setValue, removeValue];
+  return [storedValue, setValue, removeValue, isLoaded];
 }
