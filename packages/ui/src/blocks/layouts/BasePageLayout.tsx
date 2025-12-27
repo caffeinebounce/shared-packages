@@ -11,7 +11,7 @@ export interface BasePageLayoutProps {
   /** Actions to display in the header (buttons, etc.) */
   actions?: ReactNode;
   /** Main content */
-  children: ReactNode;
+  children?: ReactNode;
   /** Additional class names for the container */
   className?: string;
   /** Additional class names for the content area */

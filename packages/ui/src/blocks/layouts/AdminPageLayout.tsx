@@ -27,5 +27,5 @@ export interface AdminPageLayoutProps
  */
 export function AdminPageLayout(props: AdminPageLayoutProps) {
   const { children, ...rest } = props;
-  return <BasePageLayout {...rest}>{children ?? null}</BasePageLayout>;
+  return <BasePageLayout {...rest}>{children}</BasePageLayout>;
 }

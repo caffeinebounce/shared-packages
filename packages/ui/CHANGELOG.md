@@ -4,7 +4,24 @@
 
 ### Minor Changes
 
-- Make `children` optional in UserPageLayout and AdminPageLayout props to ease consumption in apps without explicit children content.
+- Make `children` optional in BasePageLayout, UserPageLayout, and AdminPageLayout props to ease consumption in apps without explicit children content.
+- Add keyboard shortcut (Alt+Shift+R) to FormWizard for form reset functionality.
+- Implement deep equality comparison in FormWizard's `hasRestoredDataPropagated()` to properly handle nested object restoration from localStorage.
+
+### Breaking Changes
+
+- **useLocalStorage hook return type**: The return value has changed from a 3-tuple `[value, setValue, removeValue]` to a 4-tuple `[value, setValue, removeValue, isLoaded]`.
+  - **Migration**: Destructure the 4th element if needed, or use `_` to ignore it. See hook JSDoc for examples.
+  - **Why**: The `isLoaded` flag prevents hydration mismatches and allows safe rendering of localStorage-dependent UI only after client-side restoration.
+
+- **Keyboard shortcut change**: Changed FormWizard reset shortcut from `Ctrl+Shift+F` to `Alt+Shift+R` to avoid conflicts with browser "Find in Page" functionality.
+  - **Migration**: Update any user-facing documentation mentioning the old shortcut.
+  - **Impact**: Forms using FormWizard will now use Alt+Shift+R for reset; users relying on Ctrl+Shift+F must use the new combination.
+
+### Patch Changes
+
+- Add validation comment in useLocalStorage's `setValue` function for cross-tab storage event synchronization.
+- Improve FormWizard persistence handling with comments explaining race condition prevention.
 
 ## 0.16.0
 

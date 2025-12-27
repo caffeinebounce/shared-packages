@@ -10,9 +10,17 @@ import { useCallback, useEffect, useState } from "react";
  * @param initialValue - The initial value if nothing is stored
  * @returns A tuple of [storedValue, setValue, removeValue, isLoaded]
  *
+ * **Breaking Change (v0.16+):** Return type changed from 3-tuple to 4-tuple.
+ * The `isLoaded` boolean is now the 4th element, indicating when localStorage
+ * has been read and state is hydrated. This is important for SSR compatibility.
+ *
  * @example
  * ```tsx
+ * // Destructure the 4-tuple
  * const [theme, setTheme, removeTheme, isLoaded] = useLocalStorage("theme", "light");
+ * 
+ * // Only render when loaded (SSR safe)
+ * if (!isLoaded) return <Skeleton />;
  * ```
  */
 export function useLocalStorage<T>(
@@ -56,6 +64,9 @@ export function useLocalStorage<T>(
           if (typeof window !== "undefined" && key) {
             window.localStorage.setItem(key, JSON.stringify(valueToStore));
             // Dispatch storage event for cross-tab sync
+            // Note: This fires synchronously but in the state updater, ensuring
+            // the value has been set before other tabs are notified.
+            // Cross-tab synchronization is validated through the storage event listener below.
             window.dispatchEvent(
               new StorageEvent("storage", {
                 key,

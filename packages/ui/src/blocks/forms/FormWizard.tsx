@@ -197,8 +197,16 @@ export function FormWizard<T = unknown>({
       const restoredVal = restored[key];
       const currentVal = current?.[key];
       
-      // If the restored value was non-empty and current matches, data has propagated
-      if (restoredVal && restoredVal !== "" && currentVal === restoredVal) {
+      // Skip empty restored values
+      if (!restoredVal || restoredVal === "") continue;
+      
+      // Use deep equality for objects and arrays, shallow equality for primitives
+      const isObjectLike = typeof restoredVal === "object" && restoredVal !== null;
+      const valuesMatch = isObjectLike
+        ? JSON.stringify(currentVal) === JSON.stringify(restoredVal)
+        : currentVal === restoredVal;
+      
+      if (valuesMatch) {
         restoredDataRef.current = null; // Clear the ref, we're done waiting
         return true;
       }
@@ -339,8 +347,8 @@ export function FormWizard<T = unknown>({
         return;
       }
 
-      // Ctrl+Shift+F to reset (Ctrl only, not Cmd to avoid browser conflict on Mac)
-      if (e.key === "F" && e.ctrlKey && e.shiftKey && !e.metaKey && onReset) {
+      // Alt+Shift+R to reset (avoids browser conflicts with Ctrl+Shift combinations)
+      if (e.key === "R" && e.altKey && e.shiftKey && onReset) {
         e.preventDefault();
         e.stopPropagation();
         
