@@ -43,7 +43,6 @@ export {
 export { LegalLayout, type LegalLayoutProps } from "./LegalLayout";
 export { LegalSection, type LegalSectionProps } from "./LegalSection";
 export { MarketingLayout, type MarketingLayoutProps } from "./MarketingLayout";
-export { PageLayout, type PageLayoutProps, type PageTab } from "./PageLayout";
 export {
   RootLayout,
   type RootLayoutAnalytics,
