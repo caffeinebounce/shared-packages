@@ -18,7 +18,7 @@ import { useCallback, useEffect, useState } from "react";
  * ```tsx
  * // Destructure the 4-tuple
  * const [theme, setTheme, removeTheme, isLoaded] = useLocalStorage("theme", "light");
- * 
+ *
  * // Only render when loaded (SSR safe)
  * if (!isLoaded) return <Skeleton />;
  * ```

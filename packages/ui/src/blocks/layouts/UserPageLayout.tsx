@@ -21,7 +21,8 @@ export interface PageTab {
   content: React.ReactNode;
 }
 
-export interface UserPageLayoutProps extends Omit<BasePageLayoutProps, "children"> {
+export interface UserPageLayoutProps
+  extends Omit<BasePageLayoutProps, "children"> {
   /** Whether to show a bottom border on the header (not used in BasePageLayout currently, but kept for compatibility if needed) */
   headerBordered?: boolean;
   /** Optional back link URL (not used in BasePageLayout currently) */

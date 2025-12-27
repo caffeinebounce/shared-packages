@@ -250,7 +250,10 @@ export function EntitySwitcher<T extends Entity>({
               <div className="flex h-8 w-8 shrink-0 items-center justify-center">
                 <Avatar className="h-8 w-8 rounded-lg">
                   {activeEntity.avatarUrl && (
-                    <AvatarImage src={activeEntity.avatarUrl} alt={displayName} />
+                    <AvatarImage
+                      src={activeEntity.avatarUrl}
+                      alt={displayName}
+                    />
                   )}
                   <AvatarFallback
                     className="rounded-lg text-xs font-medium text-white"

@@ -188,30 +188,31 @@ export function FormWizard<T = unknown>({
   // This prevents saving stale empty data before the form has updated
   const hasRestoredDataPropagated = useCallback(() => {
     if (!restoredDataRef.current) return true; // No restore pending
-    
+
     const restored = restoredDataRef.current as Record<string, unknown>;
     const current = debouncedData as Record<string, unknown>;
-    
+
     // Check if at least one non-empty restored field matches the current data
     for (const key of Object.keys(restored)) {
       const restoredVal = restored[key];
       const currentVal = current?.[key];
-      
+
       // Skip empty restored values
       if (!restoredVal || restoredVal === "") continue;
-      
+
       // Use deep equality for objects and arrays, shallow equality for primitives
-      const isObjectLike = typeof restoredVal === "object" && restoredVal !== null;
+      const isObjectLike =
+        typeof restoredVal === "object" && restoredVal !== null;
       const valuesMatch = isObjectLike
         ? JSON.stringify(currentVal) === JSON.stringify(restoredVal)
         : currentVal === restoredVal;
-      
+
       if (valuesMatch) {
         restoredDataRef.current = null; // Clear the ref, we're done waiting
         return true;
       }
     }
-    
+
     return false;
   }, [debouncedData]);
 
@@ -222,16 +223,22 @@ export function FormWizard<T = unknown>({
       if (isRestoring.current) {
         return;
       }
-      
+
       // Check if restored data has actually propagated to the form
       // This prevents saving empty data before the form has updated
       if (restoredDataRef.current && !hasRestoredDataPropagated()) {
         return;
       }
-      
+
       setStoredValue(debouncedData);
     }
-  }, [hasRestored, persistKey, debouncedData, setStoredValue, hasRestoredDataPropagated]);
+  }, [
+    hasRestored,
+    persistKey,
+    debouncedData,
+    setStoredValue,
+    hasRestoredDataPropagated,
+  ]);
 
   // Save on unmount to capture latest changes that haven't been debounced yet
   useEffect(() => {
@@ -241,14 +248,17 @@ export function FormWizard<T = unknown>({
         if (isRestoring.current) {
           return;
         }
-        
+
         // If restored data hasn't propagated yet, don't save empty data
         if (restoredDataRef.current) {
           return;
         }
-        
+
         try {
-          window.localStorage.setItem(persistKey, JSON.stringify(formDataRef.current));
+          window.localStorage.setItem(
+            persistKey,
+            JSON.stringify(formDataRef.current),
+          );
         } catch (e) {
           console.error("[FormWizard] Failed to save on unmount", e);
         }
@@ -265,15 +275,15 @@ export function FormWizard<T = unknown>({
     if (persistKey && storedValue && !hasRestored && onDataRestored) {
       // Store what we're restoring so we can validate it propagated
       restoredDataRef.current = storedValue;
-      
+
       onDataRestored(storedValue);
-      
+
       // Block saving for slightly longer than the debounce delay
       isRestoring.current = true;
       setTimeout(() => {
         isRestoring.current = false;
       }, 600);
-      
+
       setHasRestored(true);
     } else if (persistKey && !storedValue && !hasRestored) {
       // Nothing to restore, but we are ready to save
@@ -351,7 +361,7 @@ export function FormWizard<T = unknown>({
       if (e.key === "R" && e.altKey && e.shiftKey && onReset) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         // Clear localStorage if we have a persistKey
         if (persistKey) {
           try {
@@ -361,7 +371,7 @@ export function FormWizard<T = unknown>({
             console.error("[FormWizard] Failed to clear storage on reset", err);
           }
         }
-        
+
         onReset();
         return;
       }

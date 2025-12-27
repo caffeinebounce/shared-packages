@@ -2,14 +2,6 @@ export {
   AdminPageLayout,
   type AdminPageLayoutProps,
 } from "./AdminPageLayout";
-export {
-  BasePageLayout,
-  type BasePageLayoutProps,
-} from "./BasePageLayout";
-export {
-  UserPageLayout,
-  type UserPageLayoutProps,
-} from "./UserPageLayout";
 export { AppHeader, type AppHeaderProps, type HeaderLink } from "./AppHeader";
 export { AppLayout, type AppLayoutProps } from "./AppLayout";
 export {
@@ -18,6 +10,10 @@ export {
   type AppSidebarUser,
   type NavItem,
 } from "./AppSidebar";
+export {
+  BasePageLayout,
+  type BasePageLayoutProps,
+} from "./BasePageLayout";
 export {
   DashboardGrid,
   type DashboardGridProps,
@@ -51,4 +47,8 @@ export {
   type RootLayoutToast,
   themeScript,
 } from "./RootLayout";
+export {
+  UserPageLayout,
+  type UserPageLayoutProps,
+} from "./UserPageLayout";
 export { WizardLayout, type WizardLayoutProps } from "./WizardLayout";

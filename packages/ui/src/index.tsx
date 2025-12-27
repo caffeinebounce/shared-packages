@@ -79,12 +79,11 @@ export type { KeyboardShortcutProps } from "./blocks/keyboard";
 export { KeyboardShortcut } from "./blocks/keyboard";
 export type {
   AdminPageLayoutProps,
-  BasePageLayoutProps,
-  UserPageLayoutProps,
   AppHeaderProps,
   AppLayoutProps,
   AppSidebarProps,
   AppSidebarUser,
+  BasePageLayoutProps,
   DashboardGridProps,
   FloatingUserMenuProps,
   FloatingUserMenuUser,
@@ -101,15 +100,15 @@ export type {
   RootLayoutFont,
   RootLayoutProps,
   RootLayoutToast,
+  UserPageLayoutProps,
   WizardLayoutProps,
 } from "./blocks/layouts";
 export {
   AdminPageLayout,
-  BasePageLayout,
-  UserPageLayout,
   AppHeader,
   AppLayout,
   AppSidebar,
+  BasePageLayout,
   DashboardGrid,
   FloatingUserMenu,
   HelpLayout,
@@ -120,6 +119,7 @@ export {
   MarketingLayout,
   RootLayout,
   themeScript,
+  UserPageLayout,
   WizardLayout,
 } from "./blocks/layouts";
 export type { ContactInfoProps } from "./blocks/legal";
