@@ -154,6 +154,8 @@ Can span multiple lines with details.
 - `minor` - New features, backward compatible (0.X.0)
 - `major` - Breaking changes (X.0.0)
 
+**IMPORTANT**: Only use `major` version bumps for actual breaking changes. Do not use major for large features if they are backward compatible.
+
 ### Before Creating a PR
 
 **Always include a changeset:**
