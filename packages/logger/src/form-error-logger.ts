@@ -102,50 +102,50 @@ export function useFormErrorLogger() {
  *
  * @example
  * ```typescript
- * import { logFormValidationError } from "@caffeinebounce/logger";
+ * import { useLogFormValidationError } from "@caffeinebounce/logger";
  *
- * const result = validateEmail(email);
- * if (!result.valid) {
- *   logFormValidationError("LoginForm", "email", result.error, userId);
- * }
+ * const logValidationError = useLogFormValidationError();
+ *
+ * // In your form handler
+ * logValidationError("RegistrationForm", "email", "Invalid email format", userId);
  * ```
  */
-export function logFormValidationError(
-  formName: string,
-  fieldName: string,
-  message: string,
-  userId?: string,
-): void {
+export function useLogFormValidationError() {
   const { warn } = useLogger();
-  warn(`Form validation error: ${formName}`, {
-    event: "form.error.validation",
-    form: formName,
-    field: fieldName,
-    message,
-    userId,
-    errorType: "validation",
-    timestamp: new Date().toISOString(),
-  });
+
+  return (
+    formName: string,
+    fieldName: string,
+    message: string,
+    userId?: string,
+  ) => {
+    warn(`Form validation error: ${formName}`, {
+      event: "form.error.validation",
+      form: formName,
+      field: fieldName,
+      message,
+      userId,
+      errorType: "validation",
+      timestamp: new Date().toISOString(),
+    });
+  };
 }
 
 /**
- * Log form submission error
+ * Hook to log form submission error
  *
- * Convenience function for logging errors that occur during form submission
- *
- * @param formName Name of the form
- * @param message Error message
- * @param metadata Additional context (status code, endpoint, etc.)
- * @param userId Optional user ID
+ * Returns a function for logging errors that occur during form submission
  *
  * @example
  * ```typescript
- * import { logFormSubmissionError } from "@caffeinebounce/logger";
+ * import { useLogFormSubmissionError } from "@caffeinebounce/logger";
+ *
+ * const logSubmissionError = useLogFormSubmissionError();
  *
  * try {
  *   await submitForm(data);
  * } catch (error) {
- *   logFormSubmissionError(
+ *   logSubmissionError(
  *     "RegistrationForm",
  *     error instanceof Error ? error.message : "Unknown error",
  *     { endpoint: "/api/auth/register", statusCode: 400 },
@@ -154,42 +154,42 @@ export function logFormValidationError(
  * }
  * ```
  */
-export function logFormSubmissionError(
-  formName: string,
-  message: string,
-  metadata?: Record<string, unknown>,
-  userId?: string,
-): void {
+export function useLogFormSubmissionError() {
   const { error } = useLogger();
-  error(`Form submission error: ${formName}`, {
-    event: "form.error.submission",
-    form: formName,
-    message,
-    userId,
-    errorType: "submission",
-    timestamp: new Date().toISOString(),
-    ...metadata,
-  });
+
+  return (
+    formName: string,
+    message: string,
+    metadata?: Record<string, unknown>,
+    userId?: string,
+  ) => {
+    error(`Form submission error: ${formName}`, {
+      event: "form.error.submission",
+      form: formName,
+      message,
+      userId,
+      errorType: "submission",
+      timestamp: new Date().toISOString(),
+      ...metadata,
+    });
+  };
 }
 
 /**
- * Log form network error
+ * Hook to log form network error
  *
- * Convenience function for logging network-related form errors
- *
- * @param formName Name of the form
- * @param message Error message
- * @param statusCode HTTP status code (if available)
- * @param userId Optional user ID
+ * Returns a function for logging network-related form errors
  *
  * @example
  * ```typescript
- * import { logFormNetworkError } from "@caffeinebounce/logger";
+ * import { useLogFormNetworkError } from "@caffeinebounce/logger";
+ *
+ * const logNetworkError = useLogFormNetworkError();
  *
  * try {
  *   const response = await fetch("/api/data");
  *   if (!response.ok) {
- *     logFormNetworkError(
+ *     logNetworkError(
  *       "DataForm",
  *       `Server error: ${response.statusText}`,
  *       response.status,
@@ -197,7 +197,7 @@ export function logFormSubmissionError(
  *     );
  *   }
  * } catch (error) {
- *   logFormNetworkError(
+ *   logNetworkError(
  *     "DataForm",
  *     "Network request failed",
  *     undefined,
@@ -206,20 +206,23 @@ export function logFormSubmissionError(
  * }
  * ```
  */
-export function logFormNetworkError(
-  formName: string,
-  message: string,
-  statusCode?: number,
-  userId?: string,
-): void {
+export function useLogFormNetworkError() {
   const { error } = useLogger();
-  error(`Form network error: ${formName}`, {
-    event: "form.error.network",
-    form: formName,
-    message,
-    statusCode,
-    userId,
-    errorType: "network",
-    timestamp: new Date().toISOString(),
-  });
+
+  return (
+    formName: string,
+    message: string,
+    statusCode?: number,
+    userId?: string,
+  ) => {
+    error(`Form network error: ${formName}`, {
+      event: "form.error.network",
+      form: formName,
+      message,
+      statusCode,
+      userId,
+      errorType: "network",
+      timestamp: new Date().toISOString(),
+    });
+  };
 }

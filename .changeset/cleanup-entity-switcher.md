@@ -1,5 +1,5 @@
 ---
-"@caffeinebounce/ui": minor
+"@caffeinebounce/ui": major
 ---
 
 # Cleanup EntitySwitcher
