@@ -79,6 +79,7 @@ export type { KeyboardShortcutProps } from "./blocks/keyboard";
 export { KeyboardShortcut } from "./blocks/keyboard";
 export type {
   AdminPageLayoutProps,
+  AppFooterProps,
   AppHeaderProps,
   AppLayoutProps,
   AppSidebarProps,
@@ -105,6 +106,7 @@ export type {
 } from "./blocks/layouts";
 export {
   AdminPageLayout,
+  AppFooter,
   AppHeader,
   AppLayout,
   AppSidebar,
@@ -451,6 +453,7 @@ export {
   type ZIndex,
   zIndex,
 } from "./config";
+export { useCopyToClipboard } from "./hooks/useCopyToClipboard";
 // Hooks
 export { useDebounce } from "./hooks/useDebounce";
 export {

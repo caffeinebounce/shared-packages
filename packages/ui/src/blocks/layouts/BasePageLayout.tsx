@@ -16,6 +16,8 @@ export interface BasePageLayoutProps {
   className?: string;
   /** Additional class names for the content area */
   contentClassName?: string;
+  /** Optional footer content */
+  footer?: ReactNode;
 }
 
 /**
@@ -30,23 +32,29 @@ export function BasePageLayout({
   children,
   className,
   contentClassName,
+  footer,
 }: BasePageLayoutProps) {
   const showHeader = Boolean(title || description || actions);
 
   return (
-    <div className={cn("flex flex-1 flex-col gap-4 p-4 min-w-0", className)}>
-      {showHeader && (
-        <div className="flex items-center justify-between">
-          <div>
-            {title && <h1 className="text-2xl font-semibold">{title}</h1>}
-            {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
+    <div className={cn("flex flex-1 flex-col min-w-0 min-h-full", className)}>
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        {showHeader && (
+          <div className="flex items-center justify-between">
+            <div>
+              {title && <h1 className="text-2xl font-semibold">{title}</h1>}
+              {description && (
+                <p className="text-sm text-muted-foreground">{description}</p>
+              )}
+            </div>
+            {actions && (
+              <div className="flex items-center gap-2">{actions}</div>
             )}
           </div>
-          {actions && <div className="flex items-center gap-2">{actions}</div>}
-        </div>
-      )}
-      <div className={cn("flex-1", contentClassName)}>{children}</div>
+        )}
+        <div className={cn("flex-1", contentClassName)}>{children}</div>
+      </div>
+      {footer}
     </div>
   );
 }

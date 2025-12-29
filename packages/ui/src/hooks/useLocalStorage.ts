@@ -71,6 +71,7 @@ export function useLocalStorage<T>(
               new StorageEvent("storage", {
                 key,
                 newValue: JSON.stringify(valueToStore),
+                url: window.location.href,
               }),
             );
           }

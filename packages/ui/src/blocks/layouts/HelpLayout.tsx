@@ -19,11 +19,12 @@ export function HelpLayout({
   className,
 }: HelpLayoutProps) {
   return (
-    <div className={cn("flex min-h-screen", className)}>
+    // Inherits height from parent, handles horizontal layout only
+    <div className={cn("flex h-full min-h-0", className)}>
       {/* Main content area - shrinks when panel is open */}
       <div
         className={cn(
-          "flex-1 min-w-0 transition-all duration-200 ease-out",
+          "flex flex-col flex-1 min-w-0 min-h-0 transition-all duration-200 ease-out",
           isOpen && "sm:mr-100",
         )}
       >
