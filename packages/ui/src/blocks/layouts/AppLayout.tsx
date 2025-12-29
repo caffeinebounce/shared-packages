@@ -220,7 +220,7 @@ export function AppLayout({
       className={className}
     >
       {sidebarElement}
-      <SidebarInset>
+      <SidebarInset className="overflow-x-visible">
         {headerElement}
         {children}
       </SidebarInset>

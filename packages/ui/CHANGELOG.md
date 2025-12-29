@@ -1,5 +1,11 @@
 # @caffeinebounce/ui
 
+## 0.18.0
+
+### Minor Changes
+
+- Add useCopyToClipboard hook
+
 ## 0.17.1
 
 ### Patch Changes

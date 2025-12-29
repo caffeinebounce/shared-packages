@@ -466,6 +466,7 @@ export {
   useBreakpoints,
   useMediaQuery,
 } from "./hooks/useMediaQuery";
+export { useCopyToClipboard } from "./hooks/useCopyToClipboard";
 // Utilities
 export {
   type AvatarGradient,

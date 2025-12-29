@@ -8,3 +8,4 @@ export {
 } from "./useKeyboardShortcut";
 export { useLocalStorage } from "./useLocalStorage";
 export { useMediaQuery } from "./useMediaQuery";
+export { useCopyToClipboard } from "./useCopyToClipboard";

@@ -70,9 +70,13 @@ export function UserPageLayout({
         loadingSkeleton
       ) : tabs && tabs.length > 0 ? (
         <Tabs defaultValue={defaultTab || tabs[0].value} className="space-y-6">
-          <TabsList>
+          <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0 h-auto gap-6">
             {tabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="relative rounded-none border-b-2 border-transparent bg-transparent px-2 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground gap-2"
+              >
                 {tab.icon && <tab.icon className="h-4 w-4" />}
                 {tab.label}
               </TabsTrigger>
@@ -80,7 +84,7 @@ export function UserPageLayout({
           </TabsList>
 
           {tabs.map((tab) => (
-            <TabsContent key={tab.value} value={tab.value}>
+            <TabsContent key={tab.value} value={tab.value} className="mt-4">
               {tab.content}
             </TabsContent>
           ))}
