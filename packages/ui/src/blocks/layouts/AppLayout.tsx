@@ -220,9 +220,11 @@ export function AppLayout({
       className={className}
     >
       {sidebarElement}
-      <SidebarInset className="overflow-x-visible">
+      <SidebarInset>
         {headerElement}
-        {children}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          {children}
+        </div>
       </SidebarInset>
       {showFloatingUserMenu && (
         <FloatingUserMenu

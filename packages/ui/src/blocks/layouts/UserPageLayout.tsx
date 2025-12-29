@@ -39,6 +39,8 @@ export interface UserPageLayoutProps
   defaultTab?: string;
   /** Main content (optional if tabs are provided) */
   children?: React.ReactNode;
+  /** Optional footer content */
+  footer?: React.ReactNode;
 }
 
 /**
@@ -57,6 +59,7 @@ export function UserPageLayout({
   children,
   tabs,
   defaultTab,
+  footer,
 }: UserPageLayoutProps) {
   return (
     <BasePageLayout
@@ -65,6 +68,7 @@ export function UserPageLayout({
       actions={actions}
       className={className}
       contentClassName={contentClassName}
+      footer={footer}
     >
       {loading && loadingSkeleton ? (
         loadingSkeleton

@@ -102,10 +102,12 @@ export type {
   RootLayoutToast,
   UserPageLayoutProps,
   WizardLayoutProps,
+  AppFooterProps,
 } from "./blocks/layouts";
 export {
   AdminPageLayout,
   AppHeader,
+  AppFooter,
   AppLayout,
   AppSidebar,
   BasePageLayout,

@@ -27,6 +27,7 @@ import {
   SidebarMenuItem,
 } from "../../components/ui/sidebar";
 import { Spinner } from "../../components/ui/spinner";
+import { cn } from "../../utils";
 import { getAvatarGradient } from "../../utils/avatar-gradient";
 import { KeyboardShortcut } from "../keyboard/KeyboardShortcut";
 
@@ -36,8 +37,8 @@ export interface Entity {
   id: string;
   /** Display name */
   name: string;
-  /** Optional avatar image URL */
-  avatarUrl?: string;
+  /** Optional logo URL */
+  logoUrl?: string | null;
   /** Whether this is the primary/default entity */
   isPrimary?: boolean;
 }
@@ -247,12 +248,13 @@ export function EntitySwitcher<T extends Entity>({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  {activeEntity.avatarUrl && (
+                  {activeEntity.logoUrl && (
                     <AvatarImage
-                      src={activeEntity.avatarUrl}
+                      src={activeEntity.logoUrl}
                       alt={displayName}
+                      className="object-contain p-1"
                     />
                   )}
                   <AvatarFallback
@@ -296,17 +298,23 @@ export function EntitySwitcher<T extends Entity>({
                   onClick={() => onSelect(entity)}
                   className="gap-2 p-2"
                 >
-                  <Avatar className="h-6 w-6 rounded-md">
-                    {entity.avatarUrl && (
-                      <AvatarImage src={entity.avatarUrl} alt={name} />
-                    )}
-                    <AvatarFallback
-                      className="rounded-md text-xs font-medium text-white"
-                      style={getAvatarGradient(entity.id).style}
-                    >
-                      {entityInitials}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative h-6 w-6">
+                    <Avatar className="h-6 w-6 rounded-md">
+                      {entity.logoUrl && (
+                        <AvatarImage
+                          src={entity.logoUrl}
+                          alt={name}
+                          className="object-contain p-0.5"
+                        />
+                      )}
+                      <AvatarFallback
+                        className="rounded-md text-xs font-medium text-white"
+                        style={getAvatarGradient(entity.id).style}
+                      >
+                        {entityInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
                   <span className="flex-1 truncate">{name}</span>
                   {shortcutNumber && (
                     <Shortcut className="text-xs text-muted-foreground">
