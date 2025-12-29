@@ -37,12 +37,7 @@ export function BasePageLayout({
   const showHeader = Boolean(title || description || actions);
 
   return (
-    <div
-      className={cn(
-        "flex flex-1 flex-col min-w-0 min-h-full",
-        className,
-      )}
-    >
+    <div className={cn("flex flex-1 flex-col min-w-0 min-h-full", className)}>
       <div className="flex flex-1 flex-col gap-4 p-4">
         {showHeader && (
           <div className="flex items-center justify-between">
@@ -52,7 +47,9 @@ export function BasePageLayout({
                 <p className="text-sm text-muted-foreground">{description}</p>
               )}
             </div>
-            {actions && <div className="flex items-center gap-2">{actions}</div>}
+            {actions && (
+              <div className="flex items-center gap-2">{actions}</div>
+            )}
           </div>
         )}
         <div className={cn("flex-1", contentClassName)}>{children}</div>

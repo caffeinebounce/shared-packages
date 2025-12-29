@@ -97,9 +97,9 @@ export function extractErrorMessage(error: unknown): string {
     error &&
     typeof error === "object" &&
     "message" in error &&
-    typeof (error as any).message === "string"
+    typeof (error as { message: unknown }).message === "string"
   ) {
-    return (error as any).message;
+    return (error as { message: string }).message;
   }
 
   return String(error || "Unknown error");
@@ -117,7 +117,10 @@ export function extractErrorType(error: unknown): string {
   }
 
   if (typeof error === "object" && error !== null) {
-    return (error as any).constructor?.name || "Object";
+    return (
+      (error as { constructor?: { name?: string } }).constructor?.name ||
+      "Object"
+    );
   }
 
   return typeof error;

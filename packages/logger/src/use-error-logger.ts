@@ -56,9 +56,7 @@ export function useErrorLogger() {
           : String(error || "Unknown error");
 
       const errorType =
-        error instanceof Error
-          ? error.constructor.name
-          : typeof error;
+        error instanceof Error ? error.constructor.name : typeof error;
 
       const stack = error instanceof Error ? error.stack : undefined;
 

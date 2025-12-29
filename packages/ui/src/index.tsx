@@ -79,6 +79,7 @@ export type { KeyboardShortcutProps } from "./blocks/keyboard";
 export { KeyboardShortcut } from "./blocks/keyboard";
 export type {
   AdminPageLayoutProps,
+  AppFooterProps,
   AppHeaderProps,
   AppLayoutProps,
   AppSidebarProps,
@@ -102,12 +103,11 @@ export type {
   RootLayoutToast,
   UserPageLayoutProps,
   WizardLayoutProps,
-  AppFooterProps,
 } from "./blocks/layouts";
 export {
   AdminPageLayout,
-  AppHeader,
   AppFooter,
+  AppHeader,
   AppLayout,
   AppSidebar,
   BasePageLayout,
@@ -453,6 +453,7 @@ export {
   type ZIndex,
   zIndex,
 } from "./config";
+export { useCopyToClipboard } from "./hooks/useCopyToClipboard";
 // Hooks
 export { useDebounce } from "./hooks/useDebounce";
 export {
@@ -468,7 +469,6 @@ export {
   useBreakpoints,
   useMediaQuery,
 } from "./hooks/useMediaQuery";
-export { useCopyToClipboard } from "./hooks/useCopyToClipboard";
 // Utilities
 export {
   type AvatarGradient,

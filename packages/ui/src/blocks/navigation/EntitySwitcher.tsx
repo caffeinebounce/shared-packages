@@ -27,7 +27,6 @@ import {
   SidebarMenuItem,
 } from "../../components/ui/sidebar";
 import { Spinner } from "../../components/ui/spinner";
-import { cn } from "../../utils";
 import { getAvatarGradient } from "../../utils/avatar-gradient";
 import { KeyboardShortcut } from "../keyboard/KeyboardShortcut";
 

@@ -1,10 +1,12 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 interface UseCopyToClipboardProps {
   timeout?: number;
 }
 
-export function useCopyToClipboard({ timeout = 2000 }: UseCopyToClipboardProps = {}) {
+export function useCopyToClipboard({
+  timeout = 2000,
+}: UseCopyToClipboardProps = {}) {
   const [isCopied, setIsCopied] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 

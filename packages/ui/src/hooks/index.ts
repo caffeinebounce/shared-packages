@@ -1,3 +1,4 @@
+export { useCopyToClipboard } from "./useCopyToClipboard";
 export { useDebounce } from "./useDebounce";
 export {
   formatShortcut,
@@ -8,4 +9,3 @@ export {
 } from "./useKeyboardShortcut";
 export { useLocalStorage } from "./useLocalStorage";
 export { useMediaQuery } from "./useMediaQuery";
-export { useCopyToClipboard } from "./useCopyToClipboard";

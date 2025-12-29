@@ -2,8 +2,8 @@ export {
   AdminPageLayout,
   type AdminPageLayoutProps,
 } from "./AdminPageLayout";
-export { AppHeader, type AppHeaderProps, type HeaderLink } from "./AppHeader";
 export { AppFooter, type AppFooterProps } from "./AppFooter";
+export { AppHeader, type AppHeaderProps, type HeaderLink } from "./AppHeader";
 export { AppLayout, type AppLayoutProps } from "./AppLayout";
 export {
   AppSidebar,
