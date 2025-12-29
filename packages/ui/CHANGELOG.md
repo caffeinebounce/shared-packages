@@ -1,28 +1,5 @@
 # @caffeinebounce/ui
 
-## 0.19.0
-
-### Minor Changes
-
-- a4251c0: UI fixes
-
-### Patch Changes
-
-- a4251c0: fix(ui): ensure AppHeader remains sticky by allowing overflow on SidebarInset
-
-## 0.18.0
-
-### Minor Changes
-
-- Add useCopyToClipboard hook
-
-## 0.17.1
-
-### Patch Changes
-
-- 404d680: fix(ui): correct sidebar menu button size for lg variant when collapsed
-- 404d680: fix(ui): correct sidebar menu button size for lg variant when collapsed
-
 ## 0.17.0
 
 ### Minor Changes
@@ -34,7 +11,6 @@
 ### Breaking Changes
 
 - **useLocalStorage hook return type**: The return value has changed from a 3-tuple `[value, setValue, removeValue]` to a 4-tuple `[value, setValue, removeValue, isLoaded]`.
-
   - **Migration**: Destructure the 4th element if needed, or use `_` to ignore it. See hook JSDoc for examples.
   - **Why**: The `isLoaded` flag prevents hydration mismatches and allows safe rendering of localStorage-dependent UI only after client-side restoration.
 

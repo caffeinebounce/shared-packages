@@ -1,32 +1,5 @@
 # @caffeinebounce/identity
 
-## 0.3.0
-
-### Minor Changes
-
-- a4251c0: UI fixes
-
-### Patch Changes
-
-- Updated dependencies [a4251c0]
-- Updated dependencies [a4251c0]
-  - @caffeinebounce/ui@0.19.0
-
-## 0.2.6
-
-### Patch Changes
-
-- Updated dependencies
-  - @caffeinebounce/ui@0.18.0
-
-## 0.2.5
-
-### Patch Changes
-
-- Updated dependencies [404d680]
-- Updated dependencies [404d680]
-  - @caffeinebounce/ui@0.17.1
-
 ## 0.2.4
 
 ### Patch Changes

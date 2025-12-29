@@ -1,32 +1,5 @@
 # @caffeinebounce/ai-assistant
 
-## 0.2.0
-
-### Minor Changes
-
-- a4251c0: UI fixes
-
-### Patch Changes
-
-- Updated dependencies [a4251c0]
-- Updated dependencies [a4251c0]
-  - @caffeinebounce/ui@0.19.0
-
-## 0.1.20
-
-### Patch Changes
-
-- Updated dependencies
-  - @caffeinebounce/ui@0.18.0
-
-## 0.1.19
-
-### Patch Changes
-
-- Updated dependencies [404d680]
-- Updated dependencies [404d680]
-  - @caffeinebounce/ui@0.17.1
-
 ## 0.1.18
 
 ### Patch Changes

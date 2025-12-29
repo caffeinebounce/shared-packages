@@ -201,7 +201,8 @@ export function FormWizard<T = unknown>({
       if (!restoredVal || restoredVal === "") continue;
 
       // Use deep equality for objects and arrays, shallow equality for primitives
-      const isObjectLike = typeof restoredVal === "object";
+      const isObjectLike =
+        typeof restoredVal === "object" && restoredVal !== null;
       const valuesMatch = isObjectLike
         ? JSON.stringify(currentVal) === JSON.stringify(restoredVal)
         : currentVal === restoredVal;

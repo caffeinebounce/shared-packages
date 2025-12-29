@@ -218,7 +218,6 @@ export const ChartTooltipContent = React.forwardRef<
               },
               _index: number,
             ) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const key = `${nameKey || item.name || item.dataKey || "value"}`;
               const itemConfig = getPayloadConfigFromPayload(config, item, key);
               const indicatorColor =
