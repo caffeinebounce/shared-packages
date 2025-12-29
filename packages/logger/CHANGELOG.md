@@ -1,5 +1,11 @@
 # @caffeinebounce/logger
 
+## 0.3.0
+
+### Minor Changes
+
+- a4251c0: UI fixes
+
 ## 0.2.0
 
 ### Minor Changes

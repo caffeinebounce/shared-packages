@@ -1,5 +1,15 @@
 # @caffeinebounce/ui
 
+## 0.19.0
+
+### Minor Changes
+
+- a4251c0: UI fixes
+
+### Patch Changes
+
+- a4251c0: fix(ui): ensure AppHeader remains sticky by allowing overflow on SidebarInset
+
 ## 0.18.0
 
 ### Minor Changes
