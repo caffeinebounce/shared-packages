@@ -219,16 +219,12 @@ export const ChartTooltipContent = React.forwardRef<
               _index: number,
             ) => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const key = `${nameKey || (item as any).name || (item as any).dataKey || "value"}`;
-              const itemConfig = getPayloadConfigFromPayload(
-                config,
-                item as any,
-                key,
-              );
+              const key = `${nameKey || item.name || item.dataKey || "value"}`;
+              const itemConfig = getPayloadConfigFromPayload(config, item, key);
               const indicatorColor =
                 color ||
                 (item.payload as Record<string, unknown> | undefined)?.fill ||
-                (item as any).color;
+                item.color;
 
               return (
                 <div
