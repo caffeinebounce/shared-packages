@@ -43,10 +43,10 @@ export {
 export {
   type FormErrorContext,
   type FormErrorType,
-  logFormNetworkError,
-  logFormSubmissionError,
-  logFormValidationError,
   useFormErrorLogger,
+  useLogFormNetworkError,
+  useLogFormSubmissionError,
+  useLogFormValidationError,
 } from "./form-error-logger";
 export {
   getClientLogger,
