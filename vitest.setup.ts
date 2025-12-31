@@ -1,4 +1,4 @@
-import { expect, afterEach } from "vitest";
+import { expect, afterEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import * as matchers from "@testing-library/jest-dom/matchers";
 
@@ -8,7 +8,7 @@ expect.extend(matchers);
 // Cleanup after each test
 afterEach(() => {
 	cleanup();
-	// Clear all timers
+	// Clear all timers if any are pending
 	vi.clearAllTimers();
 	// Clear localStorage
 	if (typeof window !== "undefined") {
