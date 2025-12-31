@@ -8,4 +8,10 @@ expect.extend(matchers);
 // Cleanup after each test
 afterEach(() => {
 	cleanup();
+	// Clear all timers
+	vi.clearAllTimers();
+	// Clear localStorage
+	if (typeof window !== "undefined") {
+		window.localStorage.clear();
+	}
 });
