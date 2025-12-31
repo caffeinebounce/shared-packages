@@ -26,11 +26,11 @@ jobs:
           scope: '@caffeinebounce'
 
       - name: Enable Corepack
-        run: corepack enable && corepack prepare yarn@4.11.0 --activate
+        run: corepack enable && corepack prepare yarn@4.12.0 --activate
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder | tail -n1)" >> $GITHUB_OUTPUT
+        run: echo "dir=$(yarn config get cacheFolder 2>/dev/null | tail -n1)" >> $GITHUB_OUTPUT
 
       - name: Restore yarn cache
         uses: actions/cache@v4
