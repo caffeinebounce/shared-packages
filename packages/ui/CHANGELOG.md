@@ -1,8 +1,8 @@
 # @caffeinebounce/ui
 
-## 1.0.0
+## 0.20.0
 
-### Major Changes
+### Minor Changes
 
 - 5019ddf: # Cleanup EntitySwitcher
 
