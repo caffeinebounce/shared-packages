@@ -5,10 +5,10 @@ export default defineConfig({
 		globals: true,
 		environment: "jsdom",
 		setupFiles: ["../../vitest.setup.ts"],
-		pool: "threads",
+		pool: "forks",
 		poolOptions: {
-			threads: {
-				singleThread: true,
+			forks: {
+				singleFork: true,
 			},
 		},
 		coverage: {

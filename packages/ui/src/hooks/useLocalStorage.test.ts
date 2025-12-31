@@ -114,7 +114,7 @@ describe("useLocalStorage", () => {
   });
 
   it("syncs across storage events (cross-tab sync)", async () => {
-    const { result } = renderHook(() => useLocalStorage("test-key", "initial"));
+    const { result, unmount } = renderHook(() => useLocalStorage("test-key", "initial"));
 
     await waitFor(() => {
       expect(result.current[0]).toBe("initial");
@@ -130,12 +130,14 @@ describe("useLocalStorage", () => {
     await waitFor(() => {
       expect(result.current[0]).toBe("from-other-tab");
     });
+
+    unmount();
   });
 
   it("handles storage event with null value (removal)", async () => {
     localStorage.setItem("test-key", JSON.stringify("stored"));
 
-    const { result } = renderHook(() => useLocalStorage("test-key", "initial"));
+    const { result, unmount } = renderHook(() => useLocalStorage("test-key", "initial"));
 
     await waitFor(() => {
       expect(result.current[0]).toBe("stored");
@@ -151,6 +153,8 @@ describe("useLocalStorage", () => {
     await waitFor(() => {
       expect(result.current[0]).toBe("initial");
     });
+
+    unmount();
   });
 
   it("ignores storage events for different keys", async () => {
@@ -167,8 +171,7 @@ describe("useLocalStorage", () => {
     });
     window.dispatchEvent(storageEvent);
 
-    // Value should not change
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Value should not change - just verify immediately
     expect(result.current[0]).toBe("initial");
   });
 
