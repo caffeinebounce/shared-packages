@@ -6,6 +6,7 @@ on:
     paths:
       - 'packages/**'
       - '.changeset/**'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
