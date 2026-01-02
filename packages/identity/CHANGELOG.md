@@ -1,5 +1,18 @@
 # @caffeinebounce/identity
 
+## 0.3.0
+
+### Minor Changes
+
+- d9bc2e1: Fixes
+
+### Patch Changes
+
+- Updated dependencies [d9bc2e1]
+- Updated dependencies [d9bc2e1]
+- Updated dependencies [d9bc2e1]
+  - @caffeinebounce/ui@0.21.0
+
 ## 0.2.6
 
 ### Patch Changes
