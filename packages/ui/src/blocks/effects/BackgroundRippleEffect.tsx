@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "../../utils";
 
@@ -46,6 +46,37 @@ export function BackgroundRippleEffect({
   } | null>(null);
   const [rippleKey, setRippleKey] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const updateSize = () => {
+      setContainerWidth(element.clientWidth);
+    };
+
+    updateSize();
+
+    const observer = new ResizeObserver(() => updateSize());
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const resolvedCellSize = cellSize ?? 56;
+  const resolvedRows = rows ?? 12;
+  const resolvedCols = useMemo(() => {
+    if (typeof cols === "number") return cols;
+
+    const widthForCalc =
+      containerWidth ??
+      (typeof window !== "undefined" ? window.innerWidth : 1440);
+    // Calculate number of columns so fixed-size cells will span the full container width (more boxes on wide screens)
+    const estimatedCols = Math.ceil(widthForCalc / resolvedCellSize);
+    // Ensure a reasonable minimum to avoid too few boxes on small screens
+    return Math.max(8, estimatedCols);
+  }, [cols, containerWidth, resolvedCellSize]);
 
   return (
     <div
@@ -65,9 +96,9 @@ export function BackgroundRippleEffect({
             "opacity-80",
             mask && "mask-radial-from-70% mask-radial-at-top",
           )}
-          rows={rows}
-          cols={cols}
-          cellSize={cellSize}
+          rows={resolvedRows}
+          cols={resolvedCols}
+          cellSize={resolvedCellSize}
           borderColor="var(--cell-border-color)"
           fillColor="var(--cell-fill-color)"
           clickedCell={clickedCell}
@@ -121,7 +152,7 @@ function DivGrid({
     gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
     width: cols * cellSize,
     height: rows * cellSize,
-    marginInline: "auto",
+    marginInline: 0,
   };
 
   return (
