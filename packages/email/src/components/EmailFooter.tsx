@@ -7,6 +7,10 @@ export interface EmailFooterProps {
   brand?: Partial<BrandConfig>;
   /** Additional footer text (e.g., reason for receiving email) */
   reasonText?: string;
+  /** Unsubscribe link (required for marketing emails) */
+  unsubscribeLink?: string;
+  /** Custom unsubscribe text */
+  unsubscribeText?: string;
 }
 
 // Social media icons (inline SVG data URIs for email compatibility)
@@ -25,7 +29,12 @@ const icons = {
  * Reusable footer block for all transactional emails.
  * Shows social icons, copyright, address (required for compliance).
  */
-export function EmailFooter({ brand = {}, reasonText }: EmailFooterProps) {
+export function EmailFooter({
+  brand = {},
+  reasonText,
+  unsubscribeLink,
+  unsubscribeText = "Unsubscribe",
+}: EmailFooterProps) {
   const config = { ...defaultBrandConfig, ...brand };
   const year = config.copyrightYear || new Date().getFullYear();
 
@@ -96,6 +105,15 @@ export function EmailFooter({ brand = {}, reasonText }: EmailFooterProps) {
 
       {/* Reason for receiving */}
       {reasonText && <Text style={footerText}>{reasonText}</Text>}
+
+      {/* Unsubscribe link (required for marketing emails) */}
+      {unsubscribeLink && (
+        <Text style={footerText}>
+          <Link href={unsubscribeLink} style={unsubscribeLinkStyle}>
+            {unsubscribeText}
+          </Link>
+        </Text>
+      )}
     </Section>
   );
 }
@@ -130,6 +148,12 @@ const footerText = {
   color: "#a1a1aa",
   fontSize: "12px",
   margin: "8px 0",
+};
+
+const unsubscribeLinkStyle = {
+  color: "#a1a1aa",
+  fontSize: "12px",
+  textDecoration: "underline",
 };
 
 export default EmailFooter;
