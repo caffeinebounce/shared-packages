@@ -11,7 +11,7 @@ import { cn } from "../../utils";
 export interface BackgroundRippleEffectProps {
   /** Number of rows in the grid */
   rows?: number;
-  /** Number of columns in the grid. If omitted, auto-calculates to fill container width. */
+  /** Number of columns in the grid. If omitted, auto-calculates to fill viewport width. */
   cols?: number;
   /** Size of each cell in pixels */
   cellSize?: number;
@@ -50,15 +50,27 @@ export function BackgroundRippleEffect({
   // Track viewport width for dynamic column calculation
   const [viewportWidth, setViewportWidth] = useState<number>(0);
   
-  // Measure viewport width on mount and resize
+  // Measure viewport width on mount and resize (debounced for performance)
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    
     const updateWidth = () => {
       setViewportWidth(window.innerWidth);
     };
     
+    const debouncedUpdateWidth = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateWidth, 100);
+    };
+    
+    // Initial measurement without debounce
     updateWidth();
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
+    
+    window.addEventListener("resize", debouncedUpdateWidth);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", debouncedUpdateWidth);
+    };
   }, []);
 
   const resolvedCellSize = cellSize;
@@ -84,14 +96,13 @@ export function BackgroundRippleEffect({
     <div
       ref={ref}
       className={cn(
-        "absolute inset-0 h-full z-0",
+        "absolute inset-0 h-full z-0 w-screen left-0",
         "[--cell-border-color:var(--color-neutral-300)] [--cell-fill-color:var(--color-neutral-100)] [--cell-shadow-color:var(--color-neutral-500)]",
         "dark:[--cell-border-color:rgba(255,255,255,0.2)] dark:[--cell-fill-color:rgba(255,255,255,0.08)] dark:[--cell-shadow-color:rgba(255,255,255,0.1)]",
         className,
       )}
-      style={{ width: "100vw", left: 0 }}
     >
-      <div className="relative h-full overflow-hidden" style={{ width: "100vw" }}>
+      <div className="relative h-full overflow-hidden w-screen">
         <div className="pointer-events-none absolute inset-0 z-2 h-full w-full overflow-hidden" />
         <DivGrid
           key={`base-${rippleKey}`}
