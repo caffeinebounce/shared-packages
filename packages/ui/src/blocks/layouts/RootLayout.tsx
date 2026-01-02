@@ -195,10 +195,10 @@ export function RootLayout({
   toast,
   className,
 }: RootLayoutProps) {
-  // h-dvh = dynamic viewport height, works on mobile browsers
-  // This is the ONLY layer that sets explicit viewport height
+  // min-h-dvh = minimum dynamic viewport height, allows content to extend beyond
+  // overflow-x-hidden prevents horizontal scroll from 100vw elements
   const baseClasses =
-    "font-sans h-dvh bg-background text-foreground flex flex-col antialiased overflow-hidden";
+    "font-sans min-h-dvh bg-background text-foreground flex flex-col antialiased overflow-x-hidden";
 
   const showToaster = toast?.enabled !== false;
   const toasterPosition = toast?.position ?? "bottom-right";
