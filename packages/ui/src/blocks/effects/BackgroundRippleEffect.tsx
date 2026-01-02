@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "../../utils";
 
@@ -11,7 +11,7 @@ import { cn } from "../../utils";
 export interface BackgroundRippleEffectProps {
   /** Number of rows in the grid */
   rows?: number;
-  /** Number of columns in the grid */
+  /** Number of columns in the grid. If omitted, auto-calculates to fill container width. */
   cols?: number;
   /** Size of each cell in pixels */
   cellSize?: number;
@@ -35,7 +35,7 @@ export interface BackgroundRippleEffectProps {
  */
 export function BackgroundRippleEffect({
   rows = 8,
-  cols = 27,
+  cols, // No default - undefined means "auto-calculate"
   cellSize = 56,
   className,
   mask = true,
@@ -46,18 +46,52 @@ export function BackgroundRippleEffect({
   } | null>(null);
   const [rippleKey, setRippleKey] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+  
+  // Track viewport width for dynamic column calculation
+  const [viewportWidth, setViewportWidth] = useState<number>(0);
+  
+  // Measure viewport width on mount and resize
+  useEffect(() => {
+    const updateWidth = () => {
+      setViewportWidth(window.innerWidth);
+    };
+    
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
+  const resolvedCellSize = cellSize;
+  const resolvedRows = rows;
+  
+  // Dynamic column calculation: if cols is undefined, calculate based on viewport width
+  const resolvedCols = useMemo(() => {
+    // If cols is explicitly provided, use it
+    if (cols !== undefined) {
+      return cols;
+    }
+
+    // Use measured viewport width, or a generous default for SSR
+    const width = viewportWidth > 0 ? viewportWidth : 3840; // Default to 4K for SSR
+    
+    // Add extra columns to ensure we always overflow slightly (better than gap)
+    const neededCols = Math.ceil(width / resolvedCellSize) + 5;
+    
+    return Math.max(10, neededCols);
+  }, [cols, resolvedCellSize, viewportWidth]);
 
   return (
     <div
       ref={ref}
       className={cn(
-        "absolute inset-0 h-full w-full z-0",
+        "absolute inset-0 h-full z-0",
         "[--cell-border-color:var(--color-neutral-300)] [--cell-fill-color:var(--color-neutral-100)] [--cell-shadow-color:var(--color-neutral-500)]",
         "dark:[--cell-border-color:rgba(255,255,255,0.2)] dark:[--cell-fill-color:rgba(255,255,255,0.08)] dark:[--cell-shadow-color:rgba(255,255,255,0.1)]",
         className,
       )}
+      style={{ width: "100vw", left: 0 }}
     >
-      <div className="relative h-full w-full overflow-hidden">
+      <div className="relative h-full overflow-hidden" style={{ width: "100vw" }}>
         <div className="pointer-events-none absolute inset-0 z-2 h-full w-full overflow-hidden" />
         <DivGrid
           key={`base-${rippleKey}`}
@@ -65,9 +99,9 @@ export function BackgroundRippleEffect({
             "opacity-80",
             mask && "mask-radial-from-70% mask-radial-at-top",
           )}
-          rows={rows}
-          cols={cols}
-          cellSize={cellSize}
+          rows={resolvedRows}
+          cols={resolvedCols}
+          cellSize={resolvedCellSize}
           borderColor="var(--cell-border-color)"
           fillColor="var(--cell-fill-color)"
           clickedCell={clickedCell}
@@ -121,7 +155,7 @@ function DivGrid({
     gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
     width: cols * cellSize,
     height: rows * cellSize,
-    marginInline: "auto",
+    marginInline: 0,
   };
 
   return (

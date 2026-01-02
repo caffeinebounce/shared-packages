@@ -28,7 +28,7 @@ export function HeroSectionWithRipple({
   ...props
 }: HeroSectionWithRippleProps) {
   return (
-    <div className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden">
+    <div className="relative min-h-[calc(100vh-3.5rem)] w-screen max-w-full overflow-hidden">
       <BackgroundRippleEffect
         rows={rippleRows}
         cols={rippleCols}
