@@ -79,8 +79,7 @@ export function ForgotPasswordForm({
 
     const supabase = createClient();
     // Use NEXT_PUBLIC_SITE_URL if set (for production), otherwise fall back to current origin
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
     // Use callback route with next parameter for PKCE flow code exchange
     const callbackUrl = `${siteUrl}${mergedLinks.callback}?next=${encodeURIComponent(mergedLinks.resetPassword)}`;
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(

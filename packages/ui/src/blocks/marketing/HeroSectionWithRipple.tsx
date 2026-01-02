@@ -34,6 +34,7 @@ export function HeroSectionWithRipple({
         cols={rippleCols}
         cellSize={rippleCellSize}
         mask={rippleMask}
+        className="w-full"
       />
       {/* Content layer - pointer-events-none allows clicks through to ripple, 
           but interactive elements (buttons, links) have pointer-events-auto */}
