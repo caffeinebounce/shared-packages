@@ -1,5 +1,17 @@
 # @caffeinebounce/ai-assistant
 
+## 0.1.21
+
+### Patch Changes
+
+- 29d515e: Fix: Replace workspace:\* with npm version for @caffeinebounce/ui dependency
+
+  The workspace:\* protocol doesn't work for consumers who install these packages from npm/GitHub Packages since they don't have a local workspace with @caffeinebounce/ui. This caused "workspace not found" errors when installing in consuming projects like Compass.
+
+- Updated dependencies [29d515e]
+- Updated dependencies [29d515e]
+  - @caffeinebounce/ui@0.21.1
+
 ## 0.1.20
 
 ### Patch Changes
