@@ -53,7 +53,9 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
         className={`rounded-lg border border-green-200 bg-green-50 p-4 text-center dark:border-green-800 dark:bg-green-900/20 ${className || ""}`}
       >
         <p className="text-sm font-medium text-green-800 dark:text-green-200">
-          ✓ Thank you for subscribing! Check your email for confirmation.
+          ✓ Thank you for subscribing!
+          <br />
+          Check your email for confirmation.
         </p>
       </div>
     );
