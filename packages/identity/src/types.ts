@@ -53,6 +53,8 @@ export interface AuthLinks {
   forgotPassword?: string;
   /** Reset password page path */
   resetPassword?: string;
+  /** Auth callback route for PKCE code exchange (e.g., /callback) */
+  callback?: string;
   /** Home page path */
   home?: string;
   /** Default redirect after auth */
@@ -67,6 +69,7 @@ export const defaultAuthLinks: Required<AuthLinks> = {
   signUp: "/signup",
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
+  callback: "/callback",
   home: "/",
   defaultRedirect: "/dashboard",
 };

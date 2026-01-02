@@ -117,6 +117,12 @@ export function SignupForm({
     confirmPassword.length > 0 &&
     password !== confirmPassword;
 
+  // Use NEXT_PUBLIC_SITE_URL if set (for production), otherwise fall back to current origin
+  const siteUrl =
+    typeof window !== "undefined"
+      ? process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+      : process.env.NEXT_PUBLIC_SITE_URL || "";
+
   async function handleOAuthSignIn(provider: OAuthProvider) {
     setOauthLoading(provider);
 
@@ -127,7 +133,7 @@ export function SignupForm({
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/callback?next=${mergedLinks.defaultRedirect}`,
+        redirectTo: `${siteUrl}/callback?next=${mergedLinks.defaultRedirect}`,
       },
     });
 
@@ -161,7 +167,7 @@ export function SignupForm({
       email: email.trim(),
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/callback`,
+        emailRedirectTo: `${siteUrl}/callback`,
       },
     });
 

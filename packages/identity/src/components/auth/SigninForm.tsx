@@ -162,11 +162,14 @@ export function SigninForm({
     // Log OAuth sign-in attempt
     onAuthEvent?.onSignInAttempt?.("", provider);
 
+    // Use NEXT_PUBLIC_SITE_URL if set (for production), otherwise fall back to current origin
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/callback?next=${encodeURIComponent(redirectTo)}`,
+        redirectTo: `${siteUrl}/callback?next=${encodeURIComponent(redirectTo)}`,
       },
     });
 
