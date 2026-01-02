@@ -27,6 +27,10 @@ export {
   type MagicLinkTemplateProps,
 } from "./templates/MagicLinkTemplate";
 export {
+  NewsletterWelcomeTemplate,
+  type NewsletterWelcomeTemplateProps,
+} from "./templates/NewsletterWelcomeTemplate";
+export {
   PasswordResetTemplate,
   type PasswordResetTemplateProps,
 } from "./templates/PasswordResetTemplate";
