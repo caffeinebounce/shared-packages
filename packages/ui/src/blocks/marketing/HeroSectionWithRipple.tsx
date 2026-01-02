@@ -28,13 +28,12 @@ export function HeroSectionWithRipple({
   ...props
 }: HeroSectionWithRippleProps) {
   return (
-    <div className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden">
+    <div className="relative min-h-[calc(100vh-3.5rem)] w-screen max-w-full overflow-hidden">
       <BackgroundRippleEffect
         rows={rippleRows}
         cols={rippleCols}
         cellSize={rippleCellSize}
         mask={rippleMask}
-        className="w-full"
       />
       {/* Content layer - pointer-events-none allows clicks through to ripple, 
           but interactive elements (buttons, links) have pointer-events-auto */}
