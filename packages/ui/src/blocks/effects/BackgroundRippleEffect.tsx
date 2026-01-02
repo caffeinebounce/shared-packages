@@ -72,10 +72,17 @@ export function BackgroundRippleEffect({
     const widthForCalc =
       containerWidth ??
       (typeof window !== "undefined" ? window.innerWidth : 1440);
-    // Calculate number of columns so fixed-size cells will span the full container width (more boxes on wide screens)
-    const estimatedCols = Math.ceil(widthForCalc / resolvedCellSize);
-    // Ensure a reasonable minimum to avoid too few boxes on small screens
-    return Math.max(8, estimatedCols);
+    // Calculate number of columns so fixed-size cells will span the full container width (more boxes on wide screens).
+    // Use a conservative pad (+2) and ensure cols * cellSize >= widthForCalc to avoid any uncovered right-edge.
+    const baseCols = Math.ceil(widthForCalc / resolvedCellSize);
+    let estimatedCols = Math.max(8, baseCols + 2);
+
+    // If for any reason the computed columns don't cover the container due to rounding, bump until they do.
+    while (estimatedCols * resolvedCellSize < widthForCalc) {
+      estimatedCols += 1;
+    }
+
+    return estimatedCols;
   }, [cols, containerWidth, resolvedCellSize]);
 
   return (
