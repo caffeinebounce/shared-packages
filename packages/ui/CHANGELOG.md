@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD024 -->
 # @caffeinebounce/ui
 
 ## 0.20.0
