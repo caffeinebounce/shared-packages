@@ -1,4 +1,21 @@
 <!-- markdownlint-disable MD024 -->
+
+## 0.21.0
+
+### Minor Changes
+
+- d9bc2e1: Fixes
+
+### Patch Changes
+
+- d9bc2e1: Remove max-width constraint from Navbar and make BackgroundRippleEffect full-width on all screens. Navbar now extends to screen edges with responsive padding (px-4 md:px-8).
+- d9bc2e1: Fix BackgroundRippleEffect to fill full viewport width on 4K monitors
+
+  - Changed column calculation to use viewport width instead of container width
+  - Grid now auto-calculates columns based on window.innerWidth with SSR fallback to 4K (3840px)
+  - Added overflow handling in HeroSectionWithRipple wrapper
+  - Removed fixed w-full class in favor of explicit 100vw width styling
+
 # @caffeinebounce/ui
 
 ## 0.20.0
