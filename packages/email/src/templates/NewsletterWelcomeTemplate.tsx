@@ -95,8 +95,11 @@ export function NewsletterWelcomeTemplate({
             color: palette.text,
           }}
         >
-          {(expectItems || defaultExpectItems).map((item) => (
-            <li key={item} style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+          {(expectItems || defaultExpectItems).map((item, index) => (
+            <li
+              key={`${index}-${item}`}
+              style={{ marginBottom: "8px", lineHeight: "1.6" }}
+            >
               {item}
             </li>
           ))}
@@ -108,7 +111,9 @@ export function NewsletterWelcomeTemplate({
           </EmailButton>
         )}
 
-        <EmailText colors={palette}>{closingText || defaultClosingText}</EmailText>
+        <EmailText colors={palette}>
+          {closingText || defaultClosingText}
+        </EmailText>
       </EmailContent>
 
       <EmailFooter
