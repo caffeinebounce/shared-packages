@@ -9,12 +9,16 @@ import {
   DialogTitle,
   Input,
   Label,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@caffeinebounce/ui";
 import {
   AlertTriangle,
   Check,
   Copy,
   Download,
+  Info,
   Loader2,
   Mail,
   Shield,
@@ -203,20 +207,27 @@ export function RecoverySection({ createClient }: RecoverySectionProps) {
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRecoveryEmailClick}
-            >
-              {recoveryEmail ? "Change" : "Add"}
-            </Button>
-          </div>
-          {!recoveryEmail && (
-            <div className="mt-3 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
-              Add a recovery email to regain access if you lose your
-              authenticator.
+            <div className="flex items-center gap-2">
+              {!recoveryEmail && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Add a recovery email to regain access if you lose your
+                    authenticator.
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRecoveryEmailClick}
+              >
+                {recoveryEmail ? "Change" : "Add"}
+              </Button>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Backup Codes */}

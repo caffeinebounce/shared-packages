@@ -46,26 +46,26 @@ export function BackgroundRippleEffect({
   } | null>(null);
   const [rippleKey, setRippleKey] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-  
+
   // Track viewport width for dynamic column calculation
   const [viewportWidth, setViewportWidth] = useState<number>(0);
-  
+
   // Measure viewport width on mount and resize (debounced for performance)
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
-    
+
     const updateWidth = () => {
       setViewportWidth(window.innerWidth);
     };
-    
+
     const debouncedUpdateWidth = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(updateWidth, 100);
     };
-    
+
     // Initial measurement without debounce
     updateWidth();
-    
+
     window.addEventListener("resize", debouncedUpdateWidth);
     return () => {
       clearTimeout(timeoutId);
@@ -75,7 +75,7 @@ export function BackgroundRippleEffect({
 
   const resolvedCellSize = cellSize;
   const resolvedRows = rows;
-  
+
   // Dynamic column calculation: if cols is undefined, calculate based on viewport width
   const resolvedCols = useMemo(() => {
     // If cols is explicitly provided, use it
@@ -85,10 +85,10 @@ export function BackgroundRippleEffect({
 
     // Use measured viewport width, or a generous default for SSR
     const width = viewportWidth > 0 ? viewportWidth : 3840; // Default to 4K for SSR
-    
+
     // Add extra columns to ensure we always overflow slightly (better than gap)
     const neededCols = Math.ceil(width / resolvedCellSize) + 5;
-    
+
     return Math.max(10, neededCols);
   }, [cols, resolvedCellSize, viewportWidth]);
 

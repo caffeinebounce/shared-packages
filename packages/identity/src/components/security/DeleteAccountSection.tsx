@@ -10,8 +10,11 @@ import {
   DialogTitle,
   Input,
   Label,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@caffeinebounce/ui";
-import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import { AlertTriangle, Info, Loader2, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -179,19 +182,26 @@ export function DeleteAccountSection({
           <div className="rounded-md bg-destructive/10 p-2">
             <AlertTriangle className="h-5 w-5 text-destructive" />
           </div>
-          <div className="flex-1 space-y-3">
-            <div>
+          <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex items-center gap-2">
               <h4 className="font-medium text-foreground">Delete Account</h4>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Permanently deactivate your account. Your data will be retained
-                for {retentionDays} days before permanent deletion.
-              </p>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <p>
+                    Permanently deactivate your account. Your data will be
+                    retained for {retentionDays} days before permanent deletion.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <Button
               variant="destructive"
               size="sm"
               onClick={handleDeleteClick}
-              className="gap-2"
+              className="gap-2 shrink-0 self-start sm:self-center"
             >
               <Trash2 className="h-4 w-4" />
               Delete Account
