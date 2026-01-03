@@ -102,9 +102,14 @@ jobs:
       - name: Trigger update workflow in ${{ matrix.repo }}
         run: |
           echo "Published packages: ${{ needs.release.outputs.published_packages }}"
+          
+          # Extract package names from the JSON array
+          PACKAGES=$(echo '${{ needs.release.outputs.published_packages }}' | jq -r '.[].name' | tr '\n' ' ')
+          echo "Package names: $PACKAGES"
+          
           # Send dispatch event to consumer repo
           curl -X POST \
             -H "Authorization: token ${{ secrets.GH_PAT }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/caffeinebounce/${{ matrix.repo }}/dispatches \
-            -d '{"event_type": "update-shared-packages", "client_payload": {"published": ${{ needs.release.outputs.published_packages }} }}'
+            -d "{\"event_type\": \"update-shared-packages\", \"client_payload\": {\"packages\": \"$PACKAGES\"}}"
