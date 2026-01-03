@@ -55,7 +55,17 @@ jobs:
             yarn-cache-${{ runner.os }}-
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install
+
+      - name: Commit lockfile changes if needed
+        run: |
+          if [ -n "$(git status --porcelain yarn.lock)" ]; then
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add yarn.lock
+            git commit -m "chore: update lockfile"
+            git push
+          fi
 
       - name: Lint
         run: yarn lint
