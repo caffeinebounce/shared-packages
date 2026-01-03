@@ -48,12 +48,14 @@ export function EmailVerificationPending({
   useEffect(() => {
     const supabase = createClient();
 
-    // Poll for email verification
+    // Poll for email verification using getSession() to avoid API calls
+    // getSession() reads from client-side storage (local/session storage), no network request
+    // Token refresh is handled automatically by onAuthStateChange
     const interval = setInterval(async () => {
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user?.email_confirmed_at) {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user?.email_confirmed_at) {
         clearInterval(interval);
         router.push(redirectTo);
         router.refresh();

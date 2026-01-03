@@ -193,7 +193,8 @@ export function DeleteAccountSection({
                   <TooltipContent side="top" className="max-w-xs">
                     <p>
                       Permanently deactivate your account. Your data will be
-                      retained for {retentionDays} days before permanent deletion.
+                      retained for {retentionDays} days before permanent
+                      deletion.
                     </p>
                   </TooltipContent>
                 </Tooltip>

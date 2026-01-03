@@ -61,11 +61,13 @@ export function MFAProvider({ createClient, children }: MFAProviderProps) {
   const refreshAAL = useCallback(async () => {
     try {
       const supabase = createClient();
+      // Use getSession(), which reads from client-side storage (no API call),
+      // instead of getUser(), which makes an API call that can trigger token refresh
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      if (!user) {
+      if (!session?.user) {
         setCurrentLevel(null);
         setNextLevel(null);
         return;
