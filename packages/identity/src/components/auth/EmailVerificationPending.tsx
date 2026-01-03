@@ -49,7 +49,7 @@ export function EmailVerificationPending({
     const supabase = createClient();
 
     // Poll for email verification using getSession() to avoid API calls
-    // getSession() reads from cookies locally, no network request
+    // getSession() reads from client-side storage (local/session storage), no network request
     // Token refresh is handled automatically by onAuthStateChange
     const interval = setInterval(async () => {
       const {
