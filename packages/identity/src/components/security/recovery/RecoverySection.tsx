@@ -201,32 +201,32 @@ export function RecoverySection({ createClient }: RecoverySectionProps) {
                 <Mail className="h-4 w-4 text-muted-foreground" />
               </div>
               <div>
-                <span className="font-medium">Recovery Email</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-medium">Recovery Email</span>
+                  {!recoveryEmail && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Add a recovery email to regain access if you lose your
+                        authenticator.
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">
                   {recoveryEmail || "Not set"}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {!recoveryEmail && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Add a recovery email to regain access if you lose your
-                    authenticator.
-                  </TooltipContent>
-                </Tooltip>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRecoveryEmailClick}
-              >
-                {recoveryEmail ? "Change" : "Add"}
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRecoveryEmailClick}
+            >
+              {recoveryEmail ? "Change" : "Add"}
+            </Button>
           </div>
         </div>
 

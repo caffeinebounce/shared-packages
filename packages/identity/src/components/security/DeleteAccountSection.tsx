@@ -183,28 +183,30 @@ export function DeleteAccountSection({
             <AlertTriangle className="h-5 w-5 text-destructive" />
           </div>
           <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex items-center gap-2">
-              <h4 className="font-medium text-foreground">Delete Account</h4>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
-                  <p>
-                    Permanently deactivate your account. Your data will be
-                    retained for {retentionDays} days before permanent deletion.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h4 className="font-medium text-foreground">Delete Account</h4>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    <p>
+                      Permanently deactivate your account. Your data will be
+                      retained for {retentionDays} days before permanent deletion.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
             <Button
               variant="destructive"
               size="sm"
               onClick={handleDeleteClick}
-              className="gap-2 shrink-0 self-start sm:self-center"
+              className="gap-2 shrink-0 self-start sm:self-center hover:bg-destructive/90"
             >
               <Trash2 className="h-4 w-4" />
-              Delete Account
+              Delete
             </Button>
           </div>
         </div>
