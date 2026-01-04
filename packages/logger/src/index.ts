@@ -24,6 +24,13 @@
 export { Logger as BetterStackLogger, useLogger } from "@logtail/next";
 export { adminLogger } from "./admin-logger";
 export { authLogger } from "./auth-logger";
+// Deployment environment detection
+export {
+  clearEnvironmentCache,
+  type DeploymentEnvironment,
+  detectDeploymentEnvironment,
+  getDeploymentEnvironment,
+} from "./environment";
 export type {
   ApiErrorContext,
   ApiErrorResponse,

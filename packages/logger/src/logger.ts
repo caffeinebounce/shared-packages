@@ -7,6 +7,7 @@ import {
   Logger as BetterStackLogger,
   config as logtailConfig,
 } from "@logtail/next";
+import { getDeploymentEnvironment } from "./environment";
 import type { AuthLogContext, LogContext, LogLevel } from "./types";
 import { SENSITIVE_KEYS } from "./types";
 
@@ -121,9 +122,15 @@ export class Logger {
       return;
     }
 
+    // Get hostname from context if available (for accurate environment detection)
+    const hostname =
+      (context?.requestHost as string) || (context?.host as string) || null;
+
     const logData = {
       message,
       timestamp: new Date().toISOString(),
+      // Add deployment environment to distinguish preview from production
+      deploymentEnvironment: getDeploymentEnvironment(hostname),
       ...(context || {}),
     };
 
