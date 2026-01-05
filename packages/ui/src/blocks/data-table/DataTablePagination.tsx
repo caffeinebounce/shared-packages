@@ -53,8 +53,10 @@ export function DataTablePagination({
   className,
   ...props
 }: DataTablePaginationProps) {
+  // Ensure pageCount is at least 1 for display (show "1 of 1" instead of "1 of 0")
+  const displayPageCount = Math.max(1, pageCount);
   const canGoPrevious = page > 1;
-  const canGoNext = page < pageCount;
+  const canGoNext = page < displayPageCount;
 
   return (
     <div
@@ -115,10 +117,10 @@ export function DataTablePagination({
           </Button>
           <div className="flex items-center justify-center text-xs font-light text-muted-foreground whitespace-nowrap px-1">
             <span className="hidden lg:inline">
-              Page {page} of {pageCount}
+              Page {page} of {displayPageCount}
             </span>
             <span className="lg:hidden">
-              {page} / {pageCount}
+              {page} / {displayPageCount}
             </span>
           </div>
           <Button
@@ -134,7 +136,7 @@ export function DataTablePagination({
             aria-label="Go to last page"
             variant="outline"
             className="hidden size-8 p-0 lg:flex"
-            onClick={() => onPageChange(pageCount)}
+            onClick={() => onPageChange(displayPageCount)}
             disabled={!canGoNext}
           >
             <ChevronsRight className="size-4" />

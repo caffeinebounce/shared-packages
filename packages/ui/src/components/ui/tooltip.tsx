@@ -41,7 +41,7 @@ function TooltipTrigger({
 
 function TooltipContent({
   className,
-  sideOffset = 8,
+  sideOffset = 6,
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
@@ -53,17 +53,17 @@ function TooltipContent({
         className={cn(
           // Base styles
           "z-50 max-w-xs overflow-hidden",
-          // Colors - subtle dark background with good contrast
-          "bg-popover text-popover-foreground",
-          // Shadow for depth (no border)
-          "shadow-lg shadow-black/10 dark:shadow-black/25",
-          // Typography - smaller text
-          "text-xs leading-relaxed",
-          // Spacing and shape
-          "rounded-lg px-2.5 py-1.5",
+          // Colors - subtle grey distinct from main bg, respects light/dark mode
+          "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100",
+          // Subtle shadow for depth
+          "shadow-md",
+          // Typography - clean small text, light weight, 12px via var
+          "text-[length:var(--text-xs)] leading-normal font-light",
+          // Spacing and shape - tight rounded corners
+          "rounded-md px-3 py-1.5",
           // Animations - smooth fade and scale
-          "animate-in fade-in-0 zoom-in-95 duration-200",
-          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:duration-150",
+          "animate-in fade-in-0 zoom-in-95 duration-150",
+          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:duration-100",
           // Slide in from direction
           "data-[side=bottom]:slide-in-from-top-1",
           "data-[side=left]:slide-in-from-right-1",
@@ -76,12 +76,6 @@ function TooltipContent({
         {...props}
       >
         {children}
-        {/* Arrow for polish */}
-        <TooltipPrimitive.Arrow
-          className="fill-popover drop-shadow-sm"
-          width={12}
-          height={6}
-        />
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>
   );

@@ -5,7 +5,16 @@
  * Integrates with Better Stack for centralized error tracking
  */
 
-import type { NextRequest } from "next/server";
+/**
+ * Minimal request interface for correlation ID extraction.
+ * Accepts any request-like object with a headers property that has a `get` method.
+ * This avoids TypeScript nominal typing issues between different Next.js versions.
+ */
+export interface RequestWithHeaders {
+  headers: {
+    get(name: string): string | null;
+  };
+}
 
 export interface ApiErrorContext {
   endpoint: string;
@@ -39,7 +48,7 @@ export interface ApiErrorResponse {
  * 3. x-trace-id
  * 4. Generates new ID if none found
  *
- * @param req NextRequest object
+ * @param req Request object with headers
  * @returns Correlation ID string
  *
  * @example
@@ -53,7 +62,7 @@ export interface ApiErrorResponse {
  * }
  * ```
  */
-export function getOrGenerateCorrelationId(req: NextRequest): string {
+export function getOrGenerateCorrelationId(req: RequestWithHeaders): string {
   // Check for existing correlation ID from upstream or client
   const existingId =
     req.headers.get("x-correlation-id") ||

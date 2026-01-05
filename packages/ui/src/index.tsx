@@ -228,6 +228,11 @@ export {
 } from "./components/ui/alert";
 export type { SaveStatus } from "./components/ui/auto-save-indicator";
 export { AutoSaveIndicator } from "./components/ui/auto-save-indicator";
+export type {
+  AutocompleteOption,
+  AutocompleteProps,
+} from "./components/ui/autocomplete";
+export { Autocomplete } from "./components/ui/autocomplete";
 export { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
 export type { BadgeProps } from "./components/ui/badge";
 export { Badge, badgeVariants } from "./components/ui/badge";
@@ -239,6 +244,8 @@ export {
   ButtonGroupSeparator,
   ButtonGroupText,
 } from "./components/ui/button-group";
+export type { CalendarProps } from "./components/ui/calendar";
+export { Calendar } from "./components/ui/calendar";
 export {
   Card,
   CardAction,
@@ -277,6 +284,11 @@ export {
 // Layout components
 export type { ContainerProps, ContainerSize } from "./components/ui/container";
 export { Container } from "./components/ui/container";
+export type {
+  DatePickerProps,
+  DateRangePickerProps,
+} from "./components/ui/date-picker";
+export { DatePicker, DateRangePicker } from "./components/ui/date-picker";
 export {
   Dialog,
   DialogClose,
@@ -318,6 +330,8 @@ export {
   FieldSet,
   FieldTitle,
 } from "./components/ui/field";
+export type { InfoTooltipProps } from "./components/ui/info-tooltip";
+export { InfoTooltip } from "./components/ui/info-tooltip";
 export { Input } from "./components/ui/input";
 export {
   InputOTP,
@@ -329,6 +343,10 @@ export { Kbd, KbdGroup } from "./components/ui/kbd";
 export { Label } from "./components/ui/label";
 export type { LocationMapProps } from "./components/ui/location-map";
 export { LocationMap } from "./components/ui/location-map";
+export type { ModernCalendarProps } from "./components/ui/modern-calendar";
+export { ModernCalendar } from "./components/ui/modern-calendar";
+export type { NumberStepperProps } from "./components/ui/number-stepper";
+export { NumberStepper } from "./components/ui/number-stepper";
 export type { PageHeaderProps } from "./components/ui/page-header";
 export { PageHeader } from "./components/ui/page-header";
 export type { PageLoaderProps } from "./components/ui/page-loader";

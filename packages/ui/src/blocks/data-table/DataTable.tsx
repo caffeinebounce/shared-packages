@@ -110,8 +110,9 @@ export function DataTable<TData, TValue>({
   ...props
 }: DataTableProps<TData, TValue>) {
   // Density-based classes - compact is tighter, comfy has more breathing room
-  const cellPadding = density === "compact" ? "px-1.5 py-0.5" : "px-3 py-2";
-  const headerHeight = density === "compact" ? "h-8" : "h-10";
+  // Use px-2 for horizontal padding to match header button padding
+  const cellPadding = density === "compact" ? "px-1.5 py-0.5" : "px-2 py-2";
+  const headerHeight = density === "compact" ? "h-7" : "h-10";
 
   // Font size classes
   const fontSizeClass = {
@@ -120,6 +121,31 @@ export function DataTable<TData, TValue>({
     md: "text-sm",
     lg: "text-base",
   }[fontSize];
+
+  // Checkbox size based on font size
+  const checkboxSize = {
+    xs: "size-3.5",
+    sm: "size-4",
+    md: "size-4.5",
+    lg: "size-5",
+  }[fontSize];
+
+  // Checkmark icon size
+  const checkmarkSize = {
+    xs: "size-2",
+    sm: "size-2.5",
+    md: "size-3",
+    lg: "size-3.5",
+  }[fontSize];
+
+  // Gutter width based on density and drag enabled
+  const gutterWidth = enableRowDrag
+    ? density === "compact"
+      ? 44
+      : 56
+    : density === "compact"
+      ? 24
+      : 32;
 
   // Column resizing state
   const [columnSizing, setColumnSizing] = React.useState<
@@ -197,7 +223,7 @@ export function DataTable<TData, TValue>({
       {/* Table with gutter for selection/drag handles */}
       <div className={cn("mx-1 max-w-full", fontSizeClass)}>
         <div className="overflow-x-auto rounded-md border w-full pb-2 [&::-webkit-scrollbar-track]:bg-transparent">
-          <table className="w-full caption-bottom text-sm">
+          <table className={cn("w-full caption-bottom", fontSizeClass)}>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="hover:bg-transparent">
@@ -205,7 +231,7 @@ export function DataTable<TData, TValue>({
                   {(rowSelectionStyle === "hover" || enableRowDrag) && (
                     <TableHead
                       className={cn("p-0 border-r-0", headerHeight)}
-                      style={{ width: enableRowDrag ? 56 : 32 }}
+                      style={{ width: gutterWidth }}
                     />
                   )}
                   {headerGroup.headers.map((header) => {
@@ -231,12 +257,16 @@ export function DataTable<TData, TValue>({
                       adjustedIndex === visibleHeaders.length - 1;
                     const columnWidth = columnSizing[header.id];
 
+                    // Determine if header is a simple string (not a function/component)
+                    const headerDef = header.column.columnDef.header;
+                    const isSimpleHeader = typeof headerDef === "string";
+
                     return (
                       <TableHead
                         key={header.id}
                         colSpan={header.colSpan}
                         className={cn(
-                          "p-0", // No padding - header button handles all styling
+                          isSimpleHeader ? "px-2" : "p-0", // Add padding for simple headers, let component headers handle their own
                           headerHeight,
                           "relative",
                           !isLastColumn && "border-r border-border/30",
@@ -250,12 +280,16 @@ export function DataTable<TData, TValue>({
                           minWidth: columnWidth ? columnWidth : undefined,
                         }}
                       >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                        {header.isPlaceholder ? null : isSimpleHeader ? (
+                          <span className={cn("font-medium", fontSizeClass)}>
+                            {headerDef}
+                          </span>
+                        ) : (
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )
+                        )}
                         {/* Resize handle */}
                         {enableColumnResizing && !isLastColumn && (
                           <button
@@ -309,7 +343,7 @@ export function DataTable<TData, TValue>({
                       {(rowSelectionStyle === "hover" || enableRowDrag) && (
                         <TableCell
                           className="p-0 border-r-0"
-                          style={{ width: enableRowDrag ? 56 : 32 }}
+                          style={{ width: gutterWidth }}
                         >
                           <div
                             className={cn(
@@ -320,11 +354,18 @@ export function DataTable<TData, TValue>({
                             {enableRowDrag && (
                               <button
                                 type="button"
-                                className="flex items-center justify-center size-6 text-muted-foreground/50 hover:text-muted-foreground cursor-grab rounded hover:bg-accent"
+                                className={cn(
+                                  "flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground cursor-grab rounded hover:bg-accent",
+                                  density === "compact" ? "size-5" : "size-6",
+                                )}
                                 aria-label="Drag to reorder"
                                 draggable
                               >
-                                <GripVertical className="size-4" />
+                                <GripVertical
+                                  className={
+                                    density === "compact" ? "size-3" : "size-4"
+                                  }
+                                />
                               </button>
                             )}
                             <button
@@ -333,7 +374,8 @@ export function DataTable<TData, TValue>({
                                 row.toggleSelected(!row.getIsSelected())
                               }
                               className={cn(
-                                "flex items-center justify-center size-5 rounded border transition-colors",
+                                "flex items-center justify-center rounded border transition-colors",
+                                checkboxSize,
                                 isSelected
                                   ? "bg-primary border-primary text-primary-foreground"
                                   : "border-border hover:border-primary/50 hover:bg-accent",
@@ -344,7 +386,7 @@ export function DataTable<TData, TValue>({
                             >
                               {isSelected && (
                                 <svg
-                                  className="size-3"
+                                  className={checkmarkSize}
                                   viewBox="0 0 12 12"
                                   fill="none"
                                   aria-hidden="true"
@@ -420,9 +462,11 @@ export function DataTable<TData, TValue>({
                       columns.length +
                       (rowSelectionStyle === "hover" || enableRowDrag ? 1 : 0)
                     }
-                    className="h-24 text-center"
+                    className="h-24"
                   >
-                    No results.
+                    <div className="sticky left-0 w-fit px-4 text-muted-foreground">
+                      No results.
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

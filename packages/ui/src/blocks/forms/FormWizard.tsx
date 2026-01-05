@@ -357,8 +357,15 @@ export function FormWizard<T = unknown>({
         return;
       }
 
-      // Alt+Shift+R to reset (avoids browser conflicts with Ctrl+Shift combinations)
-      if (e.key === "R" && e.altKey && e.shiftKey && onReset) {
+      // Alt+R to reset form (check both 'r' and '®' for Mac Option key behavior)
+      if (
+        (e.key === "r" || e.key === "®" || e.code === "KeyR") &&
+        e.altKey &&
+        !e.shiftKey &&
+        !e.metaKey &&
+        !e.ctrlKey &&
+        onReset
+      ) {
         e.preventDefault();
         e.stopPropagation();
 
