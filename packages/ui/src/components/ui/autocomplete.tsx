@@ -1,17 +1,20 @@
 "use client";
 
-import { Check, Loader2, Plus, X } from "lucide-react";
+import { Check, Loader2, Pencil, Plus, X } from "lucide-react";
 import {
   type ChangeEvent,
   type KeyboardEvent,
+  type MouseEvent,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 
 import { cn } from "../../utils";
+import { Badge } from "./badge";
 import { Button } from "./button";
 import { Popover, PopoverAnchor, PopoverContent } from "./popover";
 
@@ -45,6 +48,8 @@ export interface AutocompleteProps {
   createLabel?: string;
   /** Callback when user wants to create a new option */
   onCreateNew?: (searchValue: string) => void;
+  /** Callback when user wants to edit the selected option */
+  onEditSelected?: (option: AutocompleteOption) => void;
   /** Whether the autocomplete is in a loading state */
   loading?: boolean;
   /** Additional class name for the input */
@@ -88,6 +93,7 @@ export function Autocomplete({
   allowCreate = false,
   createLabel = "Create new",
   onCreateNew,
+  onEditSelected,
   loading = false,
   className,
   error = false,
@@ -100,6 +106,10 @@ export function Autocomplete({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Cursor-following tooltip state
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
   // Find the selected option
   const selectedOption = useMemo(
@@ -165,12 +175,23 @@ export function Autocomplete({
     setHighlightedIndex(-1);
   }, [onCreateNew, inputValue]);
 
+  // Track when we should focus after clearing
+  const [shouldFocusAfterClear, setShouldFocusAfterClear] = useState(false);
+
   const handleClear = useCallback(() => {
     onValueChange?.("");
     setInputValue("");
     setOpen(false);
-    inputRef.current?.focus();
+    setShouldFocusAfterClear(true);
   }, [onValueChange]);
+
+  // Focus input after clearing (input will be mounted after state update)
+  useEffect(() => {
+    if (shouldFocusAfterClear && !value && inputRef.current) {
+      inputRef.current.focus();
+      setShouldFocusAfterClear(false);
+    }
+  }, [shouldFocusAfterClear, value]);
 
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -258,54 +279,147 @@ export function Autocomplete({
     }
   }, [highlightedIndex]);
 
+  // Handle mouse events for cursor-following tooltip
+  const handleMouseMove = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    if (selectedOption?.description) {
+      setTooltipPosition({ x: e.clientX, y: e.clientY });
+    }
+  }, [selectedOption?.description]);
+
+  const handleMouseEnter = useCallback(() => {
+    if (selectedOption?.description) {
+      setTooltipVisible(true);
+    }
+  }, [selectedOption?.description]);
+
+  const handleMouseLeave = useCallback(() => {
+    setTooltipVisible(false);
+  }, []);
+
   return (
     <Popover open={effectiveOpen} onOpenChange={setOpen}>
       <PopoverAnchor asChild>
         <div className="relative">
-          <input
-            ref={inputRef}
-            type="text"
-            id={id}
-            name={name}
-            value={inputValue}
-            onChange={handleInputChange}
-            onFocus={handleInputFocus}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            disabled={disabled || loading}
-            aria-label={ariaLabel}
-            aria-expanded={effectiveOpen}
-            aria-haspopup="listbox"
-            aria-autocomplete="list"
-            autoComplete="off"
-            className={cn(
-              "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-colors",
-              "placeholder:text-muted-foreground",
-              "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-              "disabled:cursor-not-allowed disabled:opacity-50",
-              "md:text-sm",
-              error && "border-destructive focus-visible:ring-destructive/20",
-              (value || inputValue) && "pr-8",
-              className,
-            )}
-          />
-          {loading && (
-            <div className="absolute right-2 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-            </div>
-          )}
-          {!loading && (value || inputValue) && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground"
-              onClick={handleClear}
-              tabIndex={-1}
-            >
-              <X className="h-3.5 w-3.5" />
-              <span className="sr-only">Clear</span>
-            </Button>
+          {/* Locked state when a value is selected */}
+          {selectedOption ? (
+            <>
+              <div
+                className={cn(
+                  "flex h-9 w-full items-center gap-2 rounded-md border border-input bg-muted/30 px-2 py-1 shadow-xs",
+                  disabled && "cursor-not-allowed opacity-50",
+                  error && "border-destructive",
+                  className,
+                )}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onMouseMove={handleMouseMove}
+              >
+                <Badge
+                  variant="secondary"
+                  className="max-w-[calc(100%-4.5rem)] truncate font-normal"
+                >
+                  {selectedOption.label}
+                </Badge>
+                {!disabled && !loading && (
+                  <div className="ml-auto flex items-center gap-0.5 shrink-0">
+                    {onEditSelected && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                        onClick={() => onEditSelected(selectedOption)}
+                        tabIndex={-1}
+                      >
+                        <Pencil className="h-3 w-3" />
+                        <span className="sr-only">Edit selection</span>
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                      onClick={handleClear}
+                      tabIndex={-1}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                      <span className="sr-only">Clear selection</span>
+                    </Button>
+                  </div>
+                )}
+                {loading && (
+                  <Loader2 className="ml-auto h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+                )}
+              </div>
+              {/* Cursor-following tooltip rendered via portal to escape modal clipping */}
+              {tooltipVisible && selectedOption.description && typeof document !== "undefined" &&
+                createPortal(
+                  <div
+                    className="fixed z-[9999] max-w-xs rounded-md border bg-popover px-3 py-2 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+                    style={{
+                      left: tooltipPosition.x + 8,
+                      top: tooltipPosition.y - 8,
+                      transform: "translateY(-100%)",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <p className="font-medium">{selectedOption.label}</p>
+                    <p className="text-muted-foreground">{selectedOption.description}</p>
+                  </div>,
+                  document.body
+                )
+              }
+            </>
+          ) : (
+            /* Editable input when no selection */
+            <>
+              <input
+                ref={inputRef}
+                type="text"
+                id={id}
+                name={name}
+                value={inputValue}
+                onChange={handleInputChange}
+                onFocus={handleInputFocus}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholder}
+                disabled={disabled || loading}
+                aria-label={ariaLabel}
+                aria-expanded={effectiveOpen}
+                aria-haspopup="listbox"
+                aria-autocomplete="list"
+                autoComplete="off"
+                className={cn(
+                  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-colors",
+                  "placeholder:text-muted-foreground",
+                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                  "disabled:cursor-not-allowed disabled:opacity-50",
+                  "md:text-sm",
+                  error && "border-destructive focus-visible:ring-destructive/20",
+                  inputValue && "pr-8",
+                  className,
+                )}
+              />
+              {loading && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              )}
+              {!loading && inputValue && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground"
+                  onClick={handleClear}
+                  tabIndex={-1}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  <span className="sr-only">Clear</span>
+                </Button>
+              )}
+            </>
           )}
         </div>
       </PopoverAnchor>

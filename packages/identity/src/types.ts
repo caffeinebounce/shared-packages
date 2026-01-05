@@ -3,8 +3,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 /**
  * Type for the createClient function that apps must provide.
  * This abstracts over browser vs server client creation.
+ *
+ * Using `any` for all generic parameters avoids version mismatches
+ * between packages with different Supabase client versions.
  */
-export type CreateClientFn = () => SupabaseClient;
+// biome-ignore lint/suspicious/noExplicitAny: Required for cross-version Supabase client compatibility
+export type CreateClientFn = () => SupabaseClient<any, any, any, any, any>;
 
 /**
  * Configuration for OAuth providers
