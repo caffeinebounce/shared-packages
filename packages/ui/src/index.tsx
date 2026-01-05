@@ -228,6 +228,11 @@ export {
 } from "./components/ui/alert";
 export type { SaveStatus } from "./components/ui/auto-save-indicator";
 export { AutoSaveIndicator } from "./components/ui/auto-save-indicator";
+export type {
+  AutocompleteOption,
+  AutocompleteProps,
+} from "./components/ui/autocomplete";
+export { Autocomplete } from "./components/ui/autocomplete";
 export { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
 export type { BadgeProps } from "./components/ui/badge";
 export { Badge, badgeVariants } from "./components/ui/badge";
@@ -318,6 +323,8 @@ export {
   FieldSet,
   FieldTitle,
 } from "./components/ui/field";
+export type { InfoTooltipProps } from "./components/ui/info-tooltip";
+export { InfoTooltip } from "./components/ui/info-tooltip";
 export { Input } from "./components/ui/input";
 export {
   InputOTP,
