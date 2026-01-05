@@ -169,12 +169,12 @@ export function DataTableColumnHeader<TData, TValue>({
   const resolvedFilterOptions = filterOptions ?? meta?.filterOptions;
   const filterPlaceholder = meta?.filterPlaceholder;
 
-  // If no actions available, just render the title
+  // If no actions available, just render the title (with matching px-2 padding)
   if (!canSort && !canHide && !showFilter) {
     return (
-      <div className={cn("flex items-center gap-1.5", className)}>
+      <div className={cn("flex items-center gap-1.5 px-2 h-full", className)}>
         {Icon && <Icon className="size-4 text-muted-foreground" />}
-        <span>{title}</span>
+        <span className="font-medium">{title}</span>
       </div>
     );
   }
@@ -194,7 +194,7 @@ export function DataTableColumnHeader<TData, TValue>({
             {Icon && (
               <Icon className="size-3.5 text-muted-foreground shrink-0" />
             )}
-            <span className="text-xs font-medium">{title}</span>
+            <span className="font-medium">{title}</span>
             {/* Show filter indicator when column is filtered */}
             {isFiltered && <Filter className="size-3 text-primary shrink-0" />}
             {/* Only show sort indicator when actively sorted */}

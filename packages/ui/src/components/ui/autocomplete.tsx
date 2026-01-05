@@ -280,11 +280,14 @@ export function Autocomplete({
   }, [highlightedIndex]);
 
   // Handle mouse events for cursor-following tooltip
-  const handleMouseMove = useCallback((e: MouseEvent<HTMLDivElement>) => {
-    if (selectedOption?.description) {
-      setTooltipPosition({ x: e.clientX, y: e.clientY });
-    }
-  }, [selectedOption?.description]);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent<HTMLDivElement>) => {
+      if (selectedOption?.description) {
+        setTooltipPosition({ x: e.clientX, y: e.clientY });
+      }
+    },
+    [selectedOption?.description],
+  );
 
   const handleMouseEnter = useCallback(() => {
     if (selectedOption?.description) {
@@ -353,7 +356,9 @@ export function Autocomplete({
                 )}
               </div>
               {/* Cursor-following tooltip rendered via portal to escape modal clipping */}
-              {tooltipVisible && selectedOption.description && typeof document !== "undefined" &&
+              {tooltipVisible &&
+                selectedOption.description &&
+                typeof document !== "undefined" &&
                 createPortal(
                   <div
                     className="fixed z-[9999] max-w-xs rounded-md border bg-popover px-3 py-2 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
@@ -365,11 +370,12 @@ export function Autocomplete({
                     }}
                   >
                     <p className="font-medium">{selectedOption.label}</p>
-                    <p className="text-muted-foreground">{selectedOption.description}</p>
+                    <p className="text-muted-foreground">
+                      {selectedOption.description}
+                    </p>
                   </div>,
-                  document.body
-                )
-              }
+                  document.body,
+                )}
             </>
           ) : (
             /* Editable input when no selection */
@@ -396,7 +402,8 @@ export function Autocomplete({
                   "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
                   "disabled:cursor-not-allowed disabled:opacity-50",
                   "md:text-sm",
-                  error && "border-destructive focus-visible:ring-destructive/20",
+                  error &&
+                    "border-destructive focus-visible:ring-destructive/20",
                   inputValue && "pr-8",
                   className,
                 )}

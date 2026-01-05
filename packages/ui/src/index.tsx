@@ -244,6 +244,8 @@ export {
   ButtonGroupSeparator,
   ButtonGroupText,
 } from "./components/ui/button-group";
+export type { CalendarProps } from "./components/ui/calendar";
+export { Calendar } from "./components/ui/calendar";
 export {
   Card,
   CardAction,
@@ -282,6 +284,11 @@ export {
 // Layout components
 export type { ContainerProps, ContainerSize } from "./components/ui/container";
 export { Container } from "./components/ui/container";
+export type {
+  DatePickerProps,
+  DateRangePickerProps,
+} from "./components/ui/date-picker";
+export { DatePicker, DateRangePicker } from "./components/ui/date-picker";
 export {
   Dialog,
   DialogClose,
@@ -336,6 +343,10 @@ export { Kbd, KbdGroup } from "./components/ui/kbd";
 export { Label } from "./components/ui/label";
 export type { LocationMapProps } from "./components/ui/location-map";
 export { LocationMap } from "./components/ui/location-map";
+export type { ModernCalendarProps } from "./components/ui/modern-calendar";
+export { ModernCalendar } from "./components/ui/modern-calendar";
+export type { NumberStepperProps } from "./components/ui/number-stepper";
+export { NumberStepper } from "./components/ui/number-stepper";
 export type { PageHeaderProps } from "./components/ui/page-header";
 export { PageHeader } from "./components/ui/page-header";
 export type { PageLoaderProps } from "./components/ui/page-loader";

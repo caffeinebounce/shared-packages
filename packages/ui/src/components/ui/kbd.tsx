@@ -7,7 +7,7 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
     <kbd
       data-slot="kbd"
       className={cn(
-        "bg-muted text-muted-foreground pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm px-1 font-sans text-xs font-medium select-none",
+        "bg-muted text-muted-foreground pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm px-1 font-sans text-xs font-medium select-none align-middle",
         "[&_svg:not([class*='size-'])]:size-3",
         // Inside tooltips: subtle background with visible text
         "in-data-[slot=tooltip-content]:bg-foreground/10 in-data-[slot=tooltip-content]:text-popover-foreground/70",
