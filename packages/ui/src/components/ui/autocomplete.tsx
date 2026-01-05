@@ -154,10 +154,10 @@ export function Autocomplete({
   const hasContent = filteredOptions.length > 0 || showCreateOption;
   const effectiveOpen = open && hasContent;
 
-  // Reset highlighted index when options change
+  // Reset highlighted index when filtered options change
   useEffect(() => {
     setHighlightedIndex(-1);
-  }, []);
+  }, [filteredOptions]);
 
   const handleSelect = useCallback(
     (selectedValue: string, label: string) => {

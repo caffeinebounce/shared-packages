@@ -27,8 +27,6 @@ export interface DatePickerProps {
   fromDate?: Date;
   /** Maximum selectable date */
   toDate?: Date;
-  /** Dates that should be disabled */
-  disabledDates?: Date[];
   /** Size variant */
   size?: "sm" | "default" | "lg";
   /** Alignment of the popover */
@@ -56,7 +54,6 @@ export function DatePicker({
   dateFormat = "PPP",
   fromDate,
   toDate,
-  disabledDates: _disabledDates,
   size = "default",
   align = "start",
   error = false,

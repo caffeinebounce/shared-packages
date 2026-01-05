@@ -1,5 +1,5 @@
 ---
-"@caffeinebounce/ui": patch
+"@caffeinebounce/ui": minor
 ---
 
 DataTable: Standardize cell and header padding for consistent styling

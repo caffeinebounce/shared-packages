@@ -47,11 +47,13 @@ const sizeClasses = {
 /**
  * A number input with increment/decrement buttons.
  * Provides a cleaner alternative to browser default number inputs.
+ * 
+ * @default min - 0 (allows zero, override for positive-only)
  */
 export function NumberStepper({
   value,
   onChange,
-  min = 1,
+  min = 0,
   max = Number.MAX_SAFE_INTEGER,
   step = 1,
   size = "md",
@@ -72,9 +74,21 @@ export function NumberStepper({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = Number.parseInt(e.target.value, 10);
+    const inputVal = e.target.value;
+    // Allow empty string during editing, reset to min on blur
+    if (inputVal === "") {
+      return; // Let the input show empty, onBlur will fix it
+    }
+    const newValue = Number.parseInt(inputVal, 10);
     if (!Number.isNaN(newValue)) {
       onChange(Math.min(max, Math.max(min, newValue)));
+    }
+  };
+
+  const handleBlur = () => {
+    // If input is empty or NaN, reset to min
+    if (Number.isNaN(value) || value < min) {
+      onChange(min);
     }
   };
 
@@ -126,6 +140,7 @@ export function NumberStepper({
         value={value}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
         disabled={disabled}
         className={cn(
           "border-0 bg-transparent text-center focus:outline-none focus:ring-0",

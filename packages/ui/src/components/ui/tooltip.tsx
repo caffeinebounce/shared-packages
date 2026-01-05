@@ -57,8 +57,8 @@ function TooltipContent({
           "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100",
           // Subtle shadow for depth
           "shadow-md",
-          // Typography - clean small text, light weight, 12px via var
-          "text-[length:var(--text-xs)] leading-normal font-light",
+          // Typography - clean small text, light weight
+          "text-xs leading-normal font-light",
           // Spacing and shape - tight rounded corners
           "rounded-md px-3 py-1.5",
           // Animations - smooth fade and scale
