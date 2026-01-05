@@ -139,7 +139,13 @@ export function DataTable<TData, TValue>({
   }[fontSize];
 
   // Gutter width based on density and drag enabled
-  const gutterWidth = enableRowDrag ? (density === "compact" ? 44 : 56) : (density === "compact" ? 24 : 32);
+  const gutterWidth = enableRowDrag
+    ? density === "compact"
+      ? 44
+      : 56
+    : density === "compact"
+      ? 24
+      : 32;
 
   // Column resizing state
   const [columnSizing, setColumnSizing] = React.useState<
@@ -355,7 +361,11 @@ export function DataTable<TData, TValue>({
                                 aria-label="Drag to reorder"
                                 draggable
                               >
-                                <GripVertical className={density === "compact" ? "size-3" : "size-4"} />
+                                <GripVertical
+                                  className={
+                                    density === "compact" ? "size-3" : "size-4"
+                                  }
+                                />
                               </button>
                             )}
                             <button

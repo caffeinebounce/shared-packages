@@ -306,6 +306,7 @@ export function Autocomplete({
           {/* Locked state when a value is selected */}
           {selectedOption ? (
             <>
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: Mouse events are for hover state only, not interactivity */}
               <div
                 className={cn(
                   "flex h-9 w-full items-center gap-2 rounded-md border border-input bg-muted/30 px-2 py-1 shadow-xs",
@@ -385,6 +386,7 @@ export function Autocomplete({
                 type="text"
                 id={id}
                 name={name}
+                role="combobox"
                 value={inputValue}
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
@@ -395,6 +397,9 @@ export function Autocomplete({
                 aria-expanded={effectiveOpen}
                 aria-haspopup="listbox"
                 aria-autocomplete="list"
+                aria-controls={
+                  effectiveOpen ? "autocomplete-listbox" : undefined
+                }
                 autoComplete="off"
                 className={cn(
                   "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-colors",
@@ -438,6 +443,7 @@ export function Autocomplete({
       >
         <div
           ref={listRef}
+          id="autocomplete-listbox"
           role="listbox"
           className="max-h-[300px] overflow-y-auto p-1"
         >
@@ -446,11 +452,20 @@ export function Autocomplete({
               key={option.value}
               data-option
               role="option"
+              tabIndex={-1}
               aria-selected={value === option.value}
               aria-disabled={option.disabled}
               onClick={() => {
                 if (!option.disabled) {
                   handleSelect(option.value, option.label);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  if (!option.disabled) {
+                    handleSelect(option.value, option.label);
+                  }
                 }
               }}
               className={cn(
@@ -485,7 +500,14 @@ export function Autocomplete({
               <div
                 data-option
                 role="option"
+                tabIndex={-1}
                 onClick={handleCreateNew}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleCreateNew();
+                  }
+                }}
                 className={cn(
                   "flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm cursor-pointer",
                   "hover:bg-accent hover:text-accent-foreground",
@@ -499,6 +521,11 @@ export function Autocomplete({
                 </span>
               </div>
             </>
+          )}
+          {filteredOptions.length === 0 && !showCreateOption && (
+            <div className="px-2 py-6 text-center text-sm text-muted-foreground">
+              {emptyText}
+            </div>
           )}
         </div>
       </PopoverContent>
