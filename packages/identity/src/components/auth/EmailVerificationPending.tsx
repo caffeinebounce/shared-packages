@@ -3,8 +3,18 @@
 import { Badge, cn } from "@caffeinebounce/ui";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import { type ComponentType, useEffect, useState } from "react";
+import {
+  type ComponentType,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AuthFormLayout } from "../shared/AuthFormLayout";
+
+// Polling configuration
+const POLL_INTERVAL_MS = 60_000; // 1 minute
+const MAX_POLL_COUNT = 60; // Stop after 60 polls (1 hour total)
 
 export interface EmailVerificationPendingProps {
   /** The email address awaiting verification */
@@ -29,7 +39,8 @@ export interface EmailVerificationPendingProps {
 
 /**
  * Email verification pending screen shown after signup.
- * Polls for email verification and allows resending the verification email.
+ * Uses Supabase auth state change listener for instant updates,
+ * with polling fallback every 60 seconds (up to 1 hour).
  */
 export function EmailVerificationPending({
   email,
@@ -44,40 +55,70 @@ export function EmailVerificationPending({
   const [resendStatus, setResendStatus] = useState<
     "idle" | "sending" | "sent" | "error"
   >("idle");
+  const [pollingExhausted, setPollingExhausted] = useState(false);
+  const pollCountRef = useRef(0);
+
+  // Check verification status
+  const checkVerificationStatus = useCallback(async () => {
+    const supabase = createClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session?.user?.email_confirmed_at) {
+      router.push(redirectTo);
+      router.refresh();
+      return true;
+    }
+    return false;
+  }, [createClient, redirectTo, router]);
+
+  // Manual refresh handler (for when polling is exhausted)
+  const handleManualRefresh = useCallback(() => {
+    pollCountRef.current = 0;
+    setPollingExhausted(false);
+    checkVerificationStatus();
+  }, [checkVerificationStatus]);
 
   useEffect(() => {
     const supabase = createClient();
+    let pollInterval: NodeJS.Timeout | null = null;
 
-    // Poll for email verification using getSession() to avoid API calls
-    // getSession() reads from client-side storage (local/session storage), no network request
-    // Token refresh is handled automatically by onAuthStateChange
-    const interval = setInterval(async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session?.user?.email_confirmed_at) {
-        clearInterval(interval);
-        router.push(redirectTo);
-        router.refresh();
-      }
-    }, 2000);
+    // Check immediately on mount
+    checkVerificationStatus();
 
-    // Also listen for auth state changes (in case they verify in same tab)
+    // Listen for auth state changes (primary mechanism - instant updates)
+    // This fires when the user verifies in the same tab or when session refreshes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event: string) => {
-      if (event === "SIGNED_IN") {
-        clearInterval(interval);
-        router.push(redirectTo);
-        router.refresh();
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        checkVerificationStatus();
       }
     });
 
+    // Fallback polling every 60 seconds (in case onAuthStateChange misses it)
+    // Stops after MAX_POLL_COUNT polls to avoid infinite background requests
+    pollInterval = setInterval(() => {
+      pollCountRef.current += 1;
+
+      if (pollCountRef.current >= MAX_POLL_COUNT) {
+        // Stop polling after limit reached
+        if (pollInterval) {
+          clearInterval(pollInterval);
+          pollInterval = null;
+        }
+        setPollingExhausted(true);
+        return;
+      }
+
+      checkVerificationStatus();
+    }, POLL_INTERVAL_MS);
+
     return () => {
-      clearInterval(interval);
+      if (pollInterval) clearInterval(pollInterval);
       subscription.unsubscribe();
     };
-  }, [router, createClient, redirectTo]);
+  }, [createClient, checkVerificationStatus]);
 
   // Cooldown timer
   useEffect(() => {
@@ -165,26 +206,47 @@ export function EmailVerificationPending({
         </div>
 
         {/* Waiting indicator badge at bottom */}
-        <div className="pt-2 flex justify-center">
-          <Badge
-            variant="muted"
-            className="px-3 py-1.5 text-xs font-medium gap-2 overflow-visible"
-          >
-            <span className="relative flex h-3 w-3 shrink-0">
-              <span
-                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                style={{ backgroundColor: "#f59e0b" }}
-              />
-              <span
-                className="relative inline-flex rounded-full h-3 w-3"
-                style={{
-                  backgroundColor: "#f59e0b",
-                  boxShadow: "0 0 8px 2px rgba(245, 158, 11, 0.6)",
-                }}
-              />
-            </span>
-            <span>Waiting for verification</span>
-          </Badge>
+        <div className="pt-2 flex flex-col items-center gap-3">
+          {pollingExhausted ? (
+            <>
+              <Badge
+                variant="muted"
+                className="px-3 py-1.5 text-xs font-medium gap-2"
+              >
+                <span className="relative flex h-3 w-3 shrink-0">
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-zinc-400" />
+                </span>
+                <span>Auto-refresh paused</span>
+              </Badge>
+              <button
+                type="button"
+                onClick={handleManualRefresh}
+                className="text-xs text-primary hover:text-primary/80 hover:underline underline-offset-4 transition-colors"
+              >
+                Check status now
+              </button>
+            </>
+          ) : (
+            <Badge
+              variant="muted"
+              className="px-3 py-1.5 text-xs font-medium gap-2 overflow-visible"
+            >
+              <span className="relative flex h-3 w-3 shrink-0">
+                <span
+                  className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                  style={{ backgroundColor: "#f59e0b" }}
+                />
+                <span
+                  className="relative inline-flex rounded-full h-3 w-3"
+                  style={{
+                    backgroundColor: "#f59e0b",
+                    boxShadow: "0 0 8px 2px rgba(245, 158, 11, 0.6)",
+                  }}
+                />
+              </span>
+              <span>Waiting for verification</span>
+            </Badge>
+          )}
         </div>
       </div>
     </AuthFormLayout>
