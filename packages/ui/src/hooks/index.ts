@@ -9,3 +9,9 @@ export {
 } from "./useKeyboardShortcut";
 export { useLocalStorage } from "./useLocalStorage";
 export { useMediaQuery } from "./useMediaQuery";
+export {
+  useWizardForm,
+  type UseWizardFormOptions,
+  type UseWizardFormReturn,
+  type WizardStep,
+} from "./useWizardForm";

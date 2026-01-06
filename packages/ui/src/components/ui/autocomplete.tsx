@@ -203,6 +203,11 @@ export function Autocomplete({
     setOpen(true);
   }, []);
 
+  const handleInputClick = useCallback(() => {
+    // Ensure dropdown opens on click even if already focused
+    setOpen(true);
+  }, []);
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
       if (!open) {
@@ -390,6 +395,7 @@ export function Autocomplete({
                 value={inputValue}
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
+                onClick={handleInputClick}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
                 disabled={disabled || loading}
@@ -469,19 +475,13 @@ export function Autocomplete({
                 }
               }}
               className={cn(
-                "flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm cursor-pointer",
+                "flex items-center justify-between gap-2 px-2 py-1.5 text-sm rounded-sm cursor-pointer",
                 "hover:bg-accent hover:text-accent-foreground",
                 highlightedIndex === index &&
                   "bg-accent text-accent-foreground",
                 option.disabled && "opacity-50 cursor-not-allowed",
               )}
             >
-              <Check
-                className={cn(
-                  "h-4 w-4 shrink-0",
-                  value === option.value ? "opacity-100" : "opacity-0",
-                )}
-              />
               <div className="flex flex-col min-w-0">
                 <span className="truncate">{option.label}</span>
                 {option.description && (
@@ -490,6 +490,9 @@ export function Autocomplete({
                   </span>
                 )}
               </div>
+              {value === option.value && (
+                <Check className="h-4 w-4 shrink-0 text-primary" />
+              )}
             </div>
           ))}
           {showCreateOption && (
@@ -509,7 +512,7 @@ export function Autocomplete({
                   }
                 }}
                 className={cn(
-                  "flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm cursor-pointer",
+                  "flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm cursor-pointer text-muted-foreground",
                   "hover:bg-accent hover:text-accent-foreground",
                   highlightedIndex === filteredOptions.length &&
                     "bg-accent text-accent-foreground",
