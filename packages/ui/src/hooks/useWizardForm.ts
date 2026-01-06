@@ -4,20 +4,6 @@ import { useCallback, useMemo, useState } from "react";
 import type { StepStatus } from "../blocks/forms/FormWizard";
 
 /**
- * Configuration for a wizard form step
- */
-export interface WizardStep {
-  /** Unique identifier for the step */
-  id: string;
-  /** Display label for the step */
-  label: string;
-  /** Fields that belong to this step (for validation) */
-  fields: string[];
-  /** Whether this step is optional (affects validation display) */
-  optional?: boolean;
-}
-
-/**
  * Generic form interface for data restoration helper.
  * Compatible with TanStack Form's useForm return type.
  */
