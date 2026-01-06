@@ -192,13 +192,17 @@ export function FormWizard<T = unknown>({
     const restored = restoredDataRef.current as Record<string, unknown>;
     const current = debouncedData as Record<string, unknown>;
 
-    // Check if at least one non-empty restored field matches the current data
+    // Check that ALL non-empty restored fields match the current data
+    // This prevents saving incomplete data if only some fields have propagated
     for (const key of Object.keys(restored)) {
       const restoredVal = restored[key];
       const currentVal = current?.[key];
 
-      // Skip empty restored values
+      // Skip empty restored values (nothing to check)
       if (!restoredVal || restoredVal === "") continue;
+
+      // Skip arrays that are empty
+      if (Array.isArray(restoredVal) && restoredVal.length === 0) continue;
 
       // Use deep equality for objects and arrays, shallow equality for primitives
       const isObjectLike =
@@ -207,13 +211,15 @@ export function FormWizard<T = unknown>({
         ? JSON.stringify(currentVal) === JSON.stringify(restoredVal)
         : currentVal === restoredVal;
 
-      if (valuesMatch) {
-        restoredDataRef.current = null; // Clear the ref, we're done waiting
-        return true;
+      // If ANY non-empty field doesn't match, we're not ready yet
+      if (!valuesMatch) {
+        return false;
       }
     }
 
-    return false;
+    // All non-empty fields match - we're done waiting
+    restoredDataRef.current = null;
+    return true;
   }, [debouncedData]);
 
   // Save to storage when data changes (debounced)
