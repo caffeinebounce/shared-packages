@@ -6,10 +6,13 @@ import type { StepStatus } from "../blocks/forms/FormWizard";
 /**
  * Generic form interface for data restoration helper.
  * Compatible with TanStack Form's useForm return type.
+ * Uses generic function signatures to accept TanStack Form's complex type structure.
  */
-export interface FormWithSetFieldValue<TValues> {
-  setFieldValue: (field: keyof TValues, value: unknown) => void;
-  validateField: (field: keyof TValues, trigger: "change" | "blur") => void;
+export interface FormWithSetFieldValue<_TValues> {
+  // biome-ignore lint/suspicious/noExplicitAny: TanStack Form uses complex template literal types for field names
+  setFieldValue: (field: any, value: any) => void;
+  // biome-ignore lint/suspicious/noExplicitAny: TanStack Form uses complex template literal types for field names
+  validateField: (field: any, trigger: "change" | "blur") => void;
 }
 
 /**
@@ -38,13 +41,37 @@ export function createDataRestorationHandler<
   TValues extends Record<string, unknown>,
 >(
   form: FormWithSetFieldValue<TValues>,
+  defaultValues: TValues,
   onComplete?: () => void,
-): (newValues: Partial<TValues>) => void {
-  return (newValues: Partial<TValues>) => {
-    const keys = Object.keys(newValues) as (keyof TValues)[];
-    if (keys.length === 0) {
-      onComplete?.();
-      return;
+): (data: Partial<TValues>) => void {
+  return (data: Partial<TValues>) => {
+    // Clean up the data: remove 'values' property if it exists and use the top-level data
+    // This fixes an issue where nested 'values' property (containing empty defaults)
+    // was being prioritized over the actual data.
+    // At runtime, restored data may include an extra `values` wrapper; we intentionally strip it.
+    const dataWithPossibleValues = data as Partial<TValues> & {
+      values?: unknown;
+    };
+    const { values: _ignoredValues, ...cleanData } = dataWithPossibleValues;
+
+    // If the clean data is empty (e.g. only had values property), fallback to data
+    // Cast to Partial<TValues> to satisfy TypeScript
+    const actualData: Partial<TValues> =
+      Object.keys(cleanData).length > 0
+        ? (cleanData as Partial<TValues>)
+        : data;
+
+    // Merge with defaults, preferring actual data values
+    const newValues = { ...defaultValues } as TValues;
+    const keys = Object.keys(defaultValues) as (keyof TValues)[];
+
+    for (const key of keys) {
+      const restoredValue = actualData[key];
+      // Only use restored value if it's not null/undefined
+      // (empty strings like "" are valid for optional fields)
+      if (restoredValue !== undefined && restoredValue !== null) {
+        newValues[key] = restoredValue as TValues[keyof TValues];
+      }
     }
 
     // Use requestAnimationFrame to ensure DOM is ready after React renders
@@ -125,6 +152,206 @@ export interface WizardStep {
 }
 
 /**
+ * Generic interface for form field metadata (compatible with TanStack Form)
+ */
+export interface FieldMeta {
+  errors?: string[];
+}
+
+/**
+ * Generic form interface for wizard utilities.
+ * Compatible with TanStack Form's useForm return type.
+ * Uses generic function signatures to accept TanStack Form's complex type structure.
+ */
+export interface WizardFormInstance<_TValues extends Record<string, unknown>> {
+  // biome-ignore lint/suspicious/noExplicitAny: TanStack Form uses complex template literal types for field names
+  setFieldValue: (field: any, value: any) => void;
+  // biome-ignore lint/suspicious/noExplicitAny: TanStack Form uses complex template literal types for field names
+  validateField: (field: any, trigger: "change" | "blur") => void;
+  validateAllFields: (trigger: "change" | "blur") => void;
+  reset: () => void;
+  handleSubmit: () => void | Promise<void>;
+}
+
+/**
+ * Creates a stepHasFieldErrors checker function from form field metadata.
+ *
+ * This utility checks if any fields in a step have validation errors
+ * based on the form's fieldMeta state.
+ *
+ * @param steps - Array of step configurations with field mappings
+ * @param formFieldMeta - Form's field metadata (from useStore)
+ * @returns A function that checks if a step has field errors
+ *
+ * @example
+ * ```tsx
+ * const formFieldMeta = useStore(form.store, (state) => state.fieldMeta);
+ * const stepHasFieldErrors = createStepHasFieldErrors(steps, formFieldMeta);
+ *
+ * // Use in useWizardForm
+ * const wizard = useWizardForm({ steps, stepHasFieldErrors, ... }, values);
+ * ```
+ */
+export function createStepHasFieldErrors<
+  TFieldMeta extends Record<string, FieldMeta | undefined>,
+>(
+  steps: WizardStep[],
+  formFieldMeta: TFieldMeta,
+): (stepIndex: number) => boolean {
+  return (stepIndex: number): boolean => {
+    const fields = steps[stepIndex]?.fields ?? [];
+    for (const fieldName of fields) {
+      const meta = formFieldMeta[fieldName];
+      if (meta?.errors && meta.errors.length > 0) {
+        return true;
+      }
+    }
+    return false;
+  };
+}
+
+/**
+ * Creates a form reset handler that resets both form state and wizard state.
+ *
+ * This utility provides a consistent pattern for resetting multi-step forms:
+ * 1. Resets TanStack Form state (clears errors and dirty state)
+ * 2. Resets all fields to default values
+ * 3. Resets wizard navigation state
+ *
+ * @param form - The form instance
+ * @param defaultValues - Default values to reset fields to
+ * @param resetWizardState - Function to reset wizard state
+ * @param clearSubmitError - Optional function to clear submit error state
+ * @returns A handler function to reset the entire form
+ *
+ * @example
+ * ```tsx
+ * const handleReset = createFormResetHandler(
+ *   form,
+ *   defaultValues,
+ *   wizard.resetWizardState,
+ *   () => setSubmitError(null)
+ * );
+ * ```
+ */
+export function createFormResetHandler<TValues extends Record<string, unknown>>(
+  form: WizardFormInstance<TValues>,
+  defaultValues: TValues,
+  resetWizardState: () => void,
+  clearSubmitError?: () => void,
+): () => void {
+  return () => {
+    // Reset TanStack Form state (clears errors and dirty state)
+    form.reset();
+
+    // Reset all form fields to default values
+    const keys = Object.keys(defaultValues) as (keyof TValues)[];
+    for (const key of keys) {
+      form.setFieldValue(key, defaultValues[key]);
+    }
+
+    // Reset wizard state (step, progress, errors)
+    resetWizardState();
+
+    // Clear any submit errors
+    clearSubmitError?.();
+  };
+}
+
+/**
+ * Options for the form submit handler
+ */
+export interface FormSubmitHandlerOptions {
+  /** Function to validate a specific step */
+  validateStep: (stepIndex: number) => boolean;
+  /** Total number of steps */
+  totalSteps: number;
+  /** Error logger instance (from @caffeinebounce/logger) */
+  errorLogger?: {
+    logError: (error: Error, context: Record<string, unknown>) => void;
+  };
+  /** Component name for error logging */
+  componentName: string;
+  /** Current step statuses for logging */
+  getStepStatuses?: () => unknown[];
+}
+
+/**
+ * Creates a form submission handler with validation and error handling.
+ *
+ * This utility provides a consistent pattern for form submission:
+ * 1. Marks the wizard as submitted (triggers error display)
+ * 2. Validates all form fields
+ * 3. Checks if all steps are valid
+ * 4. If invalid, shows error message and logs
+ * 5. If valid, submits the form
+ *
+ * @param form - The form instance
+ * @param markAsSubmitted - Function to mark wizard as submitted
+ * @param setSubmitError - Function to set submit error state
+ * @param options - Configuration options
+ * @returns A handler function for form submission
+ *
+ * @example
+ * ```tsx
+ * const handleSubmit = createFormSubmitHandler(
+ *   form,
+ *   wizard.markAsSubmitted,
+ *   setSubmitError,
+ *   {
+ *     validateStep,
+ *     totalSteps: sections.length,
+ *     errorLogger,
+ *     componentName: "CompanyForm",
+ *     getStepStatuses: () => wizard.stepStatuses,
+ *   }
+ * );
+ * ```
+ */
+export function createFormSubmitHandler<
+  TValues extends Record<string, unknown>,
+>(
+  form: WizardFormInstance<TValues>,
+  markAsSubmitted: () => void,
+  setSubmitError: (error: string | null) => void,
+  options: FormSubmitHandlerOptions,
+): () => void | Promise<void> {
+  const {
+    validateStep,
+    totalSteps,
+    errorLogger,
+    componentName,
+    getStepStatuses,
+  } = options;
+
+  return () => {
+    markAsSubmitted();
+    // Validate all fields
+    form.validateAllFields("change");
+
+    // Check if all steps are valid
+    const allValid = Array.from({ length: totalSteps }, (_, i) => i).every(
+      (index) => validateStep(index),
+    );
+
+    if (!allValid) {
+      // Stay on current step and show error message - don't navigate away
+      setSubmitError("Please fix the errors in the highlighted sections.");
+      errorLogger?.logError(new Error(`${componentName} validation failed`), {
+        component: componentName,
+        action: "submit",
+        metadata: { stepStatuses: getStepStatuses?.() },
+      });
+      // Note: Toast should be handled by the caller if needed
+      return;
+    }
+
+    // All valid, submit the form
+    return form.handleSubmit();
+  };
+}
+
+/**
  * Options for the useWizardForm hook
  */
 export interface UseWizardFormOptions<TValues> {
@@ -132,8 +359,6 @@ export interface UseWizardFormOptions<TValues> {
   steps: WizardStep[];
   /** Function to validate a step by index, returns true if valid */
   validateStep: (stepIndex: number, values: TValues) => boolean;
-  /** Function to get missing required fields for a step (legacy, for backward compatibility) */
-  getMissingFields?: (stepIndex: number, values: TValues) => string[];
   /** Function to get validation errors with actual error messages for a step */
   getStepErrors?: (stepIndex: number, values: TValues) => string[];
   /** Function to check if a step has field-level errors (from form library) */
@@ -167,6 +392,8 @@ export interface UseWizardFormReturn {
   stepStatuses: StepStatus[];
   /** Whether any steps have incomplete or error status */
   hasIncompleteOrErrorSteps: boolean;
+  /** Whether the current step is valid (passes validation) */
+  isCurrentStepValid: boolean;
 
   // Navigation handlers
   /** Go to the next step (marks current step as having errors shown) */
@@ -187,8 +414,10 @@ export interface UseWizardFormReturn {
   shouldShowErrorsForStep: (stepIndex: number) => boolean;
   /** Get step status for a specific step */
   getStepStatus: (stepIndex: number) => StepStatus;
-  /** Get tooltip content for a step (error messages or missing fields) */
+  /** Get tooltip content for a step (error messages) */
   getStepTooltip: (stepIndex: number, status: StepStatus) => string | null;
+  /** Get field names for a specific step */
+  getStepFields: (stepIndex: number) => string[];
 }
 
 /**
@@ -208,20 +437,18 @@ export interface UseWizardFormReturn {
  *     { id: "details", label: "Details", fields: ["description"] },
  *   ],
  *   validateStep: (stepIndex, values) => {
- *     if (stepIndex === 0) {
- *       return !!values.name && !!values.email;
- *     }
+ *     if (stepIndex === 0) return !!values.name && !!values.email;
  *     return true;
  *   },
- *   getMissingFields: (stepIndex, values) => {
- *     const missing = [];
+ *   getStepErrors: (stepIndex, values) => {
+ *     const errors = [];
  *     if (stepIndex === 0) {
- *       if (!values.name) missing.push("Name");
- *       if (!values.email) missing.push("Email");
+ *       if (!values.name) errors.push("Name is required");
+ *       if (!values.email) errors.push("Email is required");
  *     }
- *     return missing;
+ *     return errors;
  *   },
- * });
+ * }, formValues);
  *
  * // Use in FormWizard
  * <FormWizard
@@ -243,7 +470,6 @@ export function useWizardForm<TValues>(
   const {
     steps,
     validateStep,
-    getMissingFields,
     getStepErrors,
     stepHasFieldErrors,
     initialStep = 0,
@@ -323,6 +549,11 @@ export function useWizardForm<TValues>(
     );
   }, [stepStatuses]);
 
+  // Determine if current step is valid
+  const isCurrentStepValid = useMemo(() => {
+    return validateStep(currentStep, currentValues);
+  }, [validateStep, currentStep, currentValues]);
+
   // Navigation handlers
   const handleNext = useCallback(() => {
     // Mark current step as having errors shown (user is navigating away)
@@ -392,7 +623,6 @@ export function useWizardForm<TValues>(
     (stepIndex: number, status: StepStatus): string | null => {
       if (status !== "error" && status !== "incomplete") return null;
 
-      // Prefer getStepErrors for actual validation error messages
       if (getStepErrors) {
         const stepErrors = getStepErrors(stepIndex, currentValues);
         if (stepErrors.length > 0) {
@@ -400,17 +630,16 @@ export function useWizardForm<TValues>(
         }
       }
 
-      // Fallback to getMissingFields for backward compatibility
-      if (getMissingFields) {
-        const missingFields = getMissingFields(stepIndex, currentValues);
-        if (missingFields.length > 0) {
-          return `${missingFields.length} required field${missingFields.length > 1 ? "s" : ""} missing:\n• ${missingFields.join("\n• ")}`;
-        }
-      }
-
       return null;
     },
-    [getStepErrors, getMissingFields, currentValues],
+    [getStepErrors, currentValues],
+  );
+
+  const getStepFields = useCallback(
+    (stepIndex: number): string[] => {
+      return steps[stepIndex]?.fields ?? [];
+    },
+    [steps],
   );
 
   return {
@@ -426,6 +655,7 @@ export function useWizardForm<TValues>(
     hasAttemptedFinalSubmit,
     stepStatuses,
     hasIncompleteOrErrorSteps,
+    isCurrentStepValid,
 
     // Navigation handlers
     handleNext,
@@ -440,5 +670,6 @@ export function useWizardForm<TValues>(
     shouldShowErrorsForStep,
     getStepStatus,
     getStepTooltip,
+    getStepFields,
   };
 }
