@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.23.1
+
+### Patch Changes
+
+- 2ac55e6: Remove background color from DataTable horizontal scrollbar track.
+
 ## 0.23.0
 
 ### Minor Changes
