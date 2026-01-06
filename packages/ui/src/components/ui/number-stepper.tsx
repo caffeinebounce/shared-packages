@@ -47,7 +47,7 @@ const sizeClasses = {
 /**
  * A number input with increment/decrement buttons.
  * Provides a cleaner alternative to browser default number inputs.
- * 
+ *
  * @default min - 0 (allows zero, override for positive-only)
  */
 export function NumberStepper({

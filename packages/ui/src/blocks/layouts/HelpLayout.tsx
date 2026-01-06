@@ -11,6 +11,9 @@ export interface HelpLayoutProps {
 /**
  * HelpLayout wraps content and shifts it when the help panel is open.
  * This allows users to continue working while viewing help.
+ * 
+ * The layout maintains bounded height (h-full) to ensure child components
+ * like AppLayout can use sticky headers with overflow-y-auto content areas.
  */
 export function HelpLayout({
   children,
@@ -19,12 +22,13 @@ export function HelpLayout({
   className,
 }: HelpLayoutProps) {
   return (
-    // Inherits height from parent, handles horizontal layout only
+    // Inherits height from parent (h-full), handles horizontal layout only
+    // min-h-0 allows shrinking below content size for proper overflow handling
     <div className={cn("flex h-full min-h-0", className)}>
-      {/* Main content area - shrinks when panel is open */}
+      {/* Main content area - h-full ensures bounded height for sticky headers */}
       <div
         className={cn(
-          "flex flex-col flex-1 min-w-0 min-h-0 transition-all duration-200 ease-out",
+          "h-full min-h-0 min-w-0 flex-1 transition-all duration-200 ease-out",
           isOpen && "sm:mr-100",
         )}
       >
