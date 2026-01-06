@@ -10,6 +10,9 @@ export {
 export { useLocalStorage } from "./useLocalStorage";
 export { useMediaQuery } from "./useMediaQuery";
 export {
+  createDataRestorationHandler,
+  extractZodErrors,
+  type FormWithSetFieldValue,
   type UseWizardFormOptions,
   type UseWizardFormReturn,
   useWizardForm,

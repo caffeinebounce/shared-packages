@@ -18,6 +18,127 @@ export interface WizardStep {
 }
 
 /**
+ * Generic form interface for data restoration helper.
+ * Compatible with TanStack Form's useForm return type.
+ */
+export interface FormWithSetFieldValue<TValues> {
+  setFieldValue: (field: keyof TValues, value: unknown) => void;
+  validateField: (field: keyof TValues, trigger: "change" | "blur") => void;
+}
+
+/**
+ * Creates a data restoration handler for multi-step wizard forms.
+ *
+ * This utility handles the complex pattern of restoring persisted data
+ * to a TanStack Form, which requires special timing due to unmounted fields.
+ *
+ * @param form - The form instance with setFieldValue and validateField methods
+ * @param onComplete - Optional callback after restoration is complete
+ * @returns A handler function to pass to FormWizard's onDataRestored prop
+ *
+ * @example
+ * ```tsx
+ * const form = useForm({ ... });
+ * const handleDataRestored = createDataRestorationHandler(form, () => {
+ *   console.log("Data restored!");
+ * });
+ *
+ * <FormWizard onDataRestored={handleDataRestored}>
+ *   ...
+ * </FormWizard>
+ * ```
+ */
+export function createDataRestorationHandler<
+  TValues extends Record<string, unknown>,
+>(
+  form: FormWithSetFieldValue<TValues>,
+  onComplete?: () => void,
+): (newValues: Partial<TValues>) => void {
+  return (newValues: Partial<TValues>) => {
+    const keys = Object.keys(newValues) as (keyof TValues)[];
+    if (keys.length === 0) {
+      onComplete?.();
+      return;
+    }
+
+    // Use requestAnimationFrame to ensure DOM is ready after React renders
+    // This is necessary because some fields (like Select on different steps)
+    // may not be mounted when setFieldValue is called
+    requestAnimationFrame(() => {
+      for (const key of keys) {
+        form.setFieldValue(key, newValues[key]);
+      }
+
+      // Validate after a short delay to ensure form state has settled
+      setTimeout(() => {
+        for (const key of keys) {
+          form.validateField(key, "change");
+        }
+        onComplete?.();
+      }, 100);
+    });
+  };
+}
+
+/**
+ * Extracts human-readable error messages from a Zod validation result.
+ *
+ * @param zodResult - The result from calling `zodSchema.safeParse(values)`
+ * @param fieldFilter - Optional array of field names to filter errors by
+ * @returns Array of formatted error messages
+ *
+ * @example
+ * ```tsx
+ * const result = stepSchema.safeParse(values);
+ * const errors = extractZodErrors(result);
+ * // ["Company Name is required", "Email must be valid"]
+ *
+ * // Or filter by specific fields:
+ * const errors = extractZodErrors(result, ["name", "email"]);
+ * ```
+ */
+export function extractZodErrors(
+  zodResult: {
+    success: boolean;
+    error?: { issues: Array<{ path: (string | number)[]; message: string }> };
+  },
+  fieldFilter?: string[],
+): string[] {
+  if (zodResult.success || !zodResult.error) {
+    return [];
+  }
+
+  const issues = zodResult.error.issues;
+
+  // If no filter, return all error messages
+  if (!fieldFilter) {
+    return issues.map((issue) => issue.message);
+  }
+
+  // Filter to only include errors for specified fields
+  return issues
+    .filter((issue) => {
+      const fieldName = issue.path[0];
+      return typeof fieldName === "string" && fieldFilter.includes(fieldName);
+    })
+    .map((issue) => issue.message);
+}
+
+/**
+ * Configuration for a wizard form step
+ */
+export interface WizardStep {
+  /** Unique identifier for the step */
+  id: string;
+  /** Display label for the step */
+  label: string;
+  /** Fields that belong to this step (for validation) */
+  fields: string[];
+  /** Whether this step is optional (affects validation display) */
+  optional?: boolean;
+}
+
+/**
  * Options for the useWizardForm hook
  */
 export interface UseWizardFormOptions<TValues> {
@@ -25,8 +146,10 @@ export interface UseWizardFormOptions<TValues> {
   steps: WizardStep[];
   /** Function to validate a step by index, returns true if valid */
   validateStep: (stepIndex: number, values: TValues) => boolean;
-  /** Function to get missing required fields for a step */
+  /** Function to get missing required fields for a step (legacy, for backward compatibility) */
   getMissingFields?: (stepIndex: number, values: TValues) => string[];
+  /** Function to get validation errors with actual error messages for a step */
+  getStepErrors?: (stepIndex: number, values: TValues) => string[];
   /** Function to check if a step has field-level errors (from form library) */
   stepHasFieldErrors?: (stepIndex: number) => boolean;
   /** Initial step index (default: 0) */
@@ -78,7 +201,7 @@ export interface UseWizardFormReturn {
   shouldShowErrorsForStep: (stepIndex: number) => boolean;
   /** Get step status for a specific step */
   getStepStatus: (stepIndex: number) => StepStatus;
-  /** Get tooltip content for a step (missing fields list) */
+  /** Get tooltip content for a step (error messages or missing fields) */
   getStepTooltip: (stepIndex: number, status: StepStatus) => string | null;
 }
 
@@ -135,6 +258,7 @@ export function useWizardForm<TValues>(
     steps,
     validateStep,
     getMissingFields,
+    getStepErrors,
     stepHasFieldErrors,
     initialStep = 0,
   } = options;
@@ -158,7 +282,8 @@ export function useWizardForm<TValues>(
     return steps.map((step, index) => {
       const isCurrentStepIndex = index === currentStep;
       const isValid = validateStep(index, currentValues);
-      const isOptional = step.optional ?? false;
+      // Note: isOptional is available if needed for future enhancements
+      const _isOptional = step.optional ?? false;
 
       // Check if we should show errors for this step
       const shouldShowErrors =
@@ -225,11 +350,12 @@ export function useWizardForm<TValues>(
   }, [currentStep, totalSteps]);
 
   const handleBack = useCallback(() => {
+    // Don't add to stepsWithErrorsShown when going back - only forward navigation
+    // and final submit should trigger error display
     if (!isFirstStep) {
       const prevStep = currentStep - 1;
       setCurrentStep(prevStep);
-      // Reset highest step reached to clear future validation states
-      setHighestStepReached(prevStep);
+      // Don't reset highestStepReached - preserve the furthest progress
     }
   }, [currentStep, isFirstStep]);
 
@@ -242,12 +368,9 @@ export function useWizardForm<TValues>(
 
       setCurrentStep(stepIndex);
 
-      // Update highest step reached
+      // Only update highest step reached when going forward
+      // Don't reset when going backward - preserve the furthest progress
       if (stepIndex > highestStepReached) {
-        // Clicking forward - extend validation range
-        setHighestStepReached(stepIndex);
-      } else if (stepIndex < currentStep) {
-        // Clicking backward - reset validation range to clear future states
         setHighestStepReached(stepIndex);
       }
     },
@@ -283,14 +406,25 @@ export function useWizardForm<TValues>(
     (stepIndex: number, status: StepStatus): string | null => {
       if (status !== "error" && status !== "incomplete") return null;
 
-      if (!getMissingFields) return null;
+      // Prefer getStepErrors for actual validation error messages
+      if (getStepErrors) {
+        const stepErrors = getStepErrors(stepIndex, currentValues);
+        if (stepErrors.length > 0) {
+          return `${stepErrors.length} issue${stepErrors.length > 1 ? "s" : ""}:\n• ${stepErrors.join("\n• ")}`;
+        }
+      }
 
-      const missingFields = getMissingFields(stepIndex, currentValues);
-      if (missingFields.length === 0) return null;
+      // Fallback to getMissingFields for backward compatibility
+      if (getMissingFields) {
+        const missingFields = getMissingFields(stepIndex, currentValues);
+        if (missingFields.length > 0) {
+          return `${missingFields.length} required field${missingFields.length > 1 ? "s" : ""} missing:\n• ${missingFields.join("\n• ")}`;
+        }
+      }
 
-      return `${missingFields.length} required field${missingFields.length > 1 ? "s" : ""} missing:\n• ${missingFields.join("\n• ")}`;
+      return null;
     },
-    [getMissingFields, currentValues],
+    [getStepErrors, getMissingFields, currentValues],
   );
 
   return {
