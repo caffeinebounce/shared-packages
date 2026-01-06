@@ -274,6 +274,8 @@ export interface FormSubmitHandlerOptions {
   componentName: string;
   /** Current step statuses for logging */
   getStepStatuses?: () => unknown[];
+  /** Function to show a toast notification for validation errors */
+  showValidationToast?: (message: string) => void;
 }
 
 /**
@@ -283,13 +285,12 @@ export interface FormSubmitHandlerOptions {
  * 1. Marks the wizard as submitted (triggers error display)
  * 2. Validates all form fields
  * 3. Checks if all steps are valid
- * 4. If invalid, shows error message and logs
+ * 4. If invalid, shows toast error and logs
  * 5. If valid, submits the form
  *
  * @param form - The form instance
  * @param markAsSubmitted - Function to mark wizard as submitted
- * @param setSubmitError - Function to set submit error state
- * @param options - Configuration options
+ * @param options - Configuration options (including showValidationToast for error display)
  * @returns A handler function for form submission
  *
  * @example
@@ -297,13 +298,13 @@ export interface FormSubmitHandlerOptions {
  * const handleSubmit = createFormSubmitHandler(
  *   form,
  *   wizard.markAsSubmitted,
- *   setSubmitError,
  *   {
  *     validateStep,
  *     totalSteps: sections.length,
  *     errorLogger,
  *     componentName: "CompanyForm",
  *     getStepStatuses: () => wizard.stepStatuses,
+ *     showValidationToast: (msg) => toast.error(msg),
  *   }
  * );
  * ```
@@ -313,7 +314,6 @@ export function createFormSubmitHandler<
 >(
   form: WizardFormInstance<TValues>,
   markAsSubmitted: () => void,
-  setSubmitError: (error: string | null) => void,
   options: FormSubmitHandlerOptions,
 ): () => void | Promise<void> {
   const {
@@ -322,6 +322,7 @@ export function createFormSubmitHandler<
     errorLogger,
     componentName,
     getStepStatuses,
+    showValidationToast,
   } = options;
 
   return () => {
@@ -335,14 +336,13 @@ export function createFormSubmitHandler<
     );
 
     if (!allValid) {
-      // Stay on current step and show error message - don't navigate away
-      setSubmitError("Please fix the errors in the highlighted sections.");
+      // Stay on current step and show toast error - don't navigate away
+      showValidationToast?.("Please fix the errors in the highlighted sections.");
       errorLogger?.logError(new Error(`${componentName} validation failed`), {
         component: componentName,
         action: "submit",
         metadata: { stepStatuses: getStepStatuses?.() },
       });
-      // Note: Toast should be handled by the caller if needed
       return;
     }
 
