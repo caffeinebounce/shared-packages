@@ -11,7 +11,7 @@ export interface HelpLayoutProps {
 /**
  * HelpLayout wraps content and shifts it when the help panel is open.
  * This allows users to continue working while viewing help.
- * 
+ *
  * The layout maintains bounded height (h-full) to ensure child components
  * like AppLayout can use sticky headers with overflow-y-auto content areas.
  */

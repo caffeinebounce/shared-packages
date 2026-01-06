@@ -10,8 +10,8 @@ export {
 export { useLocalStorage } from "./useLocalStorage";
 export { useMediaQuery } from "./useMediaQuery";
 export {
-  useWizardForm,
   type UseWizardFormOptions,
   type UseWizardFormReturn,
+  useWizardForm,
   type WizardStep,
 } from "./useWizardForm";

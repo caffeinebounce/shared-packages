@@ -26,10 +26,7 @@ export interface UseWizardFormOptions<TValues> {
   /** Function to validate a step by index, returns true if valid */
   validateStep: (stepIndex: number, values: TValues) => boolean;
   /** Function to get missing required fields for a step */
-  getMissingFields?: (
-    stepIndex: number,
-    values: TValues,
-  ) => string[];
+  getMissingFields?: (stepIndex: number, values: TValues) => string[];
   /** Function to check if a step has field-level errors (from form library) */
   stepHasFieldErrors?: (stepIndex: number) => boolean;
   /** Initial step index (default: 0) */
@@ -168,8 +165,7 @@ export function useWizardForm<TValues>(
         hasAttemptedFinalSubmit || stepsWithErrorsShown.has(index);
 
       // Only consider field-level errors when errors should be shown
-      const hasFieldErrors =
-        shouldShowErrors && stepHasFieldErrors?.(index);
+      const hasFieldErrors = shouldShowErrors && stepHasFieldErrors?.(index);
 
       // Track navigation state
       const hasMovedPastThisStep = index < highestStepReached;
