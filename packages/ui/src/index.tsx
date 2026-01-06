@@ -367,6 +367,7 @@ export {
 export { Progress } from "./components/ui/progress";
 export type { ProgressBarProps } from "./components/ui/progress-bar";
 export { ProgressBar } from "./components/ui/progress-bar";
+export { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 export type { SectionProps, SectionSpacing } from "./components/ui/section";
 export { Section } from "./components/ui/section";
 export {
