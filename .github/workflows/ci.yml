@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write
+  packages: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,6 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -41,7 +47,25 @@ jobs:
             yarn-cache-${{ runner.os }}-
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install
+
+      - name: Check for lockfile changes
+        id: lockfile-check
+        run: |
+          if [[ -n $(git status --porcelain yarn.lock) ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit lockfile changes
+        if: steps.lockfile-check.outputs.changed == 'true' && github.event_name == 'push'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add yarn.lock
+          git commit -m "chore: update yarn.lock [skip ci]"
+          git push
 
       - name: Lint
         run: yarn lint
