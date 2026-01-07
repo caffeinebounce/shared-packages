@@ -2,13 +2,14 @@
 
 import type { LucideIcon } from "lucide-react";
 import type * as React from "react";
+import { BackLink } from "../../components/ui/back-link";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "../../components/ui/tabs";
-import { BasePageLayout, type BasePageLayoutProps } from "./BasePageLayout";
+import { cn } from "../../utils";
 
 export interface PageTab {
   /** Unique value identifier for the tab */
@@ -21,14 +22,28 @@ export interface PageTab {
   content: React.ReactNode;
 }
 
-export interface UserPageLayoutProps
-  extends Omit<BasePageLayoutProps, "children"> {
+export interface UserPageLayoutBackLink {
+  /** URL to navigate back to */
+  href: string;
+  /** Label for the back link */
+  label: string;
+}
+
+export interface UserPageLayoutProps {
+  /** Page title displayed in header (ignored when backLink is provided) */
+  title?: string;
+  /** Page description/subtitle displayed below title (ignored when backLink is provided) */
+  description?: string;
+  /** Actions to display in the header (buttons, etc.) */
+  actions?: React.ReactNode;
+  /** Additional class names for the container */
+  className?: string;
+  /** Additional class names for the content area */
+  contentClassName?: string;
   /** Whether to show a bottom border on the header (not used in BasePageLayout currently, but kept for compatibility if needed) */
   headerBordered?: boolean;
-  /** Optional back link URL (not used in BasePageLayout currently) */
-  backHref?: string;
-  /** Optional back link label (defaults to "Back") */
-  backLabel?: string;
+  /** Optional back link - when provided, title and description are not shown */
+  backLink?: UserPageLayoutBackLink;
   /** Loading state - shows skeleton if true */
   loading?: boolean;
   /** Custom loading skeleton */
@@ -45,8 +60,8 @@ export interface UserPageLayoutProps
 
 /**
  * UserPageLayout - Standard layout for user app pages.
- * Wraps BasePageLayout to provide consistent structure with Admin pages,
- * while adding user-specific features like tabs and loading states.
+ * Provides consistent padding, spacing, and optional header with title/description.
+ * When backLink is provided, the title/description header is replaced with a back link.
  */
 export function UserPageLayout({
   title,
@@ -60,42 +75,66 @@ export function UserPageLayout({
   tabs,
   defaultTab,
   footer,
+  backLink,
 }: UserPageLayoutProps) {
-  return (
-    <BasePageLayout
-      title={title}
-      description={description}
-      actions={actions}
-      className={className}
-      contentClassName={contentClassName}
-      footer={footer}
-    >
-      {loading && loadingSkeleton ? (
-        loadingSkeleton
-      ) : tabs && tabs.length > 0 ? (
-        <Tabs defaultValue={defaultTab || tabs[0].value} className="space-y-6">
-          <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0 h-auto gap-6">
-            {tabs.map((tab) => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className="relative rounded-none border-b-2 border-transparent bg-transparent px-2 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground gap-2"
-              >
-                {tab.icon && <tab.icon className="h-4 w-4" />}
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+  // When backLink is provided, don't show the title/description header
+  const showHeader = !backLink && Boolean(title || description || actions);
 
-          {tabs.map((tab) => (
-            <TabsContent key={tab.value} value={tab.value} className="mt-4">
-              {tab.content}
-            </TabsContent>
-          ))}
-        </Tabs>
-      ) : (
-        children
-      )}
-    </BasePageLayout>
+  return (
+    <div className={cn("flex flex-1 flex-col min-w-0 min-h-full", className)}>
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        {/* Back link mode */}
+        {backLink && <BackLink href={backLink.href}>{backLink.label}</BackLink>}
+
+        {/* Standard header mode */}
+        {showHeader && (
+          <div className="flex items-center justify-between">
+            <div>
+              {title && <h1 className="text-2xl font-semibold">{title}</h1>}
+              {description && (
+                <p className="text-sm text-muted-foreground">{description}</p>
+              )}
+            </div>
+            {actions && (
+              <div className="flex items-center gap-2">{actions}</div>
+            )}
+          </div>
+        )}
+
+        {/* Content */}
+        <div className={cn("flex-1", contentClassName)}>
+          {loading && loadingSkeleton ? (
+            loadingSkeleton
+          ) : tabs && tabs.length > 0 ? (
+            <Tabs
+              defaultValue={defaultTab || tabs[0].value}
+              className="space-y-4"
+            >
+              <TabsList>
+                {tabs.map((tab) => (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className="gap-2"
+                  >
+                    {tab.icon && <tab.icon className="h-4 w-4" />}
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {tabs.map((tab) => (
+                <TabsContent key={tab.value} value={tab.value} className="mt-2">
+                  {tab.content}
+                </TabsContent>
+              ))}
+            </Tabs>
+          ) : (
+            children
+          )}
+        </div>
+      </div>
+      {footer}
+    </div>
   );
 }

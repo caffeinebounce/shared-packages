@@ -19,6 +19,9 @@ export type {
   SignOutButtonProps,
 } from "./blocks/auth";
 export { MFAChallenge, MFARecovery, SignOutButton } from "./blocks/auth";
+// Cohort Blocks
+export type { CohortCardProps, CohortEligibility } from "./blocks/cohort";
+export { CohortCard } from "./blocks/cohort";
 export type {
   ColumnDataType,
   ColumnSummaryConfig,
@@ -78,6 +81,7 @@ export { FormWizard, useFormWizardNavigation } from "./blocks/forms";
 export type { KeyboardShortcutProps } from "./blocks/keyboard";
 export { KeyboardShortcut } from "./blocks/keyboard";
 export type {
+  AdminPageLayoutBackLink,
   AdminPageLayoutProps,
   AppFooterProps,
   AppHeaderProps,
@@ -101,6 +105,7 @@ export type {
   RootLayoutFont,
   RootLayoutProps,
   RootLayoutToast,
+  UserPageLayoutBackLink,
   UserPageLayoutProps,
   WizardLayoutProps,
 } from "./blocks/layouts";
@@ -234,6 +239,8 @@ export type {
 } from "./components/ui/autocomplete";
 export { Autocomplete } from "./components/ui/autocomplete";
 export { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
+export type { BackLinkProps } from "./components/ui/back-link";
+export { BackLink } from "./components/ui/back-link";
 export type { BadgeProps } from "./components/ui/badge";
 export { Badge, badgeVariants } from "./components/ui/badge";
 export type { ButtonProps } from "./components/ui/button";
@@ -330,6 +337,8 @@ export {
   FieldSet,
   FieldTitle,
 } from "./components/ui/field";
+export type { IconButtonProps } from "./components/ui/icon-button";
+export { IconButton, iconButtonVariants } from "./components/ui/icon-button";
 export type { InfoTooltipProps } from "./components/ui/info-tooltip";
 export { InfoTooltip } from "./components/ui/info-tooltip";
 export { Input } from "./components/ui/input";

@@ -43,8 +43,9 @@ export function DataTableRowActions({ actions }: DataTableRowActionsProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
-          className="flex size-8 p-0 data-[state=open]:bg-muted"
+          variant="ghost-icon"
+          size="icon-sm"
+          className="data-[state=open]:bg-muted"
         >
           <MoreHorizontal className="size-4" />
           <span className="sr-only">Open menu</span>

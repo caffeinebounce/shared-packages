@@ -1,5 +1,6 @@
 export {
   AdminPageLayout,
+  type AdminPageLayoutBackLink,
   type AdminPageLayoutProps,
 } from "./AdminPageLayout";
 export { AppFooter, type AppFooterProps } from "./AppFooter";
@@ -50,6 +51,7 @@ export {
 } from "./RootLayout";
 export {
   UserPageLayout,
+  type UserPageLayoutBackLink,
   type UserPageLayoutProps,
 } from "./UserPageLayout";
 export { WizardLayout, type WizardLayoutProps } from "./WizardLayout";

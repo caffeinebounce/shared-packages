@@ -26,8 +26,6 @@ export interface SettingsTabsProps {
   syncWithHash?: boolean;
   /** Tab orientation */
   orientation?: "horizontal" | "vertical";
-  /** Tab variant - "default" (pill style) or "underline" (border-bottom style) */
-  variant?: "default" | "underline";
   /** Additional class name for the container */
   className?: string;
 }
@@ -45,7 +43,6 @@ export interface SettingsTabsProps {
  *   activeTab={activeTab}
  *   onTabChange={setActiveTab}
  *   syncWithHash
- *   variant="underline"
  * >
  *   <SettingsTabContent tabId="account">
  *     <AccountSettings />
@@ -63,7 +60,6 @@ export function SettingsTabs({
   children,
   syncWithHash = false,
   orientation = "horizontal",
-  variant = "default",
   className,
 }: SettingsTabsProps) {
   // Handle URL hash synchronization
@@ -96,8 +92,6 @@ export function SettingsTabs({
     }
   };
 
-  const isUnderline = variant === "underline";
-
   return (
     <Tabs
       value={activeTab}
@@ -107,11 +101,8 @@ export function SettingsTabs({
     >
       <TabsList
         className={cn(
-          orientation === "vertical"
-            ? "flex-col h-auto items-stretch justify-start"
-            : "",
-          isUnderline &&
-            "w-full justify-start rounded-none border-b bg-transparent p-0 h-auto gap-6",
+          orientation === "vertical" &&
+            "flex-col h-auto items-stretch justify-start",
         )}
       >
         {tabs.map((tab) => {
@@ -120,12 +111,7 @@ export function SettingsTabs({
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              className={cn(
-                "gap-2",
-                orientation === "vertical" && "w-full",
-                isUnderline &&
-                  "relative rounded-none border-b-2 border-transparent bg-transparent px-2 pb-3 pt-2 font-semibold text-muted-foreground shadow-none transition-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none hover:text-foreground",
-              )}
+              className={cn("gap-2", orientation === "vertical" && "w-full")}
             >
               {Icon && <Icon className="h-4 w-4" />}
               {tab.label}

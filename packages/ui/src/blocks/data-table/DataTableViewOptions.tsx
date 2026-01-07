@@ -78,10 +78,10 @@ export function DataTableViewOptions<TData>({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
-          size="icon"
+          variant="ghost-icon"
+          size="icon-sm"
           aria-label="Toggle columns"
-          className="size-7 text-muted-foreground hover:text-foreground data-[state=open]:text-foreground"
+          className="data-[state=open]:text-foreground"
         >
           <Settings2 className="size-4" />
         </Button>

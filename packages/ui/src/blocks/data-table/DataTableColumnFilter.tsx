@@ -190,11 +190,7 @@ export function DataTableColumnFilterContent({
         {showDeleteMenu && hasValue && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="size-5 p-0 text-muted-foreground hover:text-foreground"
-              >
+              <Button variant="ghost-icon" size="icon-sm" className="size-5">
                 <MoreHorizontal className="size-3.5" />
               </Button>
             </DropdownMenuTrigger>

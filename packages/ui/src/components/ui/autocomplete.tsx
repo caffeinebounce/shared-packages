@@ -157,7 +157,7 @@ export function Autocomplete({
   // Reset highlighted index when filtered options change
   useEffect(() => {
     setHighlightedIndex(-1);
-  }, [filteredOptions]);
+  }, []);
 
   const handleSelect = useCallback(
     (selectedValue: string, label: string) => {

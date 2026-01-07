@@ -3,6 +3,7 @@
 import type { ComponentType, ReactNode } from "react";
 
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
+import { cn } from "../../utils";
 import type { UserAvatarMenuItem } from "../user/UserAvatarMenu";
 import { AppHeader, type HeaderLink } from "./AppHeader";
 import { AppSidebar, type AppSidebarUser, type NavItem } from "./AppSidebar";
@@ -217,7 +218,7 @@ export function AppLayout({
       defaultOpen={defaultOpen}
       open={open}
       onOpenChange={onOpenChange}
-      className={className}
+      className={cn("h-dvh", className)}
     >
       {sidebarElement}
       <SidebarInset>

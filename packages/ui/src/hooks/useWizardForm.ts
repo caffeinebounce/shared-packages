@@ -337,7 +337,9 @@ export function createFormSubmitHandler<
 
     if (!allValid) {
       // Stay on current step and show toast error - don't navigate away
-      showValidationToast?.("Please fix the errors in the highlighted sections.");
+      showValidationToast?.(
+        "Please fix the errors in the highlighted sections.",
+      );
       errorLogger?.logError(new Error(`${componentName} validation failed`), {
         component: componentName,
         action: "submit",
