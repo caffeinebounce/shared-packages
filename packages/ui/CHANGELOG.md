@@ -1,5 +1,56 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.24.0
+
+### Minor Changes
+
+- 519457f: Enhanced useWizardForm hook with data restoration and error extraction helpers
+
+  New utilities for multi-step wizard forms:
+
+  - **createDataRestorationHandler()**: Handles TanStack Form data restoration with proper timing for unmounted fields
+  - **extractZodErrors()**: Extracts human-readable error messages from Zod validation results with optional field filtering
+  - **getStepErrors option**: Pass actual validation error messages instead of just missing field names
+
+  Bug fixes:
+
+  - Fixed `handleBack` to preserve `highestStepReached` (no longer resets progress when navigating backward)
+  - Fixed `handleStepClick` to only update `highestStepReached` when navigating forward
+  - Updated `getStepTooltip` to prefer `getStepErrors` for better error messages
+
+- b191a12: UI package updates and new components
+
+  **New Components:**
+
+  - `CohortCard` - Card component for displaying cohort information
+  - `BackLink` - Navigation component for back links
+  - `IconButton` - Icon-only button variant
+
+  **Layout Improvements:**
+
+  - Enhanced `AdminPageLayout` with better structure
+  - Updated `UserPageLayout` with improved responsive design
+  - `RootLayout` and `AppLayout` refinements
+
+  **Component Updates:**
+
+  - `Button` - Added new variant support
+  - `Tabs` - Enhanced styling and accessibility
+  - `Sonner` - Improved toast notification styling
+  - `Autocomplete` - Bug fixes
+  - `SettingsTabs` - Simplified implementation
+  - Data table components - Minor improvements
+
+  **Hook Updates:**
+
+  - `useWizardForm` - Enhanced form handling
+
+### Patch Changes
+
+- 3e45e2d: Fix FormWizard persistence: wait for ALL restored fields to propagate
+
+  The `hasRestoredDataPropagated` check was incorrectly returning `true` when just ONE field matched, which could cause data loss when not all fields had propagated yet. Now it correctly waits for ALL non-empty restored fields to match before allowing saves to proceed.
+
 ## 0.23.1
 
 ### Patch Changes
