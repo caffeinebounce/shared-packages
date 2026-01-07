@@ -230,6 +230,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@caffeinebounce/shared-utils@workspace:packages/shared-utils":
+  version: 0.0.0-use.local
+  resolution: "@caffeinebounce/shared-utils@workspace:packages/shared-utils"
+  dependencies:
+    tsup: "npm:^8.4.0"
+    typescript: "npm:^5.9.0-beta"
+  languageName: unknown
+  linkType: soft
+
 "@caffeinebounce/ui@npm:^0.23.0, @caffeinebounce/ui@workspace:packages/ui":
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/ui@workspace:packages/ui"
@@ -5804,7 +5813,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsup@npm:^8.5.0":
+"tsup@npm:^8.4.0, tsup@npm:^8.5.0":
   version: 8.5.1
   resolution: "tsup@npm:8.5.1"
   dependencies:
@@ -5917,7 +5926,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.9.3":
+"typescript@npm:^5.9.0-beta, typescript@npm:^5.9.3":
   version: 5.9.3
   resolution: "typescript@npm:5.9.3"
   bin:
@@ -5927,7 +5936,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.9.3#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A^5.9.0-beta#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.9.3#optional!builtin<compat/typescript>":
   version: 5.9.3
   resolution: "typescript@patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"
   bin:

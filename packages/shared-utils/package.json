@@ -1,0 +1,55 @@
+{
+  "name": "@caffeinebounce/shared-utils",
+  "version": "0.1.0",
+  "description": "Shared utility functions for Capital Collective projects",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./formatters": {
+      "types": "./dist/formatters.d.ts",
+      "import": "./dist/formatters.mjs",
+      "require": "./dist/formatters.js"
+    },
+    "./string": {
+      "types": "./dist/string.d.ts",
+      "import": "./dist/string.mjs",
+      "require": "./dist/string.js"
+    },
+    "./image": {
+      "types": "./dist/image.d.ts",
+      "import": "./dist/image.mjs",
+      "require": "./dist/image.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caffeinebounce/shared-packages.git",
+    "directory": "packages/shared-utils"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "lint": "biome check src/"
+  },
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "^5.9.0-beta"
+  }
+}
