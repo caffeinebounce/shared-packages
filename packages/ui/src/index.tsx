@@ -380,6 +380,8 @@ export {
   PopoverContent,
   PopoverTrigger,
 } from "./components/ui/popover";
+export type { ProfileSectionProps } from "./components/ui/profile-section";
+export { ProfileSection } from "./components/ui/profile-section";
 export { Progress } from "./components/ui/progress";
 export type { ProgressBarProps } from "./components/ui/progress-bar";
 export { ProgressBar } from "./components/ui/progress-bar";
