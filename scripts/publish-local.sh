@@ -31,6 +31,11 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Check if running in interactive terminal
+is_interactive() {
+  [[ -t 0 && -t 1 ]]
+}
+
 # Packages to manage
 PACKAGES=(
   "ui"
@@ -184,6 +189,15 @@ log "${BLUE}📦 Shared Packages Publisher${NC}"
 log "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 log ""
 
+# Check we're on main branch (unless --force)
+current_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")"
+if [[ "$FORCE" != "true" && "$current_branch" != "main" ]]; then
+  log_error "Publishing is only allowed from the 'main' branch."
+  log_info "Current branch: '${current_branch:-unknown}'"
+  log_info "Use --force to override this safety check."
+  exit 1
+fi
+
 # Check npm auth
 if ! check_npm_auth; then
   exit 1
@@ -224,6 +238,13 @@ fi
 
 # Prompt for version bump if not specified
 if [[ -z "$BUMP_TYPE" ]]; then
+  # Require interactive terminal for prompts
+  if ! is_interactive; then
+    log_error "No version bump type specified and not running in interactive terminal."
+    log_info "Use: ./scripts/publish-local.sh patch|minor|major"
+    exit 1
+  fi
+
   log ""
   log "Select version bump type:"
   log "  1) patch (bug fixes)"
@@ -250,8 +271,21 @@ log_info "Bumping versions ($BUMP_TYPE)..."
 for pkg in "${packages_to_publish[@]}"; do
   old_version=$(get_version "$pkg")
   new_version=$(bump_version "$pkg" "$BUMP_TYPE")
+  if [[ -z "$new_version" ]]; then
+    log_error "Failed to bump version for $pkg"
+    exit 1
+  fi
   log_success "$pkg: $old_version → $new_version"
 done
+
+# Lint all packages
+log ""
+log_info "Linting packages..."
+if ! yarn lint; then
+  log_error "Lint failed! Fix errors before publishing."
+  exit 1
+fi
+log_success "Lint passed"
 
 # Build all packages
 log ""
@@ -269,6 +303,12 @@ log_info "Publishing packages..."
 for pkg in "${packages_to_publish[@]}"; do
   pkg_dir="./packages/$pkg"
   version=$(get_version "$pkg")
+
+  # Validate version is not empty
+  if [[ -z "$version" ]]; then
+    log_error "Failed to get version for $pkg"
+    exit 1
+  fi
 
   log_info "Publishing @caffeinebounce/$pkg@$version..."
 
@@ -294,10 +334,18 @@ for pkg in "${packages_to_publish[@]}"; do
   version=$(get_version "$pkg")
   tag="@caffeinebounce/$pkg@$version"
 
-  if git tag "$tag" 2>/dev/null; then
+  # Check if tag already exists
+  if git rev-parse -q --verify "refs/tags/$tag" >/dev/null 2>&1; then
+    log_warn "Tag $tag already exists, skipping"
+    continue
+  fi
+
+  # Create tag
+  if git tag "$tag"; then
     log_success "Created tag: $tag"
   else
-    log_warn "Tag $tag already exists"
+    log_error "Failed to create git tag: $tag"
+    exit 1
   fi
 done
 
