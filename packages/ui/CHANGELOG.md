@@ -1,5 +1,23 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.28.0
+
+### Minor Changes
+
+- Add DisplayField and DisplayFieldGroup components for read-only field display
+- Add ProfileSection component for section headers with optional actions
+- Add InlineEditable component family for click-to-edit fields:
+  - InlineEditableText: Text/textarea with Enter to save, Escape to cancel
+  - InlineEditableDate: Date picker integration with calendar popover
+  - InlineEditableSelect: Generic type-safe dropdown select
+
+## 0.27.0
+
+### Minor Changes
+
+- Add DisplayField and DisplayFieldGroup components
+- Add ProfileSection component with card/simple variants
+
 ## 0.25.0
 
 ### Minor Changes
