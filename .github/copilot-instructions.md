@@ -683,7 +683,16 @@ Run `yarn outdated` to check for updates. Update regularly to stay current.
 - Check `.npmrc` has correct registry URL
 - Token needs `read:packages` scope
 
-### Monitoring & debugging tools
+## Monitoring & debugging tools
+
+If the GH CLI fails to fetch PR comments with a GraphQL scope error (for example, `read:org` is missing), you can recover comments by:
+
+- Using the REST endpoints via `gh api` (works with repo scopes):
+  - `gh api repos/:owner/:repo/issues/:number/comments`
+  - `gh api repos/:owner/:repo/pulls/:number/comments`
+  - Example: `gh api repos/:owner/:repo/pulls/:number/comments --jq '.[] | {user: .user.login, body: .body}'`
+- Opening the PR in the GitHub web UI to view comments
+- Asking a teammate with broader token scopes to fetch comments or re-run the query with a token that includes `read:org`
 
 When investigating runtime issues, Copilot can access logs and tools to assist debugging:
 

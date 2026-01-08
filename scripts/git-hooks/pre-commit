@@ -7,6 +7,23 @@ set -e
 MAX_RETRIES=2
 RETRY_COUNT=0
 
+# If package files are being committed, ensure the lockfile is consistent in CI
+check_lockfile_consistency() {
+    CHANGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(^package.json$|^packages/.*package.json$|^yarn.lock$|^\.yarn/|^package-lock.json$|^\.yarnrc.yml$)' || true)
+    if [ -n "$CHANGED" ]; then
+        echo "🔍 Detected package-related changes; verifying lockfile consistency with 'yarn install --immutable --check-cache'..."
+        if ! yarn install --immutable --check-cache >/dev/null 2>&1; then
+            echo ""
+            echo "❌ Lockfile inconsistency detected. CI would have modified the lockfile."
+            echo "Please run: yarn install && git add yarn.lock .yarn && git commit -m \"chore: update lockfile\""
+            exit 1
+        fi
+    fi
+}
+
+# Run lockfile check before running pre-commit hooks
+check_lockfile_consistency()
+
 # Get list of staged files before running hooks
 get_staged_files() {
     git diff --cached --name-only --diff-filter=d
