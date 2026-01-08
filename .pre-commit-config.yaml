@@ -4,7 +4,7 @@
 repos:
   # ── Basic file hygiene ──
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         exclude: \.lock$|\.snap$
@@ -23,7 +23,7 @@ repos:
 
   # ── Biome (linting + formatting) ──
   - repo: https://github.com/biomejs/pre-commit
-    rev: v2.0.0-beta.1
+    rev: v2.3.10
     hooks:
       - id: biome-check
         additional_dependencies: ["@biomejs/biome@2.3.8"]
@@ -57,7 +57,7 @@ repos:
 
   # ── Conventional commits ──
   - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v3.6.0
+    rev: v4.3.0
     hooks:
       - id: conventional-pre-commit
         name: conventional commit
