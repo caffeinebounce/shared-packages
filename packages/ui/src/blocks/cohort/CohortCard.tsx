@@ -10,13 +10,13 @@ const cohortCardVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-slate-700/50 hover:border-slate-600 hover:shadow-xl hover:shadow-slate-900/20",
+          "bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 border-slate-700/50 hover:border-slate-600 hover:shadow-xl hover:shadow-slate-900/20",
         accent:
-          "bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 border-indigo-500/30 hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-900/20",
+          "bg-linear-to-br from-indigo-950 via-slate-900 to-slate-900 border-indigo-500/30 hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-900/20",
         success:
-          "bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-900 border-emerald-500/30 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-900/20",
+          "bg-linear-to-br from-emerald-950 via-slate-900 to-slate-900 border-emerald-500/30 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-900/20",
         warning:
-          "bg-gradient-to-br from-amber-950 via-slate-900 to-slate-900 border-amber-500/30 hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-900/20",
+          "bg-linear-to-br from-amber-950 via-slate-900 to-slate-900 border-amber-500/30 hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-900/20",
       },
       size: {
         default: "h-64",
@@ -138,12 +138,12 @@ export function CohortCard({
 
       {/* Gradient overlay */}
       {showGradientOverlay && (
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-transparent" />
       )}
 
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-white/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-white/5 to-transparent rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-white/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute bottom-0 left-0 w-24 h-24 bg-linear-to-tr from-white/5 to-transparent rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col justify-between p-5">
@@ -199,7 +199,7 @@ export function CohortCard({
 
       {/* Hover glow effect */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent" />
       </div>
     </div>
   );

@@ -39,6 +39,13 @@ repos:
         types: [ts, tsx]
         stages: [pre-commit]
 
+      - id: tailwind-v4-classes
+        name: check tailwind v4 canonical classes
+        entry: ./scripts/check-tailwind-v4-classes.sh
+        language: script
+        types: [ts, tsx]
+        stages: [pre-commit]
+
   # ── Secrets scanning ──
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
