@@ -186,7 +186,7 @@ export function createSocialHandleSchema(
 
   return z
     .string()
-    .max(maxLength, `${name} handle must be less than ${maxLength} characters`)
+    .max(maxLength, `${name} handle must be at most ${maxLength} characters`)
     .refine(
       (val) => {
         if (!val) return true;

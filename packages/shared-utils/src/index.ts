@@ -31,17 +31,17 @@ export {
 } from "./string";
 // Re-export URL validators
 export {
-  // Factory functions
+  // Factory functions (alphabetical)
   createSocialHandleSchema,
   createSocialUrlSchema,
   createUrlSchema,
-  // Pre-built URL validators
+  // Pre-built URL validators (alphabetical)
   facebookUrlSchema,
-  // Pre-built handle validators
+  // Pre-built handle validators (alphabetical)
   instagramHandleSchema,
   linkedinUrlSchema,
   pinterestUrlSchema,
-  // Types
+  // Types (alphabetical)
   type SocialHandleSchemaConfig,
   type SocialUrlSchemaConfig,
   tiktokHandleSchema,
