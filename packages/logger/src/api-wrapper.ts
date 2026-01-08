@@ -18,7 +18,7 @@
  * ```
  */
 
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server.js";
 import {
   createApiErrorResponse,
   extractSupabaseErrorContext,
