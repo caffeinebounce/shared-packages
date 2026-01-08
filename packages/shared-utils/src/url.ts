@@ -1,0 +1,351 @@
+/**
+ * URL Validation utilities for social media and general URLs.
+ *
+ * These validators work with Zod to validate URLs for various platforms.
+ * They handle URLs with or without the protocol prefix (http:// or https://).
+ *
+ * @example
+ * ```typescript
+ * import { linkedinUrlSchema, facebookUrlSchema, createSocialUrlSchema } from "@caffeinebounce/shared-utils";
+ * import { z } from "zod";
+ *
+ * // Use pre-built validators
+ * const formSchema = z.object({
+ *   linkedin: linkedinUrlSchema,
+ *   facebook: facebookUrlSchema,
+ * });
+ *
+ * // Or create custom validators
+ * const tiktokUrlSchema = createSocialUrlSchema({
+ *   name: "TikTok",
+ *   hostnames: ["tiktok.com", "www.tiktok.com"],
+ *   allowSubdomains: false,
+ *   example: "https://tiktok.com/@your-company",
+ * });
+ * ```
+ */
+import { z } from "zod";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+/**
+ * Configuration for creating a social URL validator.
+ */
+export interface SocialUrlSchemaConfig {
+  /** Display name for error messages (e.g., "LinkedIn", "Facebook") */
+  name: string;
+  /** Valid hostnames for this platform (e.g., ["linkedin.com", "www.linkedin.com"]) */
+  hostnames: string[];
+  /** If true, allows subdomains like *.linkedin.com */
+  allowSubdomains?: boolean;
+  /** The base domain to check for subdomains (e.g., "linkedin.com") */
+  baseDomain?: string;
+  /** Example URL for error message (e.g., "https://linkedin.com/company/your-company") */
+  example: string;
+}
+
+/**
+ * Configuration for creating a social handle validator.
+ */
+export interface SocialHandleSchemaConfig {
+  /** Display name for error messages (e.g., "Instagram", "X/Twitter") */
+  name: string;
+  /** Maximum length for the handle */
+  maxLength: number;
+  /** Regex pattern for valid characters */
+  pattern: RegExp;
+  /** Description of valid characters for error message */
+  validCharsDescription: string;
+}
+
+// ---------------------------------------------------------------------------
+// Helper Functions
+// ---------------------------------------------------------------------------
+
+/**
+ * Ensures a URL has a protocol prefix, adding https:// if missing.
+ */
+function ensureProtocol(url: string): string {
+  if (!url) return url;
+  return url.startsWith("http://") || url.startsWith("https://")
+    ? url
+    : `https://${url}`;
+}
+
+/**
+ * Safely parses a URL, returning null if invalid.
+ */
+function safeParseUrl(urlString: string): URL | null {
+  try {
+    return new URL(urlString);
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Factory Functions
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates a Zod schema for validating social media URLs.
+ *
+ * Features:
+ * - Accepts URLs with or without protocol (http://, https://)
+ * - Validates against specific hostnames for the platform
+ * - Optionally allows subdomains (e.g., business.facebook.com)
+ * - Returns helpful error messages with examples
+ * - Empty strings are valid (use .min(1) or .refine() for required fields)
+ *
+ * @param config - Configuration for the validator
+ * @returns A Zod string schema that validates URLs for the specified platform
+ *
+ * @example
+ * ```typescript
+ * const youtubeUrlSchema = createSocialUrlSchema({
+ *   name: "YouTube",
+ *   hostnames: ["youtube.com", "www.youtube.com", "youtu.be"],
+ *   allowSubdomains: true,
+ *   baseDomain: "youtube.com",
+ *   example: "https://youtube.com/@your-channel",
+ * });
+ * ```
+ */
+export function createSocialUrlSchema(
+  config: SocialUrlSchemaConfig,
+): z.ZodEffects<z.ZodString, string, string> {
+  const {
+    name,
+    hostnames,
+    allowSubdomains = false,
+    baseDomain,
+    example,
+  } = config;
+
+  return z.string().refine(
+    (val) => {
+      // Empty values are valid (required validation done separately)
+      if (!val) return true;
+
+      const urlWithProtocol = ensureProtocol(val);
+      const url = safeParseUrl(urlWithProtocol);
+
+      if (!url) return false;
+
+      const hostname = url.hostname.toLowerCase();
+
+      // Check exact hostname matches
+      if (hostnames.some((h) => hostname === h.toLowerCase())) {
+        return true;
+      }
+
+      // Check subdomain matches if allowed
+      if (allowSubdomains && baseDomain) {
+        const normalizedBase = baseDomain.toLowerCase();
+        if (hostname.endsWith(`.${normalizedBase}`)) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+    {
+      message: `Please enter a valid ${name} URL (e.g., ${example})`,
+    },
+  );
+}
+
+/**
+ * Creates a Zod schema for validating social media handles (usernames).
+ *
+ * Features:
+ * - Strips leading @ symbol before validation
+ * - Validates max length
+ * - Validates character pattern
+ * - Empty strings are valid (use .min(1) or .refine() for required fields)
+ *
+ * @param config - Configuration for the validator
+ * @returns A Zod string schema that validates handles for the specified platform
+ *
+ * @example
+ * ```typescript
+ * const tiktokHandleSchema = createSocialHandleSchema({
+ *   name: "TikTok",
+ *   maxLength: 24,
+ *   pattern: /^[a-zA-Z0-9._]*$/,
+ *   validCharsDescription: "letters, numbers, periods, underscores",
+ * });
+ * ```
+ */
+export function createSocialHandleSchema(
+  config: SocialHandleSchemaConfig,
+): z.ZodEffects<z.ZodString, string, string> {
+  const { name, maxLength, pattern, validCharsDescription } = config;
+
+  return z
+    .string()
+    .max(maxLength, `${name} handle must be at most ${maxLength} characters`)
+    .refine(
+      (val) => {
+        if (!val) return true;
+        // Remove @ if present
+        const handle = val.replace(/^@/, "");
+        return pattern.test(handle);
+      },
+      {
+        message: `Invalid ${name} handle format (${validCharsDescription} only)`,
+      },
+    );
+}
+
+/**
+ * Creates a generic URL schema that validates any properly formatted URL.
+ *
+ * Features:
+ * - Accepts URLs with or without protocol
+ * - Ensures URL has a valid hostname with at least one dot
+ * - Allows localhost for development
+ * - Empty strings are valid (use .min(1) or .refine() for required fields)
+ *
+ * @param errorMessage - Custom error message for invalid URLs
+ * @returns A Zod string schema that validates general URLs
+ *
+ * @example
+ * ```typescript
+ * const websiteUrlSchema = createUrlSchema("Please enter a valid website URL");
+ * ```
+ */
+export function createUrlSchema(
+  errorMessage = "Please enter a valid URL",
+): z.ZodEffects<z.ZodString, string, string> {
+  return z.string().refine((val) => {
+    if (!val) return true; // Empty is valid (handled by optional/required separately)
+
+    const urlWithProtocol = ensureProtocol(val);
+    const url = safeParseUrl(urlWithProtocol);
+
+    if (!url) return false;
+
+    // Must be a valid URL and have a hostname with at least one dot (e.g. example.com)
+    // This prevents single words like "dscsdc" from being accepted
+    // Exception: allow localhost for development
+    return url.hostname.includes(".") || url.hostname === "localhost";
+  }, errorMessage);
+}
+
+// ---------------------------------------------------------------------------
+// Pre-built Validators
+// ---------------------------------------------------------------------------
+
+/**
+ * Validates LinkedIn URLs.
+ * Accepts: linkedin.com, www.linkedin.com, and *.linkedin.com subdomains.
+ */
+export const linkedinUrlSchema = createSocialUrlSchema({
+  name: "LinkedIn",
+  hostnames: ["linkedin.com", "www.linkedin.com"],
+  allowSubdomains: true,
+  baseDomain: "linkedin.com",
+  example: "https://linkedin.com/company/your-company",
+});
+
+/**
+ * Validates Facebook URLs.
+ * Accepts: facebook.com, www.facebook.com, fb.com, www.fb.com, and subdomains.
+ */
+export const facebookUrlSchema = createSocialUrlSchema({
+  name: "Facebook",
+  hostnames: ["facebook.com", "www.facebook.com", "fb.com", "www.fb.com"],
+  allowSubdomains: true,
+  baseDomain: "facebook.com",
+  example: "https://facebook.com/your-company",
+});
+
+/**
+ * Validates Pinterest URLs.
+ * Accepts: pinterest.com, www.pinterest.com, and *.pinterest.com subdomains.
+ */
+export const pinterestUrlSchema = createSocialUrlSchema({
+  name: "Pinterest",
+  hostnames: ["pinterest.com", "www.pinterest.com"],
+  allowSubdomains: true,
+  baseDomain: "pinterest.com",
+  example: "https://pinterest.com/your-company",
+});
+
+/**
+ * Validates X/Twitter URLs.
+ * Accepts: x.com, www.x.com, twitter.com, www.twitter.com.
+ */
+export const xUrlSchema = createSocialUrlSchema({
+  name: "X/Twitter",
+  hostnames: ["x.com", "www.x.com", "twitter.com", "www.twitter.com"],
+  allowSubdomains: false,
+  example: "https://x.com/your-handle",
+});
+
+/**
+ * Validates YouTube URLs.
+ * Accepts: youtube.com, www.youtube.com, youtu.be, and *.youtube.com subdomains.
+ */
+export const youtubeUrlSchema = createSocialUrlSchema({
+  name: "YouTube",
+  hostnames: ["youtube.com", "www.youtube.com", "youtu.be"],
+  allowSubdomains: true,
+  baseDomain: "youtube.com",
+  example: "https://youtube.com/@your-channel",
+});
+
+/**
+ * Validates TikTok URLs.
+ * Accepts: tiktok.com, www.tiktok.com.
+ */
+export const tiktokUrlSchema = createSocialUrlSchema({
+  name: "TikTok",
+  hostnames: ["tiktok.com", "www.tiktok.com"],
+  allowSubdomains: false,
+  example: "https://tiktok.com/@your-handle",
+});
+
+/**
+ * Validates Instagram handles (username format, not full URLs).
+ * Rules: max 30 chars, letters, numbers, periods, underscores only.
+ */
+export const instagramHandleSchema = createSocialHandleSchema({
+  name: "Instagram",
+  maxLength: 30,
+  pattern: /^[a-zA-Z0-9._]*$/,
+  validCharsDescription: "letters, numbers, periods, underscores",
+});
+
+/**
+ * Validates X/Twitter handles (username format, not full URLs).
+ * Rules: max 15 chars, letters, numbers, underscores only.
+ */
+export const xHandleSchema = createSocialHandleSchema({
+  name: "X/Twitter",
+  maxLength: 15,
+  pattern: /^[a-zA-Z0-9_]*$/,
+  validCharsDescription: "letters, numbers, underscores",
+});
+
+/**
+ * Validates TikTok handles (username format, not full URLs).
+ * Rules: max 24 chars, letters, numbers, periods, underscores only.
+ */
+export const tiktokHandleSchema = createSocialHandleSchema({
+  name: "TikTok",
+  maxLength: 24,
+  pattern: /^[a-zA-Z0-9._]*$/,
+  validCharsDescription: "letters, numbers, periods, underscores",
+});
+
+/**
+ * Validates general website URLs.
+ * Accepts any URL with a valid hostname containing at least one dot.
+ */
+export const websiteUrlSchema = createUrlSchema(
+  "Please enter a valid website URL",
+);

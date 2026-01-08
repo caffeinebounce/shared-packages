@@ -236,6 +236,7 @@ __metadata:
   dependencies:
     tsup: "npm:^8.4.0"
     typescript: "npm:^5.9.0-beta"
+    zod: "npm:^3.23.8"
   languageName: unknown
   linkType: soft
 
