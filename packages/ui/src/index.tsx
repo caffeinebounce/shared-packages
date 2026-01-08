@@ -310,6 +310,11 @@ export {
   DialogTitle,
   DialogTrigger,
 } from "./components/ui/dialog";
+export type {
+  DisplayFieldGroupProps,
+  DisplayFieldProps,
+} from "./components/ui/display-field";
+export { DisplayField, DisplayFieldGroup } from "./components/ui/display-field";
 export {
   DropdownMenu,
   DropdownMenuCheckboxItem,
