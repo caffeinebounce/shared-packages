@@ -310,6 +310,11 @@ export {
   DialogTitle,
   DialogTrigger,
 } from "./components/ui/dialog";
+export type {
+  DisplayFieldGroupProps,
+  DisplayFieldProps,
+} from "./components/ui/display-field";
+export { DisplayField, DisplayFieldGroup } from "./components/ui/display-field";
 export {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -375,6 +380,8 @@ export {
   PopoverContent,
   PopoverTrigger,
 } from "./components/ui/popover";
+export type { ProfileSectionProps } from "./components/ui/profile-section";
+export { ProfileSection } from "./components/ui/profile-section";
 export { Progress } from "./components/ui/progress";
 export type { ProgressBarProps } from "./components/ui/progress-bar";
 export { ProgressBar } from "./components/ui/progress-bar";
