@@ -348,6 +348,17 @@ export type { IconButtonProps } from "./components/ui/icon-button";
 export { IconButton, iconButtonVariants } from "./components/ui/icon-button";
 export type { InfoTooltipProps } from "./components/ui/info-tooltip";
 export { InfoTooltip } from "./components/ui/info-tooltip";
+export type {
+  InlineEditableDateProps,
+  InlineEditableSelectProps,
+  InlineEditableTextProps,
+  SelectOption,
+} from "./components/ui/inline-editable";
+export {
+  InlineEditableDate,
+  InlineEditableSelect,
+  InlineEditableText,
+} from "./components/ui/inline-editable";
 export { Input } from "./components/ui/input";
 export {
   InputOTP,
