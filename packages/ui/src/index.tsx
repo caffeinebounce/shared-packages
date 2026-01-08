@@ -296,6 +296,8 @@ export type {
   DateRangePickerProps,
 } from "./components/ui/date-picker";
 export { DatePicker, DateRangePicker } from "./components/ui/date-picker";
+export type { DeleteConfirmationDialogProps } from "./components/ui/delete-confirmation-dialog";
+export { DeleteConfirmationDialog } from "./components/ui/delete-confirmation-dialog";
 export {
   Dialog,
   DialogClose,
@@ -431,6 +433,11 @@ export {
   useSidebar,
 } from "./components/ui/sidebar";
 export { Skeleton } from "./components/ui/skeleton";
+export type {
+  SocialIconProps,
+  SocialPlatform,
+} from "./components/ui/social-icon";
+export { SocialIcon, socialPlatforms } from "./components/ui/social-icon";
 export { Toaster } from "./components/ui/sonner";
 export type { SpinnerProps } from "./components/ui/spinner";
 export { Spinner, spinnerVariants } from "./components/ui/spinner";
