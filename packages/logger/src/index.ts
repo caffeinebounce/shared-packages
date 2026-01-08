@@ -23,6 +23,13 @@
 // Re-export @logtail/next hooks and types for direct use
 export { Logger as BetterStackLogger, useLogger } from "@logtail/next";
 export { adminLogger } from "./admin-logger";
+// API route wrapper with error logging
+export type {
+  ApiErrorCode,
+  ApiHandler,
+  ErrorLoggingContext,
+} from "./api-wrapper";
+export { withErrorLogging } from "./api-wrapper";
 export { authLogger } from "./auth-logger";
 // Deployment environment detection
 export {
