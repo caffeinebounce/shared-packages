@@ -128,8 +128,19 @@ export function DeleteConfirmationDialog({
     }
   }, [isLoading, onOpenChange]);
 
+  const handleDialogOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      // Prevent closing the dialog via ESC key or overlay while loading
+      if (isLoading && !nextOpen) {
+        return;
+      }
+      onOpenChange(nextOpen);
+    },
+    [isLoading, onOpenChange],
+  );
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className={cn("sm:max-w-[425px]", className)}>
         <DialogHeader>
           <DialogTitle
@@ -176,7 +187,7 @@ export function DeleteConfirmationDialog({
                 "bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700",
             )}
           >
-            {isLoading ? "Deleting..." : confirmLabel}
+            {isLoading ? `${confirmLabel}...` : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

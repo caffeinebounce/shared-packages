@@ -85,9 +85,9 @@ describe("DeleteConfirmationDialog", () => {
     const deleteButton = screen.getByText("Delete");
     fireEvent.click(deleteButton);
 
-    // Button should show loading text
+    // Button should show loading text (confirmLabel + "...")
     await waitFor(() => {
-      expect(screen.getByText("Deleting...")).toBeInTheDocument();
+      expect(screen.getByText("Delete...")).toBeInTheDocument();
     });
 
     // Wait for async operation to complete
