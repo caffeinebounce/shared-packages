@@ -1,5 +1,11 @@
 # @caffeinebounce/logger
 
+## 0.5.1
+
+### Patch Changes
+
+- aeca27f: Fix ESM import path for next/server to use .js extension for Next.js 16 compatibility
+
 ## 0.5.0
 
 ### Minor Changes
