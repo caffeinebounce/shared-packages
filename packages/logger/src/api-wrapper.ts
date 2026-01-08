@@ -116,11 +116,32 @@ function determineStatusCode(error: unknown): number {
 }
 
 /**
+ * Checks if an error code looks like a Supabase/Postgres error code.
+ * Postgres error codes are 5-character strings like "23505" (unique violation).
+ * Supabase also uses codes like "PGRST116" for PostgREST errors.
+ */
+function isSupabaseErrorCode(code: unknown): boolean {
+  if (typeof code !== "string") return false;
+  // Postgres error codes: 5-digit alphanumeric (e.g., "23505", "42P01")
+  if (/^[0-9A-Z]{5}$/.test(code)) return true;
+  // PostgREST error codes (e.g., "PGRST116")
+  if (/^PGRST\d+$/.test(code)) return true;
+  // Supabase Auth error codes (e.g., "invalid_credentials")
+  if (code.includes("_") && !code.includes(" ")) return true;
+  return false;
+}
+
+/**
  * Determines the standardized error code based on error type and status code.
  */
 function determineErrorCode(error: unknown, statusCode: number): ApiErrorCode {
-  // Supabase-style errors expose a code field
-  if (error && typeof error === "object" && "code" in error) {
+  // Check for Supabase-style errors with specific error code patterns
+  if (
+    error &&
+    typeof error === "object" &&
+    "code" in error &&
+    isSupabaseErrorCode((error as { code: unknown }).code)
+  ) {
     return "supabase_error";
   }
 
@@ -189,10 +210,12 @@ function toValidationLike(error: unknown): {
 }
 
 /**
- * Extracts a human-readable error message from various error types.
- * Handles Error instances, Supabase errors (plain objects with message), and other types.
+ * Extracts a detailed human-readable error message from various error types.
+ * Handles Error instances, Supabase errors (plain objects with message), database errors, and other types.
+ * This version has more sophisticated handling than the basic extractErrorMessage in error-logger.ts,
+ * including support for error/error_description fields and database error code formatting.
  */
-function extractErrorMessage(error: unknown): string {
+function extractDetailedErrorMessage(error: unknown): string {
   // Standard Error instance
   if (error instanceof Error) {
     return error.message;
@@ -278,7 +301,26 @@ function extractErrorCause(
     details.query = String(errorObj.query).substring(0, 200); // Truncate long queries
   }
   if ("parameters" in errorObj) {
-    details.parameters = errorObj.parameters;
+    // Sanitize parameters to avoid logging sensitive data like passwords or tokens
+    const rawParameters = errorObj.parameters as unknown;
+    if (Array.isArray(rawParameters)) {
+      details.parameters = {
+        kind: "array",
+        count: rawParameters.length,
+      };
+    } else if (rawParameters && typeof rawParameters === "object") {
+      const keys = Object.keys(rawParameters as Record<string, unknown>);
+      details.parameters = {
+        kind: "object",
+        keys,
+        count: keys.length,
+      };
+    } else if (rawParameters !== undefined && rawParameters !== null) {
+      details.parameters = {
+        kind: "other",
+        type: typeof rawParameters,
+      };
+    }
   }
   if ("code" in errorObj) {
     details.code = errorObj.code;
@@ -417,7 +459,7 @@ export function withErrorLogging<TContext = undefined>(
       return response;
     } catch (error) {
       // Extract error details - handle Supabase errors which are plain objects with message property
-      const errorMessage = extractErrorMessage(error);
+      const errorMessage = extractDetailedErrorMessage(error);
       const errorType =
         error instanceof Error ? error.constructor.name : typeof error;
       const stack = error instanceof Error ? error.stack : undefined;

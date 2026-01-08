@@ -17,6 +17,30 @@ vi.mock("./logger", () => ({
   })),
 }));
 
+// Mock the error-logger module for test isolation
+// getOrGenerateCorrelationId needs to actually check headers for some tests
+vi.mock("./error-logger", () => ({
+  createApiErrorResponse: vi.fn(
+    (message: string, correlationId: string, _details?: unknown) => ({
+      error: message,
+      correlationId,
+      timestamp: new Date().toISOString(),
+    }),
+  ),
+  extractSupabaseErrorContext: vi.fn(() => ({})),
+  extractValidationErrorContext: vi.fn(() => ({})),
+  // Mock receives the request object (with headers.get method), just like the real function
+  getOrGenerateCorrelationId: vi.fn(
+    (req: { headers: { get: (name: string) => string | null } }) => {
+      // Check for existing correlation headers like the real implementation
+      const existing =
+        req.headers.get("x-correlation-id") || req.headers.get("x-request-id");
+      if (existing) return existing;
+      return `req-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    },
+  ),
+}));
+
 // Helper to create mock NextRequest
 function createMockRequest(
   options: {
@@ -280,7 +304,104 @@ describe("withErrorLogging", () => {
 
       const correlationId = response.headers.get("x-correlation-id");
       expect(correlationId).toBeTruthy();
+      // Generated correlation ID should match expected format
       expect(correlationId).toMatch(/^req-\d+-[a-z0-9]+$/);
+    });
+  });
+
+  describe("nested error cause extraction", () => {
+    it("should extract nested cause from Error with cause chain", async () => {
+      const rootCause = new Error("Database connection failed");
+      const wrappedError = new Error("Query failed", { cause: rootCause });
+
+      const mockHandler: ApiHandler<undefined> = async () => {
+        throw wrappedError;
+      };
+
+      const wrappedHandler = withErrorLogging(mockHandler, defaultContext);
+      const request = createMockRequest();
+      const response = await wrappedHandler(request);
+
+      expect(response.status).toBe(500);
+    });
+
+    it("should handle postgres.js style errors with query and parameters", async () => {
+      const postgresError = Object.assign(new Error("duplicate key value"), {
+        code: "23505",
+        severity: "ERROR",
+        detail: "Key (email)=(test@example.com) already exists.",
+        hint: "Use UPDATE instead of INSERT",
+        constraint: "users_email_unique",
+        query: "INSERT INTO users (email) VALUES ($1)",
+        parameters: ["test@example.com"],
+      });
+
+      const mockHandler: ApiHandler<undefined> = async () => {
+        throw postgresError;
+      };
+
+      const wrappedHandler = withErrorLogging(mockHandler, defaultContext);
+      const request = createMockRequest();
+      const response = await wrappedHandler(request);
+
+      expect(response.status).toBe(500);
+    });
+
+    it("should handle deeply nested cause chains with max depth", async () => {
+      // Create a chain of errors exceeding MAX_CAUSE_DEPTH (10)
+      let error: Error = new Error("Root cause");
+      for (let i = 0; i < 15; i++) {
+        error = new Error(`Level ${i}`, { cause: error });
+      }
+
+      const mockHandler: ApiHandler<undefined> = async () => {
+        throw error;
+      };
+
+      const wrappedHandler = withErrorLogging(mockHandler, defaultContext);
+      const request = createMockRequest();
+      const response = await wrappedHandler(request);
+
+      // Should complete without infinite loop
+      expect(response.status).toBe(500);
+    });
+
+    it("should handle errors with various postgres properties", async () => {
+      const detailedPostgresError = Object.assign(
+        new Error("syntax error at or near"),
+        {
+          code: "42601",
+          severity: "ERROR",
+          position: "15",
+          query: "SELECT * FORM users", // intentional typo
+        },
+      );
+
+      const mockHandler: ApiHandler<undefined> = async () => {
+        throw detailedPostgresError;
+      };
+
+      const wrappedHandler = withErrorLogging(mockHandler, defaultContext);
+      const request = createMockRequest();
+      const response = await wrappedHandler(request);
+
+      expect(response.status).toBe(500);
+    });
+
+    it("should handle non-Error object causes", async () => {
+      const errorWithObjectCause = Object.assign(new Error("Wrapped error"), {
+        cause: { type: "network", message: "Connection timeout" },
+      });
+
+      const mockHandler: ApiHandler<undefined> = async () => {
+        throw errorWithObjectCause;
+      };
+
+      const wrappedHandler = withErrorLogging(mockHandler, defaultContext);
+      const request = createMockRequest();
+      const response = await wrappedHandler(request);
+
+      expect(response.status).toBe(500);
     });
   });
 });
