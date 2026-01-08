@@ -57,7 +57,7 @@ export function ImpactSection({
             </div>
           )}
 
-          <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-8 md:p-12 text-center">
+          <div className="bg-linear-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-8 md:p-12 text-center">
             {Icon && <Icon className="w-12 h-12 text-primary mx-auto mb-6" />}
             {content && (
               <div className="text-lg md:text-xl text-foreground leading-relaxed mb-6">

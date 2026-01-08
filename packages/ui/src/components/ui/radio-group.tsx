@@ -25,8 +25,8 @@ const RadioGroupItem = ({
   return (
     <RadioGroupPrimitive.Item
       className={cn(
-        "aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow-sm",
-        "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+        "aspect-square h-4 w-4 rounded-full border-2 border-muted-foreground/50 text-primary shadow-sm",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "data-[state=checked]:border-primary data-[state=checked]:bg-primary",
         className,
@@ -34,7 +34,7 @@ const RadioGroupItem = ({
       {...props}
     >
       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        <Circle className="h-2.5 w-2.5 fill-primary-foreground text-primary-foreground" />
+        <Circle className="h-2 w-2 fill-primary-foreground text-primary-foreground" />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   );
