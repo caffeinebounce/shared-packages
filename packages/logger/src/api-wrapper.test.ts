@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   type ApiErrorCode,
