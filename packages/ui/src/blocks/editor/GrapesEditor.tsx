@@ -99,6 +99,9 @@ export function GrapesEditor({
   useEffect(() => {
     if (!containerRef.current || editorRef.current) return;
 
+    // Destructure panels from customConfig since GrapesJS has a different type for it
+    const { panels: _panels, ...restCustomConfig } = customConfig || {};
+
     const editor = grapesjs.init({
       container: containerRef.current,
       height,
@@ -108,11 +111,14 @@ export function GrapesEditor({
 
       // Merge base config with preset and custom config
       ...baseConfig,
-      ...customConfig,
+      ...restCustomConfig,
 
       // Configure devices from preset
       deviceManager: {
-        devices: preset.devices || baseConfig.deviceManager?.devices || [],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        devices: (preset.devices ||
+          baseConfig.deviceManager?.devices ||
+          []) as any,
       },
 
       // Configure style manager
@@ -151,7 +157,8 @@ export function GrapesEditor({
 
     // Set read-only mode if specified
     if (readOnly) {
-      editor.setReadOnly(true);
+      // Disable editing by running the preview command
+      editor.Commands.run("preview");
     }
 
     // Listen for content changes
@@ -378,7 +385,9 @@ function extractFormSections(editor: Editor): ExportedFormSchema["sections"] {
 
   // Find all section components
   const children = wrapper.components();
-  children.forEach((component, index) => {
+  // Use models array and type explicitly
+  const childModels = children.models;
+  childModels.forEach((component, index) => {
     const type = component.get("type");
     const attributes = component.getAttributes();
 

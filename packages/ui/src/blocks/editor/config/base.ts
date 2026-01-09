@@ -6,8 +6,9 @@ import type { EditorConfig } from "../types";
 
 /**
  * Default base configuration for the GrapesJS editor.
+ * Note: Omits 'panels' as GrapesJS has a different type for it.
  */
-export const baseConfig: Partial<EditorConfig> = {
+export const baseConfig: Partial<Omit<EditorConfig, "panels">> = {
   height: "100%",
   width: "auto",
   storageManager: false, // Disable by default, let consumer handle persistence

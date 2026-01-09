@@ -64,6 +64,30 @@ export {
   DataTableViewOptions,
   DataTableViews,
 } from "./blocks/data-table";
+export type {
+  BlockDefinition,
+  DeviceConfig,
+  EditorConfig,
+  EditorPreset,
+  EditorToolbarProps,
+  ExportedEmailTemplate,
+  ExportedFormSchema,
+  FormField,
+  FormFieldType,
+  FormSection,
+  GrapesEditorProps,
+  PanelConfig,
+  StyleSector,
+} from "./blocks/editor";
+// GrapesJS Visual Editor
+export {
+  baseConfig,
+  baseStyleSectors,
+  EditorToolbar,
+  emailPreset,
+  formPreset,
+  GrapesEditor,
+} from "./blocks/editor";
 export type { BackgroundRippleEffectProps } from "./blocks/effects";
 export { BackgroundRippleEffect } from "./blocks/effects";
 export type { FeedbackDialogProps } from "./blocks/feedback";

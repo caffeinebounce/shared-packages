@@ -8,7 +8,7 @@
 
 import { Download, Eye, Redo2, RotateCcw, Save, Undo2 } from "lucide-react";
 
-import { Button } from "../../components/button";
+import { Button } from "../../components/ui/button";
 import { cn } from "../../utils";
 
 /**
