@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/ui",
-  "version": "0.28.2",
+  "version": "0.28.3",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -57,7 +57,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@caffeinebounce/shared-utils": "workspace:*",
+    "@caffeinebounce/shared-utils": "^0.4.0",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
