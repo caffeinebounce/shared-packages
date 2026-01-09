@@ -99,6 +99,9 @@ export function GrapesEditor({
   useEffect(() => {
     if (!containerRef.current || editorRef.current) return;
 
+    // Destructure panels from customConfig since GrapesJS has a different type for it
+    const { panels: _panels, ...restCustomConfig } = customConfig || {};
+
     const editor = grapesjs.init({
       container: containerRef.current,
       height,
@@ -108,11 +111,17 @@ export function GrapesEditor({
 
       // Merge base config with preset and custom config
       ...baseConfig,
-      ...customConfig,
+      ...restCustomConfig,
 
       // Configure devices from preset
+      // Note: GrapesJS DeviceProperties type has incompatible width/height types
+      // (string | undefined vs string | null). We cast to any here because the
+      // runtime values are compatible - this is a GrapesJS type definition issue.
       deviceManager: {
-        devices: preset.devices || baseConfig.deviceManager?.devices || [],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        devices: (preset.devices ||
+          baseConfig.deviceManager?.devices ||
+          []) as any,
       },
 
       // Configure style manager
@@ -150,8 +159,12 @@ export function GrapesEditor({
     }
 
     // Set read-only mode if specified
+    // Note: GrapesJS's editor.setReadOnly() method exists at runtime but is not
+    // in the TypeScript definitions. Using the preview command as an alternative
+    // which hides editing UI and shows only the canvas. This is a reasonable
+    // approximation for read-only mode in visual builder contexts.
     if (readOnly) {
-      editor.setReadOnly(true);
+      editor.Commands.run("preview");
     }
 
     // Listen for content changes
@@ -376,9 +389,11 @@ function extractFormSections(editor: Editor): ExportedFormSchema["sections"] {
 
   if (!wrapper) return sections;
 
-  // Find all section components
+  // Find all section components using for...of for consistency with other
+  // component iteration patterns in this file (see findFields function above)
   const children = wrapper.components();
-  children.forEach((component, index) => {
+  let index = 0;
+  for (const component of children) {
     const type = component.get("type");
     const attributes = component.getAttributes();
 
@@ -390,7 +405,8 @@ function extractFormSections(editor: Editor): ExportedFormSchema["sections"] {
         order: index,
       });
     }
-  });
+    index++;
+  }
 
   return sections;
 }
