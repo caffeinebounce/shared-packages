@@ -55,7 +55,8 @@
     }
   },
   "dependencies": {
-    "@caffeinebounce/ui": "^0.28.0",
+    "@caffeinebounce/shared-utils": "workspace:*",
+    "@caffeinebounce/ui": "workspace:*",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.49.4",
     "input-otp": "^1.4.2",

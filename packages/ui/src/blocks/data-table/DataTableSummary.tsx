@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@caffeinebounce/shared-utils";
 import type { Column, Table } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
@@ -224,15 +225,6 @@ function formatNumber(n: number): string {
   return n.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  });
-}
-
-/** Format a date for display */
-function formatDate(d: Date): string {
-  return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
   });
 }
 

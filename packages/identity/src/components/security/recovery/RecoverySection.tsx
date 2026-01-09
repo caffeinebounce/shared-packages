@@ -1,5 +1,15 @@
 "use client";
 
+import { formatDate } from "@caffeinebounce/shared-utils";
+
+/**
+ * Format date with long month format for recovery display.
+ * Uses long month format (e.g., "January 15, 2024") for better readability.
+ */
+function formatRecoveryDate(date: Date): string {
+  return formatDate(date, { month: "long", day: "numeric", year: "numeric" });
+}
+
 import {
   Button,
   Dialog,
@@ -41,17 +51,6 @@ function isOlderThanOneYear(date: Date): boolean {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
   return date < oneYearAgo;
-}
-
-/**
- * Format a date for display
- */
-function formatDate(date: Date): string {
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }
 
 /**
@@ -249,7 +248,7 @@ export function RecoverySection({ createClient }: RecoverySectionProps) {
                   <p
                     className={`text-sm ${codesAreOld ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"}`}
                   >
-                    Last generated: {formatDate(backupCodesGeneratedAt)}
+                    Last generated: {formatRecoveryDate(backupCodesGeneratedAt)}
                   </p>
                 )}
               </div>
