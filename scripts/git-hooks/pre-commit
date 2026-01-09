@@ -7,22 +7,33 @@ set -e
 MAX_RETRIES=2
 RETRY_COUNT=0
 
-# If package files are being committed, ensure the lockfile is consistent in CI
+# Always verify lockfile is consistent before committing
+# This catches stale lockfiles when:
+# 1. A branch was created from an older commit
+# 2. New packages were published to the registry
+# 3. Dependencies in package.json were modified but lockfile wasn't updated
 check_lockfile_consistency() {
-    CHANGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '(^package.json$|^packages/.*package.json$|^yarn.lock$|^\.yarn/|^package-lock.json$|^\.yarnrc.yml$)' || true)
-    if [ -n "$CHANGED" ]; then
-        echo "🔍 Detected package-related changes; verifying lockfile consistency with 'yarn install --immutable --check-cache'..."
-        if ! yarn install --immutable --check-cache >/dev/null 2>&1; then
-            echo ""
-            echo "❌ Lockfile inconsistency detected. CI would have modified the lockfile."
-            echo "Please run: yarn install && git add yarn.lock .yarn && git commit -m \"chore: update lockfile\""
-            exit 1
-        fi
+    echo "🔍 Verifying lockfile consistency..."
+    if ! yarn install --immutable --check-cache >/dev/null 2>&1; then
+        echo ""
+        echo "❌ Lockfile inconsistency detected. CI will fail with this lockfile."
+        echo ""
+        echo "This can happen when:"
+        echo "  • Your branch is based on an older commit and new packages were published"
+        echo "  • package.json was modified but yarn.lock wasn't updated"
+        echo "  • The lockfile cache is out of sync with the registry"
+        echo ""
+        echo "To fix, run:"
+        echo "  yarn install && git add yarn.lock .yarn"
+        echo ""
+        echo "Then retry your commit."
+        exit 1
     fi
+    echo "✅ Lockfile is consistent"
 }
 
 # Run lockfile check before running pre-commit hooks
-check_lockfile_consistency()
+check_lockfile_consistency
 
 # Get list of staged files before running hooks
 get_staged_files() {
