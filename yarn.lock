@@ -245,6 +245,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/ui@workspace:packages/ui"
   dependencies:
+    "@caffeinebounce/shared-utils": "workspace:*"
     "@radix-ui/react-avatar": "npm:^1.1.11"
     "@radix-ui/react-collapsible": "npm:^1.1.12"
     "@radix-ui/react-dialog": "npm:^1.1.15"
