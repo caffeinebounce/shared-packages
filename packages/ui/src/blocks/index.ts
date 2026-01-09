@@ -1,5 +1,6 @@
 export * from "./analytics";
 export * from "./auth";
+export * from "./editor";
 export * from "./effects";
 export * from "./feedback";
 export * from "./forms";

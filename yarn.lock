@@ -268,6 +268,10 @@ __metadata:
     clsx: "npm:^2.1.1"
     cmdk: "npm:^1.1.1"
     date-fns: "npm:^4.1.0"
+    grapesjs: "npm:^0.22.6"
+    grapesjs-blocks-basic: "npm:^1.0.2"
+    grapesjs-plugin-forms: "npm:^2.0.6"
+    grapesjs-preset-newsletter: "npm:^1.0.2"
     input-otp: "npm:^1.4.2"
     lucide-react: "npm:^0.556.0"
     next: "npm:^16.0.7"
@@ -2786,6 +2790,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/backbone@npm:1.4.15":
+  version: 1.4.15
+  resolution: "@types/backbone@npm:1.4.15"
+  dependencies:
+    "@types/jquery": "npm:*"
+    "@types/underscore": "npm:*"
+  checksum: 10c0/46449a28e50e37e8fd425166289010c73c9436fb2cc77d11e0e71b521da604ea6a686d535bb55d747552bdbc40fb47ddd5ceb8408f27e148849751c51f9a2e98
+  languageName: node
+  linkType: hard
+
 "@types/chai@npm:^5.2.2":
   version: 5.2.3
   resolution: "@types/chai@npm:5.2.3"
@@ -2879,6 +2893,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/jquery@npm:*":
+  version: 3.5.33
+  resolution: "@types/jquery@npm:3.5.33"
+  dependencies:
+    "@types/sizzle": "npm:*"
+  checksum: 10c0/d96c42762b7370ddf3b81cdad436a79d275e0ff09e2f4d7fbf2bbd8f97acef4110a11f1c3cb683195a1eba4fd9959e59d73f84d56ce2c010907a2bea696eb057
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*":
   version: 25.0.3
   resolution: "@types/node@npm:25.0.3"
@@ -2944,6 +2967,20 @@ __metadata:
   dependencies:
     csstype: "npm:^3.2.2"
   checksum: 10c0/a7b75f1f9fcb34badd6f84098be5e35a0aeca614bc91f93d2698664c0b2ba5ad128422bd470ada598238cebe4f9e604a752aead7dc6f5a92261d0c7f9b27cfd1
+  languageName: node
+  linkType: hard
+
+"@types/sizzle@npm:*":
+  version: 2.3.10
+  resolution: "@types/sizzle@npm:2.3.10"
+  checksum: 10c0/d43ec1cd0b5e1f66b1abeaf359608853629cd3d6b8dc8b3b40b85a5ee2ce149a4485ccd7eee5c58b5a2814d384f5a951f1dab5d49041ad83457270cb2bc66fe7
+  languageName: node
+  linkType: hard
+
+"@types/underscore@npm:*":
+  version: 1.13.0
+  resolution: "@types/underscore@npm:1.13.0"
+  checksum: 10c0/240d3f36f694e177b1896c464b1254249e64b51a2afc703a1dda61f0c544d6e3b081ac4d955fb057e873982a62a7ba78e3a0aaa252c9d766f6cbe5e85283bc04
   languageName: node
   linkType: hard
 
@@ -3156,6 +3193,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"backbone-undo@npm:0.2.6":
+  version: 0.2.6
+  resolution: "backbone-undo@npm:0.2.6"
+  dependencies:
+    backbone: "npm:>=1.0.0"
+    underscore: "npm:>=1.4.4"
+  checksum: 10c0/4a53fddd55399c50f456948e4b3fff1acefcba523166b24940588d3d92b90be3f784880c2794aa07a3a86b5cb7c2ec7d63e598153ce106a317e96ca36a4550ea
+  languageName: node
+  linkType: hard
+
+"backbone@npm:1.4.1":
+  version: 1.4.1
+  resolution: "backbone@npm:1.4.1"
+  dependencies:
+    underscore: "npm:>=1.8.3"
+  checksum: 10c0/a31f35b1c7716678f4d4028397a8516374950b7d350c5ee16f1d04b6062d500dc9def4a37b942c667a3f588faa39a084b6fd10949536dc696f4d4703364de813
+  languageName: node
+  linkType: hard
+
+"backbone@npm:>=1.0.0":
+  version: 1.6.1
+  resolution: "backbone@npm:1.6.1"
+  dependencies:
+    underscore: "npm:>=1.8.3"
+  checksum: 10c0/de59ea1f81c72f18cebecf9bd9ecfc30ea5dcd7633e18aea820c5236cbdd1d807777a0d4f76d63d38c3c47647eddcbe1f739d797c3043de473c2469aa13f304a
+  languageName: node
+  linkType: hard
+
 "better-path-resolve@npm:1.0.0":
   version: 1.0.0
   resolution: "better-path-resolve@npm:1.0.0"
@@ -3290,6 +3355,20 @@ __metadata:
     react: ^18 || ^19 || ^19.0.0-rc
     react-dom: ^18 || ^19 || ^19.0.0-rc
   checksum: 10c0/5605ac4396ec9bc65c82f954da19dd89a0636a54026df72780e2470da1381f9d57434a80a53f2d57eaa4e759660a3ebba9232b74258dc09970576591eae03116
+  languageName: node
+  linkType: hard
+
+"codemirror-formatting@npm:1.0.0":
+  version: 1.0.0
+  resolution: "codemirror-formatting@npm:1.0.0"
+  checksum: 10c0/c390c960d736f8d647776b999e51a5b51c6f2958da9e893f079d0a35ef1e82ad50de27b614ab071765bec5fbc0496477b19e5e6b5e66659da09cf090820c6350
+  languageName: node
+  linkType: hard
+
+"codemirror@npm:5.63.0":
+  version: 5.63.0
+  resolution: "codemirror@npm:5.63.0"
+  checksum: 10c0/bb7d1bbd776386843f452561c0996c53e268e481639de46807134da9f576147aea0dad417e450b126e19cac6d4442e14f492411bfe3c046eb5d64342d9cc4a6f
   languageName: node
   linkType: hard
 
@@ -3973,12 +4052,56 @@ __metadata:
   languageName: node
   linkType: hard
 
+"grapesjs-blocks-basic@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "grapesjs-blocks-basic@npm:1.0.2"
+  checksum: 10c0/cc769bb8d69c105e41247e24010dd54fe12d54db358da7e36102bb15333632a8123cd9ae269132d33d8f50f358b86abe817334bca26dc294127f92d555606bf1
+  languageName: node
+  linkType: hard
+
+"grapesjs-plugin-forms@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "grapesjs-plugin-forms@npm:2.0.6"
+  checksum: 10c0/8ee94462f07639c0c21b0b3d3c006e6a5f8f71422fe9efdc71b89341d769d172a24bad2dbe160e7e7fb6265adcc1a08139ab712de6df2de2de6b4cdf2c04378a
+  languageName: node
+  linkType: hard
+
+"grapesjs-preset-newsletter@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "grapesjs-preset-newsletter@npm:1.0.2"
+  checksum: 10c0/589128af4f641d752dc5e637ccd938f0d2f841a5a5b90208ee36c1126db473d37d6da7b2549ea16ca034d1f07759649bebb2c4e98b5935c8201d444a49dfdac5
+  languageName: node
+  linkType: hard
+
+"grapesjs@npm:^0.22.6":
+  version: 0.22.14
+  resolution: "grapesjs@npm:0.22.14"
+  dependencies:
+    "@types/backbone": "npm:1.4.15"
+    backbone: "npm:1.4.1"
+    backbone-undo: "npm:0.2.6"
+    codemirror: "npm:5.63.0"
+    codemirror-formatting: "npm:1.0.0"
+    html-entities: "npm:~1.4.0"
+    promise-polyfill: "npm:8.3.0"
+    underscore: "npm:1.13.1"
+  checksum: 10c0/002f586a6a961fc75864654af0c2f289fa7c81df50bd31aeaf7b8830a51b7bd75ad78304d716457453fe979567955d0e8434f46f947880b43cc1d92476080e49
+  languageName: node
+  linkType: hard
+
 "html-encoding-sniffer@npm:^4.0.0":
   version: 4.0.0
   resolution: "html-encoding-sniffer@npm:4.0.0"
   dependencies:
     whatwg-encoding: "npm:^3.1.1"
   checksum: 10c0/523398055dc61ac9b34718a719cb4aa691e4166f29187e211e1607de63dc25ac7af52ca7c9aead0c4b3c0415ffecb17326396e1202e2e86ff4bca4c0ee4c6140
+  languageName: node
+  linkType: hard
+
+"html-entities@npm:~1.4.0":
+  version: 1.4.0
+  resolution: "html-entities@npm:1.4.0"
+  checksum: 10c0/eb2de616fb5948e681157805687672ea90e67c8a4f21a3215888ab422a984cab61fec96860708dca3bde0ae52577515683c8e28157ac8637220bb6a57a031b85
   languageName: node
   linkType: hard
 
@@ -4923,6 +5046,13 @@ __metadata:
   version: 6.1.0
   resolution: "proc-log@npm:6.1.0"
   checksum: 10c0/4f178d4062733ead9d71a9b1ab24ebcecdfe2250916a5b1555f04fe2eda972a0ec76fbaa8df1ad9c02707add6749219d118a4fc46dc56bdfe4dde4b47d80bb82
+  languageName: node
+  linkType: hard
+
+"promise-polyfill@npm:8.3.0":
+  version: 8.3.0
+  resolution: "promise-polyfill@npm:8.3.0"
+  checksum: 10c0/97141f07a31a6be135ec9ed53700a3423a771cabec0ba5e08fcb2bf8cfda855479ff70e444fceb938f560be42b450cd032c14f4a940ed2ad1e5b4dcb78368dce
   languageName: node
   linkType: hard
 
@@ -5953,6 +6083,20 @@ __metadata:
   version: 1.6.1
   resolution: "ufo@npm:1.6.1"
   checksum: 10c0/5a9f041e5945fba7c189d5410508cbcbefef80b253ed29aa2e1f8a2b86f4bd51af44ee18d4485e6d3468c92be9bf4a42e3a2b72dcaf27ce39ce947ec994f1e6b
+  languageName: node
+  linkType: hard
+
+"underscore@npm:1.13.1":
+  version: 1.13.1
+  resolution: "underscore@npm:1.13.1"
+  checksum: 10c0/0998fde1dbd07567fc353a83e89f350ee60d6750396386972d3022ca133d1e7b1ecc09aa61f8d8ff4110141e5b626aeb0538db7d75769f138c25cbfd39b2a6a4
+  languageName: node
+  linkType: hard
+
+"underscore@npm:>=1.4.4, underscore@npm:>=1.8.3":
+  version: 1.13.7
+  resolution: "underscore@npm:1.13.7"
+  checksum: 10c0/fad2b4aac48847674aaf3c30558f383399d4fdafad6dd02dd60e4e1b8103b52c5a9e5937e0cc05dacfd26d6a0132ed0410ab4258241240757e4a4424507471cd
   languageName: node
   linkType: hard
 
