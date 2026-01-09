@@ -104,10 +104,11 @@ describe("generateRecoveryCodes", () => {
     expect(codes5).toHaveLength(5);
   });
 
-  it("generates codes in XXXX-XXXX format", () => {
+  it("generates codes in XXXX-XXXX hex format", () => {
     const codes = generateRecoveryCodes(5);
     for (const code of codes) {
-      expect(code).toMatch(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/);
+      // Codes should be 8 hex characters with a dash in the middle
+      expect(code).toMatch(/^[A-F0-9]{4}-[A-F0-9]{4}$/);
     }
   });
 
@@ -121,5 +122,13 @@ describe("generateRecoveryCodes", () => {
   it("defaults to 10 codes when no count specified", () => {
     const codes = generateRecoveryCodes();
     expect(codes).toHaveLength(10);
+  });
+
+  it("generates codes with consistent length", () => {
+    const codes = generateRecoveryCodes(50);
+    for (const code of codes) {
+      // Each code should be exactly 9 characters (4 + 1 dash + 4)
+      expect(code).toHaveLength(9);
+    }
   });
 });

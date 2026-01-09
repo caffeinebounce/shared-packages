@@ -152,21 +152,24 @@ export function getDisplayName(
  * ```
  */
 export function generateRecoveryCodes(count = 10): string[] {
+  /**
+   * Convert bytes to uppercase hex string.
+   * Each byte produces exactly 2 hex characters for consistent entropy.
+   */
+  const toHex = (view: Uint8Array): string =>
+    Array.from(view)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("")
+      .toUpperCase();
+
   return Array.from({ length: count }, () => {
-    // Generate 8 random bytes (will give us enough randomness for the code)
-    const array = new Uint8Array(8);
+    // Generate 4 random bytes (32 bits of entropy for an 8-character code)
+    const array = new Uint8Array(4);
     crypto.getRandomValues(array);
 
-    // Convert to base36-like format (alphanumeric)
-    const part1 = Array.from(array.slice(0, 4))
-      .map((byte) => byte.toString(36).padStart(2, "0"))
-      .join("")
-      .substring(0, 4);
-    const part2 = Array.from(array.slice(4, 8))
-      .map((byte) => byte.toString(36).padStart(2, "0"))
-      .join("")
-      .substring(0, 4);
+    const part1 = toHex(array.slice(0, 2)); // 2 bytes -> 4 hex chars
+    const part2 = toHex(array.slice(2, 4)); // 2 bytes -> 4 hex chars
 
-    return `${part1}-${part2}`.toUpperCase();
+    return `${part1}-${part2}`;
   });
 }

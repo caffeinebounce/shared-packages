@@ -60,8 +60,11 @@ export function generateDeviceFingerprint(): DeviceFingerprint {
   }
 
   // Simple OS detection
+  // Check Android first since Android devices report "Linux" in platform
   let osName: string | undefined;
-  if (platform.includes("Win")) {
+  if (userAgent.includes("Android")) {
+    osName = "Android";
+  } else if (platform.includes("Win")) {
     osName = "Windows";
   } else if (platform.includes("Mac")) {
     osName = "macOS";
@@ -69,8 +72,6 @@ export function generateDeviceFingerprint(): DeviceFingerprint {
     osName = "Linux";
   } else if (platform.includes("iPhone") || platform.includes("iPad")) {
     osName = "iOS";
-  } else if (userAgent.includes("Android")) {
-    osName = "Android";
   }
 
   return {

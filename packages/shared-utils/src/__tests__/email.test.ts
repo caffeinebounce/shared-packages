@@ -26,4 +26,14 @@ describe("getEmailDomain", () => {
   it("handles empty string", () => {
     expect(getEmailDomain("")).toBe(null);
   });
+
+  it("returns null for email with multiple @ symbols", () => {
+    expect(getEmailDomain("user@@example.com")).toBe(null);
+    expect(getEmailDomain("user@domain@example.com")).toBe(null);
+    expect(getEmailDomain("@@")).toBe(null);
+  });
+
+  it("returns null for email starting with @", () => {
+    expect(getEmailDomain("@example.com")).toBe(null);
+  });
 });
