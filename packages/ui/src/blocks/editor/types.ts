@@ -151,14 +151,17 @@ export interface EditorPreset {
 }
 
 /**
- * Exported form schema (compatible with @compass/utils FormSchemaType).
+ * Exported form schema from the visual editor.
+ * Contains both the visual representation (html/css) and structured data (fields/sections).
  */
 export interface ExportedFormSchema {
-  /** Form title */
-  title: string;
-  /** Form description */
-  description?: string;
-  /** Form sections */
+  /** Rendered HTML content */
+  html: string;
+  /** CSS styles for the form */
+  css: string;
+  /** Extracted form fields (flat list) */
+  fields: FormField[];
+  /** Form sections for organization */
   sections: FormSection[];
   /** GrapesJS project data for re-editing */
   gjsData?: Record<string, unknown>;
@@ -168,7 +171,10 @@ export interface FormSection {
   id: string;
   title: string;
   description?: string;
-  fields: FormField[];
+  /** Order index for sorting */
+  order?: number;
+  /** Fields belonging to this section (optional, fields can be at root level) */
+  fields?: FormField[];
 }
 
 export interface FormField {
@@ -217,19 +223,21 @@ export interface ConditionalRule {
 }
 
 /**
- * Exported email template.
+ * Exported email template from the visual editor.
  */
 export interface ExportedEmailTemplate {
-  /** Template name */
-  name: string;
+  /** Template name (optional, can be set by consumer) */
+  name?: string;
   /** Template subject line */
   subject?: string;
-  /** Rendered HTML */
+  /** Preview text shown in email clients */
+  previewText?: string;
+  /** Rendered HTML with inlined styles */
   html: string;
   /** Plain text version */
   text?: string;
-  /** MJML source (if using MJML) */
-  mjml?: string;
+  /** Detected template variables (e.g., {{name}}, {{email}}) */
+  variables?: string[];
   /** GrapesJS project data for re-editing */
-  gjsData: Record<string, unknown>;
+  gjsData?: Record<string, unknown>;
 }

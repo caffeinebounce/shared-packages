@@ -5,7 +5,7 @@
  */
 
 // Base configuration
-export { baseConfig, baseDevices, baseStyleSectors } from "./config/base";
+export { baseConfig, baseStyleSectors } from "./config/base";
 export { emailPreset } from "./config/email-preset";
 // Presets
 export { formPreset } from "./config/form-preset";
@@ -17,14 +17,16 @@ export type { GrapesEditorProps } from "./GrapesEditor";
 export { GrapesEditor } from "./GrapesEditor";
 
 // Types
-export {
-  type BlockDefinition,
-  type DeviceConfig,
-  type EditorConfig,
-  type EditorPreset,
-  type ExportedEmailTemplate,
-  type ExportedFormSchema,
+export type {
+  BlockDefinition,
+  DeviceConfig,
+  EditorConfig,
+  EditorPreset,
+  ExportedEmailTemplate,
+  ExportedFormSchema,
+  FormField,
   FormFieldType,
-  type PanelConfig,
-  type StyleSector,
+  FormSection,
+  PanelConfig,
+  StyleSector,
 } from "./types";

@@ -9,7 +9,7 @@
 import { Download, Eye, Redo2, RotateCcw, Save, Undo2 } from "lucide-react";
 
 import { Button } from "../../components/button";
-import { cn } from "../../lib/utils";
+import { cn } from "../../utils";
 
 /**
  * Props for EditorToolbar component.
