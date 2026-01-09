@@ -4,6 +4,18 @@
  * Shared utility functions for Capital Collective projects.
  */
 
+// Re-export auth utilities
+export {
+  generateRecoveryCodes,
+  getDisplayName,
+  type ParsedUserMetadata,
+  parseUserMetadata,
+  type RawUserMetadata,
+} from "./auth";
+// Re-export browser utilities
+export { type DeviceFingerprint, generateDeviceFingerprint } from "./browser";
+// Re-export email utilities
+export { getEmailDomain } from "./email";
 // Re-export all formatters
 export {
   formatCurrency,
@@ -20,6 +32,14 @@ export {
   compressImageAsFile,
   getImageDimensions,
 } from "./image";
+// Re-export request/server utilities
+export {
+  type GeolocationInfo,
+  generateSecureToken,
+  getClientIP,
+  getGeolocationFromIP,
+  hashString,
+} from "./request";
 // Re-export all string utilities
 export {
   capitalize,
