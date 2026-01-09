@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@caffeinebounce/shared-utils";
 import {
   Button,
   Dialog,
@@ -41,17 +42,6 @@ function isOlderThanOneYear(date: Date): boolean {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
   return date < oneYearAgo;
-}
-
-/**
- * Format a date for display
- */
-function formatDate(date: Date): string {
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }
 
 /**
