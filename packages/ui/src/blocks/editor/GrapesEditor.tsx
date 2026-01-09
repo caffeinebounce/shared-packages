@@ -3,16 +3,25 @@
  *
  * Provides a unified editor interface for both form and email builders.
  *
+ * **Note on CSS**: This component imports GrapesJS CSS from node_modules.
+ * Ensure your bundler (webpack, vite, etc.) is configured to handle
+ * CSS imports from node_modules. For Next.js, this works out of the box.
+ *
  * @example
  * ```tsx
  * import { GrapesEditor, formPreset } from "@caffeinebounce/ui";
  *
  * function FormBuilder() {
+ *   // Memoize callbacks to prevent unnecessary editor re-initialization
+ *   const handleChange = useCallback((html, json) => {
+ *     console.log({ html, json });
+ *   }, []);
+ *
  *   return (
  *     <GrapesEditor
  *       preset={formPreset}
  *       initialContent={existingHtml}
- *       onChange={(html, json) => console.log({ html, json })}
+ *       onChange={handleChange}
  *       onSave={(html, json) => saveToDatabase(html, json)}
  *     />
  *   );
@@ -46,7 +55,11 @@ export interface GrapesEditorProps {
   initialContent?: string;
   /** Custom editor configuration overrides */
   config?: Partial<EditorConfig>;
-  /** Callback when content changes */
+  /**
+   * Callback when content changes.
+   * **Important**: Memoize this callback with useCallback to prevent
+   * unnecessary editor re-initialization on parent re-renders.
+   */
   onChange?: (html: string, json: unknown) => void;
   /** Callback when save is triggered */
   onSave?: (html: string, json: unknown) => void;
@@ -200,6 +213,7 @@ export function GrapesEditor({
         css: css || "",
         fields: extractFormFields(editorRef.current),
         sections: extractFormSections(editorRef.current),
+        gjsData: editorRef.current.getProjectData(),
       };
       onExport(formSchema);
     } else if (preset.id === "email") {
@@ -209,6 +223,7 @@ export function GrapesEditor({
         subject: "",
         previewText: "",
         variables: extractEmailVariables(html),
+        gjsData: editorRef.current.getProjectData(),
       };
       onExport(emailTemplate);
     }
@@ -301,6 +316,28 @@ function extractFormFields(editor: Editor): ExportedFormSchema["fields"] {
 
     // Check if this is a form field
     if (type?.startsWith("field-") || attributes["data-field-type"]) {
+      // Parse options and validation with error handling
+      let options: unknown;
+      let validation: unknown;
+
+      if (attributes["data-options"]) {
+        try {
+          options = JSON.parse(attributes["data-options"]);
+        } catch {
+          // Invalid JSON, skip options
+          options = undefined;
+        }
+      }
+
+      if (attributes["data-validation"]) {
+        try {
+          validation = JSON.parse(attributes["data-validation"]);
+        } catch {
+          // Invalid JSON, skip validation
+          validation = undefined;
+        }
+      }
+
       fields.push({
         id: attributes.id || `field-${fields.length + 1}`,
         type: (attributes["data-field-type"] ||
@@ -310,12 +347,8 @@ function extractFormFields(editor: Editor): ExportedFormSchema["fields"] {
         placeholder: attributes.placeholder || "",
         required:
           attributes.required === "true" || attributes.required === true,
-        options: attributes["data-options"]
-          ? JSON.parse(attributes["data-options"])
-          : undefined,
-        validation: attributes["data-validation"]
-          ? JSON.parse(attributes["data-validation"])
-          : undefined,
+        options: options as ExportedFormSchema["fields"][0]["options"],
+        validation: validation as ExportedFormSchema["fields"][0]["validation"],
       });
     }
 
@@ -363,11 +396,20 @@ function extractFormSections(editor: Editor): ExportedFormSchema["sections"] {
 }
 
 /**
- * Inline CSS styles for email HTML.
+ * Wrap email HTML with CSS in a complete document.
+ *
+ * **Important**: This is a basic implementation that wraps CSS in a style tag.
+ * For production email templates that need maximum client compatibility,
+ * use a CSS inlining library like `juice` or `inline-css` to convert
+ * CSS rules into inline style attributes on each element.
+ *
+ * Example with juice:
+ * ```ts
+ * import juice from "juice";
+ * const inlinedHtml = juice(html + `<style>${css}</style>`);
+ * ```
  */
 function inlineEmailStyles(html: string, css: string): string {
-  // Basic implementation - for production, use a library like juice
-  // This is a simplified version that wraps CSS in a style tag
   return `
     <!DOCTYPE html>
     <html>
