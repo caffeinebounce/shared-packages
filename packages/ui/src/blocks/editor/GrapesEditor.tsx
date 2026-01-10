@@ -51,8 +51,14 @@ import "grapesjs/dist/css/grapes.min.css";
 export interface GrapesEditorProps {
   /** Preset configuration (formPreset or emailPreset) */
   preset: EditorPreset;
-  /** Initial HTML content to load */
+  /** Initial HTML content to load (use this OR gjsData, not both) */
   initialContent?: string;
+  /**
+   * Initial GrapesJS project data (JSON) for loading a previously saved project.
+   * This takes precedence over initialContent if both are provided.
+   * Use this when re-editing a saved form/template.
+   */
+  gjsData?: Record<string, unknown>;
   /** Custom editor configuration overrides */
   config?: Partial<EditorConfig>;
   /**
@@ -79,6 +85,7 @@ export interface GrapesEditorProps {
 export function GrapesEditor({
   preset,
   initialContent = "",
+  gjsData,
   config: customConfig,
   onChange,
   onSave,
@@ -153,8 +160,13 @@ export function GrapesEditor({
       });
     }
 
-    // Load initial content
-    if (initialContent) {
+    // Load initial content or project data
+    // gjsData takes precedence if both are provided
+    if (gjsData) {
+      // Load full project data (includes components, styles, assets, etc.)
+      editor.loadProjectData(gjsData);
+    } else if (initialContent) {
+      // Load just the HTML components
       editor.setComponents(initialContent);
     }
 
@@ -197,7 +209,15 @@ export function GrapesEditor({
         editorRef.current = null;
       }
     };
-  }, [preset, initialContent, customConfig, height, readOnly, onChange]);
+  }, [
+    preset,
+    initialContent,
+    gjsData,
+    customConfig,
+    height,
+    readOnly,
+    onChange,
+  ]);
 
   /**
    * Handle save action.
