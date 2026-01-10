@@ -11,7 +11,8 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./grapes.css": "./dist/grapes.min.css"
   },
   "files": [
     "dist"

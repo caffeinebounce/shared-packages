@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { defineConfig } from "tsup";
 
 const USE_CLIENT_BANNER = '"use client";\n';
@@ -20,6 +21,8 @@ export default defineConfig({
   ],
   treeshake: true,
   minify: false,
+  // Inline CSS imports from node_modules (including GrapesJS CSS)
+  injectStyle: false,
   outExtension({ format }) {
     return {
       js: format === "esm" ? ".mjs" : ".js",
@@ -36,6 +39,22 @@ export default defineConfig({
       } catch (e) {
         console.error(`Failed to add "use client" to ${file}:`, e);
       }
+    }
+
+    // Copy GrapesJS CSS to dist for consumers to import
+    // GrapesJS is installed at monorepo root, so use relative path from here
+    const grapesCSS = "../../node_modules/grapesjs/dist/css/grapes.min.css";
+    const destDir = "dist";
+    const destFile = join(destDir, "grapes.min.css");
+
+    if (existsSync(grapesCSS)) {
+      if (!existsSync(destDir)) {
+        mkdirSync(destDir, { recursive: true });
+      }
+      copyFileSync(grapesCSS, destFile);
+      console.log(`Copied GrapesJS CSS to ${destFile}`);
+    } else {
+      console.warn(`GrapesJS CSS not found at ${grapesCSS}`);
     }
   },
 });

@@ -3,12 +3,18 @@
  *
  * Provides a unified editor interface for both form and email builders.
  *
- * **Note on CSS**: This component imports GrapesJS CSS from node_modules.
- * Ensure your bundler (webpack, vite, etc.) is configured to handle
- * CSS imports from node_modules. For Next.js, this works out of the box.
+ * **Note on CSS**: Consumers MUST import the GrapesJS CSS for the editor to render properly.
+ * Add this import in your app's root layout or in the page that uses GrapesEditor:
+ *
+ * ```tsx
+ * import "@caffeinebounce/ui/grapes.css";
+ * ```
  *
  * @example
  * ```tsx
+ * // In your layout or page:
+ * import "@caffeinebounce/ui/grapes.css";
+ *
  * import { GrapesEditor, formPreset } from "@caffeinebounce/ui";
  *
  * function FormBuilder() {
@@ -42,8 +48,8 @@ import type {
   ExportedFormSchema,
 } from "./types";
 
-// Import GrapesJS CSS
-import "grapesjs/dist/css/grapes.min.css";
+// Note: GrapesJS CSS must be imported by the consumer of this component.
+// Add `import "@caffeinebounce/ui/grapes.css";` in your app.
 
 /**
  * Props for GrapesEditor component.
