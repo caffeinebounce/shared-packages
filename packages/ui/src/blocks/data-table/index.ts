@@ -1,10 +1,17 @@
 export {
   DataTable,
+  DataTableContext,
+  type DataTableContextValue,
   type DataTableDensity,
   type DataTableFontSize,
   type DataTableProps,
   type RowSelectionStyle,
+  useDataTableContext,
 } from "./DataTable";
+export {
+  DataTableAddButton,
+  type DataTableAddButtonProps,
+} from "./DataTableAddButton";
 export {
   DataTableColumnFilter,
   DataTableColumnFilterContent,
@@ -23,6 +30,10 @@ export {
   DataTableColumnMenuSub,
   type DataTableColumnMenuSubProps,
 } from "./DataTableColumnMenuSub";
+export {
+  DataTableExportButton,
+  type DataTableExportButtonProps,
+} from "./DataTableExportButton";
 export {
   type DataTableFilter,
   DataTableFilterBadges,

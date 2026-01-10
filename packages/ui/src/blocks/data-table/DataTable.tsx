@@ -22,6 +22,34 @@ import {
   DataTableFilterBadges,
 } from "./DataTableFilterBadges";
 
+/** Context for DataTable column state */
+export interface DataTableContextValue {
+  /** Column wrapping state (map of column ID to wrap boolean) */
+  columnWrapping: Record<string, boolean>;
+  /** Toggle wrapping for a column */
+  toggleColumnWrapping: (columnId: string) => void;
+  /** Whether column drag is enabled */
+  enableColumnDrag: boolean;
+  /** Handler for column drag start */
+  onColumnDragStart: (e: React.DragEvent, columnId: string) => void;
+  /** Handler for column drag end */
+  onColumnDragEnd: (e: React.DragEvent) => void;
+  /** Current font size setting */
+  fontSize: DataTableFontSize;
+  /** CSS class for the font size */
+  fontSizeClass: string;
+  /** Display density mode */
+  density: DataTableDensity;
+}
+
+export const DataTableContext =
+  React.createContext<DataTableContextValue | null>(null);
+
+/** Hook to access DataTable context from column headers */
+export function useDataTableContext() {
+  return React.useContext(DataTableContext);
+}
+
 /** Display density mode for the data table */
 export type DataTableDensity = "compact" | "comfy";
 
@@ -63,6 +91,16 @@ export interface DataTableProps<TData, TValue>
   enableRowDrag?: boolean;
   /** Callback when row order changes via drag */
   onRowDragEnd?: (fromIndex: number, toIndex: number) => void;
+  /** Enable column drag to reorder */
+  enableColumnDrag?: boolean;
+  /** Current column order (array of column IDs) */
+  columnOrder?: string[];
+  /** Callback when column order changes via drag */
+  onColumnOrderChange?: (columnOrder: string[]) => void;
+  /** Column wrapping state (map of column ID to wrap boolean) */
+  columnWrapping?: Record<string, boolean>;
+  /** Callback when column wrapping changes */
+  onColumnWrappingChange?: (columnWrapping: Record<string, boolean>) => void;
   /** Callback when a row is clicked */
   onRowClick?: (row: Row<TData>) => void;
   /** Optional summary component to render below the table but inside the scroll container */
@@ -100,9 +138,14 @@ export function DataTable<TData, TValue>({
   density = "comfy",
   fontSize = "sm",
   enableColumnResizing = false,
-  rowSelectionStyle = "always",
-  enableRowDrag = false,
+  rowSelectionStyle = "hover",
+  enableRowDrag = true,
   onRowDragEnd,
+  enableColumnDrag = false,
+  columnOrder: externalColumnOrder,
+  onColumnOrderChange,
+  columnWrapping: externalColumnWrapping,
+  onColumnWrappingChange,
   onRowClick,
   summary,
   className,
@@ -111,8 +154,8 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   // Density-based classes - compact is tighter, comfy has more breathing room
   // Use px-2 for horizontal padding to match header button padding
-  const cellPadding = density === "compact" ? "px-1.5 py-0.5" : "px-2 py-2";
-  const headerHeight = density === "compact" ? "h-7" : "h-10";
+  const cellPadding = density === "compact" ? "px-1.5 py-0.5" : "px-2 py-1";
+  const headerHeight = density === "compact" ? "h-7" : "h-8";
 
   // Font size classes
   const fontSizeClass = {
@@ -138,8 +181,8 @@ export function DataTable<TData, TValue>({
     lg: "size-3.5",
   }[fontSize];
 
-  // Gutter width based on density and drag enabled
-  const gutterWidth = enableRowDrag
+  // Gutter width based on density and drag enabled (exported for consumers via context if needed)
+  const _gutterWidth = enableRowDrag
     ? density === "compact"
       ? 44
       : 56
@@ -158,25 +201,212 @@ export function DataTable<TData, TValue>({
   // Hover state for Notion-style row selection
   const [hoveredRowId, setHoveredRowId] = React.useState<string | null>(null);
 
+  // Internal column order state (used if not controlled externally)
+  const defaultColumnOrder = React.useMemo(
+    () =>
+      columns.map((col) =>
+        "accessorKey" in col ? String(col.accessorKey) : (col.id ?? ""),
+      ),
+    [columns],
+  );
+  const [internalColumnOrder, setInternalColumnOrder] =
+    React.useState<string[]>(defaultColumnOrder);
+  const columnOrder = externalColumnOrder ?? internalColumnOrder;
+  const setColumnOrder = onColumnOrderChange ?? setInternalColumnOrder;
+
+  // Internal column wrapping state (used if not controlled externally)
+  const [internalColumnWrapping, setInternalColumnWrapping] = React.useState<
+    Record<string, boolean>
+  >({});
+  const columnWrapping = externalColumnWrapping ?? internalColumnWrapping;
+  const setColumnWrapping = onColumnWrappingChange ?? setInternalColumnWrapping;
+
+  // Drag state for column reordering
+  const [draggedColumnId, setDraggedColumnId] = React.useState<string | null>(
+    null,
+  );
+  const [dragOverColumnId, setDragOverColumnId] = React.useState<string | null>(
+    null,
+  );
+  const [dragOverColumnPosition, setDragOverColumnPosition] = React.useState<
+    "left" | "right" | null
+  >(null);
+
+  // Handle column drag start
+  const handleColumnDragStart = React.useCallback(
+    (e: React.DragEvent, columnId: string) => {
+      setDraggedColumnId(columnId);
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", columnId);
+      requestAnimationFrame(() => {
+        (e.target as HTMLElement).closest("th")?.classList.add("opacity-50");
+      });
+    },
+    [],
+  );
+
+  // Handle column drag over
+  const handleColumnDragOver = React.useCallback(
+    (e: React.DragEvent, columnId: string) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (draggedColumnId !== null && draggedColumnId !== columnId) {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const midX = rect.left + rect.width / 2;
+        const position = e.clientX < midX ? "left" : "right";
+        setDragOverColumnId(columnId);
+        setDragOverColumnPosition(position);
+      }
+    },
+    [draggedColumnId],
+  );
+
+  // Handle column drag leave
+  const handleColumnDragLeave = React.useCallback(() => {
+    setDragOverColumnId(null);
+    setDragOverColumnPosition(null);
+  }, []);
+
+  // Handle column drop
+  const handleColumnDrop = React.useCallback(
+    (e: React.DragEvent, targetColumnId: string) => {
+      e.preventDefault();
+      if (draggedColumnId && draggedColumnId !== targetColumnId) {
+        const currentOrder = [...columnOrder];
+        const fromIndex = currentOrder.indexOf(draggedColumnId);
+        let toIndex = currentOrder.indexOf(targetColumnId);
+
+        if (fromIndex !== -1 && toIndex !== -1) {
+          // Remove from old position
+          currentOrder.splice(fromIndex, 1);
+          // Recalculate target index after removal
+          toIndex = currentOrder.indexOf(targetColumnId);
+          // Insert at new position (after target if dropping on right side)
+          if (dragOverColumnPosition === "right") {
+            toIndex += 1;
+          }
+          currentOrder.splice(toIndex, 0, draggedColumnId);
+          setColumnOrder(currentOrder);
+        }
+      }
+      setDraggedColumnId(null);
+      setDragOverColumnId(null);
+      setDragOverColumnPosition(null);
+    },
+    [draggedColumnId, columnOrder, dragOverColumnPosition, setColumnOrder],
+  );
+
+  // Handle column drag end (cleanup)
+  const handleColumnDragEnd = React.useCallback((e: React.DragEvent) => {
+    (e.target as HTMLElement).closest("th")?.classList.remove("opacity-50");
+    setDraggedColumnId(null);
+    setDragOverColumnId(null);
+    setDragOverColumnPosition(null);
+  }, []);
+
+  // Toggle column wrapping
+  const toggleColumnWrapping = React.useCallback(
+    (columnId: string) => {
+      setColumnWrapping({
+        ...columnWrapping,
+        [columnId]: !columnWrapping[columnId],
+      });
+    },
+    [columnWrapping, setColumnWrapping],
+  );
+
+  // Drag state for row reordering
+  const [draggedRowIndex, setDraggedRowIndex] = React.useState<number | null>(
+    null,
+  );
+  const [dragOverRowIndex, setDragOverRowIndex] = React.useState<number | null>(
+    null,
+  );
+  const [dragOverPosition, setDragOverPosition] = React.useState<
+    "above" | "below" | null
+  >(null);
+
+  // Handle row drag start
+  const handleRowDragStart = React.useCallback(
+    (e: React.DragEvent, rowIndex: number) => {
+      setDraggedRowIndex(rowIndex);
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", String(rowIndex));
+      // Add a slight delay to allow the drag image to be set
+      requestAnimationFrame(() => {
+        (e.target as HTMLElement).closest("tr")?.classList.add("opacity-50");
+      });
+    },
+    [],
+  );
+
+  // Handle row drag over
+  const handleRowDragOver = React.useCallback(
+    (e: React.DragEvent, rowIndex: number) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (draggedRowIndex !== null && draggedRowIndex !== rowIndex) {
+        // Determine if dragging over top or bottom half of the row
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        const position = e.clientY < midY ? "above" : "below";
+        setDragOverRowIndex(rowIndex);
+        setDragOverPosition(position);
+      }
+    },
+    [draggedRowIndex],
+  );
+
+  // Handle row drag leave
+  const handleRowDragLeave = React.useCallback(() => {
+    setDragOverRowIndex(null);
+    setDragOverPosition(null);
+  }, []);
+
+  // Handle row drop
+  const handleRowDrop = React.useCallback(
+    (e: React.DragEvent, toIndex: number) => {
+      e.preventDefault();
+      const fromIndex = draggedRowIndex;
+      if (fromIndex !== null && fromIndex !== toIndex && onRowDragEnd) {
+        // If dropping below, adjust target index
+        let targetIndex = toIndex;
+        if (dragOverPosition === "below") {
+          targetIndex = toIndex + 1;
+        }
+        // Adjust if dragging from above
+        if (fromIndex < targetIndex) {
+          targetIndex -= 1;
+        }
+        if (fromIndex !== targetIndex) {
+          onRowDragEnd(fromIndex, targetIndex);
+        }
+      }
+      setDraggedRowIndex(null);
+      setDragOverRowIndex(null);
+      setDragOverPosition(null);
+    },
+    [draggedRowIndex, dragOverPosition, onRowDragEnd],
+  );
+
+  // Handle row drag end (cleanup)
+  const handleRowDragEnd = React.useCallback((e: React.DragEvent) => {
+    (e.target as HTMLElement).closest("tr")?.classList.remove("opacity-50");
+    setDraggedRowIndex(null);
+    setDragOverRowIndex(null);
+    setDragOverPosition(null);
+  }, []);
+
   // Handle resize start - track initial position for smooth dragging
   const handleResizeStart = React.useCallback(
     (columnId: string, startX: number, startWidth: number) => {
       setResizingColumn(columnId);
 
-      // Store the offset between mouse and column edge
-      let lastX = startX;
-      let currentWidth = startWidth;
-
       const handleMouseMove = (e: MouseEvent) => {
-        // Calculate delta from last position for smoother tracking
-        const delta = e.clientX - lastX;
-        currentWidth = Math.max(30, currentWidth + delta);
-        lastX = e.clientX;
-
-        // Use requestAnimationFrame for smoother updates
-        requestAnimationFrame(() => {
-          setColumnSizing((prev) => ({ ...prev, [columnId]: currentWidth }));
-        });
+        // Calculate width based on absolute position from start
+        const delta = e.clientX - startX;
+        const newWidth = Math.max(20, startWidth + delta);
+        setColumnSizing((prev) => ({ ...prev, [columnId]: newWidth }));
       };
 
       const handleMouseUp = () => {
@@ -197,292 +427,434 @@ export function DataTable<TData, TValue>({
     [],
   );
 
+  const contextValue = React.useMemo<DataTableContextValue>(
+    () => ({
+      columnWrapping: internalColumnWrapping,
+      toggleColumnWrapping,
+      enableColumnDrag: enableColumnDrag ?? false,
+      onColumnDragStart: handleColumnDragStart,
+      onColumnDragEnd: handleColumnDragEnd,
+      fontSize,
+      fontSizeClass,
+      density,
+    }),
+    [
+      internalColumnWrapping,
+      toggleColumnWrapping,
+      enableColumnDrag,
+      handleColumnDragStart,
+      handleColumnDragEnd,
+      fontSize,
+      fontSizeClass,
+      density,
+    ],
+  );
+
   return (
-    <div
-      className={cn(
-        "flex w-full max-w-full min-w-0 flex-col gap-2.5",
-        className,
-      )}
-      {...props}
-    >
-      {children}
+    <DataTableContext.Provider value={contextValue}>
+      <div
+        className={cn(
+          "flex w-full max-w-full min-w-0 flex-col gap-2.5",
+          className,
+        )}
+        {...props}
+      >
+        {children}
 
-      {/* Filter badges */}
-      {(filters && filters.length > 0) || onAddFilter ? (
-        <div className="px-1">
-          <DataTableFilterBadges
-            filters={filters ?? []}
-            onRemoveFilter={(id) => onRemoveFilter?.(id)}
-            onChangeFilter={(id, value) => onChangeFilter?.(id, value)}
-            onClearAll={onClearAllFilters}
-            onAddFilter={onAddFilter}
-          />
-        </div>
-      ) : null}
+        {/* Filter badges */}
+        {(filters && filters.length > 0) || onAddFilter ? (
+          <div className="px-1">
+            <DataTableFilterBadges
+              filters={filters ?? []}
+              onRemoveFilter={(id) => onRemoveFilter?.(id)}
+              onChangeFilter={(id, value) => onChangeFilter?.(id, value)}
+              onClearAll={onClearAllFilters}
+              onAddFilter={onAddFilter}
+            />
+          </div>
+        ) : null}
 
-      {/* Table with gutter for selection/drag handles */}
-      <div className={cn("mx-1 max-w-full", fontSizeClass)}>
-        <div className="overflow-x-auto rounded-md border w-full pb-2 [&::-webkit-scrollbar-track]:bg-transparent">
-          <table className={cn("w-full caption-bottom", fontSizeClass)}>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                  {/* Gutter header cell */}
-                  {(rowSelectionStyle === "hover" || enableRowDrag) && (
-                    <TableHead
-                      className={cn("p-0 border-r-0", headerHeight)}
-                      style={{ width: gutterWidth }}
-                    />
-                  )}
-                  {headerGroup.headers.map((header) => {
-                    // Skip select column when using gutter
-                    if (
-                      (rowSelectionStyle === "hover" || enableRowDrag) &&
-                      header.id === "select"
-                    ) {
-                      return null;
-                    }
+        {/* Table with gutter for selection/drag handles */}
+        <div className={cn("mx-1", fontSizeClass)}>
+          <div className="overflow-x-auto rounded-md border pb-2 [&::-webkit-scrollbar-track]:bg-transparent">
+            <table className={cn("caption-bottom", fontSizeClass)}>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => {
+                  // Get headers that should be rendered (excluding gutter select when using gutter)
+                  const renderableHeaders = headerGroup.headers.filter(
+                    (h) =>
+                      !(
+                        (rowSelectionStyle === "hover" || enableRowDrag) &&
+                        h.id === "select"
+                      ),
+                  );
 
-                    const visibleHeaders = headerGroup.headers.filter(
-                      (h) =>
-                        !(
-                          (rowSelectionStyle === "hover" || enableRowDrag) &&
-                          h.id === "select"
-                        ),
-                    );
-                    const adjustedIndex = visibleHeaders.findIndex(
-                      (h) => h.id === header.id,
-                    );
-                    const isLastColumn =
-                      adjustedIndex === visibleHeaders.length - 1;
-                    const columnWidth = columnSizing[header.id];
-
-                    // Determine if header is a simple string (not a function/component)
-                    const headerDef = header.column.columnDef.header;
-                    const isSimpleHeader = typeof headerDef === "string";
-
-                    return (
-                      <TableHead
-                        key={header.id}
-                        colSpan={header.colSpan}
-                        className={cn(
-                          isSimpleHeader ? "px-2" : "p-0", // Add padding for simple headers, let component headers handle their own
-                          headerHeight,
-                          "relative",
-                          !isLastColumn && "border-r border-border/30",
-                        )}
-                        style={{
-                          width:
-                            columnWidth ??
-                            (header.getSize() !== 150
-                              ? header.getSize()
-                              : undefined),
-                          minWidth: columnWidth ? columnWidth : undefined,
-                        }}
-                      >
-                        {header.isPlaceholder ? null : isSimpleHeader ? (
-                          <span className={cn("font-medium", fontSizeClass)}>
-                            {headerDef}
-                          </span>
-                        ) : (
-                          flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )
-                        )}
-                        {/* Resize handle */}
-                        {enableColumnResizing && !isLastColumn && (
-                          <button
-                            type="button"
-                            aria-label="Resize column"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              const th = e.currentTarget.parentElement;
-                              if (th) {
-                                handleResizeStart(
-                                  header.id,
-                                  e.clientX,
-                                  th.offsetWidth,
-                                );
-                              }
-                            }}
-                            className={cn(
-                              "absolute right-0 top-0 h-full w-1 cursor-col-resize border-0 bg-transparent p-0",
-                              "hover:bg-primary/30 transition-colors",
-                              resizingColumn === header.id && "bg-primary/50",
-                            )}
-                          />
-                        )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => {
-                  const isHovered = hoveredRowId === row.id;
-                  const isSelected = row.getIsSelected();
-                  const showRowControls = isHovered || isSelected;
+                  // Sort headers by columnOrder if column drag is enabled
+                  const orderedHeaders = enableColumnDrag
+                    ? [...renderableHeaders].sort((a, b) => {
+                        const aIndex = columnOrder.indexOf(a.id);
+                        const bIndex = columnOrder.indexOf(b.id);
+                        // Columns not in order go to end
+                        if (aIndex === -1) return 1;
+                        if (bIndex === -1) return -1;
+                        return aIndex - bIndex;
+                      })
+                    : renderableHeaders;
 
                   return (
                     <TableRow
-                      key={row.id}
-                      data-state={isSelected && "selected"}
-                      data-hovered={isHovered}
-                      onMouseEnter={() => setHoveredRowId(row.id)}
-                      onMouseLeave={() => setHoveredRowId(null)}
-                      onClick={() => onRowClick?.(row)}
-                      className={cn(
-                        "group/row",
-                        onRowClick && "cursor-pointer hover:bg-muted/50",
-                      )}
+                      key={headerGroup.id}
+                      className="hover:bg-transparent"
                     >
-                      {/* Gutter cell with controls - inside the row so perfectly aligned */}
+                      {/* Gutter header cell - width: 1% + whitespace-nowrap = shrink to fit */}
                       {(rowSelectionStyle === "hover" || enableRowDrag) && (
-                        <TableCell
-                          className="p-0 border-r-0"
-                          style={{ width: gutterWidth }}
-                        >
-                          <div
-                            className={cn(
-                              "flex items-center justify-end gap-0.5 px-1 h-full transition-opacity",
-                              showRowControls ? "opacity-100" : "opacity-0",
-                            )}
-                          >
-                            {enableRowDrag && (
-                              <button
-                                type="button"
-                                className={cn(
-                                  "flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground cursor-grab rounded hover:bg-accent",
-                                  density === "compact" ? "size-5" : "size-6",
-                                )}
-                                aria-label="Drag to reorder"
-                                draggable
-                              >
-                                <GripVertical
-                                  className={
-                                    density === "compact" ? "size-3" : "size-4"
-                                  }
-                                />
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() =>
-                                row.toggleSelected(!row.getIsSelected())
-                              }
-                              className={cn(
-                                "flex items-center justify-center rounded border transition-colors",
-                                checkboxSize,
-                                isSelected
-                                  ? "bg-primary border-primary text-primary-foreground"
-                                  : "border-border hover:border-primary/50 hover:bg-accent",
-                              )}
-                              aria-label={
-                                isSelected ? "Deselect row" : "Select row"
-                              }
-                            >
-                              {isSelected && (
-                                <svg
-                                  className={checkmarkSize}
-                                  viewBox="0 0 12 12"
-                                  fill="none"
-                                  aria-hidden="true"
-                                >
-                                  <path
-                                    d="M2.5 6L5 8.5L9.5 3.5"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              )}
-                            </button>
-                          </div>
-                        </TableCell>
+                        <TableHead
+                          className={cn(
+                            "p-0 border-r-0 whitespace-nowrap",
+                            headerHeight,
+                          )}
+                          style={{ width: "1%" }}
+                        />
                       )}
-                      {row.getVisibleCells().map((cell) => {
-                        // Skip select column when using gutter
-                        if (
-                          (rowSelectionStyle === "hover" || enableRowDrag) &&
-                          cell.column.id === "select"
-                        ) {
-                          return null;
-                        }
-
-                        const visibleCells = row
-                          .getVisibleCells()
-                          .filter(
-                            (c) =>
-                              !(
-                                (rowSelectionStyle === "hover" ||
-                                  enableRowDrag) &&
-                                c.column.id === "select"
-                              ),
-                          );
-                        const adjustedIndex = visibleCells.findIndex(
-                          (c) => c.id === cell.id,
-                        );
+                      {orderedHeaders.map((header, headerIndex) => {
                         const isLastColumn =
-                          adjustedIndex === visibleCells.length - 1;
-                        const columnWidth = columnSizing[cell.column.id];
+                          headerIndex === orderedHeaders.length - 1;
+
+                        // Determine if header is a simple string (not a function/component)
+                        const headerDef = header.column.columnDef.header;
+                        const isSimpleHeader = typeof headerDef === "string";
+
+                        // Check if this is a fixed-width column (size === minSize === maxSize)
+                        const colDef = header.column.columnDef;
+                        const isFixedWidth =
+                          colDef.size &&
+                          colDef.minSize === colDef.size &&
+                          colDef.maxSize === colDef.size;
+
+                        // Check if this is an actions column (should shrink to fit content)
+                        const isActionsColumn =
+                          header.id === "actions" || header.id === "select";
+
+                        // Get user-resized width if any (not for fixed-width columns)
+                        const resizedWidth = isFixedWidth
+                          ? undefined
+                          : columnSizing[header.id];
+
+                        // Check if this column can be dragged (not select, not actions typically)
+                        const canDragColumn =
+                          enableColumnDrag && !isFixedWidth && !isActionsColumn;
+
+                        // Column drag indicator
+                        const isDragOverLeft =
+                          dragOverColumnId === header.id &&
+                          dragOverColumnPosition === "left";
+                        const isDragOverRight =
+                          dragOverColumnId === header.id &&
+                          dragOverColumnPosition === "right";
 
                         return (
-                          <TableCell
-                            key={cell.id}
+                          <TableHead
+                            key={header.id}
+                            colSpan={header.colSpan}
+                            onDragOver={
+                              canDragColumn
+                                ? (e) => handleColumnDragOver(e, header.id)
+                                : undefined
+                            }
+                            onDragLeave={
+                              canDragColumn ? handleColumnDragLeave : undefined
+                            }
+                            onDrop={
+                              canDragColumn
+                                ? (e) => handleColumnDrop(e, header.id)
+                                : undefined
+                            }
                             className={cn(
-                              cellPadding,
-                              "whitespace-nowrap overflow-hidden",
+                              isSimpleHeader ? "px-2" : "p-0", // Add padding for simple headers, let component headers handle their own
+                              headerHeight,
+                              "relative overflow-hidden text-ellipsis",
+                              !columnWrapping[header.id] && "whitespace-nowrap",
+                              columnWrapping[header.id] && "whitespace-normal",
                               !isLastColumn && "border-r border-border/30",
+                              isDragOverLeft && "border-l-2 border-l-primary",
+                              isDragOverRight && "border-r-2 border-r-primary",
                             )}
-                            style={{
-                              width: columnWidth,
-                              minWidth: columnWidth,
-                            }}
+                            style={
+                              isFixedWidth || isActionsColumn
+                                ? { width: "1%" }
+                                : resizedWidth
+                                  ? { width: resizedWidth }
+                                  : undefined
+                            }
                           >
-                            <div className="truncate">
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext(),
+                            {header.isPlaceholder ? null : isSimpleHeader ? (
+                              <span
+                                className={cn("font-medium", fontSizeClass)}
+                              >
+                                {headerDef}
+                              </span>
+                            ) : (
+                              flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )
+                            )}
+                            {/* Resize handle - not shown for fixed-width or last column */}
+                            {enableColumnResizing &&
+                              !isLastColumn &&
+                              !isFixedWidth && (
+                                // biome-ignore lint/a11y/useSemanticElements: Column resize is visual-only, uses mouse drag
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    const th = e.currentTarget.parentElement;
+                                    if (th) {
+                                      handleResizeStart(
+                                        header.id,
+                                        e.clientX,
+                                        th.offsetWidth,
+                                      );
+                                    }
+                                  }}
+                                  className={cn(
+                                    "absolute -right-1 top-0 z-10 h-full w-3 cursor-col-resize select-none",
+                                    "before:absolute before:right-1 before:top-0 before:h-full before:w-px before:bg-transparent before:transition-colors",
+                                    "hover:before:bg-primary/50",
+                                    resizingColumn === header.id &&
+                                      "before:bg-primary",
+                                  )}
+                                />
                               )}
-                            </div>
-                          </TableCell>
+                          </TableHead>
                         );
                       })}
                     </TableRow>
                   );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={
-                      columns.length +
-                      (rowSelectionStyle === "hover" || enableRowDrag ? 1 : 0)
-                    }
-                    className="h-24"
-                  >
-                    <div className="sticky left-0 w-fit px-4 text-muted-foreground">
-                      No results.
-                    </div>
-                  </TableCell>
-                </TableRow>
+                })}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row, rowIndex) => {
+                    const isHovered = hoveredRowId === row.id;
+                    const isSelected = row.getIsSelected();
+                    const showRowControls = isHovered || isSelected;
+                    const isDragOverAbove =
+                      dragOverRowIndex === rowIndex &&
+                      dragOverPosition === "above";
+                    const isDragOverBelow =
+                      dragOverRowIndex === rowIndex &&
+                      dragOverPosition === "below";
+
+                    return (
+                      <TableRow
+                        key={row.id}
+                        data-state={isSelected && "selected"}
+                        data-hovered={isHovered}
+                        onMouseEnter={() => setHoveredRowId(row.id)}
+                        onMouseLeave={() => setHoveredRowId(null)}
+                        onClick={() => onRowClick?.(row)}
+                        onDragOver={
+                          enableRowDrag
+                            ? (e) => handleRowDragOver(e, rowIndex)
+                            : undefined
+                        }
+                        onDragLeave={
+                          enableRowDrag ? handleRowDragLeave : undefined
+                        }
+                        onDrop={
+                          enableRowDrag
+                            ? (e) => handleRowDrop(e, rowIndex)
+                            : undefined
+                        }
+                        className={cn(
+                          "group/row",
+                          onRowClick && "cursor-pointer hover:bg-muted/50",
+                          isDragOverAbove && "border-t-2 border-t-primary",
+                          isDragOverBelow && "border-b-2 border-b-primary",
+                        )}
+                      >
+                        {/* Gutter cell with controls - inside the row so perfectly aligned */}
+                        {(rowSelectionStyle === "hover" || enableRowDrag) && (
+                          <TableCell
+                            className="p-0 border-r-0 whitespace-nowrap"
+                            style={{ width: "1%" }}
+                          >
+                            <div
+                              className={cn(
+                                "flex items-center justify-end gap-0.5 px-1 h-full transition-opacity",
+                                showRowControls ? "opacity-100" : "opacity-0",
+                              )}
+                            >
+                              {enableRowDrag && (
+                                <div
+                                  role="button"
+                                  tabIndex={0}
+                                  draggable
+                                  onDragStart={(e) =>
+                                    handleRowDragStart(e, rowIndex)
+                                  }
+                                  onDragEnd={handleRowDragEnd}
+                                  className={cn(
+                                    "flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground cursor-grab active:cursor-grabbing rounded hover:bg-accent",
+                                    density === "compact" ? "size-5" : "size-6",
+                                  )}
+                                  aria-label="Drag to reorder row"
+                                >
+                                  <GripVertical
+                                    className={
+                                      density === "compact"
+                                        ? "size-3"
+                                        : "size-4"
+                                    }
+                                  />
+                                </div>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  row.toggleSelected(!row.getIsSelected())
+                                }
+                                className={cn(
+                                  "flex items-center justify-center rounded border transition-colors",
+                                  checkboxSize,
+                                  isSelected
+                                    ? "bg-primary border-primary text-primary-foreground"
+                                    : "border-border hover:border-primary/50 hover:bg-accent",
+                                )}
+                                aria-label={
+                                  isSelected ? "Deselect row" : "Select row"
+                                }
+                              >
+                                {isSelected && (
+                                  <svg
+                                    className={checkmarkSize}
+                                    viewBox="0 0 12 12"
+                                    fill="none"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      d="M2.5 6L5 8.5L9.5 3.5"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                )}
+                              </button>
+                            </div>
+                          </TableCell>
+                        )}
+                        {row
+                          .getVisibleCells()
+                          .map((cell) => {
+                            // Skip select column when using gutter
+                            if (
+                              (rowSelectionStyle === "hover" ||
+                                enableRowDrag) &&
+                              cell.column.id === "select"
+                            ) {
+                              return null;
+                            }
+                            return cell;
+                          })
+                          .filter(
+                            (cell): cell is NonNullable<typeof cell> =>
+                              cell !== null,
+                          )
+                          // Sort cells by columnOrder if column drag is enabled
+                          .sort((a, b) => {
+                            if (!enableColumnDrag) return 0;
+                            const aIndex = columnOrder.indexOf(a.column.id);
+                            const bIndex = columnOrder.indexOf(b.column.id);
+                            if (aIndex === -1) return 1;
+                            if (bIndex === -1) return -1;
+                            return aIndex - bIndex;
+                          })
+                          .map((cell, cellIndex, sortedCells) => {
+                            const isLastColumn =
+                              cellIndex === sortedCells.length - 1;
+
+                            // Check if this is a fixed-width column
+                            const colDef = cell.column.columnDef;
+                            const isFixedWidth =
+                              colDef.size &&
+                              colDef.minSize === colDef.size &&
+                              colDef.maxSize === colDef.size;
+
+                            // Check if this is an actions column (should shrink to fit content)
+                            const isActionsColumn =
+                              cell.column.id === "actions" ||
+                              cell.column.id === "select";
+
+                            // Get user-resized width (not for fixed-width columns)
+                            const resizedWidth = isFixedWidth
+                              ? undefined
+                              : columnSizing[cell.column.id];
+
+                            // Check if wrapping is enabled for this column
+                            const isWrapped = columnWrapping[cell.column.id];
+
+                            return (
+                              <TableCell
+                                key={cell.id}
+                                className={cn(
+                                  cellPadding,
+                                  !isWrapped &&
+                                    "overflow-hidden text-ellipsis whitespace-nowrap",
+                                  isWrapped && "whitespace-normal break-words",
+                                  !isLastColumn && "border-r border-border/30",
+                                )}
+                                style={
+                                  isFixedWidth || isActionsColumn
+                                    ? { width: "1%" }
+                                    : resizedWidth
+                                      ? { width: resizedWidth }
+                                      : undefined
+                                }
+                              >
+                                <div className={cn(!isWrapped && "truncate")}>
+                                  {flexRender(
+                                    cell.column.columnDef.cell,
+                                    cell.getContext(),
+                                  )}
+                                </div>
+                              </TableCell>
+                            );
+                          })}
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={
+                        columns.length +
+                        (rowSelectionStyle === "hover" || enableRowDrag ? 1 : 0)
+                      }
+                      className="h-24"
+                    >
+                      <div className="sticky left-0 w-fit px-4 text-muted-foreground">
+                        No results.
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+              {summary && (
+                <tfoot className="bg-muted/50 font-medium">{summary}</tfoot>
               )}
-            </TableBody>
-            {summary && (
-              <tfoot className="bg-muted/50 font-medium">{summary}</tfoot>
-            )}
-          </table>
+            </table>
+          </div>
         </div>
+        {actionBar &&
+          table.getFilteredSelectedRowModel().rows.length > 0 &&
+          actionBar}
+        {floatingBar &&
+          table.getFilteredSelectedRowModel().rows.length > 0 &&
+          floatingBar}
       </div>
-      {actionBar &&
-        table.getFilteredSelectedRowModel().rows.length > 0 &&
-        actionBar}
-      {floatingBar &&
-        table.getFilteredSelectedRowModel().rows.length > 0 &&
-        floatingBar}
-    </div>
+    </DataTableContext.Provider>
   );
 }

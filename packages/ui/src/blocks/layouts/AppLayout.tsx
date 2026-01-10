@@ -223,7 +223,7 @@ export function AppLayout({
       {sidebarElement}
       <SidebarInset>
         {headerElement}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden min-w-0">
           {children}
         </div>
       </SidebarInset>

@@ -13,8 +13,9 @@ import {
   ListOrdered,
   type LucideIcon,
   Text,
+  WrapText,
 } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
 import { cn } from "../../utils";
+import { useDataTableContext } from "./DataTable";
 import {
   DataTableColumnFilterContent,
   type FilterOption,
@@ -110,6 +112,10 @@ export interface DataTableColumnHeaderProps<TData, TValue>
   filterOptions?: FilterOption[];
   /** Callback when filter value changes */
   onFilterChange?: (columnId: string, value: unknown) => void;
+  /** Whether text wrapping is enabled for this column */
+  isWrapped?: boolean;
+  /** Callback when wrap toggle is clicked */
+  onToggleWrap?: () => void;
 }
 
 /**
@@ -153,8 +159,18 @@ export function DataTableColumnHeader<TData, TValue>({
   filterType,
   filterOptions,
   onFilterChange,
+  isWrapped: isWrappedProp,
+  onToggleWrap: onToggleWrapProp,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   const meta = column.columnDef.meta as DataTableColumnMeta | undefined;
+
+  // Use context for wrap state if available, otherwise fall back to props
+  const dataTableContext = useDataTableContext();
+  const isWrapped =
+    isWrappedProp ?? dataTableContext?.columnWrapping[column.id] ?? false;
+  const onToggleWrap =
+    onToggleWrapProp ??
+    (() => dataTableContext?.toggleColumnWrapping(column.id));
 
   const canSort = column.getCanSort();
   const canHide = column.getCanHide();
@@ -169,10 +185,57 @@ export function DataTableColumnHeader<TData, TValue>({
   const resolvedFilterOptions = filterOptions ?? meta?.filterOptions;
   const filterPlaceholder = meta?.filterPlaceholder;
 
+  // Controlled dropdown state
+  const [isOpen, setIsOpen] = React.useState(false);
+  const mouseDownPosRef = React.useRef<{ x: number; y: number } | null>(null);
+  const didDragRef = React.useRef(false);
+
+  // Check if column dragging is enabled
+  const canDrag = dataTableContext?.enableColumnDrag ?? false;
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
+    didDragRef.current = false;
+  };
+
+  const handleDragStart = (e: React.DragEvent) => {
+    didDragRef.current = true;
+    mouseDownPosRef.current = null;
+    dataTableContext?.onColumnDragStart(e, column.id);
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    dataTableContext?.onColumnDragEnd(e);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Only open if we didn't drag
+    if (!didDragRef.current && mouseDownPosRef.current) {
+      const dx = Math.abs(e.clientX - mouseDownPosRef.current.x);
+      const dy = Math.abs(e.clientY - mouseDownPosRef.current.y);
+      if (dx < 5 && dy < 5) {
+        setIsOpen(true);
+      }
+    }
+    mouseDownPosRef.current = null;
+    didDragRef.current = false;
+  };
+
   // If no actions available, just render the title (with matching px-2 padding)
   if (!canSort && !canHide && !showFilter) {
     return (
-      <div className={cn("flex items-center gap-1.5 px-2 h-full", className)}>
+      <div
+        role={canDrag ? "button" : undefined}
+        tabIndex={canDrag ? 0 : undefined}
+        className={cn(
+          "flex items-center gap-1.5 px-2 h-full",
+          canDrag && "cursor-grab",
+          className,
+        )}
+        draggable={canDrag}
+        onDragStart={canDrag ? handleDragStart : undefined}
+        onDragEnd={canDrag ? handleDragEnd : undefined}
+      >
         {Icon && <Icon className="size-4 text-muted-foreground" />}
         <span className="font-medium">{title}</span>
       </div>
@@ -180,31 +243,45 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn("flex h-full", className)}>
-      <DropdownMenu>
+    <div className={cn("flex h-full items-center w-full", className)}>
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
         <DropdownMenuTrigger asChild>
-          <button
-            type="button"
-            className={cn(
-              "flex items-center gap-1.5 w-full h-full px-2 text-left cursor-pointer",
-              "hover:bg-accent/50 data-[state=open]:bg-accent transition-colors",
-              "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-            )}
-          >
-            {Icon && (
-              <Icon className="size-3.5 text-muted-foreground shrink-0" />
-            )}
-            <span className="font-medium">{title}</span>
-            {/* Show filter indicator when column is filtered */}
-            {isFiltered && <Filter className="size-3 text-primary shrink-0" />}
-            {/* Only show sort indicator when actively sorted */}
-            {isSorted === "desc" && (
-              <ArrowDown className="size-3.5 text-muted-foreground shrink-0" />
-            )}
-            {isSorted === "asc" && (
-              <ArrowUp className="size-3.5 text-muted-foreground shrink-0" />
-            )}
-          </button>
+          {/* Wrapper div positions the menu but doesn't capture pointer events */}
+          <div className="w-full h-full" style={{ pointerEvents: "none" }}>
+            {/* Button handles all interaction */}
+            <button
+              type="button"
+              draggable={canDrag}
+              onMouseDown={handleMouseDown}
+              onDragStart={canDrag ? handleDragStart : undefined}
+              onDragEnd={canDrag ? handleDragEnd : undefined}
+              onClick={handleClick}
+              style={{ pointerEvents: "auto" }}
+              className={cn(
+                "flex items-center gap-1.5 w-full h-full px-2 text-left",
+                "hover:bg-accent/50 transition-colors",
+                isOpen && "bg-accent",
+                "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                canDrag ? "cursor-grab" : "cursor-pointer",
+              )}
+            >
+              {Icon && (
+                <Icon className="size-3.5 text-muted-foreground shrink-0" />
+              )}
+              <span className="font-medium">{title}</span>
+              {/* Show filter indicator when column is filtered */}
+              {isFiltered && (
+                <Filter className="size-3 text-primary shrink-0" />
+              )}
+              {/* Only show sort indicator when actively sorted */}
+              {isSorted === "desc" && (
+                <ArrowDown className="size-3.5 text-muted-foreground shrink-0" />
+              )}
+              {isSorted === "asc" && (
+                <ArrowUp className="size-3.5 text-muted-foreground shrink-0" />
+              )}
+            </button>
+          </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-36">
           {/* Filter option as submenu (side-opening) */}
@@ -285,10 +362,23 @@ export function DataTableColumnHeader<TData, TValue>({
             </DropdownMenuSub>
           )}
 
+          {/* Wrap text option */}
+          {(dataTableContext || onToggleWrapProp) && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onToggleWrap} className="text-xs">
+                <WrapText className="mr-2 size-3.5 text-muted-foreground" />
+                {isWrapped ? "Disable wrap" : "Wrap text"}
+              </DropdownMenuItem>
+            </>
+          )}
+
           {/* Hide option */}
           {canHide && (
             <>
-              {canSort && <DropdownMenuSeparator />}
+              {(canSort || dataTableContext || onToggleWrapProp) && (
+                <DropdownMenuSeparator />
+              )}
               <DropdownMenuItem
                 onClick={() => column.toggleVisibility(false)}
                 className="text-xs"

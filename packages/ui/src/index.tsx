@@ -26,9 +26,11 @@ export type {
   ColumnDataType,
   ColumnSummaryConfig,
   ColumnType,
+  DataTableAddButtonProps,
   DataTableColumnFilterProps,
   DataTableColumnHeaderProps,
   DataTableColumnMeta,
+  DataTableExportButtonProps,
   DataTableFilter,
   DataTableFilterBadgesProps,
   DataTablePaginationProps,
@@ -51,8 +53,10 @@ export type {
 } from "./blocks/data-table";
 export {
   DataTable,
+  DataTableAddButton,
   DataTableColumnFilter,
   DataTableColumnHeader,
+  DataTableExportButton,
   DataTableFilterBadges,
   DataTablePagination,
   DataTableRowActions,
