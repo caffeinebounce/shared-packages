@@ -1,5 +1,13 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.31.0
+
+### Minor Changes
+
+- 964df04: Add `gjsData` prop to GrapesEditor component for loading previously saved project data.
+
+  This allows re-editing forms and email templates by passing in the GrapesJS project JSON data that was previously exported via `onSave` or `onExport` callbacks.
+
 ## 0.30.0
 
 ### Minor Changes
