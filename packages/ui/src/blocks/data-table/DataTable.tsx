@@ -429,7 +429,7 @@ export function DataTable<TData, TValue>({
 
   const contextValue = React.useMemo<DataTableContextValue>(
     () => ({
-      columnWrapping: internalColumnWrapping,
+      columnWrapping,
       toggleColumnWrapping,
       enableColumnDrag: enableColumnDrag ?? false,
       onColumnDragStart: handleColumnDragStart,
@@ -439,7 +439,7 @@ export function DataTable<TData, TValue>({
       density,
     }),
     [
-      internalColumnWrapping,
+      columnWrapping,
       toggleColumnWrapping,
       enableColumnDrag,
       handleColumnDragStart,
@@ -603,7 +603,7 @@ export function DataTable<TData, TValue>({
                             {enableColumnResizing &&
                               !isLastColumn &&
                               !isFixedWidth && (
-                                // biome-ignore lint/a11y/useSemanticElements: Column resize is visual-only, uses mouse drag
+                                // biome-ignore lint/a11y/noStaticElementInteractions: Column resize uses mouse drag interaction only
                                 <div
                                   onMouseDown={(e) => {
                                     e.preventDefault();
@@ -686,10 +686,9 @@ export function DataTable<TData, TValue>({
                                 showRowControls ? "opacity-100" : "opacity-0",
                               )}
                             >
+                              {/* Note: Drag-to-reorder requires mouse/touch. Keyboard reordering would need significant additional implementation. */}
                               {enableRowDrag && (
                                 <div
-                                  role="button"
-                                  tabIndex={0}
                                   draggable
                                   onDragStart={(e) =>
                                     handleRowDragStart(e, rowIndex)
@@ -699,7 +698,7 @@ export function DataTable<TData, TValue>({
                                     "flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground cursor-grab active:cursor-grabbing rounded hover:bg-accent",
                                     density === "compact" ? "size-5" : "size-6",
                                   )}
-                                  aria-label="Drag to reorder row"
+                                  aria-hidden="true"
                                 >
                                   <GripVertical
                                     className={

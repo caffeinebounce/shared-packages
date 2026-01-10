@@ -222,11 +222,10 @@ export function DataTableColumnHeader<TData, TValue>({
   };
 
   // If no actions available, just render the title (with matching px-2 padding)
+  // Note: Drag-to-reorder requires mouse/touch. Keyboard reordering would need arrow key handling + state management.
   if (!canSort && !canHide && !showFilter) {
     return (
       <div
-        role={canDrag ? "button" : undefined}
-        tabIndex={canDrag ? 0 : undefined}
         className={cn(
           "flex items-center gap-1.5 px-2 h-full",
           canDrag && "cursor-grab",
@@ -235,6 +234,7 @@ export function DataTableColumnHeader<TData, TValue>({
         draggable={canDrag}
         onDragStart={canDrag ? handleDragStart : undefined}
         onDragEnd={canDrag ? handleDragEnd : undefined}
+        aria-hidden={canDrag ? "true" : undefined}
       >
         {Icon && <Icon className="size-4 text-muted-foreground" />}
         <span className="font-medium">{title}</span>

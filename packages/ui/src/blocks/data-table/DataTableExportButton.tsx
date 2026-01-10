@@ -51,14 +51,14 @@ export function DataTableExportButton({
   const [isExporting, setIsExporting] = React.useState(false);
 
   const handleExport = React.useCallback(async () => {
-    if (isExporting || disabled) return;
+    if (disabled) return;
     setIsExporting(true);
     try {
       await onExport();
     } finally {
       setIsExporting(false);
     }
-  }, [onExport, isExporting, disabled]);
+  }, [onExport, disabled]);
 
   const tooltipText = `${label} as ${format}`;
 

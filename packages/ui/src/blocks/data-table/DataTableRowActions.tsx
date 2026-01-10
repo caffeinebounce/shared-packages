@@ -51,8 +51,8 @@ export interface DataTableRowActionsProps {
 }
 
 /**
- * Hook to detect if viewport is at least md (768px)
- * Returns undefined during SSR, then true/false after hydration
+ * Hook to detect if viewport is at least md (768px).
+ * Returns false during SSR, then true/false after hydration based on viewport width.
  */
 function useIsDesktop(): boolean {
   const [isDesktop, setIsDesktop] = React.useState(false);
