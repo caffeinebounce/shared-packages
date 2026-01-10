@@ -686,28 +686,19 @@ export function DataTable<TData, TValue>({
                                 showRowControls ? "opacity-100" : "opacity-0",
                               )}
                             >
+                              {/* Note: Drag-to-reorder requires mouse/touch. Keyboard reordering would need significant additional implementation. */}
                               {enableRowDrag && (
-                                // biome-ignore lint/a11y/useSemanticElements: Using div with role="button" because native button doesn't support draggable well
                                 <div
-                                  role="button"
-                                  tabIndex={0}
                                   draggable
                                   onDragStart={(e) =>
                                     handleRowDragStart(e, rowIndex)
                                   }
                                   onDragEnd={handleRowDragEnd}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter" || e.key === " ") {
-                                      e.preventDefault();
-                                      // Focus indication for keyboard users
-                                      e.currentTarget.focus();
-                                    }
-                                  }}
                                   className={cn(
                                     "flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground cursor-grab active:cursor-grabbing rounded hover:bg-accent",
                                     density === "compact" ? "size-5" : "size-6",
                                   )}
-                                  aria-label="Drag to reorder row"
+                                  aria-hidden="true"
                                 >
                                   <GripVertical
                                     className={
