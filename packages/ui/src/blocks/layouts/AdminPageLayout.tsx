@@ -68,7 +68,7 @@ export function AdminPageLayout({
 
   return (
     <div className={cn("flex flex-1 flex-col min-w-0 min-h-full", className)}>
-      <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex flex-1 flex-col gap-4 p-4 min-w-0">
         {/* Back link mode */}
         {backLink && <BackLink href={backLink.href}>{backLink.label}</BackLink>}
 
@@ -86,7 +86,7 @@ export function AdminPageLayout({
             )}
           </div>
         )}
-        <div className={cn("flex-1", contentClassName)}>{children}</div>
+        <div className={cn("flex-1 min-w-0", contentClassName)}>{children}</div>
       </div>
       {footer}
     </div>

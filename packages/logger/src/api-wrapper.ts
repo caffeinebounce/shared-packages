@@ -18,7 +18,7 @@
  * ```
  */
 
-import { type NextRequest, NextResponse } from "next/server.js";
+import { NextResponse } from "next/server";
 import {
   createApiErrorResponse,
   extractSupabaseErrorContext,
@@ -32,14 +32,22 @@ import { getServerLogger } from "./logger";
 // ============================================
 
 /**
+ * Permissive request/response types for cross-version Next.js compatibility.
+ * These use `any` to avoid type conflicts when Next.js minor versions differ between packages.
+ * We only need the headers property for correlation ID extraction at runtime.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: Required for cross-version Next.js compatibility
+type AnyRequest = any;
+// biome-ignore lint/suspicious/noExplicitAny: Required for cross-version Next.js compatibility
+type AnyResponse = any;
+
+/**
  * API handler type that can optionally accept route context (for dynamic routes).
+ * Uses permissive types for cross-version Next.js compatibility.
  */
 export type ApiHandler<TContext = unknown> = TContext extends undefined
-  ? (req: NextRequest) => Promise<NextResponse> | NextResponse
-  : (
-      req: NextRequest,
-      context: TContext,
-    ) => Promise<NextResponse> | NextResponse;
+  ? (req: AnyRequest) => Promise<AnyResponse> | AnyResponse
+  : (req: AnyRequest, context: TContext) => Promise<AnyResponse> | AnyResponse;
 
 /**
  * Context passed to the error logging wrapper.
@@ -416,26 +424,26 @@ export function withErrorLogging<TContext = undefined>(
   context: ErrorLoggingContext,
 ): ApiHandler<TContext> {
   return (async (
-    req: NextRequest,
+    req: AnyRequest,
     routeContext?: TContext,
-  ): Promise<NextResponse> => {
+  ): Promise<AnyResponse> => {
     const logger = getServerLogger();
 
     const correlationId = getOrGenerateCorrelationId(req);
 
     try {
       // Execute the route handler with proper context passing
-      let result: NextResponse | Promise<NextResponse>;
+      let result: AnyResponse | Promise<AnyResponse>;
       if (routeContext !== undefined) {
         const handlerWithContext = handler as (
-          req: NextRequest,
+          req: AnyRequest,
           context: TContext,
-        ) => Promise<NextResponse> | NextResponse;
+        ) => Promise<AnyResponse> | AnyResponse;
         result = handlerWithContext(req, routeContext);
       } else {
         const handlerWithoutContext = handler as (
-          req: NextRequest,
-        ) => Promise<NextResponse> | NextResponse;
+          req: AnyRequest,
+        ) => Promise<AnyResponse> | AnyResponse;
         result = handlerWithoutContext(req);
       }
 

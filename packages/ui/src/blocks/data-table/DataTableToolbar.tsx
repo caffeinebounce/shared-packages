@@ -4,6 +4,8 @@ import { Search, X } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "../../utils";
+import { useDataTableContext } from "./DataTable";
+import { dataTableTopperIconClasses } from "./data-table-styles";
 
 export interface DataTableToolbarProps extends React.ComponentProps<"div"> {
   /** Search value */
@@ -29,6 +31,9 @@ export function DataTableSearch({
   onSearchChange?: (value: string) => void;
   className?: string;
 }) {
+  const context = useDataTableContext();
+  const fontSizeClass = context?.fontSizeClass ?? "text-xs";
+
   const [isExpanded, setIsExpanded] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -63,17 +68,16 @@ export function DataTableSearch({
       <div
         className={cn(
           "flex items-center rounded-md border border-transparent transition-all duration-200 ease-out",
-          isExpanded
-            ? "w-48 border-input bg-background"
-            : "w-7 hover:bg-accent/50 cursor-pointer",
+          isExpanded ? "w-48 border-input bg-background" : "w-8 cursor-pointer",
         )}
       >
         <button
           type="button"
           onClick={() => !isExpanded && setIsExpanded(true)}
           className={cn(
-            "flex items-center justify-center shrink-0 transition-colors rounded-md hover:bg-accent hover:text-foreground text-muted-foreground",
-            isExpanded ? "size-7 cursor-default" : "size-7",
+            "flex items-center justify-center shrink-0 transition-colors rounded-md",
+            dataTableTopperIconClasses,
+            isExpanded ? "size-8 cursor-default" : "size-8",
           )}
           aria-label={isExpanded ? undefined : "Search"}
         >
@@ -88,7 +92,8 @@ export function DataTableSearch({
           onChange={(e) => onSearchChange?.(e.target.value)}
           onBlur={handleBlur}
           className={cn(
-            "h-7 bg-transparent text-sm outline-none placeholder:text-muted-foreground transition-all duration-200",
+            "h-8 bg-transparent outline-none placeholder:text-muted-foreground transition-all duration-200",
+            fontSizeClass,
             isExpanded ? "w-full pr-7 opacity-100" : "w-0 opacity-0",
           )}
         />

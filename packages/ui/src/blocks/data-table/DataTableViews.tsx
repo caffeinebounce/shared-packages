@@ -27,6 +27,12 @@ import {
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { cn } from "../../utils";
+import { useDataTableContext } from "./DataTable";
+import {
+  dataTableTopperButtonProps,
+  dataTableTopperOpenStateClasses,
+  dataTableTopperResponsiveClasses,
+} from "./data-table-styles";
 
 /** Represents a saved table view configuration */
 export interface DataTableView {
@@ -38,6 +44,10 @@ export interface DataTableView {
   columnVisibility?: VisibilityState;
   /** Column order (array of column IDs) */
   columnOrder?: string[];
+  /** Column wrapping state (map of column ID to wrap boolean) */
+  columnWrapping?: Record<string, boolean>;
+  /** Row order (array of row IDs) - for custom row ordering */
+  rowOrder?: string[];
   /** Active filters */
   filters?: ColumnFiltersState;
   /** Sorting state */
@@ -54,6 +64,8 @@ export interface DataTableView {
 export interface DataTableViewState {
   columnVisibility?: VisibilityState;
   columnOrder?: string[];
+  columnWrapping?: Record<string, boolean>;
+  rowOrder?: string[];
   filters?: ColumnFiltersState;
   sorting?: SortingState;
 }
@@ -108,6 +120,16 @@ function hasUnsavedChanges(
   const orderB = JSON.stringify(activeView.columnOrder ?? []);
   if (orderA !== orderB) return true;
 
+  // Compare column wrapping
+  const wrapA = JSON.stringify(currentState.columnWrapping ?? {});
+  const wrapB = JSON.stringify(activeView.columnWrapping ?? {});
+  if (wrapA !== wrapB) return true;
+
+  // Compare row order
+  const rowA = JSON.stringify(currentState.rowOrder ?? []);
+  const rowB = JSON.stringify(activeView.rowOrder ?? []);
+  if (rowA !== rowB) return true;
+
   return false;
 }
 
@@ -132,6 +154,9 @@ export function DataTableViews({
   onSetDefaultView,
   className,
 }: DataTableViewsProps) {
+  const context = useDataTableContext();
+  const fontSizeClass = context?.fontSizeClass ?? "text-xs";
+
   const [saveDialogOpen, setSaveDialogOpen] = React.useState(false);
   const [newViewName, setNewViewName] = React.useState("");
   const [setAsDefault, setSetAsDefault] = React.useState(false);
@@ -203,13 +228,11 @@ export function DataTableViews({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="ghost"
-              size="sm"
+              {...dataTableTopperButtonProps}
               className={cn(
-                "h-7 gap-1 text-xs font-normal text-muted-foreground hover:text-foreground data-[state=open]:text-foreground",
-                // When label is hidden, behave like an icon button (size-7, no padding)
-                // When label is shown, add padding
-                "!px-0 w-7 @min-[450px]:w-auto @min-[450px]:!px-2",
+                fontSizeClass,
+                dataTableTopperOpenStateClasses,
+                dataTableTopperResponsiveClasses,
               )}
             >
               <LayoutGrid className="size-4" />
@@ -229,7 +252,10 @@ export function DataTableViews({
                   >
                     <DropdownMenuItem
                       onClick={() => onSelectView(view)}
-                      className="flex-1 flex items-center justify-between pr-16"
+                      className={cn(
+                        "flex-1 flex items-center justify-between pr-16",
+                        fontSizeClass,
+                      )}
                     >
                       <span className="flex items-center gap-2">
                         {view.isDefault && (
@@ -278,7 +304,10 @@ export function DataTableViews({
 
             {/* Save changes to current view */}
             {onUpdateView && hasChanges && activeView && (
-              <DropdownMenuItem onClick={handleUpdateCurrentView}>
+              <DropdownMenuItem
+                onClick={handleUpdateCurrentView}
+                className={fontSizeClass}
+              >
                 <Save className="mr-2 size-3.5" />
                 Save changes
               </DropdownMenuItem>
@@ -286,7 +315,10 @@ export function DataTableViews({
 
             {/* Save as new view */}
             {onSaveView && (
-              <DropdownMenuItem onClick={() => setSaveDialogOpen(true)}>
+              <DropdownMenuItem
+                onClick={() => setSaveDialogOpen(true)}
+                className={fontSizeClass}
+              >
                 <Plus className="mr-2 size-3.5" />
                 Save as new view
               </DropdownMenuItem>
