@@ -1,5 +1,11 @@
 # @caffeinebounce/logger
 
+## 0.5.3
+
+### Patch Changes
+
+- e6340ae: Fix next/server import to use .js extension for ESM compatibility
+
 ## 0.5.2
 
 ### Patch Changes
