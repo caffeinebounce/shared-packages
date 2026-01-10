@@ -224,6 +224,7 @@ export function DataTableColumnHeader<TData, TValue>({
   // If no actions available, just render the title (with matching px-2 padding)
   if (!canSort && !canHide && !showFilter) {
     return (
+      // biome-ignore lint/a11y/noStaticElementInteractions: Draggable headers need div for drag support
       <div
         role={canDrag ? "button" : undefined}
         tabIndex={canDrag ? 0 : undefined}
@@ -235,6 +236,17 @@ export function DataTableColumnHeader<TData, TValue>({
         draggable={canDrag}
         onDragStart={canDrag ? handleDragStart : undefined}
         onDragEnd={canDrag ? handleDragEnd : undefined}
+        onKeyDown={
+          canDrag
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  // Focus indication for keyboard users
+                  e.currentTarget.focus();
+                }
+              }
+            : undefined
+        }
       >
         {Icon && <Icon className="size-4 text-muted-foreground" />}
         <span className="font-medium">{title}</span>

@@ -180,6 +180,7 @@ export function DataTableViewOptions<TData>({
           View Columns
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {/* biome-ignore lint/a11y/useSemanticElements: Using div with role for dropdown menu compatibility */}
         <div role="list" className="max-h-64 overflow-y-auto">
           {orderedColumns.map((column) => {
             const label = getColumnDisplayName(column);
@@ -188,6 +189,7 @@ export function DataTableViewOptions<TData>({
             const isDragOver = dragOverId === column.id;
 
             return (
+              // biome-ignore lint/a11y/useSemanticElements: Using div with role for dropdown menu compatibility
               <div
                 key={column.id}
                 role="listitem"

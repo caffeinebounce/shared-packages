@@ -429,7 +429,7 @@ export function DataTable<TData, TValue>({
 
   const contextValue = React.useMemo<DataTableContextValue>(
     () => ({
-      columnWrapping: internalColumnWrapping,
+      columnWrapping,
       toggleColumnWrapping,
       enableColumnDrag: enableColumnDrag ?? false,
       onColumnDragStart: handleColumnDragStart,
@@ -439,7 +439,7 @@ export function DataTable<TData, TValue>({
       density,
     }),
     [
-      internalColumnWrapping,
+      columnWrapping,
       toggleColumnWrapping,
       enableColumnDrag,
       handleColumnDragStart,
@@ -603,7 +603,7 @@ export function DataTable<TData, TValue>({
                             {enableColumnResizing &&
                               !isLastColumn &&
                               !isFixedWidth && (
-                                // biome-ignore lint/a11y/useSemanticElements: Column resize is visual-only, uses mouse drag
+                                // biome-ignore lint/a11y/noStaticElementInteractions: Column resize uses mouse drag interaction only
                                 <div
                                   onMouseDown={(e) => {
                                     e.preventDefault();
@@ -687,6 +687,7 @@ export function DataTable<TData, TValue>({
                               )}
                             >
                               {enableRowDrag && (
+                                // biome-ignore lint/a11y/useSemanticElements: Using div with role="button" because native button doesn't support draggable well
                                 <div
                                   role="button"
                                   tabIndex={0}
@@ -695,6 +696,13 @@ export function DataTable<TData, TValue>({
                                     handleRowDragStart(e, rowIndex)
                                   }
                                   onDragEnd={handleRowDragEnd}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.preventDefault();
+                                      // Focus indication for keyboard users
+                                      e.currentTarget.focus();
+                                    }
+                                  }}
                                   className={cn(
                                     "flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground cursor-grab active:cursor-grabbing rounded hover:bg-accent",
                                     density === "compact" ? "size-5" : "size-6",
