@@ -1,5 +1,55 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.30.0
+
+### Minor Changes
+
+- 3e58f9a: Enhance DataTable with column/row drag-drop, export button, and styling improvements
+
+  **DataTable Enhancements:**
+
+  - Add DataTableContext for shared state (density, font size, column wrapping)
+  - Add column drag/drop reordering via ViewOptions panel
+  - Add row drag/drop reordering with visual drag handles
+  - Add DataTableAddButton component for standardized add actions
+  - Add DataTableExportButton with loading state and tooltip
+  - Add WrapText toggle to column header menu
+  - Update comfy density padding for better visual balance
+  - Add data-table-styles.ts for consistent topper button styling
+
+  **UI Component Updates:**
+
+  - Add 'success' variant to IconButton for green hover effect
+  - Add 'icon-xs' size to Button component
+  - Fix min-width overflow in AdminPageLayout and AppLayout
+
+  **Logger Fix:**
+
+  - Fix api-wrapper.ts Next.js cross-version type compatibility
+
+- 1a22fe0: Add GrapesJS visual editor for forms and emails
+
+  - New `GrapesEditor` component - React wrapper for GrapesJS visual block editor
+  - New `EditorToolbar` component - Toolbar with save/export/preview/undo/redo actions
+  - `formPreset` - Preset for building application forms with 12 field types (text, textarea, select, radio, checkbox, number, date, file, email, phone, url)
+  - `emailPreset` - Preset for building email templates with 10 block types (header, text, heading, button, image, divider, columns, social, footer, spacer)
+  - Full TypeScript types for editor configuration, presets, and exported schemas
+  - Supports both form schema export (for application forms) and email HTML export (with inlined styles)
+
+  This implements Phase 1 of the unified visual builder initiative.
+
+### Patch Changes
+
+- 2c7343e: Fix TypeScript errors and export GrapesEditor from main index
+
+  - Export GrapesEditor, formPreset, emailPreset, EditorToolbar from main index
+  - Fix EditorToolbar import path for Button component
+  - Fix device manager type compatibility with GrapesJS
+  - Exclude panels from baseConfig type to avoid conflicts
+  - Fix component iteration type in extractSections
+
+- 089a368: Fix DataTable review feedback: correct enableRowDrag default, fix context columnWrapping value, add keyboard handlers for drag a11y, fix useIsDesktop JSDoc, simplify export handler
+
 ## 0.28.2
 
 ### Patch Changes
