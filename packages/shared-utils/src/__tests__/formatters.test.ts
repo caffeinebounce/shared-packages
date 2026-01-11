@@ -5,6 +5,7 @@ import {
   formatDateTime,
   formatNumber,
   formatPercentage,
+  formatPhoneInput,
   formatPhoneNumber,
 } from "../formatters";
 
@@ -139,5 +140,47 @@ describe("formatNumber", () => {
 
   it("returns em dash for null", () => {
     expect(formatNumber(null)).toBe("—");
+  });
+});
+
+describe("formatPhoneInput", () => {
+  it("returns empty string for empty input", () => {
+    expect(formatPhoneInput("")).toBe("");
+  });
+
+  it("returns just digits for 1-3 characters", () => {
+    expect(formatPhoneInput("1")).toBe("1");
+    expect(formatPhoneInput("12")).toBe("12");
+    expect(formatPhoneInput("123")).toBe("123");
+  });
+
+  it("formats 4-6 digits with area code parentheses", () => {
+    expect(formatPhoneInput("1234")).toBe("(123) 4");
+    expect(formatPhoneInput("12345")).toBe("(123) 45");
+    expect(formatPhoneInput("123456")).toBe("(123) 456");
+  });
+
+  it("formats 7-10 digits with full format", () => {
+    expect(formatPhoneInput("1234567")).toBe("(123) 456-7");
+    expect(formatPhoneInput("12345678")).toBe("(123) 456-78");
+    expect(formatPhoneInput("123456789")).toBe("(123) 456-789");
+    expect(formatPhoneInput("1234567890")).toBe("(123) 456-7890");
+  });
+
+  it("truncates input longer than 10 digits", () => {
+    expect(formatPhoneInput("12345678901")).toBe("(123) 456-7890");
+    expect(formatPhoneInput("123456789012345")).toBe("(123) 456-7890");
+  });
+
+  it("strips non-numeric characters", () => {
+    expect(formatPhoneInput("(123) 456-7890")).toBe("(123) 456-7890");
+    expect(formatPhoneInput("123-456-7890")).toBe("(123) 456-7890");
+    expect(formatPhoneInput("123.456.7890")).toBe("(123) 456-7890");
+    expect(formatPhoneInput("abc-123-xyz-456")).toBe("(123) 456");
+  });
+
+  it("handles mixed input with letters and numbers", () => {
+    expect(formatPhoneInput("1a2b3c")).toBe("123");
+    expect(formatPhoneInput("phone: 555-1234")).toBe("(555) 123-4");
   });
 });
