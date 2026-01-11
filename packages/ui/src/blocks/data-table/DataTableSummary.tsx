@@ -13,6 +13,7 @@ import {
 } from "../../components/ui/dropdown-menu";
 import { TableCell, TableRow } from "../../components/ui/table";
 import { cn } from "../../utils";
+import { useDataTableContext } from "./DataTable";
 
 /** Summary calculation type */
 export type SummaryType =
@@ -248,10 +249,10 @@ export function DataTableSummary<TData>({
   gutterWidth = 0,
   className,
 }: DataTableSummaryProps<TData>) {
-  // Filter out the select column since it's handled by gutter
+  // Filter out the select column and action columns
   const visibleColumns = table
     .getVisibleLeafColumns()
-    .filter((col) => col.id !== "select");
+    .filter((col) => col.id !== "select" && col.id !== "actions");
   const [hoveredColumnId, setHoveredColumnId] = React.useState<string | null>(
     null,
   );
@@ -295,13 +296,15 @@ export function DataTableSummary<TData>({
   );
 
   return (
-    <TableRow className={cn("hover:bg-transparent border-t", className)}>
+    <TableRow
+      className={cn("hover:bg-transparent border-0 bg-transparent", className)}
+    >
       {/* Gutter spacer to align with DataTable gutter */}
       {gutterWidth > 0 && (
-        <TableCell className="p-0 border-r-0" style={{ width: gutterWidth }} />
+        <TableCell className="p-0 border-0" style={{ width: gutterWidth }} />
       )}
 
-      {visibleColumns.map((column) => {
+      {visibleColumns.map((column, index) => {
         const columnId = column.id;
         const dataType = detectDataType(columnId);
         const currentType = summaryConfig[columnId] ?? "none";
@@ -314,11 +317,18 @@ export function DataTableSummary<TData>({
         );
         // const currentOption = options.find((o) => o.value === currentType);
         const isHovered = hoveredColumnId === columnId;
+        const isLastColumn = index === visibleColumns.length - 1;
+
+        const isFirstColumn = index === 0;
 
         return (
           <TableCell
             key={columnId}
-            className="p-0 border-r border-border/30"
+            className={cn(
+              "p-0 border-0",
+              isLastColumn && "rounded-br-md",
+              isFirstColumn && "rounded-bl-md",
+            )}
             style={{ width: column.getSize(), minWidth: column.getSize() }}
           >
             <SummaryCell
@@ -365,10 +375,16 @@ function SummaryCell<TData>({
   // Show "Calculate" when cell is hovered OR dropdown is open
   const showCalculate = currentType === "none" && (isHovered || isOpen);
 
+  const context = useDataTableContext();
+  const isCompact = context?.density === "compact";
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: Hover state for visual feedback only
     <div
-      className="flex items-center px-3 py-1.5 min-w-0"
+      className={cn(
+        "flex items-center min-w-0",
+        isCompact ? "px-1.5 py-0.5" : "px-2 py-1",
+      )}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       role="presentation"
@@ -378,7 +394,7 @@ function SummaryCell<TData>({
           <button
             type="button"
             className={cn(
-              "flex items-center gap-1 text-xs transition-colors rounded px-1 py-0.5 -mx-1",
+              "group flex items-center gap-1 text-xs transition-colors rounded px-1 py-0.5 -mx-1 focus:outline-none focus-visible:outline-none",
               currentType === "none"
                 ? "text-muted-foreground/50 hover:text-muted-foreground"
                 : "text-muted-foreground hover:text-foreground",
@@ -394,11 +410,16 @@ function SummaryCell<TData>({
                 Calculate
               </span>
             ) : (
-              <span className="truncate">{summaryValue}</span>
+              <span className="truncate italic pr-1">{summaryValue}</span>
             )}
-            {currentType !== "none" && (
-              <ChevronDown className="size-3 shrink-0 opacity-50" />
-            )}
+            <ChevronDown
+              className={cn(
+                "size-3 shrink-0 transition-opacity",
+                currentType !== "none"
+                  ? "opacity-0 group-hover:opacity-50"
+                  : "opacity-0",
+              )}
+            />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-40">

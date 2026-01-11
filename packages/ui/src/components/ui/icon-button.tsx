@@ -15,9 +15,11 @@ const iconButtonVariants = cva(
           "text-muted-foreground/50 hover:text-destructive hover:bg-transparent",
         edit: "text-muted-foreground/50 hover:text-foreground hover:bg-transparent",
         destructive:
-          "text-destructive hover:text-destructive hover:bg-destructive/10",
+          "text-muted-foreground/50 hover:text-destructive hover:bg-transparent",
         success:
-          "text-muted-foreground/50 hover:text-success hover:bg-transparent",
+          "text-muted-foreground/50 hover:text-green-600 hover:bg-transparent",
+        successActive:
+          "text-green-600 hover:text-muted-foreground/60 hover:bg-transparent",
       },
       size: {
         default: "h-8 w-8 [&_svg]:size-4",

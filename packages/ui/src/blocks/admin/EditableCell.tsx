@@ -16,6 +16,7 @@ import {
 import { Switch } from "../../components/ui/switch";
 import { Textarea } from "../../components/ui/textarea";
 import { cn } from "../../utils";
+import { useDataTableContext } from "../data-table";
 
 interface BaseEditableCellProps {
   value: string | number | boolean | null | undefined;
@@ -55,6 +56,8 @@ export function EditableCell({
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const context = useDataTableContext();
+  const isCompact = context?.density === "compact";
 
   useEffect(() => {
     if (isEditing) {
@@ -262,7 +265,10 @@ export function EditableCell({
   return (
     <button
       type="button"
-      className="group flex items-center w-full text-left gap-2 min-h-[32px] cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors"
+      className={cn(
+        "group flex items-center w-full text-left gap-2 cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors",
+        !isCompact && "min-h-[32px]",
+      )}
       onClick={() => setIsEditing(true)}
       title="Click to edit"
     >

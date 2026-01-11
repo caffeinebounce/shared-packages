@@ -32,6 +32,8 @@ export interface DataTableRowAction {
   destructive?: boolean;
   /** Whether the action is a success action (shows in green on hover) */
   success?: boolean;
+  /** Whether the action is active/enabled (shows green, goes muted on hover) */
+  successActive?: boolean;
   /** Whether to show separator before this action */
   separatorBefore?: boolean;
   /** Whether the action is disabled */
@@ -86,14 +88,14 @@ function ActionsDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost-icon"
-          size={isCompact ? "icon-xs" : "icon-sm"}
+        <IconButton
+          variant="ghost"
+          size={isCompact ? "xs" : "sm"}
           className="data-[state=open]:bg-muted"
         >
           <MoreHorizontal className={isCompact ? "size-3.5" : "size-4"} />
           <span className="sr-only">Open menu</span>
-        </Button>
+        </IconButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         {actions.map((action, index) => (
@@ -107,6 +109,8 @@ function ActionsDropdown({
                 action.destructive &&
                   "hover:text-destructive hover:bg-destructive/10",
                 action.success && "hover:text-success hover:bg-success/10",
+                action.successActive &&
+                  "text-green-600 hover:text-muted-foreground hover:bg-accent",
               )}
             >
               {action.icon && (
@@ -115,6 +119,8 @@ function ActionsDropdown({
                     "mr-2",
                     action.destructive && "group-hover:text-destructive",
                     action.success && "group-hover:text-success",
+                    action.successActive &&
+                      "text-green-600 group-hover:text-muted-foreground",
                   )}
                 >
                   {action.icon}
@@ -146,12 +152,14 @@ function ActionsInline({
   return (
     <div className={cn("flex items-center", isCompact ? "gap-0.5" : "gap-1")}>
       {actions.map((action) => {
-        // Determine variant: destructive > success > ghost
+        // Determine variant: destructive > successActive > success > ghost
         const variant = action.destructive
           ? "delete"
-          : action.success
-            ? "success"
-            : "ghost";
+          : action.successActive
+            ? "successActive"
+            : action.success
+              ? "success"
+              : "ghost";
         return (
           <Tooltip key={action.label}>
             <TooltipTrigger asChild>
