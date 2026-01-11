@@ -23,6 +23,7 @@ export {
   formatDateTime,
   formatNumber,
   formatPercentage,
+  formatPhoneInput,
   formatPhoneNumber,
 } from "./formatters";
 // Re-export all image utilities

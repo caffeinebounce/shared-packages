@@ -25,7 +25,11 @@ export interface GeolocationInfo {
  */
 export function generateDeviceFingerprint(): DeviceFingerprint {
   const userAgent = navigator.userAgent;
-  const platform = navigator.platform;
+  // Use modern User-Agent Client Hints API with fallback to deprecated navigator.platform
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/NavigatorUAData
+  const platform =
+    (navigator as Navigator & { userAgentData?: { platform?: string } })
+      .userAgentData?.platform || navigator.platform;
   const language = navigator.language;
   const screenResolution = `${screen.width}x${screen.height}`;
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -69,27 +73,22 @@ export function generateDeviceFingerprint(): DeviceFingerprint {
 
 /**
  * Get geolocation info from IP address (server-side)
- * @param ipAddress - The IP address to look up (currently unused - will be used when integrated with a geolocation service)
- * @returns Geolocation information or null if unavailable
  *
  * Note: This is a placeholder implementation. In production, integrate with a service like:
  * - ipapi.co: https://ipapi.co/{ipAddress}/json/
  * - ip-api.com: http://ip-api.com/json/{ipAddress}
  * - MaxMind GeoIP2: https://www.maxmind.com/en/geoip2-services-and-databases
+ *
+ * @param _ipAddress - The IP address to look up (currently unused)
+ * @returns Geolocation information or null if unavailable
  */
 export async function getGeolocationFromIP(
-  ipAddress: string,
+  _ipAddress: string,
 ): Promise<GeolocationInfo | null> {
-  try {
-    // TODO: In production, use a real geolocation API
-    // Example: const response = await fetch(`https://ipapi.co/${ipAddress}/json/`);
-    // For now, return null to avoid external dependencies
-    console.log("IP address for geolocation lookup:", ipAddress);
-    return null;
-  } catch (error) {
-    console.error("Failed to get geolocation:", error);
-    return null;
-  }
+  // TODO: In production, use a real geolocation API
+  // Example: const response = await fetch(`https://ipapi.co/${ipAddress}/json/`);
+  // For now, return null to avoid external dependencies
+  return null;
 }
 
 /**

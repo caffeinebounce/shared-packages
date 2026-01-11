@@ -42,7 +42,11 @@ export interface DeviceFingerprint {
  */
 export function generateDeviceFingerprint(): DeviceFingerprint {
   const userAgent = navigator.userAgent;
-  const platform = navigator.platform;
+  // Use modern User-Agent Client Hints API with fallback to deprecated navigator.platform
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/NavigatorUAData
+  const platform =
+    (navigator as Navigator & { userAgentData?: { platform?: string } })
+      .userAgentData?.platform || navigator.platform;
   const language = navigator.language;
   const screenResolution = `${screen.width}x${screen.height}`;
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
