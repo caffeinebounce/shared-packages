@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import {
   Button,
   Dialog,
@@ -40,6 +41,7 @@ export function TOTPEnrollmentDialog({
   onSuccess,
   existingFactor,
 }: TOTPEnrollmentDialogProps) {
+  const { logError } = useErrorLogger();
   const [step, setStep] = useState<"name" | "verify" | "backup" | "manage">(
     existingFactor ? "manage" : "name",
   );
@@ -125,7 +127,10 @@ export function TOTPEnrollmentDialog({
         await supabase.auth.mfa.listFactors();
 
       if (listError) {
-        console.error("Error listing factors:", listError);
+        logError(listError, {
+          component: "TOTPEnrollmentDialog",
+          action: "listFactors",
+        });
       }
 
       const allTOTP = existingFactors?.totp || [];
@@ -155,7 +160,10 @@ export function TOTPEnrollmentDialog({
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to set up authenticator";
-      console.error("Enrollment error:", err);
+      logError(err, {
+        component: "TOTPEnrollmentDialog",
+        action: "enrollTOTP",
+      });
       setError(message);
     } finally {
       setLoading(false);
@@ -194,7 +202,10 @@ export function TOTPEnrollmentDialog({
           body: JSON.stringify({ event: "mfa_enabled" }),
         });
       } catch (timestampError) {
-        console.error("Failed to update MFA timestamp:", timestampError);
+        logError(timestampError, {
+          component: "TOTPEnrollmentDialog",
+          action: "updateMFATimestamp",
+        });
       }
 
       // Generate recovery codes
@@ -209,7 +220,10 @@ export function TOTPEnrollmentDialog({
           body: JSON.stringify({ codes: newCodes }),
         });
       } catch (storeError) {
-        console.error("Failed to store recovery codes:", storeError);
+        logError(storeError, {
+          component: "TOTPEnrollmentDialog",
+          action: "storeRecoveryCodes",
+        });
         // Don't fail the whole flow if storage fails
       }
 

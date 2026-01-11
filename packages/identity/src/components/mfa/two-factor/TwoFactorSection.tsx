@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import {
   Badge,
   Button,
@@ -34,6 +35,7 @@ export interface TwoFactorSectionProps {
 }
 
 export function TwoFactorSection({ createClient }: TwoFactorSectionProps) {
+  const { logError } = useErrorLogger();
   const [loading, setLoading] = useState(true);
   const [factors, setFactors] = useState<MFAFactor[]>([]);
   const [enrollingTOTP, setEnrollingTOTP] = useState(false);
@@ -54,11 +56,14 @@ export function TwoFactorSection({ createClient }: TwoFactorSectionProps) {
       const allFactors = [...(data.totp || []), ...(data.phone || [])];
       setFactors(allFactors);
     } catch (error) {
-      console.error("Error loading MFA factors:", error);
+      logError(error, {
+        component: "TwoFactorSection",
+        action: "loadMFAFactors",
+      });
     } finally {
       setLoading(false);
     }
-  }, [createClient]);
+  }, [createClient, logError]);
 
   useEffect(() => {
     loadFactors();

@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import { formatPhoneInput } from "@caffeinebounce/shared-utils";
 import {
   Button,
@@ -56,6 +57,7 @@ export function PhoneSection({
   onPhoneChanged,
   verifyEndpoint = "/api/phone/verify",
 }: PhoneSectionProps) {
+  const { logError } = useErrorLogger();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [step, setStep] = useState<ChangeStep>("idle");
   const [newPhone, setNewPhone] = useState("");
@@ -206,7 +208,10 @@ export function PhoneSection({
       });
 
       if (updateError) {
-        console.error("Failed to update user phone:", updateError);
+        logError(updateError, {
+          component: "PhoneSection",
+          action: "updateUserPhone",
+        });
       }
 
       setStep("success");

@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import { formatDate } from "@caffeinebounce/shared-utils";
 
 /**
@@ -60,6 +61,7 @@ function isOlderThanOneYear(date: Date): boolean {
  * if the user has MFA enabled.
  */
 export function RecoverySection({ createClient }: RecoverySectionProps) {
+  const { logError } = useErrorLogger();
   const [showBackupCodes, setShowBackupCodes] = useState(false);
   const [showMfaConfirm, setShowMfaConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -112,11 +114,14 @@ export function RecoverySection({ createClient }: RecoverySectionProps) {
         setRecoveryEmail(emailData.recoveryEmail);
       }
     } catch (error) {
-      console.error("Error loading MFA status:", error);
+      logError(error, {
+        component: "RecoverySection",
+        action: "loadMFAStatus",
+      });
     } finally {
       setLoading(false);
     }
-  }, [createClient]);
+  }, [createClient, logError]);
 
   const handleCodesGenerated = useCallback(() => {
     setBackupCodesGeneratedAt(new Date());
@@ -341,6 +346,7 @@ function BackupCodesDialog({
   onOpenChange: (open: boolean) => void;
   onCodesGenerated?: () => void;
 }) {
+  const { logError } = useErrorLogger();
   const [codes, setCodes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -374,7 +380,10 @@ function BackupCodesDialog({
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to generate codes";
-      console.error("Error generating codes:", errorMessage);
+      logError(err, {
+        component: "BackupCodesDialog",
+        action: "generateCodes",
+      });
       setError(errorMessage);
     } finally {
       setLoading(false);

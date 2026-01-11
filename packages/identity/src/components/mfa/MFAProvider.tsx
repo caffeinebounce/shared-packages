@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import type { AuthenticatorAssuranceLevels } from "@supabase/supabase-js";
 import {
   createContext,
@@ -52,6 +53,7 @@ export interface MFAProviderProps {
  * ```
  */
 export function MFAProvider({ createClient, children }: MFAProviderProps) {
+  const { logError } = useErrorLogger();
   const [currentLevel, setCurrentLevel] =
     useState<AuthenticatorAssuranceLevels | null>(null);
   const [nextLevel, setNextLevel] =
@@ -77,18 +79,24 @@ export function MFAProvider({ createClient, children }: MFAProviderProps) {
         await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
 
       if (error) {
-        console.error("Error getting AAL:", error);
+        logError(error, {
+          component: "MFAProvider",
+          action: "getAAL",
+        });
         return;
       }
 
       setCurrentLevel(data.currentLevel);
       setNextLevel(data.nextLevel);
     } catch (error) {
-      console.error("Error in refreshAAL:", error);
+      logError(error, {
+        component: "MFAProvider",
+        action: "refreshAAL",
+      });
     } finally {
       setLoading(false);
     }
-  }, [createClient]);
+  }, [createClient, logError]);
 
   useEffect(() => {
     refreshAAL();
