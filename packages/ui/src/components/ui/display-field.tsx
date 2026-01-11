@@ -95,7 +95,7 @@ export function DisplayField({
           <a
             {...linkProps}
             className={cn(
-              "group flex items-center gap-1.5 text-foreground hover:text-primary hover:underline transition-colors",
+              "group flex items-center gap-1.5 text-sm text-foreground hover:text-primary hover:underline transition-colors",
               valueClassName,
             )}
           >
@@ -107,7 +107,7 @@ export function DisplayField({
         ) : (
           <span
             className={cn(
-              "text-foreground",
+              "text-sm text-foreground",
               multiline && "whitespace-pre-wrap",
               valueClassName,
             )}

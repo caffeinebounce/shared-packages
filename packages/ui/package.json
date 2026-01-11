@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@caffeinebounce/shared-utils": "^0.4.0",
+    "@grapesjs/studio-sdk": "^1.0.57",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -77,10 +78,6 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
-    "grapesjs": "^0.22.6",
-    "grapesjs-blocks-basic": "^1.0.2",
-    "grapesjs-plugin-forms": "^2.0.6",
-    "grapesjs-preset-newsletter": "^1.0.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.556.0",
     "react-day-picker": "^9.13.0",

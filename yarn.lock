@@ -287,6 +287,7 @@ __metadata:
   resolution: "@caffeinebounce/ui@workspace:packages/ui"
   dependencies:
     "@caffeinebounce/shared-utils": "npm:^0.4.0"
+    "@grapesjs/studio-sdk": "npm:^1.0.57"
     "@radix-ui/react-avatar": "npm:^1.1.11"
     "@radix-ui/react-collapsible": "npm:^1.1.12"
     "@radix-ui/react-dialog": "npm:^1.1.15"
@@ -309,10 +310,6 @@ __metadata:
     clsx: "npm:^2.1.1"
     cmdk: "npm:^1.1.1"
     date-fns: "npm:^4.1.0"
-    grapesjs: "npm:^0.22.6"
-    grapesjs-blocks-basic: "npm:^1.0.2"
-    grapesjs-plugin-forms: "npm:^2.0.6"
-    grapesjs-preset-newsletter: "npm:^1.0.2"
     input-otp: "npm:^1.4.2"
     lucide-react: "npm:^0.556.0"
     next: "npm:^16.0.7"
@@ -850,6 +847,32 @@ __metadata:
   version: 0.2.10
   resolution: "@floating-ui/utils@npm:0.2.10"
   checksum: 10c0/e9bc2a1730ede1ee25843937e911ab6e846a733a4488623cd353f94721b05ec2c9ec6437613a2ac9379a94c2fd40c797a2ba6fa1df2716f5ce4aa6ddb1cf9ea4
+  languageName: node
+  linkType: hard
+
+"@grapesjs/react@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@grapesjs/react@npm:2.0.0"
+  dependencies:
+    "@types/react": "npm:^19.0.0"
+    "@types/react-dom": "npm:^19.0.0"
+    react: "npm:^19.0.0"
+    react-dom: "npm:^19.0.0"
+  peerDependencies:
+    grapesjs: ^0.22.5
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  checksum: 10c0/4b433fdbd1639f29765da5a86aac433f2b33e11895297a46a78bdc32fd3963390dd1448fa403d850b9e766c1be6a9792e8621fc8050906bf70d0330dbcedb123
+  languageName: node
+  linkType: hard
+
+"@grapesjs/studio-sdk@npm:^1.0.57":
+  version: 1.0.57
+  resolution: "@grapesjs/studio-sdk@npm:1.0.57"
+  dependencies:
+    "@grapesjs/react": "npm:^2.0.0"
+    grapesjs: "npm:^0.22.14"
+  checksum: 10c0/d03b2e812faea52748979b9ed05a92fd3ae11b23210dc35e3ce9c369b160c6388f2fef6f552beaec4cb2e5bac3f93c317eb9b6129436018004ba1a287ef01e22
   languageName: node
   linkType: hard
 
@@ -2984,7 +3007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^19.1.6, @types/react-dom@npm:^19.2.1":
+"@types/react-dom@npm:^19.0.0, @types/react-dom@npm:^19.1.6, @types/react-dom@npm:^19.2.1":
   version: 19.2.3
   resolution: "@types/react-dom@npm:19.2.3"
   peerDependencies:
@@ -3008,6 +3031,15 @@ __metadata:
   dependencies:
     csstype: "npm:^3.2.2"
   checksum: 10c0/a7b75f1f9fcb34badd6f84098be5e35a0aeca614bc91f93d2698664c0b2ba5ad128422bd470ada598238cebe4f9e604a752aead7dc6f5a92261d0c7f9b27cfd1
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^19.0.0":
+  version: 19.2.8
+  resolution: "@types/react@npm:19.2.8"
+  dependencies:
+    csstype: "npm:^3.2.2"
+  checksum: 10c0/832834998c4ee971fca72ecf1eb95dc924ad3931a2112c687a4dae498aabd115c5fa4db09186853e34a646226b0223808c8f867df03d17601168f9cf119448de
   languageName: node
   linkType: hard
 
@@ -4093,28 +4125,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"grapesjs-blocks-basic@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "grapesjs-blocks-basic@npm:1.0.2"
-  checksum: 10c0/cc769bb8d69c105e41247e24010dd54fe12d54db358da7e36102bb15333632a8123cd9ae269132d33d8f50f358b86abe817334bca26dc294127f92d555606bf1
-  languageName: node
-  linkType: hard
-
-"grapesjs-plugin-forms@npm:^2.0.6":
-  version: 2.0.6
-  resolution: "grapesjs-plugin-forms@npm:2.0.6"
-  checksum: 10c0/8ee94462f07639c0c21b0b3d3c006e6a5f8f71422fe9efdc71b89341d769d172a24bad2dbe160e7e7fb6265adcc1a08139ab712de6df2de2de6b4cdf2c04378a
-  languageName: node
-  linkType: hard
-
-"grapesjs-preset-newsletter@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "grapesjs-preset-newsletter@npm:1.0.2"
-  checksum: 10c0/589128af4f641d752dc5e637ccd938f0d2f841a5a5b90208ee36c1126db473d37d6da7b2549ea16ca034d1f07759649bebb2c4e98b5935c8201d444a49dfdac5
-  languageName: node
-  linkType: hard
-
-"grapesjs@npm:^0.22.6":
+"grapesjs@npm:^0.22.14":
   version: 0.22.14
   resolution: "grapesjs@npm:0.22.14"
   dependencies:

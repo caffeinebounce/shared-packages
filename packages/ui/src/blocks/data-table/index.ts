@@ -33,6 +33,11 @@ export {
 export {
   DataTableExportButton,
   type DataTableExportButtonProps,
+  type ExportFormat,
+  type ExportToCsvOptions,
+  type ExportToExcelOptions,
+  exportToCsv,
+  exportToExcel,
 } from "./DataTableExportButton";
 export {
   type DataTableFilter,

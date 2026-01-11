@@ -147,16 +147,16 @@ export function DataTableColumnFilterContent({
   const hasValue = Boolean(localValue);
 
   return (
-    <div className="w-48">
+    <div className="w-52">
       {/* Header: Title + Operator + Menu */}
-      <div className="flex items-center gap-1 px-2 py-1.5 border-b border-border/40">
-        <span className="text-xs text-muted-foreground">{title}</span>
+      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border">
+        <span className="text-xs font-medium text-foreground">{title}</span>
 
         <Select
           value={operator}
           onValueChange={(v) => setOperator(v as FilterOperator)}
         >
-          <SelectTrigger className="!h-auto !min-h-0 !py-0 w-auto gap-0.5 border-0 shadow-none bg-transparent px-1 text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
+          <SelectTrigger className="!h-auto !min-h-0 !py-0.5 w-auto gap-1 border-0 shadow-none bg-muted/50 px-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -208,9 +208,9 @@ export function DataTableColumnFilterContent({
       </div>
 
       {/* Filter content based on type */}
-      <div className="p-0.5">
+      <div className="p-1">
         {filterType === "text" && (
-          <div className="p-2">
+          <div className="px-2 py-2">
             <Input
               placeholder={placeholder ?? `Search ${title.toLowerCase()}...`}
               value={localValue}
@@ -221,13 +221,23 @@ export function DataTableColumnFilterContent({
                   handleApply();
                 }
               }}
-              className="h-7 text-xs"
+              className="h-8 text-xs"
               autoFocus
             />
-            <div className="flex justify-end mt-2">
+            <div className="flex items-center justify-between mt-2 gap-2">
+              {localValue && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs px-2 text-muted-foreground hover:text-foreground"
+                  onClick={handleClear}
+                >
+                  Clear
+                </Button>
+              )}
               <Button
                 size="sm"
-                className="h-6 text-xs px-2.5"
+                className="h-7 text-xs px-3 ml-auto"
                 onClick={handleApply}
               >
                 Apply
@@ -237,7 +247,7 @@ export function DataTableColumnFilterContent({
         )}
 
         {filterType === "number" && (
-          <div className="p-2">
+          <div className="px-2 py-2">
             <Input
               type="number"
               placeholder={placeholder ?? `Enter ${title.toLowerCase()}...`}
@@ -249,13 +259,23 @@ export function DataTableColumnFilterContent({
                   handleApply();
                 }
               }}
-              className="h-7 text-xs"
+              className="h-8 text-xs"
               autoFocus
             />
-            <div className="flex justify-end mt-2">
+            <div className="flex items-center justify-between mt-2 gap-2">
+              {localValue && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs px-2 text-muted-foreground hover:text-foreground"
+                  onClick={handleClear}
+                >
+                  Clear
+                </Button>
+              )}
               <Button
                 size="sm"
-                className="h-6 text-xs px-2.5"
+                className="h-7 text-xs px-3 ml-auto"
                 onClick={handleApply}
               >
                 Apply
@@ -265,7 +285,7 @@ export function DataTableColumnFilterContent({
         )}
 
         {filterType === "select" && filterOptions && (
-          <div className="max-h-64 overflow-y-auto">
+          <div className="max-h-64 overflow-y-auto px-1">
             {filterOptions.map((option) => {
               const isSelected = selectedValues.has(option.value);
               const colorValue = getColorValue(option.color);
@@ -275,8 +295,9 @@ export function DataTableColumnFilterContent({
                   type="button"
                   key={option.value}
                   className={cn(
-                    "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-xs transition-colors",
-                    "hover:bg-accent hover:text-accent-foreground",
+                    "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs transition-colors",
+                    "hover:bg-muted",
+                    isSelected && "bg-muted/50",
                   )}
                   onClick={() => toggleOption(option.value)}
                 >
@@ -321,7 +342,7 @@ export function DataTableColumnFilterContent({
         )}
 
         {filterType === "boolean" && (
-          <div>
+          <div className="px-1">
             {(
               filterOptions ?? [
                 { label: "Yes", value: "true", color: "green" },
@@ -349,8 +370,9 @@ export function DataTableColumnFilterContent({
                   key={opt.value}
                   type="button"
                   className={cn(
-                    "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-xs transition-colors",
-                    "hover:bg-accent hover:text-accent-foreground",
+                    "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-xs transition-colors",
+                    "hover:bg-muted",
+                    isSelected && "bg-muted/50",
                   )}
                   onClick={() => toggleOption(opt.value)}
                 >
@@ -392,13 +414,13 @@ export function DataTableColumnFilterContent({
       {/* Clear footer */}
       {(filterType === "select" || filterType === "boolean") &&
         selectedValues.size > 0 && (
-          <div className="border-t border-border/40 p-0.5">
+          <div className="border-t border-border px-1 py-1">
             <button
               type="button"
-              className="flex w-full items-center rounded-sm px-2 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              className="flex w-full items-center rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
               onClick={handleClear}
             >
-              Clear
+              Clear filter
             </button>
           </div>
         )}
@@ -425,7 +447,7 @@ export function DataTableColumnFilter<TData, TValue>({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent align="start" className="w-56 p-0">
+      <PopoverContent align="start" className="w-56 p-0" sideOffset={4}>
         <DataTableColumnFilterContent
           title={title}
           value={current}

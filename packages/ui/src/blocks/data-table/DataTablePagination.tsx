@@ -66,17 +66,10 @@ export function DataTablePagination({
       )}
       {...props}
     >
-      <div className="flex-1 whitespace-nowrap text-xs font-light text-muted-foreground">
-        {selectedCount > 0 ? (
-          <>
-            {selectedCount} of {totalCount ?? pageCount * pageSize} row(s)
-            selected.
-          </>
-        ) : null}
-      </div>
+      <div className="flex-1" />
       <div className="flex items-center justify-end gap-1 sm:gap-2 lg:gap-6">
         <div className="flex items-center space-x-2">
-          <p className="whitespace-nowrap text-xs font-light text-muted-foreground">
+          <p className="whitespace-nowrap text-[length:var(--text-xs)] font-light text-muted-foreground">
             <span className="hidden lg:inline">Rows per page</span>
             <span className="lg:hidden">Rows</span>
           </p>
@@ -84,12 +77,16 @@ export function DataTablePagination({
             value={`${pageSize}`}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-6 w-[60px] px-2 text-[length:var(--text-xs)] focus:ring-0 focus:ring-offset-0 hover:bg-accent transition-colors">
               <SelectValue placeholder={pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
               {pageSizeOptions.map((size) => (
-                <SelectItem key={size} value={`${size}`}>
+                <SelectItem
+                  key={size}
+                  value={`${size}`}
+                  className="text-[length:var(--text-xs)] h-7"
+                >
                   {size}
                 </SelectItem>
               ))}
@@ -99,23 +96,23 @@ export function DataTablePagination({
         <div className="flex items-center space-x-1">
           <Button
             aria-label="Go to first page"
-            variant="outline"
-            className="hidden size-8 p-0 lg:flex"
+            variant="ghost"
+            className="hidden size-7 p-0 lg:flex hover:bg-accent"
             onClick={() => onPageChange(1)}
             disabled={!canGoPrevious}
           >
-            <ChevronsLeft className="size-4" />
+            <ChevronsLeft className="size-3.5" />
           </Button>
           <Button
             aria-label="Go to previous page"
-            variant="outline"
-            className="size-8 p-0"
+            variant="ghost"
+            className="size-7 p-0 hover:bg-accent"
             onClick={() => onPageChange(page - 1)}
             disabled={!canGoPrevious}
           >
-            <ChevronLeft className="size-4" />
+            <ChevronLeft className="size-3.5" />
           </Button>
-          <div className="flex items-center justify-center text-xs font-light text-muted-foreground whitespace-nowrap px-1">
+          <div className="flex items-center justify-center text-[length:var(--text-xs)] font-light text-muted-foreground whitespace-nowrap px-1">
             <span className="hidden lg:inline">
               Page {page} of {displayPageCount}
             </span>
@@ -125,21 +122,21 @@ export function DataTablePagination({
           </div>
           <Button
             aria-label="Go to next page"
-            variant="outline"
-            className="size-8 p-0"
+            variant="ghost"
+            className="size-7 p-0 hover:bg-accent"
             onClick={() => onPageChange(page + 1)}
             disabled={!canGoNext}
           >
-            <ChevronRight className="size-4" />
+            <ChevronRight className="size-3.5" />
           </Button>
           <Button
             aria-label="Go to last page"
-            variant="outline"
-            className="hidden size-8 p-0 lg:flex"
+            variant="ghost"
+            className="hidden size-7 p-0 lg:flex hover:bg-accent"
             onClick={() => onPageChange(displayPageCount)}
             disabled={!canGoNext}
           >
-            <ChevronsRight className="size-4" />
+            <ChevronsRight className="size-3.5" />
           </Button>
         </div>
       </div>

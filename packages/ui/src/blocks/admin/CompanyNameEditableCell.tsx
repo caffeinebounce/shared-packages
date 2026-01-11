@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../utils";
+import { useDataTableContext } from "../data-table";
 
 interface CompanyNameEditableCellProps {
   name: string;
@@ -26,6 +27,8 @@ export function CompanyNameEditableCell({
   const [dbaName, setDbaName] = useState(initialDbaName || "");
   const [isLoading, setIsLoading] = useState(false);
   const firstInputRef = useRef<HTMLInputElement>(null);
+  const context = useDataTableContext();
+  const isCompact = context?.density === "compact";
 
   useEffect(() => {
     if (isEditing && firstInputRef.current) {
@@ -154,12 +157,15 @@ export function CompanyNameEditableCell({
   return (
     <button
       type="button"
-      className="group flex flex-col w-full text-left cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors py-1"
+      className={cn(
+        "group flex w-full text-left cursor-pointer hover:bg-muted/50 px-2 -mx-2 rounded transition-colors",
+        isCompact ? "items-center" : "flex-col py-1",
+      )}
       onClick={() => setIsEditing(true)}
       title="Click to edit company details"
     >
       <span className="font-medium truncate">{name}</span>
-      {dbaName && (
+      {!isCompact && dbaName && (
         <span className="text-xs text-muted-foreground truncate">
           DBA: {dbaName}
         </span>

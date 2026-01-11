@@ -476,8 +476,18 @@ export function DataTable<TData, TValue>({
 
         {/* Table with gutter for selection/drag handles */}
         <div className={cn("mx-1", fontSizeClass)}>
-          <div className="overflow-x-auto rounded-md border pb-2 [&::-webkit-scrollbar-track]:bg-transparent">
-            <table className={cn("caption-bottom", fontSizeClass)}>
+          <div
+            className={cn(
+              "overflow-x-auto rounded-t-md [&::-webkit-scrollbar-track]:bg-transparent",
+              summary ? "border-t" : "border rounded-b-md",
+            )}
+          >
+            <table
+              className={cn(
+                "caption-bottom border-separate border-spacing-0",
+                fontSizeClass,
+              )}
+            >
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => {
                   // Get headers that should be rendered (excluding gutter select when using gutter)
@@ -510,15 +520,87 @@ export function DataTable<TData, TValue>({
                       {(rowSelectionStyle === "hover" || enableRowDrag) && (
                         <TableHead
                           className={cn(
-                            "p-0 border-r-0 whitespace-nowrap",
+                            "p-0 border-r-0 whitespace-nowrap border-l border-b border-border group/header-gutter",
                             headerHeight,
                           )}
                           style={{ width: "1%" }}
-                        />
+                        >
+                          <div className="flex items-center justify-end gap-0.5 px-1 h-full">
+                            {/* Spacer matching drag handle size for alignment */}
+                            {enableRowDrag && (
+                              <div
+                                className={cn(
+                                  "shrink-0",
+                                  density === "compact" ? "size-5" : "size-6",
+                                )}
+                                aria-hidden="true"
+                              />
+                            )}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                table.toggleAllPageRowsSelected(
+                                  !table.getIsAllPageRowsSelected(),
+                                )
+                              }
+                              className={cn(
+                                "flex items-center justify-center rounded border transition-all",
+                                checkboxSize,
+                                table.getIsAllPageRowsSelected()
+                                  ? "bg-primary border-primary text-primary-foreground opacity-100"
+                                  : table.getIsSomePageRowsSelected()
+                                    ? "bg-primary/50 border-primary text-primary-foreground opacity-100"
+                                    : "border-border hover:border-primary/50 hover:bg-accent opacity-0 group-hover/header-gutter:opacity-100",
+                              )}
+                              aria-label={
+                                table.getIsAllPageRowsSelected()
+                                  ? "Deselect all rows"
+                                  : "Select all rows"
+                              }
+                            >
+                              {table.getIsAllPageRowsSelected() && (
+                                <svg
+                                  className={checkmarkSize}
+                                  viewBox="0 0 12 12"
+                                  fill="none"
+                                  aria-hidden="true"
+                                >
+                                  <path
+                                    d="M2.5 6L5 8.5L9.5 3.5"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              )}
+                              {table.getIsSomePageRowsSelected() &&
+                                !table.getIsAllPageRowsSelected() && (
+                                  <svg
+                                    className={checkmarkSize}
+                                    viewBox="0 0 12 12"
+                                    fill="none"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      d="M2.5 6H9.5"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                    />
+                                  </svg>
+                                )}
+                            </button>
+                          </div>
+                        </TableHead>
                       )}
                       {orderedHeaders.map((header, headerIndex) => {
                         const isLastColumn =
                           headerIndex === orderedHeaders.length - 1;
+                        // Only first column gets left border if no gutter exists
+                        const hasGutter =
+                          rowSelectionStyle === "hover" || enableRowDrag;
+                        const isFirstColumn = headerIndex === 0 && !hasGutter;
 
                         // Determine if header is a simple string (not a function/component)
                         const headerDef = header.column.columnDef.header;
@@ -572,10 +654,11 @@ export function DataTable<TData, TValue>({
                             className={cn(
                               isSimpleHeader ? "px-2" : "p-0", // Add padding for simple headers, let component headers handle their own
                               headerHeight,
-                              "relative overflow-hidden text-ellipsis",
+                              "relative overflow-hidden text-ellipsis border-b border-border",
                               !columnWrapping[header.id] && "whitespace-nowrap",
                               columnWrapping[header.id] && "whitespace-normal",
-                              !isLastColumn && "border-r border-border/30",
+                              isFirstColumn && "border-l border-border",
+                              "border-r border-border",
                               isDragOverLeft && "border-l-2 border-l-primary",
                               isDragOverRight && "border-r-2 border-r-primary",
                             )}
@@ -633,7 +716,9 @@ export function DataTable<TData, TValue>({
                   );
                 })}
               </TableHeader>
-              <TableBody>
+              <TableBody
+                className={summary ? "[&_tr:last-child]:border-b" : undefined}
+              >
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row, rowIndex) => {
                     const isHovered = hoveredRowId === row.id;
@@ -670,14 +755,30 @@ export function DataTable<TData, TValue>({
                         className={cn(
                           "group/row",
                           onRowClick && "cursor-pointer hover:bg-muted/50",
-                          isDragOverAbove && "border-t-2 border-t-primary",
-                          isDragOverBelow && "border-b-2 border-b-primary",
+                          // Add bottom border to last row when summary exists
+                          summary &&
+                            rowIndex === table.getRowModel().rows.length - 1 &&
+                            "border-b",
                         )}
                       >
                         {/* Gutter cell with controls - inside the row so perfectly aligned */}
                         {(rowSelectionStyle === "hover" || enableRowDrag) && (
                           <TableCell
-                            className="p-0 border-r-0 whitespace-nowrap"
+                            className={cn(
+                              "p-0 border-r-0 whitespace-nowrap border-l border-border",
+                              // All rows get bottom border except last row without summary
+                              rowIndex !==
+                                table.getRowModel().rows.length - 1 &&
+                                "border-b border-border",
+                              // Last row only gets border-b when summary exists, plus rounding
+                              summary &&
+                                rowIndex ===
+                                  table.getRowModel().rows.length - 1 &&
+                                "border-b border-border rounded-bl-md overflow-hidden",
+                              // Drag-over indicator
+                              isDragOverAbove && "border-t-2 border-t-primary",
+                              isDragOverBelow && "border-b-2 border-b-primary",
+                            )}
                             style={{ width: "1%" }}
                           >
                             <div
@@ -774,6 +875,10 @@ export function DataTable<TData, TValue>({
                           .map((cell, cellIndex, sortedCells) => {
                             const isLastColumn =
                               cellIndex === sortedCells.length - 1;
+                            // Only first column gets left border if no gutter exists
+                            const hasGutter =
+                              rowSelectionStyle === "hover" || enableRowDrag;
+                            const isFirstColumn = cellIndex === 0 && !hasGutter;
 
                             // Check if this is a fixed-width column
                             const colDef = cell.column.columnDef;
@@ -803,15 +908,33 @@ export function DataTable<TData, TValue>({
                                   !isWrapped &&
                                     "overflow-hidden text-ellipsis whitespace-nowrap",
                                   isWrapped && "whitespace-normal break-words",
-                                  !isLastColumn && "border-r border-border/30",
+                                  !isLastColumn && "border-r border-border",
+                                  isFirstColumn && "border-l border-border",
+                                  isLastColumn && "border-r border-border",
+                                  isActionsColumn && "whitespace-nowrap",
+                                  // All rows get bottom border except last row without summary
+                                  rowIndex !==
+                                    table.getRowModel().rows.length - 1 &&
+                                    "border-b border-border",
+                                  // Last row only gets border-b when summary exists, plus rounding on corners
+                                  summary &&
+                                    rowIndex ===
+                                      table.getRowModel().rows.length - 1 &&
+                                    "border-b border-border",
+                                  summary &&
+                                    rowIndex ===
+                                      table.getRowModel().rows.length - 1 &&
+                                    isLastColumn &&
+                                    "rounded-br-md overflow-hidden",
+                                  summary &&
+                                    rowIndex ===
+                                      table.getRowModel().rows.length - 1 &&
+                                    isFirstColumn &&
+                                    "rounded-bl-md overflow-hidden",
                                 )}
-                                style={
-                                  isFixedWidth || isActionsColumn
-                                    ? { width: "1%" }
-                                    : resizedWidth
-                                      ? { width: resizedWidth }
-                                      : undefined
-                                }
+                                style={{
+                                  width: resizedWidth || cell.column.getSize(),
+                                }}
                               >
                                 <div className={cn(!isWrapped && "truncate")}>
                                   {flexRender(
@@ -841,9 +964,7 @@ export function DataTable<TData, TValue>({
                   </TableRow>
                 )}
               </TableBody>
-              {summary && (
-                <tfoot className="bg-muted/50 font-medium">{summary}</tfoot>
-              )}
+              {summary && <tfoot>{summary}</tfoot>}
             </table>
           </div>
         </div>

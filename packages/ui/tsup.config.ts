@@ -20,6 +20,7 @@ export default defineConfig({
   ],
   treeshake: true,
   minify: false,
+  injectStyle: false,
   outExtension({ format }) {
     return {
       js: format === "esm" ? ".mjs" : ".js",
