@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import { MessageSquare, Send } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../components/ui/button";
@@ -49,6 +50,7 @@ export function FeedbackDialog({
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { logError } = useErrorLogger();
 
   const handleSubmit = async () => {
     if (!feedback.trim()) return;
@@ -59,7 +61,7 @@ export function FeedbackDialog({
       setFeedback("");
       setOpen(false);
     } catch (error) {
-      console.error("Failed to submit feedback:", error);
+      logError(error, { component: "FeedbackDialog", action: "handleSubmit" });
     } finally {
       setIsSubmitting(false);
     }
