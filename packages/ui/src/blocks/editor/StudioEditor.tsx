@@ -215,7 +215,7 @@ const formBlocks: StudioBlock[] = [
 ];
 
 /** Default block categories for forms */
-const formBlockCategories: StudioBlockCategory[] = [
+const _formBlockCategories: StudioBlockCategory[] = [
   { id: "Form", label: "Form Elements", order: 1, open: true },
   { id: "Basic", label: "Basic", order: 2, open: false },
 ];
@@ -279,7 +279,7 @@ export function StudioEditor({
   projectType = "web",
   initialContent,
   onChange,
-  onSave,
+  onSave: _onSave,
   theme = "light",
   customBlocks,
   blockCategories: _blockCategories,
