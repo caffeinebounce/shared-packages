@@ -11,12 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "./card";
 export type TrendDirection = "up" | "down" | "neutral";
 
 export interface StatCardTrend {
-  /** Percentage or absolute value to display */
+  /** The trend value to display */
   value: number;
   /** Direction of the trend */
   direction: TrendDirection;
   /** Optional label (e.g., "vs last month") */
   label?: string;
+  /** Whether to format value as percentage (default: true) */
+  isPercentage?: boolean;
 }
 
 /** Format type for stat values */
@@ -88,9 +90,9 @@ export interface StatCardProps {
   defaultSide?: "stat" | "chart";
 }
 
-function formatTrendValue(value: number): string {
+function formatTrendValue(value: number, isPercentage = true): string {
   const sign = value >= 0 ? "+" : "";
-  return `${sign}${value}%`;
+  return isPercentage ? `${sign}${value}%` : `${sign}${value}`;
 }
 
 /**
@@ -168,47 +170,31 @@ function TrendBadge({ trend }: { trend: StatCardTrend }) {
       className={cn("gap-1 rounded-md text-xs", colorClass)}
     >
       {Icon && <Icon className="size-3" />}
-      {formatTrendValue(trend.value)}
+      {formatTrendValue(trend.value, trend.isPercentage ?? true)}
     </Badge>
   );
 }
 
-/** Navigation dots for flip card */
-function FlipIndicator({
-  activeSide,
-  onFlip,
-}: {
-  activeSide: "stat" | "chart";
-  onFlip: () => void;
-}) {
+/** Navigation dots for flip card - visual indicator only, parent button handles click */
+function FlipIndicator({ activeSide }: { activeSide: "stat" | "chart" }) {
   return (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onFlip();
-      }}
-      className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10"
-      aria-label={`Show ${activeSide === "stat" ? "chart" : "stat"} view`}
+    <div
+      className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 pointer-events-none"
+      aria-hidden="true"
     >
       <span
         className={cn(
           "h-1.5 w-1.5 rounded-full transition-colors",
-          activeSide === "stat"
-            ? "bg-foreground/60"
-            : "bg-foreground/20 hover:bg-foreground/30",
+          activeSide === "stat" ? "bg-foreground/60" : "bg-foreground/20",
         )}
       />
       <span
         className={cn(
           "h-1.5 w-1.5 rounded-full transition-colors",
-          activeSide === "chart"
-            ? "bg-foreground/60"
-            : "bg-foreground/20 hover:bg-foreground/30",
+          activeSide === "chart" ? "bg-foreground/60" : "bg-foreground/20",
         )}
       />
-    </button>
+    </div>
   );
 }
 
@@ -536,7 +522,7 @@ export function StatCard({
               </p>
             )}
           </CardContent>
-          <FlipIndicator activeSide={activeSide} onFlip={handleFlip} />
+          <FlipIndicator activeSide={activeSide} />
         </Card>
 
         {/* Back side - Chart Card */}
@@ -551,7 +537,7 @@ export function StatCard({
           <CardContent className="relative px-4 py-0 h-full">
             <MiniChart {...chart} />
           </CardContent>
-          <FlipIndicator activeSide={activeSide} onFlip={handleFlip} />
+          <FlipIndicator activeSide={activeSide} />
         </Card>
       </button>
     </div>
@@ -581,16 +567,37 @@ export function StatCardsContainer({
     2: "grid-cols-2",
     3: "grid-cols-3",
     4: "grid-cols-4",
-  };
+  } as const;
+
+  const smColClasses = {
+    1: "sm:grid-cols-1",
+    2: "sm:grid-cols-2",
+    3: "sm:grid-cols-3",
+    4: "sm:grid-cols-4",
+  } as const;
+
+  const mdColClasses = {
+    1: "md:grid-cols-1",
+    2: "md:grid-cols-2",
+    3: "md:grid-cols-3",
+    4: "md:grid-cols-4",
+  } as const;
+
+  const lgColClasses = {
+    1: "lg:grid-cols-1",
+    2: "lg:grid-cols-2",
+    3: "lg:grid-cols-3",
+    4: "lg:grid-cols-4",
+  } as const;
 
   return (
     <div
       className={cn(
         "grid gap-4",
         columns.default && colClasses[columns.default],
-        columns.sm && `sm:${colClasses[columns.sm]}`,
-        columns.md && `md:${colClasses[columns.md]}`,
-        columns.lg && `lg:${colClasses[columns.lg]}`,
+        columns.sm && smColClasses[columns.sm],
+        columns.md && mdColClasses[columns.md],
+        columns.lg && lgColClasses[columns.lg],
         className,
       )}
     >
