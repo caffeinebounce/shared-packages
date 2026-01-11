@@ -215,7 +215,8 @@ function MiniChart({ data, type = "area", periodLabel }: StatCardChartConfig) {
 
   // Calculate points with some vertical padding
   const points = data.map((d, i) => {
-    const x = paddingX + (i / (data.length - 1)) * (width - paddingX * 2);
+    const normalizedX = data.length > 1 ? i / (data.length - 1) : 0.5;
+    const x = paddingX + normalizedX * (width - paddingX * 2);
     const y =
       height -
       paddingY -
@@ -255,7 +256,7 @@ function MiniChart({ data, type = "area", periodLabel }: StatCardChartConfig) {
   const barWidth = (width - paddingX * 2) / data.length - 2;
 
   // Generate unique ID for gradient
-  const gradientId = `miniChartGradient-${Math.random().toString(36).substr(2, 9)}`;
+  const gradientId = `miniChartGradient-${Math.random().toString(36).substring(2, 11)}`;
 
   return (
     <div className="flex flex-col h-full justify-center px-1">
@@ -485,6 +486,10 @@ export function StatCard({
           activeSide === "chart" && "[transform:rotateY(180deg)]",
         )}
         onClick={handleBodyClick}
+        aria-label={
+          activeSide === "chart" ? "Show statistic view" : "Show chart view"
+        }
+        aria-pressed={activeSide === "chart"}
       >
         {/* Front side - Stat Card */}
         <Card

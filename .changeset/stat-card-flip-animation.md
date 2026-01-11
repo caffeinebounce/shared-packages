@@ -2,13 +2,15 @@
 "@caffeinebounce/ui": minor
 ---
 
-feat(ui): Add StatCard flip-to-chart feature with 3D animation
+Add StatCard dashboard component with flip-to-chart interactions
 
-- StatCard now supports optional `chart` prop for flip-to-chart functionality
-- Full 3D card flip animation using CSS transforms (perspective, preserve-3d, backface-visibility)
-- Built-in MiniChart component with SVG-based area/line/bar charts
-- New props: `chart`, `defaultSide`, `href` for navigation
+- Ultra-aesthetic shadcn v4-inspired stat card with gradient and solid variants
+- Supports trend indicators with up/down badges and isPercentage option
+- Optional icon, description, and footer sections for flexible layouts
+- Flip-to-chart interaction with built-in MiniChart (SVG area/line/bar charts)
+- Smooth 3D flip animation using CSS transforms (perspective, preserve-3d)
 - Enhanced value formatting: `format` prop supports "number", "currency", "percent", "compact", "none"
-- Click handling: card body flips, header navigates via href
-- FlipIndicator dots show current side and enable manual flipping
-- Fixed ChartContainer dimension issues with ResizeObserver
+- Accessible: aria-label, aria-pressed, keyboard navigation
+- StatCardsContainer helper for responsive grid layouts with static Tailwind classes
+- Comprehensive test coverage (33 tests)
+- Fully typed with TypeScript and exported from the UI package entrypoint

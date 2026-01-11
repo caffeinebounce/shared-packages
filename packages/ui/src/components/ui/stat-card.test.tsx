@@ -277,6 +277,36 @@ describe("StatCard", () => {
       expect(screen.getByText("Mon")).toBeInTheDocument();
       expect(screen.getByText("Fri")).toBeInTheDocument();
     });
+
+    it("handles single data point without division by zero", () => {
+      const singlePointData = {
+        data: [{ label: "Today", value: 42 }],
+        type: "area" as const,
+      };
+
+      // Should render without throwing
+      const { container } = render(
+        <StatCard title="Users" value={100} chart={singlePointData} />,
+      );
+
+      // Chart should be rendered
+      const svg = container.querySelector("svg");
+      expect(svg).toBeInTheDocument();
+
+      // Labels should show (appears twice - start and end)
+      const labels = screen.getAllByText("Today");
+      expect(labels.length).toBe(2);
+    });
+
+    it("has accessible aria attributes on flip button", () => {
+      const { container } = render(
+        <StatCard title="Users" value={100} chart={mockChartData} />,
+      );
+
+      const flipButton = container.querySelector('button[type="button"]');
+      expect(flipButton).toHaveAttribute("aria-label", "Show chart view");
+      expect(flipButton).toHaveAttribute("aria-pressed", "false");
+    });
   });
 });
 

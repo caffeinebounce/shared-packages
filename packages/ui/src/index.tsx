@@ -479,6 +479,7 @@ export type {
   StatCardsContainerProps,
   StatCardTrend,
   StatChartDataPoint,
+  StatValueFormat,
   TrendDirection,
 } from "./components/ui/stat-card";
 export { StatCard, StatCardsContainer } from "./components/ui/stat-card";
