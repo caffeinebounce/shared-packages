@@ -473,6 +473,13 @@ export { SocialIcon, socialPlatforms } from "./components/ui/social-icon";
 export { Toaster } from "./components/ui/sonner";
 export type { SpinnerProps } from "./components/ui/spinner";
 export { Spinner, spinnerVariants } from "./components/ui/spinner";
+export type {
+  StatCardProps,
+  StatCardsContainerProps,
+  StatCardTrend,
+  TrendDirection,
+} from "./components/ui/stat-card";
+export { StatCard, StatCardsContainer } from "./components/ui/stat-card";
 export type { StepperProps, StepperStep } from "./components/ui/stepper";
 export { Stepper } from "./components/ui/stepper";
 export { Switch } from "./components/ui/switch";
