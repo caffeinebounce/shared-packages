@@ -83,6 +83,28 @@ export function formatPhoneNumber(phone: string | null | undefined): string {
 }
 
 /**
+ * Format a phone number as the user types (for input masking).
+ * Handles partial input and formats progressively.
+ *
+ * @param value - Current input value
+ * @returns Formatted phone number like "(123) 456-7890" (no country code)
+ *
+ * @example
+ * ```ts
+ * formatPhoneInput("123") // "123"
+ * formatPhoneInput("1234") // "(123) 4"
+ * formatPhoneInput("1234567890") // "(123) 456-7890"
+ * ```
+ */
+export function formatPhoneInput(value: string): string {
+  const numbers = value.replace(/\D/g, "");
+  if (numbers.length <= 3) return numbers;
+  if (numbers.length <= 6)
+    return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
+  return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
+}
+
+/**
  * Format a number as currency.
  *
  * @param amount - Number or string representing an amount

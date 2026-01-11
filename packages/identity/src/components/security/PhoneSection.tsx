@@ -1,5 +1,6 @@
 "use client";
 
+import { formatPhoneInput } from "@caffeinebounce/shared-utils";
 import {
   Button,
   Dialog,
@@ -34,15 +35,6 @@ export interface PhoneSectionProps {
 }
 
 type ChangeStep = "idle" | "enter-phone" | "verify-code" | "success";
-
-// Format phone number as user types
-function formatPhoneNumber(value: string): string {
-  const numbers = value.replace(/\D/g, "");
-  if (numbers.length <= 3) return numbers;
-  if (numbers.length <= 6)
-    return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
-  return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
-}
 
 // Clean phone number for API
 function cleanPhoneNumber(value: string): string {
@@ -102,7 +94,7 @@ export function PhoneSection({
 
     setLoading(true);
     setError("");
-    setNewPhone(formatPhoneNumber(phone.replace("+1", "")));
+    setNewPhone(formatPhoneInput(phone.replace("+1", "")));
 
     try {
       const response = await fetch(verifyEndpoint, {
@@ -133,7 +125,7 @@ export function PhoneSection({
   };
 
   const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
+    const formatted = formatPhoneInput(e.target.value);
     setNewPhone(formatted);
   };
 
@@ -264,7 +256,7 @@ export function PhoneSection({
   };
 
   const displayPhone = phone
-    ? formatPhoneNumber(phone.replace("+1", ""))
+    ? formatPhoneInput(phone.replace("+1", ""))
     : "Not set";
 
   return (
