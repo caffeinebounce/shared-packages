@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import {
   type DeviceInfo,
   MFARecovery as MFARecoveryUI,
@@ -49,6 +50,7 @@ export function MFARecovery({
   mfaChallengeUrl = "/mfa-challenge",
   signInUrl = "/signin",
 }: MFARecoveryProps) {
+  const { logError } = useErrorLogger();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -93,7 +95,10 @@ export function MFARecovery({
       })
       .catch((err) => {
         if (err.name !== "AbortError") {
-          console.error("Failed to fetch device info:", err);
+          logError(err, {
+            component: "MFARecovery",
+            action: "fetchDeviceInfo",
+          });
         }
       });
 
@@ -108,7 +113,7 @@ export function MFARecovery({
       });
 
     return () => controller.abort();
-  }, []);
+  }, [logError]);
 
   const handleVerifyBackupCode = useCallback(
     async (code: string) => {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import {
   Button,
   FieldError,
@@ -74,6 +75,7 @@ export function ResetPasswordForm({
   className,
   onAuthEvent,
 }: ResetPasswordFormProps) {
+  const { logError } = useErrorLogger();
   const mergedLinks = { ...defaultAuthLinks, ...links };
   const Link = LinkComponent;
   const Image = ImageComponent;
@@ -157,7 +159,10 @@ export function ResetPasswordForm({
     if (errorMessage.includes("session") || errorMessage.includes("expired")) {
       return "Your password reset link has expired. Please request a new one.";
     }
-    console.error("Password reset error:", errorMessage);
+    logError(new Error(errorMessage), {
+      component: "ResetPasswordForm",
+      action: "passwordReset",
+    });
     return "Unable to update your password. Please try again or contact support if the problem persists.";
   }
 

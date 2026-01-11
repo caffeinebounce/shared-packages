@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import {
   Button,
   cn,
@@ -102,6 +103,7 @@ export function SigninForm({
   className,
   onAuthEvent,
 }: SigninFormProps) {
+  const { logError } = useErrorLogger();
   const mergedLinks = { ...defaultAuthLinks, ...links };
   const Link = LinkComponent;
   const Image = ImageComponent;
@@ -281,7 +283,10 @@ export function SigninForm({
         window.location.href = redirectTo;
       }
     } catch (err) {
-      console.error("Sign in error:", err);
+      logError(err, {
+        component: "SigninForm",
+        action: "signIn",
+      });
       setError("An unexpected error occurred. Please try again.");
 
       // Log sign-in failure

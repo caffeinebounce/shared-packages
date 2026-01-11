@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import {
   Button,
   Dialog,
@@ -52,6 +53,7 @@ export function DeleteAccountSection({
   email,
   retentionDays = 30,
 }: DeleteAccountSectionProps) {
+  const { logError } = useErrorLogger();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [mfaDialogOpen, setMfaDialogOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
@@ -68,7 +70,10 @@ export function DeleteAccountSection({
       const supabase = createClient();
       const { data, error: mfaError } = await supabase.auth.mfa.listFactors();
       if (mfaError) {
-        console.error("Error checking MFA factors:", mfaError);
+        logError(mfaError, {
+          component: "DeleteAccountSection",
+          action: "checkMFAFactors",
+        });
         toast.error("Unable to verify MFA status. Please try again.");
         return false;
       }
@@ -88,11 +93,14 @@ export function DeleteAccountSection({
       }
       return false;
     } catch (err) {
-      console.error("Error checking MFA:", err);
+      logError(err, {
+        component: "DeleteAccountSection",
+        action: "checkMFA",
+      });
       toast.error("Unable to verify MFA status. Please try again.");
       return false;
     }
-  }, [createClient]);
+  }, [createClient, logError]);
 
   const handleDeleteClick = async () => {
     setError("");

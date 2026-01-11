@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import {
   Button,
   Dialog,
@@ -41,6 +42,7 @@ export function PasswordSection({
   externalOpen,
   onExternalOpenChange,
 }: PasswordSectionProps) {
+  const { logError } = useErrorLogger();
   const [internalDialogOpen, setInternalDialogOpen] = useState(false);
   const [step, setStep] = useState<ChangeStep>("idle");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -219,7 +221,10 @@ export function PasswordSection({
         ) {
           setError("Your session has expired. Please sign in again.");
         } else {
-          console.error("Password update error:", error.message);
+          logError(error, {
+            component: "PasswordSection",
+            action: "updatePassword",
+          });
           setError(
             "Unable to update your password. Please try again or contact support.",
           );
@@ -235,7 +240,10 @@ export function PasswordSection({
           body: JSON.stringify({ event: "password_changed" }),
         });
       } catch (timestampError) {
-        console.error("Failed to update password timestamp:", timestampError);
+        logError(timestampError, {
+          component: "PasswordSection",
+          action: "updatePasswordTimestamp",
+        });
       }
 
       setHasPassword(true);
