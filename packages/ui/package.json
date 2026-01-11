@@ -57,6 +57,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@caffeinebounce/logger": "^0.4.0",
     "@caffeinebounce/shared-utils": "^0.4.0",
     "@grapesjs/studio-sdk": "^1.0.57",
     "@radix-ui/react-avatar": "^1.1.11",

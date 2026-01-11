@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import { Check, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -58,6 +59,7 @@ export function EditableCell({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const context = useDataTableContext();
   const isCompact = context?.density === "compact";
+  const { logError } = useErrorLogger();
 
   useEffect(() => {
     if (isEditing) {
@@ -114,7 +116,11 @@ export function EditableCell({
       setIsEditing(false);
       onSuccess?.(valueToSave);
     } catch (error) {
-      console.error("Update error:", error);
+      logError(error, {
+        component: "EditableCell",
+        action: "handleSave",
+        metadata: { columnId, rowId },
+      });
       toast.error(error instanceof Error ? error.message : "Failed to update");
       setValue(initialValue ?? (type === "boolean" ? false : "")); // Revert on error
     } finally {

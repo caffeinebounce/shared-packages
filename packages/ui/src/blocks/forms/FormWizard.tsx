@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import type { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
 import {
@@ -167,6 +168,7 @@ export function FormWizard<T = unknown>({
   const totalSteps = steps.length;
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === totalSteps - 1;
+  const { logError } = useErrorLogger();
 
   // Persistence logic
   const [storedValue, setStoredValue, , isLoaded] = useLocalStorage<T | null>(
@@ -266,11 +268,15 @@ export function FormWizard<T = unknown>({
             JSON.stringify(formDataRef.current),
           );
         } catch (e) {
-          console.error("[FormWizard] Failed to save on unmount", e);
+          logError(e, {
+            component: "FormWizard",
+            action: "saveOnUnmount",
+            metadata: { persistKey },
+          });
         }
       }
     };
-  }, [hasRestored, persistKey]);
+  }, [hasRestored, persistKey, logError]);
 
   // Restore from storage on mount
   useEffect(() => {
@@ -381,7 +387,11 @@ export function FormWizard<T = unknown>({
             window.localStorage.removeItem(persistKey);
             setStoredValue(null);
           } catch (err) {
-            console.error("[FormWizard] Failed to clear storage on reset", err);
+            logError(err, {
+              component: "FormWizard",
+              action: "clearStorageOnReset",
+              metadata: { persistKey },
+            });
           }
         }
 
@@ -417,6 +427,7 @@ export function FormWizard<T = unknown>({
     onReset,
     persistKey,
     setStoredValue,
+    logError,
   ]);
 
   /**

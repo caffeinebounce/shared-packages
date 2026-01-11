@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import { Check, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ export function UserNameEditableCell({
   const [lastName, setLastName] = useState(initialLastName || "");
   const [isLoading, setIsLoading] = useState(false);
   const firstInputRef = useRef<HTMLInputElement>(null);
+  const { logError } = useErrorLogger();
 
   useEffect(() => {
     if (isEditing && firstInputRef.current) {
@@ -60,7 +62,11 @@ export function UserNameEditableCell({
       setIsEditing(false);
       onSuccess?.(firstName, lastName);
     } catch (error) {
-      console.error("Update error:", error);
+      logError(error, {
+        component: "UserNameEditableCell",
+        action: "handleSave",
+        metadata: { rowId },
+      });
       toast.error(error instanceof Error ? error.message : "Failed to update");
       // Revert on error
       setFirstName(initialFirstName || "");

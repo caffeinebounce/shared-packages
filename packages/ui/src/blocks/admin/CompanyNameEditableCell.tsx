@@ -1,5 +1,6 @@
 "use client";
 
+import { useErrorLogger } from "@caffeinebounce/logger";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
@@ -29,6 +30,7 @@ export function CompanyNameEditableCell({
   const firstInputRef = useRef<HTMLInputElement>(null);
   const context = useDataTableContext();
   const isCompact = context?.density === "compact";
+  const { logError } = useErrorLogger();
 
   useEffect(() => {
     if (isEditing && firstInputRef.current) {
@@ -64,7 +66,11 @@ export function CompanyNameEditableCell({
       setIsEditing(false);
       onSuccess?.(name, dbaName || null);
     } catch (error) {
-      console.error("Update error:", error);
+      logError(error, {
+        component: "CompanyNameEditableCell",
+        action: "handleSave",
+        metadata: { rowId },
+      });
       toast.error(error instanceof Error ? error.message : "Failed to update");
       // Revert on error
       setName(initialName || "");
