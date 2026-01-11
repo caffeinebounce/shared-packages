@@ -474,9 +474,11 @@ export { Toaster } from "./components/ui/sonner";
 export type { SpinnerProps } from "./components/ui/spinner";
 export { Spinner, spinnerVariants } from "./components/ui/spinner";
 export type {
+  StatCardChartConfig,
   StatCardProps,
   StatCardsContainerProps,
   StatCardTrend,
+  StatChartDataPoint,
   TrendDirection,
 } from "./components/ui/stat-card";
 export { StatCard, StatCardsContainer } from "./components/ui/stat-card";

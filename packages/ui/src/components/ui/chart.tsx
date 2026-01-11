@@ -40,17 +40,56 @@ export const ChartContainer = React.forwardRef<
 >(({ id, className, children, config, ...props }, ref) => {
   const uniqueId = React.useId();
   const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
-  const [mounted, setMounted] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [dimensions, setDimensions] = React.useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+
+  // Merge refs
+  React.useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
 
   React.useEffect(() => {
-    setMounted(true);
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Check dimensions after layout is complete
+    const updateDimensions = () => {
+      const { width, height } = container.getBoundingClientRect();
+      if (width > 0 && height > 0) {
+        setDimensions({ width: Math.floor(width), height: Math.floor(height) });
+      }
+    };
+
+    // Initial check after a small delay to ensure CSS is applied
+    const timeout = setTimeout(updateDimensions, 50);
+
+    // Also observe for resize
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) {
+          setDimensions({
+            width: Math.floor(width),
+            height: Math.floor(height),
+          });
+        }
+      }
+    });
+
+    resizeObserver.observe(container);
+
+    return () => {
+      clearTimeout(timeout);
+      resizeObserver.disconnect();
+    };
   }, []);
 
   return (
     <ChartContext.Provider value={{ config }}>
       <div
         data-chart={chartId}
-        ref={ref}
+        ref={containerRef}
         className={cn(
           "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
           className,
@@ -58,12 +97,10 @@ export const ChartContainer = React.forwardRef<
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        {mounted ? (
+        {dimensions ? (
           <ResponsiveContainer
-            width="100%"
-            height="100%"
-            minWidth={0}
-            minHeight={0}
+            width={dimensions.width}
+            height={dimensions.height}
           >
             {children}
           </ResponsiveContainer>
