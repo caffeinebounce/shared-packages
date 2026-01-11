@@ -261,9 +261,16 @@ export function exportToExcel<TData>({
           (row) => `<Row>
         ${row
           .map((cell) => {
-            // Detect if value is a number
-            const numValue = Number(cell);
-            const isNumber = cell !== "" && !Number.isNaN(numValue);
+            // Detect if value should be treated as a number in Excel
+            // Preserve leading zeros (e.g., "0001234" stays as string)
+            const trimmed = cell.trim();
+            const isNumericPattern =
+              trimmed !== "" && /^-?\d+(\.\d+)?$/.test(trimmed);
+            const hasLeadingZero =
+              /^0\d+$/.test(trimmed) || /^-0\d+$/.test(trimmed);
+            const numValue = Number(trimmed);
+            const isNumber =
+              isNumericPattern && !hasLeadingZero && !Number.isNaN(numValue);
             const type = isNumber ? "Number" : "String";
             const value = isNumber ? numValue : escapeXml(cell);
             return `<Cell><Data ss:Type="${type}">${value}</Data></Cell>`;

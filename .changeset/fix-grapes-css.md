@@ -29,6 +29,16 @@ import { StudioEditor } from "@caffeinebounce/ui";
 - `formPreset`, `emailPreset`, `baseConfig`
 - `./grapes.css` CSS export
 
+### Existing GrapesJS Project Data (`gjsData`)
+
+This migration does **not** automatically transform previously saved GrapesJS project data.
+
+If your application stores `gjsData` from the old `GrapesEditor`:
+- Test loading existing projects into `StudioEditor` in a non-production environment first
+- The Studio SDK uses the same underlying GrapesJS engine, so most project data should be compatible
+- If projects fail to load or behave differently, implement an application-level migration
+- Plan a fallback/rollback strategy if you have critical production content
+
 ---
 
 ## DataTable Improvements

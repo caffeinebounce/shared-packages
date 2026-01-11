@@ -657,9 +657,8 @@ export function DataTable<TData, TValue>({
                               "relative overflow-hidden text-ellipsis border-b border-border",
                               !columnWrapping[header.id] && "whitespace-nowrap",
                               columnWrapping[header.id] && "whitespace-normal",
-                              !isLastColumn && "border-r border-border",
                               isFirstColumn && "border-l border-border",
-                              isLastColumn && "border-r border-border",
+                              "border-r border-border",
                               isDragOverLeft && "border-l-2 border-l-primary",
                               isDragOverRight && "border-r-2 border-r-primary",
                             )}

@@ -282,9 +282,9 @@ export function StudioEditor({
   onSave,
   theme = "light",
   customBlocks,
-  blockCategories,
-  showPages = false,
-  showLayers = true,
+  blockCategories: _blockCategories,
+  showPages: _showPages = false,
+  showLayers: _showLayers = true,
   height = "100%",
   canvasStyles,
   licenseKey = "DEV_LICENSE_KEY",
@@ -301,14 +301,6 @@ export function StudioEditor({
     }
     return blocks;
   }, [customBlocks]);
-
-  // Merge categories
-  const allCategories = useMemo(() => {
-    if (blockCategories) {
-      return blockCategories;
-    }
-    return formBlockCategories;
-  }, [blockCategories]);
 
   // Handle editor ready
   const handleReady = useCallback(
@@ -359,18 +351,6 @@ export function StudioEditor({
       ],
     };
   }, [initialContent, canvasStyles]);
-
-  // Get project data for saving
-  const handleSaveRequest = useCallback(() => {
-    if (editorRef.current && onSave) {
-      const editor = editorRef.current;
-      onSave({
-        html: editor.getHtml(),
-        css: editor.getCss() || "",
-        json: editor.getProjectData(),
-      });
-    }
-  }, [onSave]);
 
   return (
     <div
