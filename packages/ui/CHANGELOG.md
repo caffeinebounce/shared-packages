@@ -1,5 +1,20 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.34.0
+
+### Minor Changes
+
+- Add email-specific blocks to StudioEditor for email template building
+
+  - 11 new email blocks: header, hero, text, button, image, divider, spacer, two-columns, feature-card, social-links, footer
+  - Email-safe table-based layouts with inline styles for maximum email client compatibility
+  - EMAIL_CONTENT_MAX_WIDTH constant (600px) for consistent container widths
+  - JSDoc documentation for email blocks
+  - SVG icons and text labels instead of emojis for accessibility
+  - ARIA labels on social links
+  - Generic placeholder text for customization
+  - useMemo optimization for baseBlocks selection
+
 ## 0.33.1
 
 ### Patch Changes
