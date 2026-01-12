@@ -737,6 +737,17 @@ const lightCanvasStyles = `
     justify-content: center;
   }
 
+  /* Hide radio/checkbox inputs inside styled option cards (Typeform-style) */
+  .radio-option input[type="radio"],
+  .checkbox-option input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* Show radio/checkbox inputs when not inside styled cards */
   input[type="radio"],
   input[type="checkbox"] {
     width: 1rem;
@@ -785,6 +796,79 @@ const lightCanvasStyles = `
   button {
     font-family: inherit;
   }
+`;
+
+/** JavaScript for conditional logic in forms */
+const conditionalLogicScript = `
+<script>
+(function() {
+  function initConditionalLogic() {
+    var conditionalFields = document.querySelectorAll('[data-condition-field]');
+
+    conditionalFields.forEach(function(field) {
+      var conditionField = field.getAttribute('data-condition-field');
+      var conditionValue = field.getAttribute('data-condition-value');
+
+      if (!conditionField) return;
+
+      var controlInputs = document.querySelectorAll(
+        'input[name="' + conditionField + '"], ' +
+        'select[name="' + conditionField + '"], ' +
+        '[data-field-name="' + conditionField + '"] input, ' +
+        '[data-field-name="' + conditionField + '"] select'
+      );
+
+      function checkCondition() {
+        var shouldShow = false;
+
+        controlInputs.forEach(function(input) {
+          if (input.type === 'radio' || input.type === 'checkbox') {
+            if (input.checked) {
+              var inputValue = input.value || input.parentElement.textContent.trim();
+              if (!conditionValue || inputValue === conditionValue) {
+                shouldShow = true;
+              }
+            }
+          } else if (input.tagName === 'SELECT') {
+            if (!conditionValue || input.value === conditionValue) {
+              shouldShow = input.value !== '';
+            }
+          } else {
+            if (!conditionValue || input.value === conditionValue) {
+              shouldShow = input.value !== '';
+            }
+          }
+        });
+
+        field.classList.toggle('visible', shouldShow);
+      }
+
+      controlInputs.forEach(function(input) {
+        input.addEventListener('change', checkCondition);
+        input.addEventListener('input', checkCondition);
+      });
+
+      checkCondition();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initConditionalLogic);
+  } else {
+    initConditionalLogic();
+  }
+
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.addedNodes.length > 0) {
+        setTimeout(initConditionalLogic, 100);
+      }
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
 `;
 
 /** Dark mode canvas styles for the form builder - Typeform-inspired design */
@@ -984,6 +1068,17 @@ const darkCanvasStyles = `
     justify-content: center;
   }
 
+  /* Hide radio/checkbox inputs inside styled option cards (Typeform-style) */
+  .radio-option input[type="radio"],
+  .checkbox-option input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* Show radio/checkbox inputs when not inside styled cards */
   input[type="radio"],
   input[type="checkbox"] {
     width: 1rem;
@@ -1170,7 +1265,7 @@ export function StudioEditor({
     };
   }, [initialContent, initialProject, projectType]);
 
-  // Create a plugin that injects theme styles via CssComposer
+  // Create a plugin that injects theme styles and conditional logic via CssComposer
   // This is the SDK-recommended way to add global CSS to the canvas
   const themeStylesPlugin = useCallback(
     (editor: Editor) => {
@@ -1178,9 +1273,30 @@ export function StudioEditor({
         // Use CssComposer.addRules() to add CSS rules to the canvas
         // This properly adds styles to GrapesJS's CSS management system
         editor.Css.addRules(themeStyles);
+
+        // Inject conditional logic script into the canvas iframe
+        // This enables dynamic show/hide based on data-condition-field attributes
+        if (projectType === "web") {
+          const canvasDoc = editor.Canvas.getDocument();
+          if (canvasDoc) {
+            // Check if script already exists
+            const existingScript = canvasDoc.getElementById(
+              "conditional-logic-script",
+            );
+            if (!existingScript) {
+              const scriptEl = canvasDoc.createElement("script");
+              scriptEl.id = "conditional-logic-script";
+              scriptEl.textContent = conditionalLogicScript.replace(
+                /<\/?script>/g,
+                "",
+              );
+              canvasDoc.body.appendChild(scriptEl);
+            }
+          }
+        }
       });
     },
-    [themeStyles],
+    [themeStyles, projectType],
   );
 
   // Use editorKey to force remount when switching between different forms/content
