@@ -1,5 +1,16 @@
 # @caffeinebounce/shared-utils
 
+## 0.4.1
+
+### Patch Changes
+
+- 0704b46: Modernize device fingerprint utilities
+
+  - Use User-Agent Client Hints API (navigator.userAgentData) with fallback to deprecated navigator.platform
+  - Remove console.log statements from getGeolocationFromIP stub
+  - Add formatPhoneInput() function for phone number input masking
+  - Replace local formatPhoneNumber in PhoneSection with shared-utils import
+
 ## 0.4.0
 
 ### Minor Changes

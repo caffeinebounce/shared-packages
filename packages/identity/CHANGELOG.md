@@ -1,5 +1,36 @@
 # @caffeinebounce/identity
 
+## 0.5.2
+
+### Patch Changes
+
+- 0704b46: Modernize device fingerprint utilities
+
+  - Use User-Agent Client Hints API (navigator.userAgentData) with fallback to deprecated navigator.platform
+  - Remove console.log statements from getGeolocationFromIP stub
+  - Add formatPhoneInput() function for phone number input masking
+  - Replace local formatPhoneNumber in PhoneSection with shared-utils import
+
+- f9f5e85: Replace console.error calls with structured logging via useErrorLogger hook
+
+  Migrates all console.error calls in the identity package to use the
+  `useErrorLogger` hook from `@caffeinebounce/logger` for improved
+  observability in Better Stack.
+
+  Components updated:
+
+  - PasswordSection, DeleteAccountSection, PhoneSection, RecoverySection
+  - SigninForm, ResetPasswordForm
+  - MFARecovery, MFAProvider, TOTPEnrollmentDialog, TwoFactorSection
+
+  Total: 17 console.error calls replaced
+
+- Updated dependencies [76c7b79]
+- Updated dependencies [0704b46]
+- Updated dependencies [cf2b175]
+  - @caffeinebounce/ui@0.33.1
+  - @caffeinebounce/shared-utils@0.4.1
+
 ## 0.4.7
 
 ### Patch Changes

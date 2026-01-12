@@ -1,5 +1,28 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.33.1
+
+### Patch Changes
+
+- 76c7b79: Fix Dialog centering issue where dialogs appeared offset to bottom-left instead of centered.
+
+  Changed from transform-based centering (translate-x/y -50%) to flexbox-based centering to avoid conflicts with animate-in animation transforms. The slide animation has been simplified to a vertical-only slide (slide-in-from-top-[2%]) which works correctly with the new flexbox positioning.
+
+- cf2b175: Replace console.error with useErrorLogger for structured logging
+
+  Migrates 7 instances of console.error to use the structured logging hook from @caffeinebounce/logger:
+
+  - **FeedbackDialog**: Log feedback submission errors with component context
+  - **EditableCell**: Log cell update errors with column and row metadata
+  - **CompanyNameEditableCell**: Log company name update errors
+  - **UserNameEditableCell**: Log user name update errors
+  - **FormWizard**: Log localStorage save/clear errors on unmount and reset
+
+  This change improves error visibility in Better Stack dashboards while maintaining identical user-facing behavior (toast notifications). Development-only warnings (GoogleAnalytics invalid ID, EditableCell select option mismatch) are intentionally preserved as console.warn for developer debugging.
+
+- Updated dependencies [0704b46]
+  - @caffeinebounce/shared-utils@0.4.1
+
 ## 0.33.0
 
 ### Minor Changes
