@@ -29,7 +29,7 @@
 import StudioEditorSDK from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
 import type { Editor } from "grapesjs";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 /** Project types supported by the Studio SDK */
 export type StudioProjectType = "web" | "email";
@@ -67,7 +67,7 @@ export interface StudioEditorProps {
   onChange?: (html: string, css: string, json: unknown) => void;
   /** Called when user explicitly saves */
   onSave?: (data: { html: string; css: string; json: unknown }) => void;
-  /** Editor theme - defaults to "light" */
+  /** Editor theme - "light" or "dark". Defaults to "light" */
   theme?: StudioTheme;
   /** Custom blocks to add to the editor */
   customBlocks?: StudioBlock[];
@@ -94,6 +94,8 @@ export interface StudioEditorProps {
     /** Autosave after this many milliseconds (0 to disable) */
     autosaveIntervalMs?: number;
   };
+  /** Unique key to identify this editor instance (used for storage isolation). Changing this forces a remount. */
+  editorKey?: string;
 }
 
 /** Width constant for email content containers. Standard email width for compatibility. */
@@ -542,56 +544,503 @@ const _formBlockCategories: StudioBlockCategory[] = [
   { id: "Basic", label: "Basic", order: 2, open: false },
 ];
 
-/** Default canvas styles for the form builder */
-const defaultCanvasStyles = `
-  * {
+/** Light mode canvas styles for the form builder - Typeform-inspired design */
+const lightCanvasStyles = `
+  :root {
+    --bg-page: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-hover: #f4f4f5;
+    --bg-option: #fafafa;
+    --bg-option-hover: #f4f4f5;
+    --bg-option-selected: #18181b;
+    --text-primary: #18181b;
+    --text-secondary: #71717a;
+    --text-muted: #a1a1aa;
+    --text-on-selected: #fafafa;
+    --border-default: #e4e4e7;
+    --border-focus: #18181b;
+    --accent: #18181b;
+    --primary: #3b82f6;
+    --success: #22c55e;
+    --error: #ef4444;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: 0.15s ease;
+  }
+
+  *, *::before, *::after {
     box-sizing: border-box;
-  }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #111827;
     margin: 0;
-    padding: 24px;
-    background: #ffffff;
+    padding: 0;
   }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--bg-page);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .form-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
   .form-section {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
   }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .section-description {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin: 0 0 2rem 0;
+    line-height: 1.5;
+  }
+
   .form-field {
-    margin-bottom: 20px;
+    margin-bottom: 2rem;
   }
-  label {
+  .form-field:last-child {
+    margin-bottom: 0;
+  }
+
+  label, .label {
     display: block;
-    font-size: 14px;
+    font-size: 1rem;
     font-weight: 500;
-    margin-bottom: 8px;
-    color: #374151;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
   }
-  input, select, textarea {
+
+  .field-hint {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: -0.25rem 0 0.75rem 0;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  input[type="password"],
+  input[type="date"],
+  .form-input {
+    display: block;
     width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #ffffff;
-    color: #111827;
+    height: 2.5rem;
+    padding: 0 0.875rem;
+    font-size: 0.875rem;
     font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
   }
+
   input:focus, select:focus, textarea:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.08);
   }
+
+  textarea, .form-textarea {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+  }
+
+  select, .form-select {
+    display: block;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 2.5rem 0 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background-color: var(--bg-input);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .radio-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-option);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .radio-option:hover {
+    background: var(--bg-option-hover);
+    border-color: var(--text-muted);
+  }
+  .radio-option:has(input:checked) {
+    background: var(--bg-option-selected);
+    border-color: var(--bg-option-selected);
+    color: var(--text-on-selected);
+  }
+  .radio-horizontal .radio-option {
+    flex: 1;
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  input[type="radio"],
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .checkbox-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-option);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .checkbox-option:hover {
+    background: var(--bg-option-hover);
+  }
+  .checkbox-option:has(input:checked) {
+    background: var(--bg-option-selected);
+    border-color: var(--bg-option-selected);
+    color: var(--text-on-selected);
+  }
+
+  .conditional-field,
+  [data-condition-field] {
+    display: none;
+    position: relative;
+  }
+  .conditional-field.visible,
+  [data-condition-field].visible {
+    display: block;
+    margin-top: 1.5rem;
+  }
+
   button {
     font-family: inherit;
   }
 `;
+
+/** Dark mode canvas styles for the form builder - Typeform-inspired design */
+const darkCanvasStyles = `
+  :root {
+    --bg-page: #09090b;
+    --bg-card: #18181b;
+    --bg-input: #27272a;
+    --bg-hover: #27272a;
+    --bg-option: #27272a;
+    --bg-option-hover: #3f3f46;
+    --bg-option-selected: #fafafa;
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --text-on-selected: #18181b;
+    --border-default: #3f3f46;
+    --border-focus: #fafafa;
+    --accent: #fafafa;
+    --primary: #3b82f6;
+    --success: #22c55e;
+    --error: #ef4444;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: 0.15s ease;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--bg-page);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .form-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  .form-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .section-description {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin: 0 0 2rem 0;
+    line-height: 1.5;
+  }
+
+  .form-field {
+    margin-bottom: 2rem;
+  }
+  .form-field:last-child {
+    margin-bottom: 0;
+  }
+
+  label, .label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  .field-hint {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: -0.25rem 0 0.75rem 0;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  input[type="password"],
+  input[type="date"],
+  .form-input {
+    display: block;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(250, 250, 250, 0.1);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  textarea, .form-textarea {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+  }
+
+  select, .form-select {
+    display: block;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 2.5rem 0 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background-color: var(--bg-input);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .radio-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-option);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .radio-option:hover {
+    background: var(--bg-option-hover);
+    border-color: var(--text-muted);
+  }
+  .radio-option:has(input:checked) {
+    background: var(--bg-option-selected);
+    border-color: var(--bg-option-selected);
+    color: var(--text-on-selected);
+  }
+  .radio-horizontal .radio-option {
+    flex: 1;
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  input[type="radio"],
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .checkbox-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-option);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .checkbox-option:hover {
+    background: var(--bg-option-hover);
+  }
+  .checkbox-option:has(input:checked) {
+    background: var(--bg-option-selected);
+    border-color: var(--bg-option-selected);
+    color: var(--text-on-selected);
+  }
+
+  .conditional-field,
+  [data-condition-field] {
+    display: none;
+    position: relative;
+  }
+  .conditional-field.visible,
+  [data-condition-field].visible {
+    display: block;
+    margin-top: 1.5rem;
+  }
+
+  button {
+    font-family: inherit;
+  }
+`;
+
+/** Get canvas styles based on theme */
+const getCanvasStyles = (theme: StudioTheme, projectType: "web" | "email") => {
+  if (projectType === "email") {
+    return emailCanvasStyles; // Email styles stay consistent for compatibility
+  }
+  return theme === "dark" ? darkCanvasStyles : lightCanvasStyles;
+};
 
 /**
  * StudioEditor component using GrapesJS Studio SDK.
@@ -602,7 +1051,7 @@ export function StudioEditor({
   initialContent,
   initialProject,
   onChange,
-  onSave: _onSave,
+  onSave,
   theme = "light",
   customBlocks,
   blockCategories: _blockCategories,
@@ -613,6 +1062,7 @@ export function StudioEditor({
   licenseKey = "DEV_LICENSE_KEY",
   onReady,
   storage = { type: false },
+  editorKey,
 }: StudioEditorProps) {
   const editorRef = useRef<Editor | null>(null);
 
@@ -658,21 +1108,42 @@ export function StudioEditor({
         });
       }
 
+      // Set up save listener - called when user clicks save button or autosave triggers
+      if (onSave) {
+        editor.on("storage:store", () => {
+          const html = editor.getHtml();
+          const css = editor.getCss();
+          const json = editor.getProjectData();
+          onSave({ html, css: css || "", json });
+        });
+      }
+
       onReady?.(editor);
     },
-    [allBlocks, onChange, onReady],
+    [allBlocks, onChange, onSave, onReady],
   );
 
   // Build default project content
   const defaultProject = useMemo(() => {
-    // If initialProject is provided, use it directly (for loading saved projects)
-    if (initialProject && Object.keys(initialProject).length > 0) {
-      return initialProject;
-    }
-
     const isEmail = projectType === "email";
-    const styles =
-      canvasStyles || (isEmail ? emailCanvasStyles : defaultCanvasStyles);
+    const themeStyles = canvasStyles || getCanvasStyles(theme, projectType);
+
+    // If initialProject is provided, merge theme styles into it
+    if (initialProject && Object.keys(initialProject).length > 0) {
+      const project = { ...initialProject } as Record<string, unknown>;
+
+      // Update styles in pages to use current theme
+      if (Array.isArray(project.pages)) {
+        project.pages = (project.pages as Array<Record<string, unknown>>).map(
+          (page) => ({
+            ...page,
+            styles: themeStyles, // Override with current theme styles
+          }),
+        );
+      }
+
+      return project;
+    }
 
     const defaultEmailContent = `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; min-height: 100vh;">
@@ -701,27 +1172,38 @@ export function StudioEditor({
         {
           name: isEmail ? "Email" : "Form",
           component: content,
-          styles: styles,
+          styles: themeStyles,
         },
       ],
     };
-  }, [initialContent, initialProject, canvasStyles, projectType]);
+  }, [initialContent, initialProject, canvasStyles, projectType, theme]);
 
+  // Use editorKey to force remount when switching between different forms/content
+  // This ensures the SDK doesn't use cached data from previous sessions
   return (
     <div
-      style={{ height: typeof height === "number" ? `${height}px` : height }}
+      key={editorKey}
+      className="studio-editor-container"
+      style={{
+        height: typeof height === "number" ? `${height}px` : height,
+        minHeight: 400, // Minimum usable height
+        width: "100%",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
       <StudioEditorSDK
         options={{
           licenseKey,
-          theme: theme,
+          theme,
           project: {
             type: projectType,
             default: defaultProject,
           },
           storage:
             storage.type === false
-              ? undefined
+              ? (false as unknown as undefined)
               : {
                   type: storage.type || "browser",
                   autosaveChanges: storage.autosaveChanges,

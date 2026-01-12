@@ -9,6 +9,42 @@ import {
 } from "../../components/ui/tooltip";
 import { KeyboardShortcut } from "../keyboard/KeyboardShortcut";
 
+export type ThemeMode = "light" | "dark";
+
+/**
+ * Hook to get the current theme from the document.
+ * Returns "dark" if the document has the "dark" class, otherwise "light".
+ * Automatically updates when the theme changes.
+ */
+export function useTheme(): ThemeMode {
+  const [theme, setTheme] = useState<ThemeMode>("light");
+
+  useEffect(() => {
+    // Initial check
+    const isDark = document.documentElement.classList.contains("dark");
+    setTheme(isDark ? "dark" : "light");
+
+    // Listen for changes via MutationObserver
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "class"
+        ) {
+          const isDark = document.documentElement.classList.contains("dark");
+          setTheme(isDark ? "dark" : "light");
+        }
+      }
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return theme;
+}
+
 export interface ShortcutDefinition {
   /** Key to press (case-sensitive for letters) */
   key: string;
