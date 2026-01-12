@@ -426,10 +426,10 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><line x1="7" y1="8" x2="17" y2="8" stroke="currentColor" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-section" data-gjs-droppable="true" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-        <h3 class="section-title" style="font-size: 18px; font-weight: 600; margin: 0 0 8px 0; color: #111827;">Section Title</h3>
-        <p class="section-description" style="color: #6b7280; margin: 0 0 24px 0; font-size: 14px;">Section description text</p>
-        <div class="section-fields" data-gjs-droppable="true" style="min-height: 60px;"></div>
+      <div class="form-section" data-gjs-name="Form Section" data-gjs-droppable="true" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <h3 class="section-title" data-gjs-name="Section Title" style="font-size: 18px; font-weight: 600; margin: 0 0 8px 0; color: #111827;">Section Title</h3>
+        <p class="section-description" data-gjs-name="Section Description" style="color: #6b7280; margin: 0 0 24px 0; font-size: 14px;">Section description text</p>
+        <div class="section-fields" data-gjs-name="Section Fields Container" data-gjs-droppable="true" style="min-height: 60px;"></div>
       </div>
     `,
   },
@@ -439,9 +439,9 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><line x1="7" y1="12" x2="12" y2="12" stroke="currentColor" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Field Label</label>
-        <input type="text" placeholder="Enter text..." style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
+      <div class="form-field" data-gjs-name="Text Input Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Field Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Field Label</label>
+        <input type="text" data-gjs-name="Text Input" placeholder="Enter text..." style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
       </div>
     `,
   },
@@ -451,9 +451,9 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><path d="M3 7l9 6 9-6" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Email Address</label>
-        <input type="email" placeholder="email@example.com" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
+      <div class="form-field" data-gjs-name="Email Input Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Email Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Email Address</label>
+        <input type="email" data-gjs-name="Email Input" placeholder="email@example.com" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
       </div>
     `,
   },
@@ -463,9 +463,9 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><line x1="7" y1="8" x2="17" y2="8" stroke="currentColor" stroke-width="2"/><line x1="7" y1="12" x2="17" y2="12" stroke="currentColor" stroke-width="2"/><line x1="7" y1="16" x2="12" y2="16" stroke="currentColor" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Description</label>
-        <textarea placeholder="Enter description..." rows="4" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827; resize: vertical; min-height: 100px;"></textarea>
+      <div class="form-field" data-gjs-name="Textarea Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Textarea Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Description</label>
+        <textarea data-gjs-name="Textarea Input" placeholder="Enter description..." rows="4" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827; resize: vertical; min-height: 100px;"></textarea>
       </div>
     `,
   },
@@ -475,9 +475,9 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><path d="M8 10l4 4 4-4" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Select Option</label>
-        <select style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;">
+      <div class="form-field" data-gjs-name="Select Dropdown Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Select Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Select Option</label>
+        <select data-gjs-name="Select Dropdown" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;">
           <option value="">Select an option...</option>
           <option value="1">Option 1</option>
           <option value="2">Option 2</option>
@@ -492,10 +492,10 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #374151;">
-          <input type="checkbox" style="width: 18px; height: 18px; border-radius: 4px;" />
-          <span>Checkbox label</span>
+      <div class="form-field" data-gjs-name="Checkbox Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Checkbox Label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #374151;">
+          <input type="checkbox" data-gjs-name="Checkbox Input" style="width: 18px; height: 18px; border-radius: 4px;" />
+          <span data-gjs-name="Checkbox Text">Checkbox label</span>
         </label>
       </div>
     `,
@@ -506,20 +506,20 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9" stroke="currentColor" fill="none" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #374151;">Select one option</label>
-        <div class="radio-group" style="display: flex; flex-direction: column; gap: 10px;">
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
-            <input type="radio" name="radio-group" style="width: 18px; height: 18px;" />
-            <span>Option 1</span>
+      <div class="form-field" data-gjs-name="Radio Group Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Radio Group Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #374151;">Select one option</label>
+        <div class="radio-group" data-gjs-name="Radio Options Container" style="display: flex; flex-direction: column; gap: 10px;">
+          <label data-gjs-name="Radio Option 1" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
+            <input type="radio" data-gjs-name="Radio Input 1" name="radio-group" style="width: 18px; height: 18px;" />
+            <span data-gjs-name="Radio Text 1">Option 1</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
-            <input type="radio" name="radio-group" style="width: 18px; height: 18px;" />
-            <span>Option 2</span>
+          <label data-gjs-name="Radio Option 2" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
+            <input type="radio" data-gjs-name="Radio Input 2" name="radio-group" style="width: 18px; height: 18px;" />
+            <span data-gjs-name="Radio Text 2">Option 2</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
-            <input type="radio" name="radio-group" style="width: 18px; height: 18px;" />
-            <span>Option 3</span>
+          <label data-gjs-name="Radio Option 3" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
+            <input type="radio" data-gjs-name="Radio Input 3" name="radio-group" style="width: 18px; height: 18px;" />
+            <span data-gjs-name="Radio Text 3">Option 3</span>
           </label>
         </div>
       </div>
@@ -531,7 +531,7 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="7" width="18" height="10" rx="5" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
     content: `
-      <button type="submit" style="display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; background: #3b82f6; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
+      <button type="submit" data-gjs-name="Submit Button" style="display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; background: #3b82f6; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
         Submit
       </button>
     `,
