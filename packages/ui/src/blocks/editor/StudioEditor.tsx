@@ -1123,26 +1123,19 @@ export function StudioEditor({
     [allBlocks, onChange, onSave, onReady],
   );
 
-  // Build default project content
+  // Get theme styles for injection via SDK plugins
+  const themeStyles = useMemo(
+    () => canvasStyles || getCanvasStyles(theme, projectType),
+    [canvasStyles, theme, projectType],
+  );
+
+  // Build default project content (without embedded CSS - CSS is added via plugins)
   const defaultProject = useMemo(() => {
     const isEmail = projectType === "email";
-    const themeStyles = canvasStyles || getCanvasStyles(theme, projectType);
 
-    // If initialProject is provided, merge theme styles into it
+    // If initialProject is provided, use it as-is (CSS will be added via plugins)
     if (initialProject && Object.keys(initialProject).length > 0) {
-      const project = { ...initialProject } as Record<string, unknown>;
-
-      // Update styles in pages to use current theme
-      if (Array.isArray(project.pages)) {
-        project.pages = (project.pages as Array<Record<string, unknown>>).map(
-          (page) => ({
-            ...page,
-            styles: themeStyles, // Override with current theme styles
-          }),
-        );
-      }
-
-      return project;
+      return initialProject;
     }
 
     const defaultEmailContent = `
@@ -1172,11 +1165,23 @@ export function StudioEditor({
         {
           name: isEmail ? "Email" : "Form",
           component: content,
-          styles: themeStyles,
         },
       ],
     };
-  }, [initialContent, initialProject, canvasStyles, projectType, theme]);
+  }, [initialContent, initialProject, projectType]);
+
+  // Create a plugin that injects theme styles via CssComposer
+  // This is the SDK-recommended way to add global CSS to the canvas
+  const themeStylesPlugin = useCallback(
+    (editor: Editor) => {
+      editor.onReady(() => {
+        // Use CssComposer.addRules() to add CSS rules to the canvas
+        // This properly adds styles to GrapesJS's CSS management system
+        editor.Css.addRules(themeStyles);
+      });
+    },
+    [themeStyles],
+  );
 
   // Use editorKey to force remount when switching between different forms/content
   // This ensures the SDK doesn't use cached data from previous sessions
@@ -1201,6 +1206,8 @@ export function StudioEditor({
             type: projectType,
             default: defaultProject,
           },
+          // Use plugins to inject CSS via CssComposer - the SDK-native approach
+          plugins: [themeStylesPlugin],
           storage:
             storage.type === false
               ? (false as unknown as undefined)
