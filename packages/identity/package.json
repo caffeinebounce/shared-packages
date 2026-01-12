@@ -55,6 +55,7 @@
     }
   },
   "dependencies": {
+    "@caffeinebounce/logger": "^0.5.3",
     "@caffeinebounce/shared-utils": "^0.4.1",
     "@caffeinebounce/ui": "^0.34.0",
     "@supabase/ssr": "^0.8.0",
