@@ -59,8 +59,10 @@ export interface StudioBlock {
 export interface StudioEditorProps {
   /** Type of project - "web" for forms/pages, "email" for newsletters */
   projectType?: StudioProjectType;
-  /** Initial HTML content to load in the editor */
+  /** Initial HTML content to load in the editor (use for new content) */
   initialContent?: string;
+  /** Initial project data to load (use for restoring saved projects) */
+  initialProject?: Record<string, unknown>;
   /** Called when content changes */
   onChange?: (html: string, css: string, json: unknown) => void;
   /** Called when user explicitly saves */
@@ -598,6 +600,7 @@ const defaultCanvasStyles = `
 export function StudioEditor({
   projectType = "web",
   initialContent,
+  initialProject,
   onChange,
   onSave: _onSave,
   theme = "light",
@@ -662,6 +665,11 @@ export function StudioEditor({
 
   // Build default project content
   const defaultProject = useMemo(() => {
+    // If initialProject is provided, use it directly (for loading saved projects)
+    if (initialProject && Object.keys(initialProject).length > 0) {
+      return initialProject;
+    }
+
     const isEmail = projectType === "email";
     const styles =
       canvasStyles || (isEmail ? emailCanvasStyles : defaultCanvasStyles);
@@ -697,7 +705,7 @@ export function StudioEditor({
         },
       ],
     };
-  }, [initialContent, canvasStyles, projectType]);
+  }, [initialContent, initialProject, canvasStyles, projectType]);
 
   return (
     <div
