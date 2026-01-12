@@ -193,6 +193,34 @@ git push origin feat/my-feature
 5. CI must pass before merge
 6. Squash merge to `main`
 
+### Post-Merge Cleanup
+
+**Always clean up after completing work blocks.** Don't leave stale branches or stashes:
+
+```bash
+# Switch to main and pull latest
+git checkout main && git pull
+
+# Delete local branches with gone remotes (merged PRs)
+git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+
+# Delete merged local branches
+git branch --merged main | grep -v "^\* main$" | xargs git branch -d
+
+# Prune stale remote tracking refs
+git remote prune origin
+
+# Clear stashes if no longer needed
+git stash list              # Review first
+git stash clear             # Clear all (or git stash drop stash@{0} for specific)
+```
+
+**When wrapping up a work session:**
+1. Ensure all PRs are merged or explicitly abandoned
+2. Delete local branches for merged PRs
+3. Clear stashes that contain superseded work
+4. Run `git branch -a` to verify clean state
+
 **Release Process** (maintainers only):
 ```bash
 git checkout main && git pull

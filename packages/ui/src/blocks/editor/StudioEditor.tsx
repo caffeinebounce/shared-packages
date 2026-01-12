@@ -94,7 +94,22 @@ export interface StudioEditorProps {
   };
 }
 
-/** Email-specific blocks for the email builder */
+/** Width constant for email content containers. Standard email width for compatibility. */
+const EMAIL_CONTENT_MAX_WIDTH = 600;
+
+/**
+ * Email-specific content blocks optimized for HTML email templates.
+ *
+ * These blocks are only registered when `projectType` is set to `"email"`.
+ * They use table-based layouts and inline styles to maximize compatibility
+ * across major email clients (Gmail, Outlook, Apple Mail, etc.).
+ *
+ * Note: Some properties like border-radius may not render in older Outlook
+ * versions using the Word rendering engine, but degrade gracefully.
+ *
+ * @see StudioProjectType
+ * @see StudioBlock
+ */
 const emailBlocks: StudioBlock[] = [
   {
     id: "email-header",
@@ -105,16 +120,16 @@ const emailBlocks: StudioBlock[] = [
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
         <tr>
           <td align="center" style="padding: 32px 24px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: ${EMAIL_CONTENT_MAX_WIDTH}px;">
               <tr>
                 <td align="left" style="padding-bottom: 8px;">
-                  <span style="font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">Capital</span>
-                  <span style="font-size: 24px; font-weight: 400; color: #94a3b8; letter-spacing: -0.5px;"> Collective</span>
+                  <span style="font-size: 24px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">Your Company</span>
+                  <span style="font-size: 24px; font-weight: 400; color: #94a3b8; letter-spacing: -0.5px;"> Name Here</span>
                 </td>
               </tr>
               <tr>
                 <td align="left">
-                  <span style="font-size: 14px; color: #94a3b8;">Empowering entrepreneurs to build the future</span>
+                  <span style="font-size: 14px; color: #94a3b8;">Add your email header tagline here</span>
                 </td>
               </tr>
             </table>
@@ -132,7 +147,7 @@ const emailBlocks: StudioBlock[] = [
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
         <tr>
           <td align="center" style="padding: 48px 24px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: ${EMAIL_CONTENT_MAX_WIDTH}px;">
               <tr>
                 <td align="center" style="padding-bottom: 24px;">
                   <h1 style="margin: 0; font-size: 32px; font-weight: 700; color: #111827; line-height: 1.2;">Your Headline Here</h1>
@@ -163,7 +178,7 @@ const emailBlocks: StudioBlock[] = [
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
         <tr>
           <td align="center" style="padding: 24px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: ${EMAIL_CONTENT_MAX_WIDTH}px;">
               <tr>
                 <td style="color: #374151; font-size: 16px; line-height: 1.6;">
                   <p style="margin: 0 0 16px 0;">This is a paragraph of text. You can edit this content to say whatever you need. Keep your paragraphs short and focused for better readability in email clients.</p>
@@ -200,7 +215,7 @@ const emailBlocks: StudioBlock[] = [
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td align="center" style="padding: 24px;">
-            <img src="https://placehold.co/600x300/e5e7eb/6b7280?text=Your+Image" alt="Image description" width="100%" style="max-width: 600px; height: auto; display: block; border-radius: 8px;" />
+            <img src="https://placehold.co/600x300/e5e7eb/6b7280?text=Your+Image" alt="Image description" width="100%" style="max-width: ${EMAIL_CONTENT_MAX_WIDTH}px; height: auto; display: block;" />
           </td>
         </tr>
       </table>
@@ -215,7 +230,7 @@ const emailBlocks: StudioBlock[] = [
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td align="center" style="padding: 16px 24px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: ${EMAIL_CONTENT_MAX_WIDTH}px;">
               <tr>
                 <td style="border-bottom: 1px solid #e5e7eb;"></td>
               </tr>
@@ -247,7 +262,7 @@ const emailBlocks: StudioBlock[] = [
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
         <tr>
           <td align="center" style="padding: 24px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: ${EMAIL_CONTENT_MAX_WIDTH}px;">
               <tr>
                 <td width="48%" valign="top" style="padding-right: 12px;">
                   <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #111827;">Column One</h3>
@@ -274,12 +289,18 @@ const emailBlocks: StudioBlock[] = [
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
         <tr>
           <td align="center" style="padding: 24px;">
-            <table role="presentation" cellpadding="0" cellspacing="0" style="max-width: 280px; background-color: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
+            <table role="presentation" cellpadding="0" cellspacing="0" style="max-width: 280px; background-color: #f9fafb; border: 1px solid #e5e7eb;">
               <tr>
                 <td align="center" style="padding: 32px 24px;">
-                  <div style="width: 56px; height: 56px; background-color: #dbeafe; border-radius: 12px; margin-bottom: 16px; display: flex; align-items: center; justify-content: center;">
-                    <span style="font-size: 24px;">⭐</span>
-                  </div>
+                  <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
+                    <tr>
+                      <td align="center" style="width: 56px; height: 56px; background-color: #dbeafe; text-align: center; line-height: 56px;">
+                        <svg role="img" aria-label="Feature icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" fill="#1d4ed8" />
+                        </svg>
+                      </td>
+                    </tr>
+                  </table>
                   <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #111827;">Feature Title</h3>
                   <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.5;">Describe this feature and its benefits for the reader.</p>
                 </td>
@@ -302,13 +323,13 @@ const emailBlocks: StudioBlock[] = [
             <table role="presentation" cellpadding="0" cellspacing="0">
               <tr>
                 <td style="padding: 0 8px;">
-                  <a href="#" style="display: inline-block; width: 40px; height: 40px; background-color: #1da1f2; border-radius: 50%; text-align: center; line-height: 40px; text-decoration: none; color: #ffffff; font-size: 18px;">𝕏</a>
+                  <a href="#" aria-label="Visit our X (Twitter) profile" title="X (Twitter)" style="display: inline-block; width: 40px; height: 40px; background-color: #000000; text-align: center; line-height: 40px; text-decoration: none; color: #ffffff; font-size: 18px; font-weight: bold;">X</a>
                 </td>
                 <td style="padding: 0 8px;">
-                  <a href="#" style="display: inline-block; width: 40px; height: 40px; background-color: #0077b5; border-radius: 50%; text-align: center; line-height: 40px; text-decoration: none; color: #ffffff; font-size: 18px;">in</a>
+                  <a href="#" aria-label="Visit our LinkedIn profile" title="LinkedIn" style="display: inline-block; width: 40px; height: 40px; background-color: #0077b5; text-align: center; line-height: 40px; text-decoration: none; color: #ffffff; font-size: 16px; font-weight: bold;">in</a>
                 </td>
                 <td style="padding: 0 8px;">
-                  <a href="#" style="display: inline-block; width: 40px; height: 40px; background-color: #e4405f; border-radius: 50%; text-align: center; line-height: 40px; text-decoration: none; color: #ffffff; font-size: 18px;">📷</a>
+                  <a href="#" aria-label="Visit our Instagram profile" title="Instagram" style="display: inline-block; width: 40px; height: 40px; background-color: #e4405f; text-align: center; line-height: 40px; text-decoration: none; color: #ffffff; font-size: 14px; font-weight: bold;">IG</a>
                 </td>
               </tr>
             </table>
@@ -326,16 +347,16 @@ const emailBlocks: StudioBlock[] = [
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
         <tr>
           <td align="center" style="padding: 32px 24px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: ${EMAIL_CONTENT_MAX_WIDTH}px;">
               <tr>
                 <td align="center" style="padding-bottom: 16px;">
-                  <span style="font-size: 16px; font-weight: 600; color: #374151;">Capital Collective</span>
+                  <span style="font-size: 16px; font-weight: 600; color: #374151;">Your Company Name</span>
                 </td>
               </tr>
               <tr>
                 <td align="center" style="padding-bottom: 16px;">
-                  <span style="font-size: 13px; color: #6b7280;">123 Main Street, Suite 100</span><br/>
-                  <span style="font-size: 13px; color: #6b7280;">San Francisco, CA 94102</span>
+                  <span style="font-size: 13px; color: #6b7280;">123 Street Address, Suite 100</span><br/>
+                  <span style="font-size: 13px; color: #6b7280;">City, State 00000</span>
                 </td>
               </tr>
               <tr>
@@ -349,7 +370,7 @@ const emailBlocks: StudioBlock[] = [
               </tr>
               <tr>
                 <td align="center">
-                  <span style="font-size: 12px; color: #9ca3af;">© 2026 Capital Collective. All rights reserved.</span>
+                  <span style="font-size: 12px; color: #9ca3af;">© 2026 Your Company. All rights reserved.</span>
                 </td>
               </tr>
             </table>
@@ -592,8 +613,11 @@ export function StudioEditor({
 }: StudioEditorProps) {
   const editorRef = useRef<Editor | null>(null);
 
-  // Choose blocks based on project type
-  const baseBlocks = projectType === "email" ? emailBlocks : formBlocks;
+  // Choose blocks based on project type (memoized to avoid reference changes)
+  const baseBlocks = useMemo(
+    () => (projectType === "email" ? emailBlocks : formBlocks),
+    [projectType],
+  );
 
   // Merge custom blocks with base blocks
   const allBlocks = useMemo(() => {
