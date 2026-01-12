@@ -78,3 +78,8 @@ export {
   type ErrorLogContext,
   useErrorLogger,
 } from "./use-error-logger";
+// Client-safe error logging (no @logtail/next dependency)
+export {
+  type SafeErrorLogContext,
+  useErrorLoggerSafe,
+} from "./use-error-logger-safe";

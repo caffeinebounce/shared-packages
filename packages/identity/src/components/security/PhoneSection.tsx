@@ -1,6 +1,6 @@
 "use client";
 
-import { useErrorLogger } from "@caffeinebounce/logger";
+import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
 import { formatPhoneInput } from "@caffeinebounce/shared-utils";
 import {
   Button,
