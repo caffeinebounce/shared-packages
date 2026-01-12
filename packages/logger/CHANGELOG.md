@@ -1,5 +1,15 @@
 # @caffeinebounce/logger
 
+## 0.6.0
+
+### Minor Changes
+
+- c009dc0: Fix @logtail/next dynamic require() issue with Turbopack
+
+  - Added `@caffeinebounce/logger/client` export with `useErrorLoggerSafe` hook that doesn't import @logtail/next
+  - Updated identity package components to use the client-safe logger hook
+  - This fixes SSG/SSR build errors when using identity components with Next.js Turbopack
+
 ## 0.5.3
 
 ### Patch Changes
