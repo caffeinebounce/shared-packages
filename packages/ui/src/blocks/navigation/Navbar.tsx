@@ -107,7 +107,7 @@ export function Navbar({
         className,
       )}
     >
-      <div className="flex h-14 items-center justify-between gap-4 px-4 md:px-8">
+      <div className="container mx-auto flex h-14 items-center justify-between gap-4 px-4 md:px-8">
         {/* Logo/Brand */}
         {logo}
 
