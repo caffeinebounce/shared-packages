@@ -1,5 +1,15 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.35.1
+
+### Patch Changes
+
+- 4948f6d: Fix Navbar container max-width alignment
+
+  - Add `container mx-auto` to Navbar inner div
+  - Navbar now aligns with Footer on wide screens
+  - Resolves layout inconsistency where navbar content extended full-width while footer was constrained
+
 ## 0.35.0
 
 ### Minor Changes
