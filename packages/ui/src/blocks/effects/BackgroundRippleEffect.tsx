@@ -188,8 +188,9 @@ function DivGrid({
           : {};
 
         return (
-          <button
-            type="button"
+          <div
+            role="presentation"
+            aria-hidden="true"
             key={idx}
             className={cn(
               "cell relative border-[0.5px] opacity-50 transition-opacity duration-150 will-change-transform hover:opacity-100 dark:shadow-[0px_0px_40px_1px_var(--cell-shadow-color)_inset]",
