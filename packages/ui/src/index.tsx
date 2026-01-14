@@ -211,8 +211,12 @@ export {
   SettingsTabContent,
   SettingsTabs,
 } from "./blocks/settings";
-export type { ShortcutDefinition, ThemeToggleProps } from "./blocks/theme";
-export { ThemeToggle } from "./blocks/theme";
+export type {
+  ShortcutDefinition,
+  ThemeMode,
+  ThemeToggleProps,
+} from "./blocks/theme";
+export { ThemeToggle, useTheme } from "./blocks/theme";
 export type {
   UserAvatarMenuItem,
   UserAvatarMenuProps,

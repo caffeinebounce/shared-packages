@@ -29,7 +29,7 @@
 import StudioEditorSDK from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
 import type { Editor } from "grapesjs";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 /** Project types supported by the Studio SDK */
 export type StudioProjectType = "web" | "email";
@@ -59,13 +59,15 @@ export interface StudioBlock {
 export interface StudioEditorProps {
   /** Type of project - "web" for forms/pages, "email" for newsletters */
   projectType?: StudioProjectType;
-  /** Initial HTML content to load in the editor */
+  /** Initial HTML content to load in the editor (use for new content) */
   initialContent?: string;
+  /** Initial project data to load (use for restoring saved projects) */
+  initialProject?: Record<string, unknown>;
   /** Called when content changes */
   onChange?: (html: string, css: string, json: unknown) => void;
   /** Called when user explicitly saves */
   onSave?: (data: { html: string; css: string; json: unknown }) => void;
-  /** Editor theme - defaults to "light" */
+  /** Editor theme - "light" or "dark". Defaults to "light" */
   theme?: StudioTheme;
   /** Custom blocks to add to the editor */
   customBlocks?: StudioBlock[];
@@ -92,6 +94,16 @@ export interface StudioEditorProps {
     /** Autosave after this many milliseconds (0 to disable) */
     autosaveIntervalMs?: number;
   };
+  /** Unique key to identify this editor instance (used for storage isolation). Changing this forces a remount. */
+  editorKey?: string;
+  /** Start the editor in preview mode (hides panels, shows canvas only). Useful for read-only views. */
+  previewMode?: boolean;
+  /** Lock the editor in preview mode - prevents user from exiting preview. Used with previewMode. */
+  lockPreview?: boolean;
+  /** Initial device to select (e.g., "Desktop", "Mobile", "Tablet"). */
+  initialDevice?: string;
+  /** Called when user changes the device. Receives the device name. */
+  onDeviceChange?: (device: string) => void;
 }
 
 /** Width constant for email content containers. Standard email width for compatibility. */
@@ -422,10 +434,10 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><line x1="7" y1="8" x2="17" y2="8" stroke="currentColor" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-section" data-gjs-droppable="true" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-        <h3 class="section-title" style="font-size: 18px; font-weight: 600; margin: 0 0 8px 0; color: #111827;">Section Title</h3>
-        <p class="section-description" style="color: #6b7280; margin: 0 0 24px 0; font-size: 14px;">Section description text</p>
-        <div class="section-fields" data-gjs-droppable="true" style="min-height: 60px;"></div>
+      <div class="form-section" data-gjs-name="Form Section" data-gjs-droppable="true" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <h3 class="section-title" data-gjs-name="Section Title" style="font-size: 18px; font-weight: 600; margin: 0 0 8px 0; color: #111827;">Section Title</h3>
+        <p class="section-description" data-gjs-name="Section Description" style="color: #6b7280; margin: 0 0 24px 0; font-size: 14px;">Section description text</p>
+        <div class="section-fields" data-gjs-name="Section Fields Container" data-gjs-droppable="true" style="min-height: 60px;"></div>
       </div>
     `,
   },
@@ -435,9 +447,9 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><line x1="7" y1="12" x2="12" y2="12" stroke="currentColor" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Field Label</label>
-        <input type="text" placeholder="Enter text..." style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
+      <div class="form-field" data-gjs-name="Text Input Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Field Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Field Label</label>
+        <input type="text" data-gjs-name="Text Input" placeholder="Enter text..." style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
       </div>
     `,
   },
@@ -447,9 +459,9 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><path d="M3 7l9 6 9-6" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Email Address</label>
-        <input type="email" placeholder="email@example.com" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
+      <div class="form-field" data-gjs-name="Email Input Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Email Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Email Address</label>
+        <input type="email" data-gjs-name="Email Input" placeholder="email@example.com" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
       </div>
     `,
   },
@@ -459,9 +471,9 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><line x1="7" y1="8" x2="17" y2="8" stroke="currentColor" stroke-width="2"/><line x1="7" y1="12" x2="17" y2="12" stroke="currentColor" stroke-width="2"/><line x1="7" y1="16" x2="12" y2="16" stroke="currentColor" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Description</label>
-        <textarea placeholder="Enter description..." rows="4" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827; resize: vertical; min-height: 100px;"></textarea>
+      <div class="form-field" data-gjs-name="Textarea Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Textarea Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Description</label>
+        <textarea data-gjs-name="Textarea Input" placeholder="Enter description..." rows="4" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827; resize: vertical; min-height: 100px;"></textarea>
       </div>
     `,
   },
@@ -471,9 +483,9 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><path d="M8 10l4 4 4-4" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Select Option</label>
-        <select style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;">
+      <div class="form-field" data-gjs-name="Select Dropdown Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Select Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Select Option</label>
+        <select data-gjs-name="Select Dropdown" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;">
           <option value="">Select an option...</option>
           <option value="1">Option 1</option>
           <option value="2">Option 2</option>
@@ -488,10 +500,10 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><path d="M9 12l2 2 4-4" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #374151;">
-          <input type="checkbox" style="width: 18px; height: 18px; border-radius: 4px;" />
-          <span>Checkbox label</span>
+      <div class="form-field" data-gjs-name="Checkbox Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Checkbox Label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: #374151;">
+          <input type="checkbox" data-gjs-name="Checkbox Input" style="width: 18px; height: 18px; border-radius: 4px;" />
+          <span data-gjs-name="Checkbox Text">Checkbox label</span>
         </label>
       </div>
     `,
@@ -502,20 +514,20 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9" stroke="currentColor" fill="none" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>`,
     content: `
-      <div class="form-field" style="margin-bottom: 20px;">
-        <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #374151;">Select one option</label>
-        <div class="radio-group" style="display: flex; flex-direction: column; gap: 10px;">
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
-            <input type="radio" name="radio-group" style="width: 18px; height: 18px;" />
-            <span>Option 1</span>
+      <div class="form-field" data-gjs-name="Radio Group Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Radio Group Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #374151;">Select one option</label>
+        <div class="radio-group" data-gjs-name="Radio Options Container" style="display: flex; flex-direction: column; gap: 10px;">
+          <label data-gjs-name="Radio Option 1" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
+            <input type="radio" data-gjs-name="Radio Input 1" name="radio-group" style="width: 18px; height: 18px;" />
+            <span data-gjs-name="Radio Text 1">Option 1</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
-            <input type="radio" name="radio-group" style="width: 18px; height: 18px;" />
-            <span>Option 2</span>
+          <label data-gjs-name="Radio Option 2" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
+            <input type="radio" data-gjs-name="Radio Input 2" name="radio-group" style="width: 18px; height: 18px;" />
+            <span data-gjs-name="Radio Text 2">Option 2</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
-            <input type="radio" name="radio-group" style="width: 18px; height: 18px;" />
-            <span>Option 3</span>
+          <label data-gjs-name="Radio Option 3" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; font-size: 14px; color: #374151;">
+            <input type="radio" data-gjs-name="Radio Input 3" name="radio-group" style="width: 18px; height: 18px;" />
+            <span data-gjs-name="Radio Text 3">Option 3</span>
           </label>
         </div>
       </div>
@@ -527,7 +539,7 @@ const formBlocks: StudioBlock[] = [
     category: "Form",
     media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="7" width="18" height="10" rx="5" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
     content: `
-      <button type="submit" style="display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; background: #3b82f6; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
+      <button type="submit" data-gjs-name="Submit Button" style="display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; background: #3b82f6; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;">
         Submit
       </button>
     `,
@@ -540,56 +552,598 @@ const _formBlockCategories: StudioBlockCategory[] = [
   { id: "Basic", label: "Basic", order: 2, open: false },
 ];
 
-/** Default canvas styles for the form builder */
-const defaultCanvasStyles = `
-  * {
+/** Light mode canvas styles for the form builder - Typeform-inspired design */
+const lightCanvasStyles = `
+  :root {
+    --bg-page: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-hover: #f4f4f5;
+    --bg-option: #fafafa;
+    --bg-option-hover: #f4f4f5;
+    --bg-option-selected: #18181b;
+    --text-primary: #18181b;
+    --text-secondary: #71717a;
+    --text-muted: #a1a1aa;
+    --text-on-selected: #fafafa;
+    --border-default: #e4e4e7;
+    --border-focus: #18181b;
+    --accent: #18181b;
+    --primary: #3b82f6;
+    --success: #22c55e;
+    --error: #ef4444;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: 0.15s ease;
+  }
+
+  *, *::before, *::after {
     box-sizing: border-box;
-  }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #111827;
     margin: 0;
-    padding: 24px;
-    background: #ffffff;
+    padding: 0;
   }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--bg-page);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .form-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
   .form-section {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
   }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .section-description {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin: 0 0 2rem 0;
+    line-height: 1.5;
+  }
+
   .form-field {
-    margin-bottom: 20px;
+    margin-bottom: 2rem;
   }
-  label {
+  .form-field:last-child {
+    margin-bottom: 0;
+  }
+
+  label, .label {
     display: block;
-    font-size: 14px;
+    font-size: 1rem;
     font-weight: 500;
-    margin-bottom: 8px;
-    color: #374151;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
   }
-  input, select, textarea {
+
+  .field-hint {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: -0.25rem 0 0.75rem 0;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  input[type="password"],
+  input[type="date"],
+  .form-input {
+    display: block;
     width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #ffffff;
-    color: #111827;
+    height: 2.5rem;
+    padding: 0 0.875rem;
+    font-size: 0.875rem;
     font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
   }
+
   input:focus, select:focus, textarea:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.08);
   }
+
+  textarea, .form-textarea {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+  }
+
+  select, .form-select {
+    display: block;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 2.5rem 0 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background-color: var(--bg-input);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .radio-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-option);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .radio-option:hover {
+    background: var(--bg-option-hover);
+    border-color: var(--text-muted);
+  }
+  .radio-option:has(input:checked) {
+    background: var(--bg-option-selected);
+    border-color: var(--bg-option-selected);
+    color: var(--text-on-selected);
+  }
+  .radio-horizontal .radio-option {
+    flex: 1;
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  /* Hide radio/checkbox inputs inside styled option cards (Typeform-style) */
+  .radio-option input[type="radio"],
+  .checkbox-option input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* Show radio/checkbox inputs when not inside styled cards */
+  input[type="radio"],
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .checkbox-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-option);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .checkbox-option:hover {
+    background: var(--bg-option-hover);
+  }
+  .checkbox-option:has(input:checked) {
+    background: var(--bg-option-selected);
+    border-color: var(--bg-option-selected);
+    color: var(--text-on-selected);
+  }
+
+  .conditional-field,
+  [data-condition-field] {
+    display: none;
+    position: relative;
+  }
+  .conditional-field.visible,
+  [data-condition-field].visible {
+    display: block;
+    margin-top: 1.5rem;
+  }
+
   button {
     font-family: inherit;
   }
 `;
+
+/** JavaScript for conditional logic in forms */
+const conditionalLogicScript = `
+<script>
+(function() {
+  function initConditionalLogic() {
+    var conditionalFields = document.querySelectorAll('[data-condition-field]');
+
+    conditionalFields.forEach(function(field) {
+      var conditionField = field.getAttribute('data-condition-field');
+      var conditionValue = field.getAttribute('data-condition-value');
+
+      if (!conditionField) return;
+
+      var controlInputs = document.querySelectorAll(
+        'input[name="' + conditionField + '"], ' +
+        'select[name="' + conditionField + '"], ' +
+        '[data-field-name="' + conditionField + '"] input, ' +
+        '[data-field-name="' + conditionField + '"] select'
+      );
+
+      function checkCondition() {
+        var shouldShow = false;
+
+        controlInputs.forEach(function(input) {
+          if (input.type === 'radio' || input.type === 'checkbox') {
+            if (input.checked) {
+              var inputValue = input.value || input.parentElement.textContent.trim();
+              if (!conditionValue || inputValue === conditionValue) {
+                shouldShow = true;
+              }
+            }
+          } else if (input.tagName === 'SELECT') {
+            if (!conditionValue || input.value === conditionValue) {
+              shouldShow = input.value !== '';
+            }
+          } else {
+            if (!conditionValue || input.value === conditionValue) {
+              shouldShow = input.value !== '';
+            }
+          }
+        });
+
+        field.classList.toggle('visible', shouldShow);
+      }
+
+      controlInputs.forEach(function(input) {
+        input.addEventListener('change', checkCondition);
+        input.addEventListener('input', checkCondition);
+      });
+
+      checkCondition();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initConditionalLogic);
+  } else {
+    initConditionalLogic();
+  }
+
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.addedNodes.length > 0) {
+        setTimeout(initConditionalLogic, 100);
+      }
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+`;
+
+/** Dark mode canvas styles for the form builder - Typeform-inspired design */
+const darkCanvasStyles = `
+  :root {
+    --bg-page: #09090b;
+    --bg-card: #18181b;
+    --bg-input: #27272a;
+    --bg-hover: #27272a;
+    --bg-option: #27272a;
+    --bg-option-hover: #3f3f46;
+    --bg-option-selected: #fafafa;
+    --text-primary: #fafafa;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --text-on-selected: #18181b;
+    --border-default: #3f3f46;
+    --border-focus: #fafafa;
+    --accent: #fafafa;
+    --primary: #3b82f6;
+    --success: #22c55e;
+    --error: #ef4444;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --transition: 0.15s ease;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--bg-page);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .form-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  .form-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .section-description {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    margin: 0 0 2rem 0;
+    line-height: 1.5;
+  }
+
+  .form-field {
+    margin-bottom: 2rem;
+  }
+  .form-field:last-child {
+    margin-bottom: 0;
+  }
+
+  label, .label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  .field-hint {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: -0.25rem 0 0.75rem 0;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  input[type="password"],
+  input[type="date"],
+  .form-input {
+    display: block;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition);
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(250, 250, 250, 0.1);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  textarea, .form-textarea {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+  }
+
+  select, .form-select {
+    display: block;
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 2.5rem 0 0.875rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background-color: var(--bg-input);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .radio-horizontal {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-option);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .radio-option:hover {
+    background: var(--bg-option-hover);
+    border-color: var(--text-muted);
+  }
+  .radio-option:has(input:checked) {
+    background: var(--bg-option-selected);
+    border-color: var(--bg-option-selected);
+    color: var(--text-on-selected);
+  }
+  .radio-horizontal .radio-option {
+    flex: 1;
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  /* Hide radio/checkbox inputs inside styled option cards (Typeform-style) */
+  .radio-option input[type="radio"],
+  .checkbox-option input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  /* Show radio/checkbox inputs when not inside styled cards */
+  input[type="radio"],
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .checkbox-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    background: var(--bg-option);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .checkbox-option:hover {
+    background: var(--bg-option-hover);
+  }
+  .checkbox-option:has(input:checked) {
+    background: var(--bg-option-selected);
+    border-color: var(--bg-option-selected);
+    color: var(--text-on-selected);
+  }
+
+  .conditional-field,
+  [data-condition-field] {
+    display: none;
+    position: relative;
+  }
+  .conditional-field.visible,
+  [data-condition-field].visible {
+    display: block;
+    margin-top: 1.5rem;
+  }
+
+  button {
+    font-family: inherit;
+  }
+`;
+
+/** Get canvas styles based on theme */
+const getCanvasStyles = (theme: StudioTheme, projectType: "web" | "email") => {
+  if (projectType === "email") {
+    return emailCanvasStyles; // Email styles stay consistent for compatibility
+  }
+  return theme === "dark" ? darkCanvasStyles : lightCanvasStyles;
+};
 
 /**
  * StudioEditor component using GrapesJS Studio SDK.
@@ -598,8 +1152,9 @@ const defaultCanvasStyles = `
 export function StudioEditor({
   projectType = "web",
   initialContent,
+  initialProject,
   onChange,
-  onSave: _onSave,
+  onSave,
   theme = "light",
   customBlocks,
   blockCategories: _blockCategories,
@@ -610,8 +1165,51 @@ export function StudioEditor({
   licenseKey = "DEV_LICENSE_KEY",
   onReady,
   storage = { type: false },
+  editorKey,
+  previewMode = false,
+  lockPreview = false,
+  initialDevice,
+  onDeviceChange,
 }: StudioEditorProps) {
   const editorRef = useRef<Editor | null>(null);
+
+  // Clear GrapesJS localStorage when storage is disabled or when editorKey changes
+  // This prevents stale data from being loaded instead of the initialProject
+  useEffect(() => {
+    if (storage.type === false && typeof window !== "undefined") {
+      // GrapesJS uses various localStorage keys - clear all of them
+      // to ensure initialProject is used instead of cached data
+      try {
+        const keysToRemove = [
+          "gjsProject",
+          "gjs-project",
+          "gjs",
+          "gjsData",
+          "gjs-data",
+          "gjs-studio",
+          "gjsStudio",
+          "gjs-assets",
+          "gjsAssets",
+        ];
+        for (const key of keysToRemove) {
+          localStorage.removeItem(key);
+        }
+        // Also clear any keys that start with common GrapesJS prefixes
+        const allKeys = Object.keys(localStorage);
+        for (const key of allKeys) {
+          if (
+            key.startsWith("gjs-") ||
+            key.startsWith("gjs") ||
+            key.startsWith("grapes")
+          ) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch {
+        // Ignore localStorage errors (e.g., in private browsing)
+      }
+    }
+  }, [storage.type]);
 
   // Choose blocks based on project type (memoized to avoid reference changes)
   const baseBlocks = useMemo(
@@ -633,6 +1231,13 @@ export function StudioEditor({
     (editor: Editor) => {
       editorRef.current = editor;
 
+      console.log("[StudioEditor] handleReady called:", {
+        hasInitialProject: !!initialProject,
+        initialProjectKeys: initialProject ? Object.keys(initialProject) : null,
+        previewMode,
+        lockPreview,
+      });
+
       // Register custom blocks
       const blockManager = editor.Blocks;
       for (const block of allBlocks) {
@@ -645,6 +1250,92 @@ export function StudioEditor({
         });
       }
 
+      // Debug: Check what the SDK loaded via project.default
+      editor.onReady(() => {
+        const loadedData = editor.getProjectData();
+        console.log("[StudioEditor] onReady - SDK loaded data:", loadedData);
+        console.log("[StudioEditor] onReady - getHtml():", editor.getHtml());
+        console.log(
+          "[StudioEditor] onReady - Components:",
+          editor.getComponents().length,
+        );
+
+        // Debug: Check canvas state
+        const canvasEl = editor.Canvas.getElement();
+        const canvasDoc = editor.Canvas.getDocument();
+        const canvasBody = editor.Canvas.getBody();
+        const canvasFrame = editor.Canvas.getFrameEl();
+
+        // Check for wrapper element
+        const wrapper = editor.getWrapper();
+
+        console.log("[StudioEditor] onReady - Canvas debug:", {
+          canvasEl: canvasEl,
+          canvasElDimensions: canvasEl
+            ? { width: canvasEl.offsetWidth, height: canvasEl.offsetHeight }
+            : null,
+          canvasDoc: canvasDoc,
+          canvasBody: canvasBody,
+          canvasBodyChildren: canvasBody?.children?.length,
+          canvasFrame: canvasFrame,
+          canvasFrameSrc: canvasFrame?.src,
+          wrapper: wrapper,
+          wrapperHtml: wrapper?.toHTML?.(),
+        });
+
+        // List all children of the canvas body
+        if (canvasBody) {
+          console.log("[StudioEditor] Canvas body children:");
+          Array.from(canvasBody.children).forEach((child, i) => {
+            console.log(`  [${i}] ${child.tagName}`, child);
+          });
+        }
+
+        // Check wrapper computed styles
+        const wrapperEl = canvasBody?.querySelector(
+          '[data-gjs-type="wrapper"]',
+        ) as HTMLElement | null;
+        if (wrapperEl) {
+          const styles = window.getComputedStyle(wrapperEl);
+          console.log("[StudioEditor] Wrapper element styles:", {
+            display: styles.display,
+            visibility: styles.visibility,
+            opacity: styles.opacity,
+            height: styles.height,
+            width: styles.width,
+            overflow: styles.overflow,
+            position: styles.position,
+            zIndex: styles.zIndex,
+            backgroundColor: styles.backgroundColor,
+          });
+          console.log(
+            "[StudioEditor] Wrapper element dimensions:",
+            wrapperEl.getBoundingClientRect(),
+          );
+          console.log(
+            "[StudioEditor] Wrapper innerHTML preview:",
+            wrapperEl.innerHTML.substring(0, 300),
+          );
+        }
+
+        // Check canvas frame styles
+        if (canvasFrame) {
+          const frameStyles = window.getComputedStyle(canvasFrame);
+          console.log("[StudioEditor] Canvas frame styles:", {
+            display: frameStyles.display,
+            visibility: frameStyles.visibility,
+            opacity: frameStyles.opacity,
+            height: frameStyles.height,
+            width: frameStyles.width,
+            position: frameStyles.position,
+          });
+          console.log(
+            "[StudioEditor] Canvas frame dimensions:",
+            canvasFrame.getBoundingClientRect(),
+          );
+        }
+      });
+
       // Set up change listener
       if (onChange) {
         editor.on("update", () => {
@@ -655,16 +1346,108 @@ export function StudioEditor({
         });
       }
 
+      // Set up save listener - called when user clicks save button or autosave triggers
+      // Skip the first storage event which fires on initialization
+      if (onSave) {
+        let isInitialLoad = true;
+        editor.on("storage:store", () => {
+          // Skip the initial store event that fires when loading project
+          if (isInitialLoad) {
+            isInitialLoad = false;
+            return;
+          }
+          const html = editor.getHtml();
+          const css = editor.getCss();
+          const json = editor.getProjectData();
+          onSave({ html, css: css || "", json });
+        });
+      }
+
+      // Set up device change listener
+      if (onDeviceChange) {
+        editor.on("change:device", () => {
+          const device = editor.getDevice();
+          onDeviceChange(device);
+        });
+      }
+
+      // Set initial device if specified
+      if (initialDevice) {
+        editor.setDevice(initialDevice);
+      }
+
+      // Start in preview mode if requested
+      if (previewMode) {
+        // Wait for the editor to be fully ready including canvas
+        editor.onReady(() => {
+          // Additional delay to ensure canvas iframe is fully loaded
+          const attemptPreview = (retries = 0) => {
+            const canvasDoc = editor.Canvas.getDocument();
+            if (canvasDoc?.body) {
+              editor.runCommand("core:preview");
+
+              // If preview is locked, intercept attempts to exit preview
+              if (lockPreview) {
+                editor.on(
+                  "command:stop:before:core:preview",
+                  (options: { abort?: boolean }) => {
+                    // Prevent exiting preview mode
+                    options.abort = true;
+                  },
+                );
+              }
+            } else if (retries < 10) {
+              // Retry up to 10 times with increasing delay
+              setTimeout(
+                () => attemptPreview(retries + 1),
+                100 * (retries + 1),
+              );
+            }
+          };
+          // Start attempting after a short initial delay
+          setTimeout(() => attemptPreview(), 200);
+        });
+      }
+
       onReady?.(editor);
     },
-    [allBlocks, onChange, onReady],
+    [
+      allBlocks,
+      initialProject,
+      onChange,
+      onSave,
+      onReady,
+      onDeviceChange,
+      initialDevice,
+      previewMode,
+      lockPreview,
+    ],
   );
 
-  // Build default project content
+  // Get theme styles for injection via SDK plugins
+  const themeStyles = useMemo(
+    () => canvasStyles || getCanvasStyles(theme, projectType),
+    [canvasStyles, theme, projectType],
+  );
+
+  // Build default project content (without embedded CSS - CSS is added via plugins)
   const defaultProject = useMemo(() => {
     const isEmail = projectType === "email";
-    const styles =
-      canvasStyles || (isEmail ? emailCanvasStyles : defaultCanvasStyles);
+
+    console.log("[StudioEditor] defaultProject computation:", {
+      hasInitialProject: !!initialProject,
+      initialProjectLength: initialProject
+        ? Object.keys(initialProject).length
+        : 0,
+      willUseInitialProject: !!(
+        initialProject && Object.keys(initialProject).length > 0
+      ),
+    });
+
+    // If initialProject is provided, use it as-is (CSS will be added via plugins)
+    if (initialProject && Object.keys(initialProject).length > 0) {
+      return initialProject;
+    }
 
     const defaultEmailContent = `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; min-height: 100vh;">
@@ -693,27 +1476,158 @@ export function StudioEditor({
         {
           name: isEmail ? "Email" : "Form",
           component: content,
-          styles: styles,
         },
       ],
     };
-  }, [initialContent, canvasStyles, projectType]);
+  }, [initialContent, initialProject, projectType]);
 
+  // Create a plugin that injects theme styles and conditional logic via CssComposer
+  // This is the SDK-recommended way to add global CSS to the canvas
+  const themeStylesPlugin = useCallback(
+    (editor: Editor) => {
+      editor.onReady(() => {
+        // Use CssComposer.addRules() to add CSS rules to the canvas
+        // This properly adds styles to GrapesJS's CSS management system
+        editor.Css.addRules(themeStyles);
+
+        // Inject conditional logic script into the canvas iframe
+        // This enables dynamic show/hide based on data-condition-field attributes
+        if (projectType === "web") {
+          const canvasDoc = editor.Canvas.getDocument();
+          if (canvasDoc) {
+            // Check if script already exists
+            const existingScript = canvasDoc.getElementById(
+              "conditional-logic-script",
+            );
+            if (!existingScript) {
+              const scriptEl = canvasDoc.createElement("script");
+              scriptEl.id = "conditional-logic-script";
+              scriptEl.textContent = conditionalLogicScript.replace(
+                /<\/?script>/g,
+                "",
+              );
+              canvasDoc.body.appendChild(scriptEl);
+            }
+          }
+        }
+      });
+    },
+    [themeStyles, projectType],
+  );
+
+  // Use editorKey to force remount when switching between different forms/content
+  // This ensures the SDK doesn't use cached data from previous sessions
   return (
     <div
-      style={{ height: typeof height === "number" ? `${height}px` : height }}
+      key={editorKey}
+      className={`studio-editor-container${lockPreview ? " studio-editor-locked-preview" : ""}`}
+      style={{
+        height: typeof height === "number" ? `${height}px` : height,
+        minHeight: 400, // Minimum usable height
+        width: "100%",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
+      {/* CSS overrides to force GrapesJS SDK to fill container height */}
+      <style>{`
+        .studio-editor-container {
+          overflow: hidden !important;
+        }
+        /* SDK root wrapper - the gs-studio-root element */
+        .studio-editor-container > div:first-child,
+        .studio-editor-container .gs-studio-root,
+        .studio-editor-container .gs-studio-editor {
+          display: flex !important;
+          flex-direction: column !important;
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* The main row containing sidebars and canvas */
+        .studio-editor-container .gs-cmp-row {
+          flex: 1 1 auto !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
+        /* Canvas sidebar top - contains the canvas area */
+        .studio-editor-container .gs-canvas-sidebar-top {
+          flex: 1 1 auto !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
+        /* The canvas wrapper element */
+        .studio-editor-container .gs-canvas {
+          flex: 1 1 auto !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
+        /* GrapesJS editor container */
+        .studio-editor-container .gjs-editor-cont,
+        .studio-editor-container .gjs-editor {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* Canvas container - this is where the iframe lives */
+        .studio-editor-container .gjs-cv-canvas {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* The frames wrapper inside canvas */
+        .studio-editor-container .gjs-cv-canvas__frames {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* Frame wrapper that contains the iframe */
+        .studio-editor-container .gjs-frame-wrapper {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* The actual iframe - allow internal scrolling only */
+        .studio-editor-container .gjs-frame {
+          height: 100% !important;
+          width: 100% !important;
+          border: none !important;
+        }
+        /* Hide the duplicate canvas */
+        .studio-editor-container .cv-canvas {
+          display: none !important;
+        }
+        /* Ensure sidebars don't create scrollbars */
+        .studio-editor-container .gs-sidebar-left,
+        .studio-editor-container .gs-sidebar-right {
+          overflow: hidden !important;
+        }
+        /* Allow layer manager to scroll internally */
+        .studio-editor-container .gs-layer-manager {
+          overflow: hidden !important;
+        }
+        .studio-editor-container .gs-layer-manager > div:last-child {
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+        }
+        /* Remove outer border from the editor wrapper */
+        .studio-editor-container .gjs-editor-wrapper {
+          border: none !important;
+        }
+        /* Hide exit preview button when preview is locked */
+        .studio-editor-locked-preview .gs-cmp-close-preview {
+          display: none !important;
+        }
+      `}</style>
       <StudioEditorSDK
         options={{
           licenseKey,
-          theme: theme,
+          theme,
           project: {
             type: projectType,
             default: defaultProject,
           },
+          // Use plugins to inject CSS via CssComposer - the SDK-native approach
+          plugins: [themeStylesPlugin],
           storage:
             storage.type === false
-              ? undefined
+              ? (false as unknown as undefined)
               : {
                   type: storage.type || "browser",
                   autosaveChanges: storage.autosaveChanges,
