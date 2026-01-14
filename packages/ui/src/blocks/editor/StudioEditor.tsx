@@ -29,7 +29,7 @@
 import StudioEditorSDK from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
 import type { Editor } from "grapesjs";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 /** Project types supported by the Studio SDK */
 export type StudioProjectType = "web" | "email";
@@ -96,6 +96,14 @@ export interface StudioEditorProps {
   };
   /** Unique key to identify this editor instance (used for storage isolation). Changing this forces a remount. */
   editorKey?: string;
+  /** Start the editor in preview mode (hides panels, shows canvas only). Useful for read-only views. */
+  previewMode?: boolean;
+  /** Lock the editor in preview mode - prevents user from exiting preview. Used with previewMode. */
+  lockPreview?: boolean;
+  /** Initial device to select (e.g., "Desktop", "Mobile", "Tablet"). */
+  initialDevice?: string;
+  /** Called when user changes the device. Receives the device name. */
+  onDeviceChange?: (device: string) => void;
 }
 
 /** Width constant for email content containers. Standard email width for compatibility. */
@@ -1158,8 +1166,50 @@ export function StudioEditor({
   onReady,
   storage = { type: false },
   editorKey,
+  previewMode = false,
+  lockPreview = false,
+  initialDevice,
+  onDeviceChange,
 }: StudioEditorProps) {
   const editorRef = useRef<Editor | null>(null);
+
+  // Clear GrapesJS localStorage when storage is disabled or when editorKey changes
+  // This prevents stale data from being loaded instead of the initialProject
+  useEffect(() => {
+    if (storage.type === false && typeof window !== "undefined") {
+      // GrapesJS uses various localStorage keys - clear all of them
+      // to ensure initialProject is used instead of cached data
+      try {
+        const keysToRemove = [
+          "gjsProject",
+          "gjs-project",
+          "gjs",
+          "gjsData",
+          "gjs-data",
+          "gjs-studio",
+          "gjsStudio",
+          "gjs-assets",
+          "gjsAssets",
+        ];
+        for (const key of keysToRemove) {
+          localStorage.removeItem(key);
+        }
+        // Also clear any keys that start with common GrapesJS prefixes
+        const allKeys = Object.keys(localStorage);
+        for (const key of allKeys) {
+          if (
+            key.startsWith("gjs-") ||
+            key.startsWith("gjs") ||
+            key.startsWith("grapes")
+          ) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch {
+        // Ignore localStorage errors (e.g., in private browsing)
+      }
+    }
+  }, [storage.type]);
 
   // Choose blocks based on project type (memoized to avoid reference changes)
   const baseBlocks = useMemo(
@@ -1181,6 +1231,13 @@ export function StudioEditor({
     (editor: Editor) => {
       editorRef.current = editor;
 
+      console.log("[StudioEditor] handleReady called:", {
+        hasInitialProject: !!initialProject,
+        initialProjectKeys: initialProject ? Object.keys(initialProject) : null,
+        previewMode,
+        lockPreview,
+      });
+
       // Register custom blocks
       const blockManager = editor.Blocks;
       for (const block of allBlocks) {
@@ -1193,6 +1250,92 @@ export function StudioEditor({
         });
       }
 
+      // Debug: Check what the SDK loaded via project.default
+      editor.onReady(() => {
+        const loadedData = editor.getProjectData();
+        console.log("[StudioEditor] onReady - SDK loaded data:", loadedData);
+        console.log("[StudioEditor] onReady - getHtml():", editor.getHtml());
+        console.log(
+          "[StudioEditor] onReady - Components:",
+          editor.getComponents().length,
+        );
+
+        // Debug: Check canvas state
+        const canvasEl = editor.Canvas.getElement();
+        const canvasDoc = editor.Canvas.getDocument();
+        const canvasBody = editor.Canvas.getBody();
+        const canvasFrame = editor.Canvas.getFrameEl();
+
+        // Check for wrapper element
+        const wrapper = editor.getWrapper();
+
+        console.log("[StudioEditor] onReady - Canvas debug:", {
+          canvasEl: canvasEl,
+          canvasElDimensions: canvasEl
+            ? { width: canvasEl.offsetWidth, height: canvasEl.offsetHeight }
+            : null,
+          canvasDoc: canvasDoc,
+          canvasBody: canvasBody,
+          canvasBodyChildren: canvasBody?.children?.length,
+          canvasFrame: canvasFrame,
+          canvasFrameSrc: canvasFrame?.src,
+          wrapper: wrapper,
+          wrapperHtml: wrapper?.toHTML?.(),
+        });
+
+        // List all children of the canvas body
+        if (canvasBody) {
+          console.log("[StudioEditor] Canvas body children:");
+          Array.from(canvasBody.children).forEach((child, i) => {
+            console.log(`  [${i}] ${child.tagName}`, child);
+          });
+        }
+
+        // Check wrapper computed styles
+        const wrapperEl = canvasBody?.querySelector(
+          '[data-gjs-type="wrapper"]',
+        ) as HTMLElement | null;
+        if (wrapperEl) {
+          const styles = window.getComputedStyle(wrapperEl);
+          console.log("[StudioEditor] Wrapper element styles:", {
+            display: styles.display,
+            visibility: styles.visibility,
+            opacity: styles.opacity,
+            height: styles.height,
+            width: styles.width,
+            overflow: styles.overflow,
+            position: styles.position,
+            zIndex: styles.zIndex,
+            backgroundColor: styles.backgroundColor,
+          });
+          console.log(
+            "[StudioEditor] Wrapper element dimensions:",
+            wrapperEl.getBoundingClientRect(),
+          );
+          console.log(
+            "[StudioEditor] Wrapper innerHTML preview:",
+            wrapperEl.innerHTML.substring(0, 300),
+          );
+        }
+
+        // Check canvas frame styles
+        if (canvasFrame) {
+          const frameStyles = window.getComputedStyle(canvasFrame);
+          console.log("[StudioEditor] Canvas frame styles:", {
+            display: frameStyles.display,
+            visibility: frameStyles.visibility,
+            opacity: frameStyles.opacity,
+            height: frameStyles.height,
+            width: frameStyles.width,
+            position: frameStyles.position,
+          });
+          console.log(
+            "[StudioEditor] Canvas frame dimensions:",
+            canvasFrame.getBoundingClientRect(),
+          );
+        }
+      });
+
       // Set up change listener
       if (onChange) {
         editor.on("update", () => {
@@ -1204,8 +1347,15 @@ export function StudioEditor({
       }
 
       // Set up save listener - called when user clicks save button or autosave triggers
+      // Skip the first storage event which fires on initialization
       if (onSave) {
+        let isInitialLoad = true;
         editor.on("storage:store", () => {
+          // Skip the initial store event that fires when loading project
+          if (isInitialLoad) {
+            isInitialLoad = false;
+            return;
+          }
           const html = editor.getHtml();
           const css = editor.getCss();
           const json = editor.getProjectData();
@@ -1213,9 +1363,65 @@ export function StudioEditor({
         });
       }
 
+      // Set up device change listener
+      if (onDeviceChange) {
+        editor.on("change:device", () => {
+          const device = editor.getDevice();
+          onDeviceChange(device);
+        });
+      }
+
+      // Set initial device if specified
+      if (initialDevice) {
+        editor.setDevice(initialDevice);
+      }
+
+      // Start in preview mode if requested
+      if (previewMode) {
+        // Wait for the editor to be fully ready including canvas
+        editor.onReady(() => {
+          // Additional delay to ensure canvas iframe is fully loaded
+          const attemptPreview = (retries = 0) => {
+            const canvasDoc = editor.Canvas.getDocument();
+            if (canvasDoc?.body) {
+              editor.runCommand("core:preview");
+
+              // If preview is locked, intercept attempts to exit preview
+              if (lockPreview) {
+                editor.on(
+                  "command:stop:before:core:preview",
+                  (options: { abort?: boolean }) => {
+                    // Prevent exiting preview mode
+                    options.abort = true;
+                  },
+                );
+              }
+            } else if (retries < 10) {
+              // Retry up to 10 times with increasing delay
+              setTimeout(
+                () => attemptPreview(retries + 1),
+                100 * (retries + 1),
+              );
+            }
+          };
+          // Start attempting after a short initial delay
+          setTimeout(() => attemptPreview(), 200);
+        });
+      }
+
       onReady?.(editor);
     },
-    [allBlocks, onChange, onSave, onReady],
+    [
+      allBlocks,
+      initialProject,
+      onChange,
+      onSave,
+      onReady,
+      onDeviceChange,
+      initialDevice,
+      previewMode,
+      lockPreview,
+    ],
   );
 
   // Get theme styles for injection via SDK plugins
@@ -1227,6 +1433,16 @@ export function StudioEditor({
   // Build default project content (without embedded CSS - CSS is added via plugins)
   const defaultProject = useMemo(() => {
     const isEmail = projectType === "email";
+
+    console.log("[StudioEditor] defaultProject computation:", {
+      hasInitialProject: !!initialProject,
+      initialProjectLength: initialProject
+        ? Object.keys(initialProject).length
+        : 0,
+      willUseInitialProject: !!(
+        initialProject && Object.keys(initialProject).length > 0
+      ),
+    });
 
     // If initialProject is provided, use it as-is (CSS will be added via plugins)
     if (initialProject && Object.keys(initialProject).length > 0) {
@@ -1304,7 +1520,7 @@ export function StudioEditor({
   return (
     <div
       key={editorKey}
-      className="studio-editor-container"
+      className={`studio-editor-container${lockPreview ? " studio-editor-locked-preview" : ""}`}
       style={{
         height: typeof height === "number" ? `${height}px` : height,
         minHeight: 400, // Minimum usable height
@@ -1314,6 +1530,91 @@ export function StudioEditor({
         flexDirection: "column",
       }}
     >
+      {/* CSS overrides to force GrapesJS SDK to fill container height */}
+      <style>{`
+        .studio-editor-container {
+          overflow: hidden !important;
+        }
+        /* SDK root wrapper - the gs-studio-root element */
+        .studio-editor-container > div:first-child,
+        .studio-editor-container .gs-studio-root,
+        .studio-editor-container .gs-studio-editor {
+          display: flex !important;
+          flex-direction: column !important;
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* The main row containing sidebars and canvas */
+        .studio-editor-container .gs-cmp-row {
+          flex: 1 1 auto !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
+        /* Canvas sidebar top - contains the canvas area */
+        .studio-editor-container .gs-canvas-sidebar-top {
+          flex: 1 1 auto !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
+        /* The canvas wrapper element */
+        .studio-editor-container .gs-canvas {
+          flex: 1 1 auto !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
+        /* GrapesJS editor container */
+        .studio-editor-container .gjs-editor-cont,
+        .studio-editor-container .gjs-editor {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* Canvas container - this is where the iframe lives */
+        .studio-editor-container .gjs-cv-canvas {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* The frames wrapper inside canvas */
+        .studio-editor-container .gjs-cv-canvas__frames {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* Frame wrapper that contains the iframe */
+        .studio-editor-container .gjs-frame-wrapper {
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        /* The actual iframe - allow internal scrolling only */
+        .studio-editor-container .gjs-frame {
+          height: 100% !important;
+          width: 100% !important;
+          border: none !important;
+        }
+        /* Hide the duplicate canvas */
+        .studio-editor-container .cv-canvas {
+          display: none !important;
+        }
+        /* Ensure sidebars don't create scrollbars */
+        .studio-editor-container .gs-sidebar-left,
+        .studio-editor-container .gs-sidebar-right {
+          overflow: hidden !important;
+        }
+        /* Allow layer manager to scroll internally */
+        .studio-editor-container .gs-layer-manager {
+          overflow: hidden !important;
+        }
+        .studio-editor-container .gs-layer-manager > div:last-child {
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+        }
+        /* Remove outer border from the editor wrapper */
+        .studio-editor-container .gjs-editor-wrapper {
+          border: none !important;
+        }
+        /* Hide exit preview button when preview is locked */
+        .studio-editor-locked-preview .gs-cmp-close-preview {
+          display: none !important;
+        }
+      `}</style>
       <StudioEditorSDK
         options={{
           licenseKey,
