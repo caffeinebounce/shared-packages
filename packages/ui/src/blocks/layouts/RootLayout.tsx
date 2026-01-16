@@ -245,6 +245,9 @@ export function RootLayout({
           ? (fontStyles as React.CSSProperties)
           : undefined
       }
+      // Suppress hydration warnings for font class names which may differ
+      // slightly between server and client due to CSS module hash generation
+      suppressHydrationWarning
     >
       {analytics?.clarityProjectId && (
         <ClarityAnalytics projectId={analytics.clarityProjectId} />
