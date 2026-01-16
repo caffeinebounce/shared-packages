@@ -1,13 +1,26 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { defineConfig } from "tsup";
 
 const USE_CLIENT_BANNER = '"use client";\n';
 
 export default defineConfig({
-  entry: ["src/index.tsx"],
+  entry: {
+    // Main entry point (all exports for backwards compatibility)
+    index: "src/index.tsx",
+    // Subpath exports for tree-shaking heavy modules
+    "data-table": "src/entries/data-table.ts",
+    editor: "src/entries/editor.ts",
+    layouts: "src/entries/layouts.ts",
+    charts: "src/entries/charts.ts",
+    hooks: "src/entries/hooks.ts",
+    navigation: "src/entries/navigation.ts",
+    marketing: "src/entries/marketing.ts",
+    forms: "src/entries/forms.ts",
+    settings: "src/entries/settings.ts",
+  },
   format: ["esm", "cjs"],
   dts: true,
-  splitting: false,
+  splitting: true,
   sourcemap: true,
   clean: true,
   external: [
@@ -27,15 +40,22 @@ export default defineConfig({
     };
   },
   async onSuccess() {
-    // Add "use client" directive to output files
-    const files = ["dist/index.mjs", "dist/index.js"];
-    for (const file of files) {
+    // Add "use client" directive to all ESM and CJS output files
+    const distFiles = readdirSync("dist").filter(
+      (f) => f.endsWith(".mjs") || (f.endsWith(".js") && !f.endsWith(".d.ts")),
+    );
+
+    for (const file of distFiles) {
+      const filePath = `dist/${file}`;
       try {
-        const content = readFileSync(file, "utf-8");
-        writeFileSync(file, USE_CLIENT_BANNER + content);
-        console.log(`Added "use client" to ${file}`);
+        const content = readFileSync(filePath, "utf-8");
+        // Skip if already has "use client" directive
+        if (!content.startsWith('"use client"')) {
+          writeFileSync(filePath, USE_CLIENT_BANNER + content);
+          console.log(`Added "use client" to ${filePath}`);
+        }
       } catch (e) {
-        console.error(`Failed to add "use client" to ${file}:`, e);
+        console.error(`Failed to add "use client" to ${filePath}:`, e);
       }
     }
   },
