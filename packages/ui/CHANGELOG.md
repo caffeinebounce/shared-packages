@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.35.2
+
+### Patch Changes
+
+- 5422136: Add suppressHydrationWarning to RootLayout wrapper div to prevent hydration errors from font class name differences between server and client rendering
+
 ## 0.35.1
 
 ### Patch Changes
