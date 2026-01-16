@@ -42,7 +42,7 @@ export default defineConfig({
   async onSuccess() {
     // Add "use client" directive to all ESM and CJS output files
     const distFiles = readdirSync("dist").filter(
-      (f) => f.endsWith(".mjs") || (f.endsWith(".js") && !f.endsWith(".d.ts")),
+      (f) => f.endsWith(".mjs") || f.endsWith(".js"),
     );
 
     for (const file of distFiles) {

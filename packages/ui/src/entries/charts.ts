@@ -8,9 +8,4 @@
  *
  * @module charts
  */
-export type { ChartConfig } from "../components/ui/chart";
-export {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "../components/ui/chart";
+export * from "../components/ui/chart";
