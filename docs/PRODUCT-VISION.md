@@ -93,14 +93,14 @@ development across the portfolio.
 
 1. **Consistency over flexibility:** Opinionated defaults reduce decision fatigue
 2. **Type safety is non-negotiable:** Strict TypeScript, no `any`, excellent inference
-3. **Tree-shakeable by default:** No barrel exports that prevent dead code elimination
+3. **Tree-shakeable by default:** No nested barrel exports that re-export other indexes
 4. **Server-safe first:** Components work in RSC; client components explicitly marked
 5. **Minimal dependencies:** Each package should be lean; avoid dependency sprawl
 
 ### Technical Standards
 
 - [ ] All exports typed with no implicit `any`
-- [ ] No barrel index re-exports (tree-shaking)
+- [ ] No nested barrel re-exports; main index imports directly from source
 - [ ] `"use client"` directive only where necessary
 - [ ] Peer dependencies for React, not bundled
 - [ ] ESM-first with CJS fallback
