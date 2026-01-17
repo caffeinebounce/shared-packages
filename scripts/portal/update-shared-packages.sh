@@ -70,11 +70,24 @@ declare -a PACKAGES
 load_config() {
   if [[ -f "$CONFIG_FILE" ]]; then
     PACKAGES=($(node -e "
-      const config = require('$CONFIG_FILE');
-      if (config.portalPackages) {
-        config.portalPackages.forEach(p => console.log(p));
+      const fs = require('fs');
+      const configPath = process.argv[1];
+      let config = {};
+      try {
+        const raw = fs.readFileSync(configPath, 'utf8');
+        config = JSON.parse(raw);
+      } catch {
+        // If config file is unreadable or invalid JSON, emit no packages
+        process.exit(0);
       }
-    " 2>/dev/null))
+      if (Array.isArray(config.portalPackages)) {
+        config.portalPackages.forEach(p => {
+          if (typeof p === 'string') {
+            console.log(p);
+          }
+        });
+      }
+    " "$CONFIG_FILE" 2>/dev/null))
   fi
 
   # Fallback to common packages if no config or empty
@@ -126,6 +139,8 @@ update_version() {
 }
 
 # Compare semver versions (returns 0 if v1 < v2)
+# Note: This is a simple major.minor.patch comparison.
+# Pre-release versions (e.g., 1.0.0-alpha.1) and build metadata are not fully supported.
 version_lt() {
   local v1=$1
   local v2=$2
@@ -136,8 +151,8 @@ version_lt() {
 
   # Use node for reliable semver comparison
   node -e "
-    const v1 = '$v1';
-    const v2 = '$v2';
+    const v1 = '$v1'.split('-')[0]; // Strip pre-release suffix
+    const v2 = '$v2'.split('-')[0];
 
     // Simple semver comparison (major.minor.patch)
     const parseVersion = (v) => v.split('.').map(n => parseInt(n, 10) || 0);

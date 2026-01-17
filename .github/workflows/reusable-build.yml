@@ -132,7 +132,7 @@ jobs:
             turbo-cache-${{ runner.os }}-build-
 
       - name: Install Dependencies
-        run: yarn install
+        run: yarn install --immutable
         timeout-minutes: 3
 
       - name: Check for lockfile changes
@@ -243,14 +243,3 @@ jobs:
           path: web-build.tgz
           retention-days: 3
 
-      - name: Upload node_modules artifact
-        if: inputs.upload-build-artifacts
-        uses: actions/upload-artifact@v4
-        continue-on-error: true
-        with:
-          name: node-modules
-          path: |
-            node_modules.tgz
-          retention-days: 1
-        env:
-          NODE_MODULES_PACKED: ${{ steps.artifact.outputs.packed }}

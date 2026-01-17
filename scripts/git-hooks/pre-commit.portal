@@ -54,11 +54,18 @@ declare -a PORTAL_PACKAGES
 load_config() {
   if [[ -f "$CONFIG_FILE" ]]; then
     PORTAL_PACKAGES=($(node -e "
-      const config = require('$CONFIG_FILE');
-      if (config.portalPackages) {
-        config.portalPackages.forEach(p => console.log(p));
+      const fs = require('fs');
+      const configPath = process.argv[1];
+      try {
+        const raw = fs.readFileSync(configPath, 'utf8');
+        const config = JSON.parse(raw);
+        if (config && Array.isArray(config.portalPackages)) {
+          config.portalPackages.forEach(p => console.log(p));
+        }
+      } catch {
+        // Silently ignore malformed or unreadable config
       }
-    " 2>/dev/null))
+    " "$CONFIG_FILE" 2>/dev/null))
   fi
 
   # Fallback if no config
@@ -77,7 +84,7 @@ load_config() {
 # Always verify lockfile is consistent before committing
 check_lockfile_consistency() {
   echo "Verifying lockfile consistency..."
-  if ! yarn install --immutable --check-cache >/dev/null 2>&1; then
+  if ! yarn install --immutable --check-cache >/dev/null; then
     echo ""
     echo "Lockfile inconsistency detected. CI will fail with this lockfile."
     echo ""
@@ -175,7 +182,10 @@ disable_portals_for_commit() {
     cp "$YARN_LOCK" "$YARN_LOCK_BACKUP_FILE"
     echo "   > Backing up yarn.lock and regenerating without portals..."
     # Run yarn install to regenerate yarn.lock without portals
-    yarn install --mode update-lockfile 2>/dev/null || yarn install
+    if ! yarn install --mode update-lockfile; then
+      echo "   > yarn install --mode update-lockfile failed, falling back to plain yarn install..."
+      yarn install
+    fi
     git add "$YARN_LOCK"
     echo "   > yarn.lock regenerated"
   fi
@@ -254,8 +264,8 @@ cleanup() {
   exit $exit_code
 }
 
-# Set trap to restore portals on exit
-trap cleanup EXIT
+# Set trap to restore portals on exit (including interrupt signals)
+trap cleanup EXIT INT TERM
 
 # Get list of staged files before running hooks
 get_staged_files() {

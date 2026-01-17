@@ -55,19 +55,29 @@ declare -a PORTAL_PACKAGES
 # Load configuration from devops.config.json if it exists
 load_config() {
   if [[ -f "$CONFIG_FILE" ]]; then
-    # Read portalPackages array
+    # Read portalPackages array using JSON.parse (safer than require)
     PORTAL_PACKAGES=($(node -e "
-      const config = require('$CONFIG_FILE');
-      if (config.portalPackages) {
-        config.portalPackages.forEach(p => console.log(p));
+      const fs = require('fs');
+      try {
+        const config = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
+        if (config && Array.isArray(config.portalPackages)) {
+          config.portalPackages.forEach(p => console.log(p));
+        }
+      } catch {
+        // Silently ignore malformed config
       }
-    " 2>/dev/null))
+    " "$CONFIG_FILE" 2>/dev/null))
 
     # Read sharedPackagesPath
     local path=$(node -e "
-      const config = require('$CONFIG_FILE');
-      if (config.sharedPackagesPath) console.log(config.sharedPackagesPath);
-    " 2>/dev/null)
+      const fs = require('fs');
+      try {
+        const config = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
+        if (config.sharedPackagesPath) console.log(config.sharedPackagesPath);
+      } catch {
+        // Silently ignore malformed config
+      }
+    " "$CONFIG_FILE" 2>/dev/null)
     if [[ -n "$path" ]]; then
       SHARED_PACKAGES_PATH="$path"
     fi
@@ -224,10 +234,19 @@ enable_portals() {
 
   print_status "success" "Portal resolutions added to package.json"
 
-  print_status "step" "Building shared-packages..."
-  (cd "$ROOT_DIR/../shared-packages" && yarn build) || {
-    print_status "warning" "shared-packages build had issues, continuing anyway..."
-  }
+  # Build shared-packages (best-effort, but with clear validation and messaging)
+  local shared_dir="$ROOT_DIR/../shared-packages"
+  print_status "step" "Building shared-packages at '$shared_dir'..."
+  if [[ ! -d "$shared_dir" ]]; then
+    print_status "warning" "shared-packages directory not found at '$shared_dir'. Skipping shared-packages build."
+  else
+    if (cd "$shared_dir" && yarn build); then
+      print_status "success" "shared-packages built successfully"
+    else
+      local build_status=$?
+      print_status "warning" "shared-packages build failed with exit code $build_status, continuing anyway..."
+    fi
+  fi
 
   print_status "step" "Running yarn install..."
   (cd "$ROOT_DIR" && yarn install)
@@ -251,21 +270,22 @@ disable_portals() {
 
   print_status "step" "Removing portal resolutions from package.json..."
 
-  # Use node to safely modify package.json
-  node -e "
-    const fs = require('fs');
-    const pkg = JSON.parse(fs.readFileSync('$PACKAGE_JSON', 'utf8'));
-    const portalPackages = $(node -e "console.log(JSON.stringify($(printf '%s\n' "${PORTAL_PACKAGES[@]}" | jq -R . | jq -s .)))");
+  # Use node to safely modify package.json without external jq dependencies
+  node - "$PACKAGE_JSON" "${PORTAL_PACKAGES[@]}" <<'NODE'
+const fs = require('fs');
 
-    for (const p of portalPackages) {
-      if (pkg.resolutions && pkg.resolutions[p]?.startsWith('portal:')) {
-        delete pkg.resolutions[p];
-      }
-    }
+const [, , packageJsonPath, ...portalPackages] = process.argv;
+const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-    fs.writeFileSync('$PACKAGE_JSON', JSON.stringify(pkg, null, 2) + '\n');
-    console.log('Removed portal resolutions from package.json');
-  "
+for (const p of portalPackages) {
+  if (pkg.resolutions && typeof pkg.resolutions[p] === 'string' && pkg.resolutions[p].startsWith('portal:')) {
+    delete pkg.resolutions[p];
+  }
+}
+
+fs.writeFileSync(packageJsonPath, JSON.stringify(pkg, null, 2) + '\n');
+console.log('Removed portal resolutions from package.json');
+NODE
 
   print_status "success" "Portal resolutions removed from package.json"
 
