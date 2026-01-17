@@ -1,0 +1,342 @@
+#!/bin/bash
+# =============================================================================
+# Pre-commit hook with portal handling and auto-restage
+# =============================================================================
+#
+# This hook:
+# 1. Verifies lockfile consistency
+# 2. Updates shared-packages to latest versions (if available)
+# 3. Temporarily disables portal resolutions for clean commits
+# 4. Runs pre-commit framework hooks
+# 5. Auto-restages files modified by hooks
+#
+# The post-commit.portal hook restores portal resolutions after commit.
+#
+# Configuration:
+#   Reads from devops.config.json for portal package list
+#
+# =============================================================================
+
+set -e
+
+MAX_RETRIES=2
+RETRY_COUNT=0
+
+# Determine root directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# When running as a git hook, we're in .git/hooks/
+# The repo root is two levels up from .git/hooks/
+if [[ "$SCRIPT_DIR" == *".git/hooks"* ]]; then
+  ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+else
+  ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+fi
+
+PACKAGE_JSON="$ROOT_DIR/package.json"
+YARN_LOCK="$ROOT_DIR/yarn.lock"
+CONFIG_FILE="$ROOT_DIR/devops.config.json"
+PORTAL_BACKUP_FILE="$ROOT_DIR/.portal-backup"
+YARN_LOCK_BACKUP_FILE="$ROOT_DIR/.yarn-lock-backup"
+PORTAL_BACKUP=""
+
+# Find the update script (either in shared-packages or local)
+if [[ -f "$ROOT_DIR/../shared-packages/scripts/portal/update-shared-packages.sh" ]]; then
+  UPDATE_SCRIPT="$ROOT_DIR/../shared-packages/scripts/portal/update-shared-packages.sh"
+elif [[ -f "$ROOT_DIR/scripts/update-shared-packages.sh" ]]; then
+  UPDATE_SCRIPT="$ROOT_DIR/scripts/update-shared-packages.sh"
+else
+  UPDATE_SCRIPT=""
+fi
+
+# Load portal packages from config
+declare -a PORTAL_PACKAGES
+load_config() {
+  if [[ -f "$CONFIG_FILE" ]]; then
+    PORTAL_PACKAGES=($(node -e "
+      const fs = require('fs');
+      const configPath = process.argv[1];
+      try {
+        const raw = fs.readFileSync(configPath, 'utf8');
+        const config = JSON.parse(raw);
+        if (config && Array.isArray(config.portalPackages)) {
+          config.portalPackages.forEach(p => console.log(p));
+        }
+      } catch {
+        // Silently ignore malformed or unreadable config
+      }
+    " "$CONFIG_FILE" 2>/dev/null))
+  fi
+
+  # Fallback if no config
+  if [[ ${#PORTAL_PACKAGES[@]} -eq 0 ]]; then
+    PORTAL_PACKAGES=(
+      "@caffeinebounce/ui"
+      "@caffeinebounce/identity"
+      "@caffeinebounce/email"
+      "@caffeinebounce/ai-assistant"
+      "@caffeinebounce/logger"
+      "@caffeinebounce/shared-utils"
+    )
+  fi
+}
+
+# Always verify lockfile is consistent before committing
+check_lockfile_consistency() {
+  echo "Verifying lockfile consistency..."
+  if ! yarn install --immutable --check-cache >/dev/null; then
+    echo ""
+    echo "Lockfile inconsistency detected. CI will fail with this lockfile."
+    echo ""
+    echo "This can happen when:"
+    echo "  - Your branch is based on an older commit and new packages were published"
+    echo "  - package.json was modified but yarn.lock wasn't updated"
+    echo "  - The lockfile cache is out of sync with the registry"
+    echo ""
+    echo "To fix, run:"
+    echo "  yarn install && git add yarn.lock .yarn"
+    echo ""
+    echo "Then retry your commit."
+    exit 1
+  fi
+  echo "Lockfile is consistent"
+}
+
+# Check if portals are currently enabled
+portals_enabled() {
+  if grep -q '"portal:' "$PACKAGE_JSON" 2>/dev/null; then
+    return 0  # true
+  else
+    return 1  # false
+  fi
+}
+
+# Update shared-packages to latest versions
+update_shared_packages() {
+  if [[ -x "$UPDATE_SCRIPT" ]]; then
+    echo "Checking shared-packages versions..."
+    "$UPDATE_SCRIPT" --quiet || true
+  fi
+}
+
+# Remove portal resolutions and save backup
+disable_portals_for_commit() {
+  if ! portals_enabled; then
+    return 0
+  fi
+
+  echo "Temporarily disabling portal resolutions for commit..."
+
+  # Build JSON array of portal packages
+  local pkg_json="["
+  local first=true
+  for pkg in "${PORTAL_PACKAGES[@]}"; do
+    if [[ "$first" != "true" ]]; then
+      pkg_json="$pkg_json,"
+    fi
+    pkg_json="$pkg_json\"$pkg\""
+    first=false
+  done
+  pkg_json="$pkg_json]"
+
+  # Save the current portal state
+  PORTAL_BACKUP=$(node -e "
+    const fs = require('fs');
+    const pkg = JSON.parse(fs.readFileSync('$PACKAGE_JSON', 'utf8'));
+    const portalPackages = $pkg_json;
+    const backup = {};
+    for (const p of portalPackages) {
+      if (pkg.resolutions && pkg.resolutions[p]?.startsWith('portal:')) {
+        backup[p] = pkg.resolutions[p];
+      }
+    }
+    console.log(JSON.stringify(backup));
+  ")
+
+  # Write backup to file for post-commit hook
+  echo "$PORTAL_BACKUP" > "$PORTAL_BACKUP_FILE"
+
+  # Remove portal resolutions
+  node -e "
+    const fs = require('fs');
+    const pkg = JSON.parse(fs.readFileSync('$PACKAGE_JSON', 'utf8'));
+    const portalPackages = $pkg_json;
+    let changed = false;
+    for (const p of portalPackages) {
+      if (pkg.resolutions && pkg.resolutions[p]?.startsWith('portal:')) {
+        delete pkg.resolutions[p];
+        changed = true;
+      }
+    }
+    if (changed) {
+      fs.writeFileSync('$PACKAGE_JSON', JSON.stringify(pkg, null, 2) + '\n');
+    }
+  "
+
+  # Stage the modified package.json
+  git add "$PACKAGE_JSON"
+  echo "   > Removed portal resolutions from package.json"
+
+  # Backup current yarn.lock and regenerate without portals
+  if [[ -f "$YARN_LOCK" ]]; then
+    cp "$YARN_LOCK" "$YARN_LOCK_BACKUP_FILE"
+    echo "   > Backing up yarn.lock and regenerating without portals..."
+    # Run yarn install to regenerate yarn.lock without portals
+    if ! yarn install --mode update-lockfile; then
+      echo "   > yarn install --mode update-lockfile failed, falling back to plain yarn install..."
+      yarn install
+    fi
+    git add "$YARN_LOCK"
+    echo "   > yarn.lock regenerated"
+  fi
+}
+
+# Restore portal resolutions (used on pre-commit failure)
+restore_portals() {
+  # Restore yarn.lock backup first
+  if [[ -f "$YARN_LOCK_BACKUP_FILE" ]]; then
+    cp "$YARN_LOCK_BACKUP_FILE" "$YARN_LOCK"
+    rm "$YARN_LOCK_BACKUP_FILE"
+    echo "   > yarn.lock restored"
+  fi
+
+  # Check file-based backup first
+  if [[ -f "$PORTAL_BACKUP_FILE" ]]; then
+    local backup=$(cat "$PORTAL_BACKUP_FILE")
+    if [[ -n "$backup" && "$backup" != "{}" ]]; then
+      echo "Restoring portal resolutions for local development..."
+
+      node -e "
+        const fs = require('fs');
+        const pkg = JSON.parse(fs.readFileSync('$PACKAGE_JSON', 'utf8'));
+        const backup = JSON.parse(process.argv[1]);
+
+        if (!pkg.resolutions) {
+          pkg.resolutions = {};
+        }
+
+        for (const [p, value] of Object.entries(backup)) {
+          pkg.resolutions[p] = value;
+        }
+
+        fs.writeFileSync('$PACKAGE_JSON', JSON.stringify(pkg, null, 2) + '\n');
+      " "$backup"
+
+      rm "$PORTAL_BACKUP_FILE"
+      echo "   > Portal resolutions restored"
+    fi
+    return 0
+  fi
+
+  # Fall back to in-memory backup
+  if [ -z "$PORTAL_BACKUP" ] || [ "$PORTAL_BACKUP" = "{}" ]; then
+    return 0
+  fi
+
+  echo "Restoring portal resolutions for local development..."
+
+  node -e "
+    const fs = require('fs');
+    const pkg = JSON.parse(fs.readFileSync('$PACKAGE_JSON', 'utf8'));
+    const backup = $PORTAL_BACKUP;
+
+    if (!pkg.resolutions) {
+      pkg.resolutions = {};
+    }
+
+    for (const [p, value] of Object.entries(backup)) {
+      pkg.resolutions[p] = value;
+    }
+
+    fs.writeFileSync('$PACKAGE_JSON', JSON.stringify(pkg, null, 2) + '\n');
+  "
+
+  echo "   > Portal resolutions restored"
+}
+
+# Cleanup function - restore portals only on failure
+cleanup() {
+  local exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    restore_portals
+    rm -f "$PORTAL_BACKUP_FILE"
+  fi
+  exit $exit_code
+}
+
+# Set trap to restore portals on exit (including interrupt signals)
+trap cleanup EXIT INT TERM
+
+# Get list of staged files before running hooks
+get_staged_files() {
+  git diff --cached --name-only --diff-filter=d
+}
+
+# Run pre-commit and handle auto-fixes
+run_pre_commit() {
+  if pre-commit run --hook-stage pre-commit; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# =============================================================================
+# Main
+# =============================================================================
+
+load_config
+cd "$ROOT_DIR"
+
+# Run lockfile check before other pre-commit steps
+check_lockfile_consistency
+
+# Update shared-packages and disable portals before running hooks
+update_shared_packages
+disable_portals_for_commit
+
+# Main loop
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+  STAGED_BEFORE=$(get_staged_files)
+
+  if run_pre_commit; then
+    # All hooks passed
+    exit 0
+  fi
+
+  # Check if any previously staged files were modified
+  MODIFIED_FILES=""
+  for file in $STAGED_BEFORE; do
+    if [ -f "$file" ] && ! git diff --quiet -- "$file" 2>/dev/null; then
+      MODIFIED_FILES="$MODIFIED_FILES $file"
+    fi
+  done
+
+  if [ -z "$MODIFIED_FILES" ]; then
+    # No files were auto-fixed, genuine failure
+    echo ""
+    echo "Pre-commit hooks failed (no auto-fixes applied)"
+    exit 1
+  fi
+
+  # Re-stage the modified files
+  echo ""
+  echo "Auto-fixes applied, re-staging files..."
+  for file in $MODIFIED_FILES; do
+    echo "   > $file"
+    git add "$file"
+  done
+
+  RETRY_COUNT=$((RETRY_COUNT + 1))
+  echo "Retrying pre-commit (attempt $((RETRY_COUNT + 1))/$((MAX_RETRIES + 1)))..."
+  echo ""
+done
+
+# If we've exhausted retries, run one final time to show the error
+if ! run_pre_commit; then
+  echo ""
+  echo "Pre-commit hooks still failing after auto-fixes"
+  exit 1
+fi
+
+exit 0
