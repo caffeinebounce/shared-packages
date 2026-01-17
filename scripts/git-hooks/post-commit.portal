@@ -1,0 +1,56 @@
+#!/bin/bash
+# =============================================================================
+# Post-commit hook: Restore portal resolutions after commit
+# =============================================================================
+#
+# This ensures local development continues to use portal symlinks while
+# the committed package.json uses npm registry versions for CI/deployment.
+#
+# Paired with pre-commit.portal which saves the backup files.
+#
+# =============================================================================
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+PACKAGE_JSON="$REPO_ROOT/package.json"
+YARN_LOCK="$REPO_ROOT/yarn.lock"
+PORTAL_BACKUP_FILE="$REPO_ROOT/.portal-backup"
+YARN_LOCK_BACKUP_FILE="$REPO_ROOT/.yarn-lock-backup"
+
+# Restore yarn.lock backup first
+if [[ -f "$YARN_LOCK_BACKUP_FILE" ]]; then
+  echo "Restoring yarn.lock..."
+  cp "$YARN_LOCK_BACKUP_FILE" "$YARN_LOCK"
+  rm "$YARN_LOCK_BACKUP_FILE"
+  echo "   > yarn.lock restored"
+fi
+
+# Restore portals if backup exists
+if [[ -f "$PORTAL_BACKUP_FILE" ]]; then
+  echo "Restoring portal resolutions for local development..."
+
+  # Read the backup
+  PORTAL_BACKUP=$(cat "$PORTAL_BACKUP_FILE")
+
+  if [[ -n "$PORTAL_BACKUP" && "$PORTAL_BACKUP" != "{}" ]]; then
+    # Use node to restore portals
+    node -e "
+const fs = require('fs');
+const pkg = JSON.parse(fs.readFileSync('$PACKAGE_JSON', 'utf8'));
+const backup = JSON.parse(process.argv[1]);
+
+// Restore portal resolutions
+pkg.resolutions = pkg.resolutions || {};
+for (const [key, value] of Object.entries(backup)) {
+  pkg.resolutions[key] = value;
+}
+
+fs.writeFileSync('$PACKAGE_JSON', JSON.stringify(pkg, null, 2) + '\n');
+console.log('   > Portal resolutions restored');
+" "$PORTAL_BACKUP"
+
+    # Clean up backup file
+    rm "$PORTAL_BACKUP_FILE"
+  fi
+fi

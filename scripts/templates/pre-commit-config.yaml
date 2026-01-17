@@ -1,0 +1,123 @@
+# Pre-commit hooks template for apps consuming shared-packages
+# Copy to your app root as .pre-commit-config.yaml and customize
+# Install: pre-commit install && pre-commit install --hook-type commit-msg
+
+repos:
+  # ========================================================================
+  # Basic file hygiene (always included)
+  # ========================================================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: \.lock$|\.snap$
+      - id: end-of-file-fixer
+        exclude: \.lock$|\.snap$
+      - id: check-yaml
+      - id: check-json
+        exclude: tsconfig.*\.json$  # tsconfig allows comments
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: no-commit-to-branch
+        args: [--branch, main, --branch, develop]
+
+  # ========================================================================
+  # Biome (linting + formatting)
+  # ========================================================================
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.3.10
+    hooks:
+      - id: biome-check
+        additional_dependencies: ["@biomejs/biome@2.3.8"]
+
+  # ========================================================================
+  # Local hooks
+  # ========================================================================
+  - repo: local
+    hooks:
+      # --- Biome migrate (auto) ---
+      # Uncomment to auto-migrate biome config on changes
+      # - id: biome-migrate
+      #   name: biome migrate (auto)
+      #   entry: npx biome migrate --write
+      #   language: system
+      #   pass_filenames: false
+      #   files: ^(biome\.json|biome\.jsonc|package\.json|yarn\.lock)$
+      #   always_run: true
+      #   stages: [pre-commit]
+
+      # --- Yarn lockfile integrity ---
+      - id: yarn-integrity
+        name: check yarn.lock integrity
+        entry: yarn install --immutable --mode=skip-build
+        language: system
+        pass_filenames: false
+        files: ^(package\.json|yarn\.lock)$
+
+      # --- TypeScript type checking ---
+      - id: tsc-type-check
+        name: typescript type check
+        entry: yarn turbo run build --dry-run -- --noEmit
+        language: system
+        pass_filenames: false
+        types: [ts, tsx]
+        stages: [pre-commit]
+
+      # --- Tailwind v4 canonical classes ---
+      # Uncomment if you have the check script
+      # - id: tailwind-v4-classes
+      #   name: check tailwind v4 canonical classes
+      #   entry: ./scripts/check-tailwind-v4-classes.sh
+      #   language: script
+      #   types: [ts, tsx, css, html]
+      #   stages: [pre-commit]
+
+      # --- Sync environment variables ---
+      # Uncomment if you want to auto-sync .env.example to .env.local
+      # - id: sync-env
+      #   name: sync .env.example to .env.local
+      #   entry: ./scripts/sync-env.sh
+      #   language: script
+      #   pass_filenames: false
+      #   always_run: true
+      #   stages: [pre-commit]
+
+      # --- Unit tests ---
+      # Uncomment to run tests before commit
+      # - id: run-tests
+      #   name: run unit tests
+      #   entry: yarn test
+      #   language: system
+      #   pass_filenames: false
+      #   always_run: true
+      #   stages: [pre-commit]
+
+  # ========================================================================
+  # Secrets scanning
+  # ========================================================================
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: detect secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: yarn\.lock$|\.env\.example$|\.tsbuildinfo$
+
+  # ========================================================================
+  # Conventional commits
+  # ========================================================================
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.3.0
+    hooks:
+      - id: conventional-pre-commit
+        name: conventional commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]
+
+# ============================================================================
+# Global exclusions
+# ============================================================================
+exclude: (?x)^(\.next/|\.turbo/|node_modules/|dist/|build/|coverage/|\.yarn/)

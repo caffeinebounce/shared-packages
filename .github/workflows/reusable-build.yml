@@ -1,0 +1,256 @@
+# =============================================================================
+# Reusable Build Workflow
+# =============================================================================
+#
+# Features:
+# - Node.js + Yarn + Corepack setup
+# - GitHub Packages auth configuration
+# - Yarn cache restoration
+# - Turbo cache (local + optional remote)
+# - Incremental builds (--affected) for PRs
+# - Full builds for push to main
+# - Lockfile auto-commit (optional)
+# - Build artifact upload
+#
+# Usage in consuming repos:
+#
+#   jobs:
+#     build:
+#       uses: caffeinebounce/shared-packages/.github/workflows/reusable-build.yml@main
+#       with:
+#         node-version: '24'
+#         yarn-version: '4.12.0'
+#       secrets:
+#         GH_PAT: ${{ secrets.GH_PAT }}
+#
+# =============================================================================
+
+name: Reusable Build
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version'
+        required: false
+        default: '24'
+        type: string
+      yarn-version:
+        description: 'Yarn version'
+        required: false
+        default: '4.12.0'
+        type: string
+      turbo-remote-cache:
+        description: 'Enable Turbo remote cache'
+        required: false
+        default: false
+        type: boolean
+      lockfile-auto-commit:
+        description: 'Auto-commit lockfile changes on push'
+        required: false
+        default: true
+        type: boolean
+      upload-build-artifacts:
+        description: 'Upload build artifacts'
+        required: false
+        default: true
+        type: boolean
+      build-timeout-minutes:
+        description: 'Build step timeout in minutes'
+        required: false
+        default: 20
+        type: number
+      web-app-path:
+        description: 'Path to web app for .next artifacts'
+        required: false
+        default: 'apps/web'
+        type: string
+    secrets:
+      GH_PAT:
+        description: 'GitHub PAT for packages auth'
+        required: false
+      TURBO_TOKEN:
+        description: 'Turbo remote cache token'
+        required: false
+    outputs:
+      build-artifact-name:
+        description: 'Name of the uploaded build artifact'
+        value: ${{ jobs.build.outputs.artifact-name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      artifact-name: ${{ steps.artifact.outputs.name }}
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_PAT || github.token }}
+      NODE_AUTH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Enable Corepack
+        run: corepack enable && corepack prepare yarn@${{ inputs.yarn-version }} --activate
+
+      - name: Configure GitHub Packages auth
+        run: |
+          echo 'npmScopes:' > .yarnrc.local.yml
+          echo '  caffeinebounce:' >> .yarnrc.local.yml
+          echo '    npmAlwaysAuth: true' >> .yarnrc.local.yml
+          echo '    npmRegistryServer: "https://npm.pkg.github.com"' >> .yarnrc.local.yml
+          echo "    npmAuthToken: \"${{ secrets.GH_PAT || github.token }}\"" >> .yarnrc.local.yml
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder | tail -n1)" >> $GITHUB_OUTPUT
+
+      - name: Restore yarn cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: yarn-cache-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            yarn-cache-${{ runner.os }}-
+
+      - name: Restore Turborepo Cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-cache-${{ runner.os }}-build-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            turbo-cache-${{ runner.os }}-build-
+
+      - name: Install Dependencies
+        run: yarn install
+        timeout-minutes: 3
+
+      - name: Check for lockfile changes
+        id: lockfile-check
+        run: |
+          if [[ -n $(git status --porcelain yarn.lock) ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit lockfile changes
+        if: inputs.lockfile-auto-commit && steps.lockfile-check.outputs.changed == 'true' && github.event_name == 'push'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add yarn.lock
+          git commit -m "chore: update yarn.lock [skip ci]"
+          git push
+
+      - name: Lint
+        run: yarn lint
+        timeout-minutes: 2
+
+      - name: Test
+        run: yarn test
+        timeout-minutes: 3
+        env:
+          CI: true
+
+      - name: Ensure base ref is available (for PRs)
+        if: github.event_name == 'pull_request'
+        run: |
+          base_ref="${{ github.event.pull_request.base.ref }}"
+          echo "Attempting to fetch base ref: $base_ref"
+
+          if git rev-parse --verify --quiet "origin/$base_ref" >/dev/null; then
+            echo "origin/$base_ref already present"
+          else
+            git fetch origin "refs/heads/$base_ref:refs/remotes/origin/$base_ref" || \
+            git fetch origin "$base_ref:refs/remotes/origin/$base_ref" || \
+            git fetch origin "$base_ref" || true
+          fi
+
+          if git rev-parse --verify --quiet "origin/$base_ref" >/dev/null; then
+            echo "TURBO_SCM_BASE=origin/$base_ref" >> $GITHUB_ENV
+          elif git rev-parse --verify --quiet origin/main >/dev/null; then
+            echo "TURBO_SCM_BASE=origin/main" >> $GITHUB_ENV
+          fi
+
+      - name: Build
+        run: |
+          # Determine turbo cache mode
+          PR_IS_FORK="${{ github.event.pull_request.head.repo.fork }}"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            if [ "${PR_IS_FORK:-false}" = "true" ]; then
+              echo "Forked PR - running affected build without remote cache"
+              yarn turbo run build --affected
+            elif [ -n "${{ secrets.TURBO_TOKEN }}" ] && [ "${{ inputs.turbo-remote-cache }}" = "true" ]; then
+              echo "Trusted PR with remote cache"
+              yarn turbo run build --affected --cache=remote:rw
+            else
+              echo "Running affected build"
+              yarn turbo run build --affected
+            fi
+          else
+            if [ -n "${{ secrets.TURBO_TOKEN }}" ] && [ "${{ inputs.turbo-remote-cache }}" = "true" ]; then
+              echo "Main branch with remote cache"
+              yarn turbo run build --cache=remote:rw
+            else
+              echo "Running full build"
+              yarn build
+            fi
+          fi
+        timeout-minutes: ${{ inputs.build-timeout-minutes }}
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN || '' }}
+          TURBO_SCM_BASE: ${{ env.TURBO_SCM_BASE || 'origin/main' }}
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Save Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-cache-${{ runner.os }}-build-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Package build artifacts
+        id: artifact
+        if: inputs.upload-build-artifacts
+        run: |
+          WEB_PATH="${{ inputs.web-app-path }}"
+          if [ -d "$WEB_PATH/.next" ] && [ "$(ls -A $WEB_PATH/.next 2>/dev/null)" ]; then
+            echo "Packaging .next into web-build.tgz"
+            tar -C "$WEB_PATH" -czf web-build.tgz .next
+            echo "name=web-build" >> $GITHUB_OUTPUT
+            echo "packed=true" >> $GITHUB_OUTPUT
+          else
+            echo "No .next directory to package"
+            echo "packed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload build artifact
+        if: inputs.upload-build-artifacts && steps.artifact.outputs.packed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: web-build.tgz
+          retention-days: 3
+
+      - name: Upload node_modules artifact
+        if: inputs.upload-build-artifacts
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: node-modules
+          path: |
+            node_modules.tgz
+          retention-days: 1
+        env:
+          NODE_MODULES_PACKED: ${{ steps.artifact.outputs.packed }}
