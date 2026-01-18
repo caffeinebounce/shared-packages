@@ -1,5 +1,15 @@
 # @caffeinebounce/identity
 
+## 0.5.8
+
+### Patch Changes
+
+- ff27115: feat: Enable Google OAuth by default (change googleComingSoon default to false)
+- 139434e: Fix ripple effect clickability and remove gradient orbs from auth layout
+
+  - Remove `pointer-events-none` from ripple effect wrapper to restore click interactions
+  - Remove gradient orbs (colored circles) from AuthPageLayout for cleaner auth pages
+
 ## 0.5.5
 
 ### Patch Changes
