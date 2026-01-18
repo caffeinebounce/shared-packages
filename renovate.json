@@ -1,0 +1,73 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":disableDependencyDashboard"
+  ],
+  "labels": ["dependencies"],
+  "schedule": ["before 9am on monday"],
+  "timezone": "America/New_York",
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 10,
+  "packageRules": [
+    {
+      "description": "Auto-merge patch updates for production dependencies",
+      "matchUpdateTypes": ["patch"],
+      "matchDepTypes": ["dependencies"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Auto-merge minor and patch updates for dev dependencies",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Group React ecosystem",
+      "matchPackagePatterns": ["^react", "^@types/react"],
+      "groupName": "react"
+    },
+    {
+      "description": "Group TypeScript and types",
+      "matchPackagePatterns": ["^typescript$", "^@types/"],
+      "groupName": "typescript"
+    },
+    {
+      "description": "Group Tailwind ecosystem",
+      "matchPackagePatterns": ["^tailwindcss", "^@tailwindcss/"],
+      "groupName": "tailwind"
+    },
+    {
+      "description": "Group Turbo packages",
+      "matchPackagePatterns": ["^turbo$", "^@turbo/"],
+      "groupName": "turbo"
+    },
+    {
+      "description": "Group Biome packages",
+      "matchPackagePatterns": ["^@biomejs/"],
+      "groupName": "biome"
+    },
+    {
+      "description": "Group Vitest packages",
+      "matchPackagePatterns": ["^vitest$", "^@vitest/"],
+      "groupName": "vitest"
+    },
+    {
+      "description": "Group Changesets packages",
+      "matchPackagePatterns": ["^@changesets/"],
+      "groupName": "changesets"
+    },
+    {
+      "description": "Major updates require manual review",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  }
+}
