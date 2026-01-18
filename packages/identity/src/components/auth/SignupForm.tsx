@@ -83,7 +83,7 @@ export function SignupForm({
     children: React.ReactNode;
   }>,
   oauthProviders = ["azure"],
-  googleComingSoon = true,
+  googleComingSoon = false,
   className,
   onAuthEvent,
 }: SignupFormProps) {
