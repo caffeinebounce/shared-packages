@@ -99,7 +99,7 @@ export function SigninForm({
     children: React.ReactNode;
   }>,
   oauthProviders = ["azure"],
-  googleComingSoon = true,
+  googleComingSoon = false,
   className,
   onAuthEvent,
 }: SigninFormProps) {
