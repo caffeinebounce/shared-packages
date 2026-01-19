@@ -8,7 +8,7 @@ import {
   Input,
   PasswordInput,
 } from "@caffeinebounce/ui";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type ComponentType, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -163,6 +163,25 @@ export function SigninForm({
 
     // Log OAuth sign-in attempt
     onAuthEvent?.onSignInAttempt?.("", provider);
+
+    // Clear any stale PKCE state from previous OAuth attempts
+    // This prevents "invalid session" errors when signing in after sign-out
+    if (typeof window !== "undefined") {
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key?.includes("-code-verifier")) {
+            keysToRemove.push(key);
+          }
+        }
+        for (const key of keysToRemove) {
+          localStorage.removeItem(key);
+        }
+      } catch {
+        // Ignore storage access errors
+      }
+    }
 
     // Use NEXT_PUBLIC_SITE_URL if set (for production), otherwise fall back to current origin
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
@@ -394,19 +413,21 @@ export function SigninForm({
               )}
             >
               {oauthLoading === "google" ? (
-                "Redirecting..."
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <>
-                  <GoogleIcon
-                    className={cn("h-5 w-5", googleComingSoon && "opacity-50")}
-                  />
-                  <span>Continue with Google</span>
-                  {googleComingSoon && (
-                    <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded ml-2">
-                      Soon
-                    </span>
-                  )}
-                </>
+                <GoogleIcon
+                  className={cn("h-5 w-5", googleComingSoon && "opacity-50")}
+                />
+              )}
+              <span>
+                {oauthLoading === "google"
+                  ? "Redirecting..."
+                  : "Continue with Google"}
+              </span>
+              {googleComingSoon && !oauthLoading && (
+                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded ml-2">
+                  Soon
+                </span>
               )}
             </Button>
           )}
@@ -420,13 +441,15 @@ export function SigninForm({
               className="w-full bg-muted/50 border-border text-foreground hover:bg-muted"
             >
               {oauthLoading === "azure" ? (
-                "Redirecting..."
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <>
-                  <MicrosoftIcon className="h-5 w-5" />
-                  Continue with Microsoft
-                </>
+                <MicrosoftIcon className="h-5 w-5" />
               )}
+              <span>
+                {oauthLoading === "azure"
+                  ? "Redirecting..."
+                  : "Continue with Microsoft"}
+              </span>
             </Button>
           )}
         </div>

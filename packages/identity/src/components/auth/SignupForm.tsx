@@ -10,6 +10,7 @@ import {
   PasswordInput,
   PasswordRequirements,
 } from "@caffeinebounce/ui";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type ComponentType, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -128,6 +129,25 @@ export function SignupForm({
 
     // Log OAuth sign-up attempt
     onAuthEvent?.onSignUpAttempt?.("", provider);
+
+    // Clear any stale PKCE state from previous OAuth attempts
+    // This prevents "invalid session" errors when signing in after sign-out
+    if (typeof window !== "undefined") {
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key?.includes("-code-verifier")) {
+            keysToRemove.push(key);
+          }
+        }
+        for (const key of keysToRemove) {
+          localStorage.removeItem(key);
+        }
+      } catch {
+        // Ignore storage access errors
+      }
+    }
 
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
@@ -294,19 +314,21 @@ export function SignupForm({
               )}
             >
               {oauthLoading === "google" ? (
-                "Redirecting..."
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <>
-                  <GoogleIcon
-                    className={cn("h-5 w-5", googleComingSoon && "opacity-50")}
-                  />
-                  <span>Continue with Google</span>
-                  {googleComingSoon && (
-                    <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded ml-2">
-                      Soon
-                    </span>
-                  )}
-                </>
+                <GoogleIcon
+                  className={cn("h-5 w-5", googleComingSoon && "opacity-50")}
+                />
+              )}
+              <span>
+                {oauthLoading === "google"
+                  ? "Redirecting..."
+                  : "Continue with Google"}
+              </span>
+              {googleComingSoon && !oauthLoading && (
+                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded ml-2">
+                  Soon
+                </span>
               )}
             </Button>
           )}
@@ -320,13 +342,15 @@ export function SignupForm({
               className="w-full bg-muted/50 border-border text-foreground hover:bg-muted"
             >
               {oauthLoading === "azure" ? (
-                "Redirecting..."
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <>
-                  <MicrosoftIcon className="h-5 w-5" />
-                  Continue with Microsoft
-                </>
+                <MicrosoftIcon className="h-5 w-5" />
               )}
+              <span>
+                {oauthLoading === "azure"
+                  ? "Redirecting..."
+                  : "Continue with Microsoft"}
+              </span>
             </Button>
           )}
         </div>
