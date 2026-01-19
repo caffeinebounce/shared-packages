@@ -1,5 +1,14 @@
 # @caffeinebounce/identity
 
+## 0.5.9
+
+### Patch Changes
+
+- 5e1a285: Fix ripple effect click passthrough on auth pages
+
+  Content wrapper now uses pointer-events-none to allow clicks to pass through
+  to the ripple grid, with pointer-events-auto on actual content (form).
+
 ## 0.5.8
 
 ### Patch Changes
