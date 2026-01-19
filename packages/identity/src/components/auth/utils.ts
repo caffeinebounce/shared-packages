@@ -88,3 +88,31 @@ export function sanitizeSigninError(message: string): string {
   }
   return sanitized;
 }
+
+/**
+ * Clear stale PKCE (Proof Key for Code Exchange) state from localStorage.
+ *
+ * Supabase stores PKCE code verifiers in localStorage with keys containing
+ * "-code-verifier". These can become stale after sign-out and cause
+ * "invalid session" errors on subsequent OAuth attempts.
+ *
+ * This function should be called before initiating a new OAuth flow.
+ */
+export function clearStalePKCEState(): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.includes("-code-verifier")) {
+        keysToRemove.push(key);
+      }
+    }
+    for (const key of keysToRemove) {
+      localStorage.removeItem(key);
+    }
+  } catch {
+    // Ignore storage access errors (e.g., in private browsing mode)
+  }
+}

@@ -19,6 +19,7 @@ import { AuthHeader } from "../shared/AuthHeader";
 import { GoogleIcon, MicrosoftIcon } from "../shared/OAuthIcons";
 import { OrDivider } from "../shared/OrDivider";
 import { EmailVerificationPending } from "./EmailVerificationPending";
+import { clearStalePKCEState } from "./utils";
 
 /**
  * Authentication event logging callbacks
@@ -166,22 +167,7 @@ export function SigninForm({
 
     // Clear any stale PKCE state from previous OAuth attempts
     // This prevents "invalid session" errors when signing in after sign-out
-    if (typeof window !== "undefined") {
-      try {
-        const keysToRemove: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key?.includes("-code-verifier")) {
-            keysToRemove.push(key);
-          }
-        }
-        for (const key of keysToRemove) {
-          localStorage.removeItem(key);
-        }
-      } catch {
-        // Ignore storage access errors
-      }
-    }
+    clearStalePKCEState();
 
     // Use NEXT_PUBLIC_SITE_URL if set (for production), otherwise fall back to current origin
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;

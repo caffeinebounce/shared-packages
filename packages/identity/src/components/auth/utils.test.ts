@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  clearStalePKCEState,
   sanitizeAuthError,
   sanitizeSigninError,
   sanitizeSignupError,
@@ -184,5 +185,103 @@ describe("sanitizeSigninError", () => {
     expect(sanitizeSigninError("Some unknown error")).toBe(
       "An error occurred during sign in. Please try again.",
     );
+  });
+});
+
+describe("clearStalePKCEState", () => {
+  let mockLocalStorage: { [key: string]: string };
+  let originalWindow: typeof globalThis.window;
+
+  beforeEach(() => {
+    mockLocalStorage = {};
+    originalWindow = globalThis.window;
+
+    // Mock localStorage
+    const localStorageMock = {
+      getItem: vi.fn((key: string) => mockLocalStorage[key] || null),
+      setItem: vi.fn((key: string, value: string) => {
+        mockLocalStorage[key] = value;
+      }),
+      removeItem: vi.fn((key: string) => {
+        delete mockLocalStorage[key];
+      }),
+      clear: vi.fn(() => {
+        mockLocalStorage = {};
+      }),
+      key: vi.fn(
+        (index: number) => Object.keys(mockLocalStorage)[index] || null,
+      ),
+      get length() {
+        return Object.keys(mockLocalStorage).length;
+      },
+    };
+
+    // @ts-expect-error - mocking window for tests
+    globalThis.window = { localStorage: localStorageMock };
+    // @ts-expect-error - mocking localStorage for tests
+    globalThis.localStorage = localStorageMock;
+  });
+
+  afterEach(() => {
+    globalThis.window = originalWindow;
+    vi.restoreAllMocks();
+  });
+
+  it("removes keys containing '-code-verifier'", () => {
+    mockLocalStorage = {
+      "sb-abc-auth-token-code-verifier": "verifier123",
+      "sb-xyz-auth-token-code-verifier": "verifier456",
+      "other-key": "value",
+      "user-preferences": "dark-mode",
+    };
+
+    clearStalePKCEState();
+
+    expect(localStorage.removeItem).toHaveBeenCalledWith(
+      "sb-abc-auth-token-code-verifier",
+    );
+    expect(localStorage.removeItem).toHaveBeenCalledWith(
+      "sb-xyz-auth-token-code-verifier",
+    );
+    expect(localStorage.removeItem).toHaveBeenCalledTimes(2);
+  });
+
+  it("does nothing when no PKCE keys exist", () => {
+    mockLocalStorage = {
+      "other-key": "value",
+      "user-preferences": "dark-mode",
+    };
+
+    clearStalePKCEState();
+
+    expect(localStorage.removeItem).not.toHaveBeenCalled();
+  });
+
+  it("handles empty localStorage gracefully", () => {
+    mockLocalStorage = {};
+
+    expect(() => clearStalePKCEState()).not.toThrow();
+    expect(localStorage.removeItem).not.toHaveBeenCalled();
+  });
+
+  it("handles storage access errors gracefully", () => {
+    // Create a mock that throws on length access but has all required methods
+    const errorMock = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+      key: vi.fn(),
+      get length(): number {
+        throw new Error("Storage access denied");
+      },
+    };
+
+    // @ts-expect-error - mocking localStorage for tests
+    globalThis.localStorage = errorMock;
+    // @ts-expect-error - mocking window.localStorage for tests
+    globalThis.window = { localStorage: errorMock };
+
+    expect(() => clearStalePKCEState()).not.toThrow();
   });
 });
