@@ -39,8 +39,11 @@ export function AuthPageLayout({
         </div>
       )}
 
-      {/* Content - positioned above the fixed background */}
-      <div className="relative z-20">{children}</div>
+      {/* Content - positioned above ripple, pointer-events-none lets clicks pass through to ripple */}
+      <div className="relative z-20 pointer-events-none">
+        {/* Re-enable pointer events on the actual content */}
+        <div className="pointer-events-auto">{children}</div>
+      </div>
     </div>
   );
 }
