@@ -39,11 +39,8 @@ export function AuthPageLayout({
         </div>
       )}
 
-      {/* Content - positioned above ripple, pointer-events-none lets clicks pass through to ripple */}
-      <div className="relative z-20 pointer-events-none">
-        {/* Re-enable pointer events on the actual content */}
-        <div className="pointer-events-auto">{children}</div>
-      </div>
+      {/* Content - pointer-events-none lets clicks pass through to ripple, form cards handle their own events */}
+      <div className="relative z-20 pointer-events-none">{children}</div>
     </div>
   );
 }
