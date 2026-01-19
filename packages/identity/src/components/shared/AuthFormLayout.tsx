@@ -44,9 +44,9 @@ export function AuthFormLayout({
 
   return (
     <>
-      {/* Home link */}
+      {/* Home link - needs pointer-events-auto since parent has pointer-events-none */}
       {showHomeLink && (
-        <div className="absolute top-0 left-0 p-4 z-50">
+        <div className="absolute top-0 left-0 p-4 z-50 pointer-events-auto">
           <Link
             href={homeUrl}
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
