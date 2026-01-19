@@ -113,32 +113,32 @@
    =========================================== */
 
 .dark {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
 
-  --card: #0a0a0a;
-  --card-foreground: #ffffff;
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(1 0 0);
 
-  --popover: #0a0a0a;
-  --popover-foreground: #ffffff;
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(1 0 0);
 
-  --primary: #ffffff;
-  --primary-foreground: #000000;
+  --primary: oklch(1 0 0);
+  --primary-foreground: oklch(0 0 0);
 
-  --secondary: #1a1a1a;
-  --secondary-foreground: #ffffff;
+  --secondary: oklch(0.205 0 0);
+  --secondary-foreground: oklch(1 0 0);
 
-  --muted: #1a1a1a;
-  --muted-foreground: #a1a1a1;
+  --muted: oklch(0.205 0 0);
+  --muted-foreground: oklch(0.7 0 0);
 
-  --accent: rgba(255, 255, 255, 0.15);
-  --accent-foreground: #ffffff;
+  --accent: oklch(1 0 0 / 0.15);
+  --accent-foreground: oklch(1 0 0);
 
   --destructive: oklch(0.704 0.191 22.216);
   --success: oklch(0.627 0.194 149.214);
 
-  --border: rgba(255, 255, 255, 0.15);
-  --input: rgba(255, 255, 255, 0.15);
+  --border: oklch(1 0 0 / 0.15);
+  --input: oklch(1 0 0 / 0.15);
   --ring: oklch(0.556 0 0);
 
   /* Chart colors - dark mode */
@@ -149,23 +149,23 @@
   --chart-5: oklch(0.645 0.246 16.439);
 
   /* Sidebar colors - dark mode */
-  --sidebar: #000000;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: rgba(255, 255, 255, 0.1);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.15);
+  --sidebar: oklch(0 0 0);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(1 0 0);
+  --sidebar-primary-foreground: oklch(0 0 0);
+  --sidebar-accent: oklch(1 0 0 / 0.1);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0 / 0.15);
   --sidebar-ring: oklch(0.556 0 0);
 
   /* Icon colors - dark mode */
-  --icon: rgba(255, 255, 255, 0.7);
-  --icon-hover: #ffffff;
+  --icon: oklch(1 0 0 / 0.7);
+  --icon-hover: oklch(1 0 0);
 
   /* BackgroundRippleEffect - dark mode */
-  --cell-border-color: rgba(255, 255, 255, 0.2);
-  --cell-fill-color: rgba(255, 255, 255, 0.08);
-  --cell-shadow-color: rgba(255, 255, 255, 0.1);
+  --cell-border-color: oklch(1 0 0 / 0.2);
+  --cell-fill-color: oklch(1 0 0 / 0.08);
+  --cell-shadow-color: oklch(1 0 0 / 0.1);
 }
 
 /* ===========================================
