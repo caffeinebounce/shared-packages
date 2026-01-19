@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { defineConfig } from "tsup";
 
 const USE_CLIENT_BANNER = '"use client";\n';
@@ -57,6 +57,14 @@ export default defineConfig({
       } catch (e) {
         console.error(`Failed to add "use client" to ${filePath}:`, e);
       }
+    }
+
+    // Copy base CSS to dist/styles.css
+    try {
+      copyFileSync("src/styles/base.css", "dist/styles.css");
+      console.log("Copied styles.css to dist/");
+    } catch (e) {
+      console.error("Failed to copy styles.css:", e);
     }
   },
 });
