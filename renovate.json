@@ -9,13 +9,17 @@
   "timezone": "America/New_York",
   "prHourlyLimit": 5,
   "prConcurrentLimit": 10,
+  "platformAutomerge": true,
   "packageRules": [
     {
-      "description": "Auto-merge patch updates for production dependencies",
-      "matchUpdateTypes": ["patch"],
+      "description": "Disable Renovate for internal @caffeinebounce packages (managed via Changesets)",
+      "matchPackagePatterns": ["^@caffeinebounce/"],
+      "enabled": false
+    },
+    {
+      "description": "Production dependencies require manual review (no auto-merge)",
       "matchDepTypes": ["dependencies"],
-      "automerge": true,
-      "automergeType": "pr"
+      "automerge": false
     },
     {
       "description": "Auto-merge minor and patch updates for dev dependencies",
@@ -31,7 +35,7 @@
     },
     {
       "description": "Group TypeScript and types",
-      "matchPackagePatterns": ["^typescript$", "^@types/"],
+      "matchPackagePatterns": ["^typescript", "^@types/"],
       "groupName": "typescript"
     },
     {
@@ -58,6 +62,26 @@
       "description": "Group Changesets packages",
       "matchPackagePatterns": ["^@changesets/"],
       "groupName": "changesets"
+    },
+    {
+      "description": "Group Radix UI packages",
+      "matchPackagePatterns": ["^@radix-ui/"],
+      "groupName": "radix-ui"
+    },
+    {
+      "description": "Group Supabase packages",
+      "matchPackagePatterns": ["^@supabase/"],
+      "groupName": "supabase"
+    },
+    {
+      "description": "Group TanStack packages",
+      "matchPackagePatterns": ["^@tanstack/"],
+      "groupName": "tanstack"
+    },
+    {
+      "description": "Group Testing Library packages",
+      "matchPackagePatterns": ["^@testing-library/"],
+      "groupName": "testing-library"
     },
     {
       "description": "Major updates require manual review",
