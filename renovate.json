@@ -1,0 +1,97 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":disableDependencyDashboard"
+  ],
+  "labels": ["dependencies"],
+  "schedule": ["before 9am on monday"],
+  "timezone": "America/New_York",
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 10,
+  "platformAutomerge": true,
+  "packageRules": [
+    {
+      "description": "Disable Renovate for internal @caffeinebounce packages (managed via Changesets)",
+      "matchPackagePatterns": ["^@caffeinebounce/"],
+      "enabled": false
+    },
+    {
+      "description": "Production dependencies require manual review (no auto-merge)",
+      "matchDepTypes": ["dependencies"],
+      "automerge": false
+    },
+    {
+      "description": "Auto-merge minor and patch updates for dev dependencies",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Group React ecosystem",
+      "matchPackagePatterns": ["^react", "^@types/react"],
+      "groupName": "react"
+    },
+    {
+      "description": "Group TypeScript and types",
+      "matchPackagePatterns": ["^typescript", "^@types/"],
+      "groupName": "typescript"
+    },
+    {
+      "description": "Group Tailwind ecosystem",
+      "matchPackagePatterns": ["^tailwindcss", "^@tailwindcss/"],
+      "groupName": "tailwind"
+    },
+    {
+      "description": "Group Turbo packages",
+      "matchPackagePatterns": ["^turbo$", "^@turbo/"],
+      "groupName": "turbo"
+    },
+    {
+      "description": "Group Biome packages",
+      "matchPackagePatterns": ["^@biomejs/"],
+      "groupName": "biome"
+    },
+    {
+      "description": "Group Vitest packages",
+      "matchPackagePatterns": ["^vitest$", "^@vitest/"],
+      "groupName": "vitest"
+    },
+    {
+      "description": "Group Changesets packages",
+      "matchPackagePatterns": ["^@changesets/"],
+      "groupName": "changesets"
+    },
+    {
+      "description": "Group Radix UI packages",
+      "matchPackagePatterns": ["^@radix-ui/"],
+      "groupName": "radix-ui"
+    },
+    {
+      "description": "Group Supabase packages",
+      "matchPackagePatterns": ["^@supabase/"],
+      "groupName": "supabase"
+    },
+    {
+      "description": "Group TanStack packages",
+      "matchPackagePatterns": ["^@tanstack/"],
+      "groupName": "tanstack"
+    },
+    {
+      "description": "Group Testing Library packages",
+      "matchPackagePatterns": ["^@testing-library/"],
+      "groupName": "testing-library"
+    },
+    {
+      "description": "Major updates require manual review",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  }
+}
