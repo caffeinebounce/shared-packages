@@ -1,0 +1,445 @@
+/**
+ * @caffeinebounce/ui Base Styles
+ *
+ * Import this in your app's globals.css after @import "tailwindcss":
+ *
+ *   @import "tailwindcss";
+ *   @import "@caffeinebounce/ui/styles.css";
+ *
+ *   // Required plugins (must be in app's CSS for proper resolution)
+ *   @plugin "tailwindcss-animate";
+ *   @plugin "@tailwindcss/typography";
+ *
+ * Then add your product-specific @source directives and overrides.
+ */
+
+/* Dark mode variant - enables dark: prefix classes */
+@custom-variant dark (&:is(.dark *));
+
+/* ===========================================
+   CSS Custom Properties (Variables)
+   Products can override these in their own :root block
+   =========================================== */
+
+:root {
+  /* Border radius scale */
+  --radius: 0.625rem;
+
+  /* Layout variables - centralized width settings */
+  --layout-max-width: 1280px;
+  --layout-max-width-narrow: 640px;
+  --layout-max-width-wide: 1536px;
+  --layout-padding-mobile: 1rem;
+  --layout-padding-tablet: 1.5rem;
+  --layout-padding-desktop: 2rem;
+  --layout-navbar-height: 56px;
+
+  /* Sidebar variables */
+  --sidebar-width: 16rem;
+  --sidebar-width-mobile: 18rem;
+  --sidebar-width-icon: 3rem;
+
+  /* Typography */
+  --text-base: 0.875rem;
+
+  /* ===========================================
+     Semantic Color Tokens (Light Mode)
+     Override --primary for brand customization
+     =========================================== */
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  /* Primary - override this for brand color */
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+
+  --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.527 0.154 150.069);
+
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+
+  /* Chart colors */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+
+  /* Sidebar colors */
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Icon colors */
+  --icon: oklch(0.45 0 0);
+  --icon-hover: oklch(0.145 0 0);
+
+  /* Neutral colors for effects */
+  --color-neutral-100: oklch(0.97 0 0);
+  --color-neutral-300: oklch(0.87 0 0);
+  --color-neutral-500: oklch(0.55 0 0);
+
+  /* BackgroundRippleEffect component colors */
+  --cell-border-color: oklch(0.92 0 0);
+  --cell-fill-color: oklch(0.98 0 0);
+  --cell-shadow-color: oklch(0.85 0 0);
+}
+
+/* ===========================================
+   Dark Mode Color Overrides
+   =========================================== */
+
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(1 0 0);
+
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(1 0 0);
+
+  --primary: oklch(1 0 0);
+  --primary-foreground: oklch(0 0 0);
+
+  --secondary: oklch(0.205 0 0);
+  --secondary-foreground: oklch(1 0 0);
+
+  --muted: oklch(0.205 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+
+  --accent: oklch(1 0 0 / 0.15);
+  --accent-foreground: oklch(1 0 0);
+
+  --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.627 0.194 149.214);
+
+  --border: oklch(1 0 0 / 0.15);
+  --input: oklch(1 0 0 / 0.15);
+  --ring: oklch(0.556 0 0);
+
+  /* Chart colors - dark mode */
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+
+  /* Sidebar colors - dark mode */
+  --sidebar: oklch(0 0 0);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(1 0 0);
+  --sidebar-primary-foreground: oklch(0 0 0);
+  --sidebar-accent: oklch(1 0 0 / 0.1);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0 / 0.15);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  /* Icon colors - dark mode */
+  --icon: oklch(1 0 0 / 0.7);
+  --icon-hover: oklch(1 0 0);
+
+  /* BackgroundRippleEffect - dark mode */
+  --cell-border-color: oklch(1 0 0 / 0.2);
+  --cell-fill-color: oklch(1 0 0 / 0.08);
+  --cell-shadow-color: oklch(1 0 0 / 0.1);
+}
+
+/* ===========================================
+   Tailwind Theme Configuration
+   Maps CSS variables to Tailwind utilities
+   =========================================== */
+
+@theme inline {
+  /* Font families - map Tailwind utilities to Geist fonts */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Border radius scale */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Color mappings */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-icon: var(--icon);
+  --color-icon-hover: var(--icon-hover);
+
+  /* BackgroundRippleEffect Animation */
+  --animate-cell-ripple: cell-ripple var(--duration, 200ms) ease-out none 1
+    var(--delay, 0ms);
+
+  @keyframes cell-ripple {
+    0% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0.4;
+    }
+  }
+}
+
+/* ===========================================
+   Global Cursor Rules
+   =========================================== */
+
+body {
+  cursor: default;
+  /* Hide text caret by default - only show in actual text inputs */
+  caret-color: transparent;
+}
+
+/* Text cursor for editable elements - also restore caret visibility */
+input,
+textarea,
+[contenteditable="true"] {
+  cursor: text;
+  caret-color: auto;
+}
+
+/* Restore pointer cursor for interactive elements */
+button,
+a,
+[role="button"],
+[role="link"],
+[role="tab"],
+[role="menuitem"],
+[role="option"],
+select,
+label[for],
+summary {
+  cursor: pointer;
+}
+
+/* Disabled elements should show not-allowed cursor */
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* ===========================================
+   Container Utilities
+   =========================================== */
+
+.container {
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--layout-padding-mobile);
+  padding-right: var(--layout-padding-mobile);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: var(--layout-padding-tablet);
+    padding-right: var(--layout-padding-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: var(--layout-padding-desktop);
+    padding-right: var(--layout-padding-desktop);
+  }
+}
+
+.container-narrow {
+  max-width: var(--layout-max-width-narrow);
+}
+
+.container-wide {
+  max-width: var(--layout-max-width-wide);
+}
+
+/* ===========================================
+   Base Layer Styles
+   =========================================== */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body {
+    @apply h-full;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html.dark {
+    background-color: #000000;
+    color: #ffffff;
+  }
+  html.dark body {
+    background-color: #000000;
+    color: #ffffff;
+  }
+
+  /* Header font customization */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-headers, inherit);
+  }
+
+  /* Monospace font customization */
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: var(--font-mono, ui-monospace, monospace);
+  }
+}
+
+/* ===========================================
+   BackgroundRippleEffect Utilities
+   =========================================== */
+
+/* Ripple effect mask utilities */
+.mask-radial-from-70\%,
+[class*="mask-radial-from-70"] {
+  mask-image: radial-gradient(
+    ellipse farthest-corner at top,
+    black 70%,
+    transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse farthest-corner at top,
+    black 70%,
+    transparent 100%
+  );
+}
+
+/* Ripple grid cell styling */
+.cell {
+  border-width: 0.5px;
+}
+
+/* Fractional border width utility */
+.border-\[0\.5px\] {
+  border-width: 0.5px;
+}
+
+/* Z-index utilities */
+.z-2 {
+  z-index: 2;
+}
+
+.z-3 {
+  z-index: 3;
+}
+
+/* ===========================================
+   Prose Styles (for legal pages, markdown content)
+   =========================================== */
+
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.prose li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose a:hover {
+  opacity: 0.8;
+}
+
+/* ===========================================
+   Form Element Fixes
+   =========================================== */
+
+/* Fix placeholder text scaling on smaller screens */
+input::placeholder,
+textarea::placeholder {
+  font-size: inherit;
+}
+
+@media (max-width: 640px) {
+  input::placeholder,
+  textarea::placeholder {
+    font-size: 0.875rem;
+  }
+}
