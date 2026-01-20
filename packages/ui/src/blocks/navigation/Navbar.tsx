@@ -119,10 +119,12 @@ export function Navbar({
       className={cn(
         "z-50 w-full border-b border-border transition-transform duration-300",
         sticky && "sticky top-0",
-        shouldHide && "-translate-y-full",
         variantClasses[variant],
         className,
       )}
+      style={{
+        transform: shouldHide ? "translateY(-100%)" : "translateY(0)",
+      }}
     >
       <div className="container mx-auto flex h-14 items-center justify-between gap-4 px-4 md:px-8">
         {/* Logo/Brand */}
