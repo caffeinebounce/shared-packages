@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 
+import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { cn } from "../../utils";
 
 /**
@@ -34,6 +35,12 @@ export interface NavbarProps {
   mobileContent?: ReactNode;
   /** Whether navbar should stick to top on scroll */
   sticky?: boolean;
+  /**
+   * Hide navbar when scrolling down, show when scrolling up.
+   * Only applies when sticky is true.
+   * Common pattern for marketing pages to maximize content area.
+   */
+  hideOnScrollDown?: boolean;
   /** Background style variant */
   variant?: "transparent" | "solid" | "blur";
   /** Additional className for the header element */
@@ -77,6 +84,7 @@ export function Navbar({
   rightContent,
   mobileContent,
   sticky = true,
+  hideOnScrollDown = false,
   variant = "blur",
   className,
   LinkComponent,
@@ -85,6 +93,10 @@ export function Navbar({
   mobileMenuClosedIcon,
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { direction, isAtTop } = useScrollDirection({
+    threshold: 10,
+    topThreshold: 50,
+  });
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
@@ -98,11 +110,16 @@ export function Navbar({
     blur: "bg-background/80 backdrop-blur-md",
   };
 
+  // Determine visibility based on scroll direction
+  const shouldHide =
+    sticky && hideOnScrollDown && !isAtTop && direction === "down";
+
   return (
     <header
       className={cn(
-        "z-50 w-full border-b border-border",
+        "z-50 w-full border-b border-border transition-transform duration-300",
         sticky && "sticky top-0",
+        shouldHide && "-translate-y-full",
         variantClasses[variant],
         className,
       )}

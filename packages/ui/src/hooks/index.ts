@@ -10,6 +10,11 @@ export {
 export { useLocalStorage } from "./useLocalStorage";
 export { useMediaQuery } from "./useMediaQuery";
 export {
+  type ScrollDirection,
+  type UseScrollDirectionOptions,
+  useScrollDirection,
+} from "./useScrollDirection";
+export {
   createDataRestorationHandler,
   createFormResetHandler,
   createFormSubmitHandler,

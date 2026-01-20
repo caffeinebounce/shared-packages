@@ -122,8 +122,13 @@
   --popover: oklch(0.145 0 0);
   --popover-foreground: oklch(1 0 0);
 
-  --primary: oklch(1 0 0);
-  --primary-foreground: oklch(0 0 0);
+  /*
+   * Primary colors: NOT overridden in dark mode.
+   * This allows brand colors set in :root to work consistently in both modes.
+   * Products with dark brand primaries (L < 0.7) get white text automatically.
+   * If you need white buttons in dark mode, override in your product CSS:
+   *   .dark { --primary: oklch(1 0 0); --primary-foreground: oklch(0 0 0); }
+   */
 
   --secondary: oklch(0.205 0 0);
   --secondary-foreground: oklch(1 0 0);
@@ -151,8 +156,7 @@
   /* Sidebar colors - dark mode */
   --sidebar: oklch(0 0 0);
   --sidebar-foreground: oklch(1 0 0);
-  --sidebar-primary: oklch(1 0 0);
-  --sidebar-primary-foreground: oklch(0 0 0);
+  /* Sidebar primary inherits from :root for brand consistency */
   --sidebar-accent: oklch(1 0 0 / 0.1);
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(1 0 0 / 0.15);
