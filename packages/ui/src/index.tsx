@@ -551,6 +551,11 @@ export {
   useMediaQuery,
 } from "./hooks/useMediaQuery";
 export {
+  type ScrollDirection,
+  type UseScrollDirectionOptions,
+  useScrollDirection,
+} from "./hooks/useScrollDirection";
+export {
   createDataRestorationHandler,
   createFormResetHandler,
   createFormSubmitHandler,
