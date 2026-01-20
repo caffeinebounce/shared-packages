@@ -1,5 +1,13 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.35.2
+
+### Patch Changes
+
+- b6a361e: Fix navbar hide-on-scroll feature for Tailwind CSS v4 compatibility
+
+  Use inline styles instead of Tailwind classes for the transform animation to ensure the hide-on-scroll feature works reliably across different build configurations.
+
 ## 0.37.1
 
 ### Patch Changes

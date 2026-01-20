@@ -754,11 +754,6 @@ export function DataTable<TData, TValue>({
                         }
                         className={cn(
                           "group/row",
-                          // Performance: skip rendering off-screen rows
-                          "[content-visibility:auto]",
-                          density === "compact"
-                            ? "[contain-intrinsic-size:0_28px]"
-                            : "[contain-intrinsic-size:0_40px]",
                           onRowClick && "cursor-pointer hover:bg-muted/50",
                           // Add bottom border to last row when summary exists
                           summary &&
