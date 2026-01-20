@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/ui",
-  "version": "0.37.1",
+  "version": "0.35.2",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -10,51 +10,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
-    },
-    "./data-table": {
-      "types": "./dist/data-table.d.ts",
-      "import": "./dist/data-table.mjs",
-      "require": "./dist/data-table.js"
-    },
-    "./editor": {
-      "types": "./dist/editor.d.ts",
-      "import": "./dist/editor.mjs",
-      "require": "./dist/editor.js"
-    },
-    "./layouts": {
-      "types": "./dist/layouts.d.ts",
-      "import": "./dist/layouts.mjs",
-      "require": "./dist/layouts.js"
-    },
-    "./charts": {
-      "types": "./dist/charts.d.ts",
-      "import": "./dist/charts.mjs",
-      "require": "./dist/charts.js"
-    },
-    "./hooks": {
-      "types": "./dist/hooks.d.ts",
-      "import": "./dist/hooks.mjs",
-      "require": "./dist/hooks.js"
-    },
-    "./navigation": {
-      "types": "./dist/navigation.d.ts",
-      "import": "./dist/navigation.mjs",
-      "require": "./dist/navigation.js"
-    },
-    "./marketing": {
-      "types": "./dist/marketing.d.ts",
-      "import": "./dist/marketing.mjs",
-      "require": "./dist/marketing.js"
-    },
-    "./forms": {
-      "types": "./dist/forms.d.ts",
-      "import": "./dist/forms.mjs",
-      "require": "./dist/forms.js"
-    },
-    "./settings": {
-      "types": "./dist/settings.d.ts",
-      "import": "./dist/settings.mjs",
-      "require": "./dist/settings.js"
     },
     "./styles.css": "./dist/styles.css"
   },
