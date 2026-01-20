@@ -1,6 +1,7 @@
 "use client";
 
 import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
+import { getClientOrigin } from "@caffeinebounce/shared-utils";
 import {
   Button,
   cn,
@@ -169,8 +170,8 @@ export function SigninForm({
     // This prevents "invalid session" errors when signing in after sign-out
     clearStalePKCEState();
 
-    // Use NEXT_PUBLIC_SITE_URL if set (for production), otherwise fall back to current origin
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    // Get the appropriate origin for this environment (handles preview vs production)
+    const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,

@@ -1,10 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   createSocialHandleSchema,
   createSocialUrlSchema,
   createUrlSchema,
   facebookUrlSchema,
+  getClientOrigin,
+  getServerOrigin,
   instagramHandleSchema,
+  isPreviewEnvironment,
+  isRenderPreviewDomain,
   linkedinUrlSchema,
   pinterestUrlSchema,
   tiktokHandleSchema,
@@ -448,6 +452,291 @@ describe("URL Validators", () => {
 
     it("accepts empty string", () => {
       expect(tiktokHandleSchema.safeParse("").success).toBe(true);
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Environment Detection Functions
+// ---------------------------------------------------------------------------
+describe("Environment Detection", () => {
+  describe("isRenderPreviewDomain", () => {
+    it("identifies Render preview domains", () => {
+      expect(isRenderPreviewDomain("compass-pr-194.onrender.com")).toBe(true);
+      expect(isRenderPreviewDomain("my-app-123.onrender.com")).toBe(true);
+      expect(isRenderPreviewDomain("preview-abc.onrender.com")).toBe(true);
+    });
+
+    it("excludes production domains with app/admin prefixes", () => {
+      expect(isRenderPreviewDomain("app.compass.onrender.com")).toBe(false);
+      expect(isRenderPreviewDomain("admin.compass.onrender.com")).toBe(false);
+    });
+
+    it("allows domains starting with app/admin as single label", () => {
+      // Single labels like "application" or "admiral" should be allowed
+      expect(isRenderPreviewDomain("application.onrender.com")).toBe(true);
+      expect(isRenderPreviewDomain("admiral.onrender.com")).toBe(true);
+      expect(isRenderPreviewDomain("app-preview.onrender.com")).toBe(true);
+    });
+
+    it("handles multi-label preview domains", () => {
+      // Multi-label domains that don't start with app/admin are preview
+      expect(isRenderPreviewDomain("staging.compass.onrender.com")).toBe(true);
+      expect(isRenderPreviewDomain("dev.myapp.onrender.com")).toBe(true);
+    });
+
+    it("handles case insensitivity", () => {
+      expect(isRenderPreviewDomain("COMPASS-PR-194.ONRENDER.COM")).toBe(true);
+      expect(isRenderPreviewDomain("APP.COMPASS.ONRENDER.COM")).toBe(false);
+    });
+
+    it("rejects non-Render domains", () => {
+      expect(isRenderPreviewDomain("thecapitalcompass.ai")).toBe(false);
+      expect(isRenderPreviewDomain("example.com")).toBe(false);
+      expect(isRenderPreviewDomain("vercel.app")).toBe(false);
+    });
+
+    it("handles hostnames with ports", () => {
+      expect(isRenderPreviewDomain("compass-pr-194.onrender.com:443")).toBe(
+        true,
+      );
+    });
+
+    it("rejects bare onrender.com", () => {
+      expect(isRenderPreviewDomain("onrender.com")).toBe(false);
+    });
+  });
+
+  describe("isPreviewEnvironment", () => {
+    it("identifies localhost variants", () => {
+      expect(isPreviewEnvironment("localhost")).toBe(true);
+      expect(isPreviewEnvironment("localhost:3000")).toBe(true);
+      expect(isPreviewEnvironment("127.0.0.1")).toBe(true);
+      expect(isPreviewEnvironment("127.0.0.1:3000")).toBe(true);
+      expect(isPreviewEnvironment("::1")).toBe(true);
+      expect(isPreviewEnvironment("[::1]:3000")).toBe(true);
+    });
+
+    it("identifies .local domains", () => {
+      expect(isPreviewEnvironment("myapp.local")).toBe(true);
+      expect(isPreviewEnvironment("dev.myapp.local")).toBe(true);
+    });
+
+    it("identifies Render preview domains", () => {
+      expect(isPreviewEnvironment("compass-pr-194.onrender.com")).toBe(true);
+      // Note: render.com removed from PREVIEW_DOMAINS as it's too broad
+      // Only onrender.com subdomains are detected as preview
+    });
+
+    it("identifies Vercel preview domains", () => {
+      expect(isPreviewEnvironment("my-app-abc123.vercel.app")).toBe(true);
+      expect(isPreviewEnvironment("preview-123.vercel.app")).toBe(true);
+    });
+
+    it("identifies Netlify preview domains", () => {
+      expect(isPreviewEnvironment("deploy-preview-123.netlify.app")).toBe(true);
+    });
+
+    it("identifies Railway preview domains", () => {
+      expect(isPreviewEnvironment("my-app.railway.app")).toBe(true);
+    });
+
+    it("rejects production domains", () => {
+      expect(isPreviewEnvironment("thecapitalcompass.ai")).toBe(false);
+      expect(isPreviewEnvironment("app.thecapitalcompass.ai")).toBe(false);
+      expect(isPreviewEnvironment("example.com")).toBe(false);
+    });
+
+    it("handles case insensitivity", () => {
+      expect(isPreviewEnvironment("LOCALHOST")).toBe(true);
+      expect(isPreviewEnvironment("COMPASS.VERCEL.APP")).toBe(true);
+    });
+  });
+
+  describe("getClientOrigin", () => {
+    let originalWindow: typeof globalThis.window;
+    let originalEnv: NodeJS.ProcessEnv;
+
+    beforeEach(() => {
+      // Store original window
+      originalWindow = globalThis.window;
+      // Store original env
+      originalEnv = { ...process.env };
+    });
+
+    afterEach(() => {
+      // Restore original window
+      if (originalWindow === undefined) {
+        // @ts-expect-error - cleaning up mock
+        delete globalThis.window;
+      } else {
+        globalThis.window = originalWindow;
+      }
+      // Restore original env
+      process.env = originalEnv;
+    });
+
+    it("returns empty string in SSR context when no env var set", () => {
+      // @ts-expect-error - simulating SSR
+      delete globalThis.window;
+      delete process.env.NEXT_PUBLIC_SITE_URL;
+      expect(getClientOrigin()).toBe("");
+    });
+
+    it("returns env var in SSR context when env var is set", () => {
+      // @ts-expect-error - simulating SSR
+      delete globalThis.window;
+      process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai";
+      expect(getClientOrigin()).toBe("https://thecapitalcompass.ai");
+    });
+
+    it("returns window.location.origin in preview environment", () => {
+      // @ts-expect-error - mocking window
+      globalThis.window = {
+        location: {
+          origin: "https://compass-pr-194.onrender.com",
+          hostname: "compass-pr-194.onrender.com",
+        },
+      };
+      expect(getClientOrigin()).toBe("https://compass-pr-194.onrender.com");
+    });
+
+    it("returns window.location.origin in preview even when env var is set to production", () => {
+      process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai";
+      // @ts-expect-error - mocking window
+      globalThis.window = {
+        location: {
+          origin: "https://compass-pr-194.onrender.com",
+          hostname: "compass-pr-194.onrender.com",
+        },
+      };
+      // Preview environment should use actual origin, ignoring env var
+      expect(getClientOrigin()).toBe("https://compass-pr-194.onrender.com");
+    });
+
+    it("returns window.location.origin for localhost", () => {
+      // @ts-expect-error - mocking window
+      globalThis.window = {
+        location: {
+          origin: "http://localhost:3000",
+          hostname: "localhost",
+        },
+      };
+      expect(getClientOrigin()).toBe("http://localhost:3000");
+    });
+
+    it("returns env var in production when env var is set", () => {
+      process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai/";
+      // @ts-expect-error - mocking window
+      globalThis.window = {
+        location: {
+          origin: "https://app.thecapitalcompass.ai",
+          hostname: "app.thecapitalcompass.ai",
+        },
+      };
+      // Production should use env var (with trailing slash removed)
+      expect(getClientOrigin()).toBe("https://thecapitalcompass.ai");
+    });
+
+    it("returns window.location.origin in production when no env var", () => {
+      delete process.env.NEXT_PUBLIC_SITE_URL;
+      // @ts-expect-error - mocking window
+      globalThis.window = {
+        location: {
+          origin: "https://thecapitalcompass.ai",
+          hostname: "thecapitalcompass.ai",
+        },
+      };
+      // Without env var set, falls back to window.location.origin
+      expect(getClientOrigin()).toBe("https://thecapitalcompass.ai");
+    });
+
+    it("uses custom env var name when specified", () => {
+      process.env.CUSTOM_APP_URL = "https://custom.example.com";
+      // @ts-expect-error - mocking window
+      globalThis.window = {
+        location: {
+          origin: "https://production.example.com",
+          hostname: "production.example.com",
+        },
+      };
+      expect(getClientOrigin("CUSTOM_APP_URL")).toBe(
+        "https://custom.example.com",
+      );
+    });
+  });
+
+  describe("getServerOrigin", () => {
+    let originalEnv: NodeJS.ProcessEnv;
+
+    beforeEach(() => {
+      originalEnv = { ...process.env };
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it("returns https origin with host and protocol", () => {
+      expect(getServerOrigin("compass-pr-194.onrender.com", "https")).toBe(
+        "https://compass-pr-194.onrender.com",
+      );
+    });
+
+    it("returns http origin when protocol is http", () => {
+      expect(getServerOrigin("localhost:3000", "http")).toBe(
+        "http://localhost:3000",
+      );
+    });
+
+    it("defaults to https when protocol is omitted", () => {
+      expect(getServerOrigin("compass-pr-194.onrender.com")).toBe(
+        "https://compass-pr-194.onrender.com",
+      );
+    });
+
+    it("returns preview origin even when env var is set to production", () => {
+      process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai";
+      // Preview domains always use the actual host, ignoring env var
+      expect(getServerOrigin("compass-pr-194.onrender.com", "https")).toBe(
+        "https://compass-pr-194.onrender.com",
+      );
+    });
+
+    it("returns localhost origin correctly", () => {
+      // Localhost is also a preview environment
+      expect(getServerOrigin("localhost:3000", "http")).toBe(
+        "http://localhost:3000",
+      );
+    });
+
+    it("handles Vercel preview domain", () => {
+      expect(getServerOrigin("my-app-abc123.vercel.app", "https")).toBe(
+        "https://my-app-abc123.vercel.app",
+      );
+    });
+
+    it("returns env var for production domains when set", () => {
+      process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai/";
+      // Production domain with env var should use env var (trailing slash removed)
+      expect(getServerOrigin("app.thecapitalcompass.ai", "https")).toBe(
+        "https://thecapitalcompass.ai",
+      );
+    });
+
+    it("returns origin for production domains when no env var", () => {
+      delete process.env.NEXT_PUBLIC_SITE_URL;
+      // Production domain without env var falls back to request origin
+      expect(getServerOrigin("thecapitalcompass.ai", "https")).toBe(
+        "https://thecapitalcompass.ai",
+      );
+    });
+
+    it("uses custom env var name when specified", () => {
+      process.env.CUSTOM_APP_URL = "https://custom.example.com/";
+      expect(
+        getServerOrigin("production.example.com", "https", "CUSTOM_APP_URL"),
+      ).toBe("https://custom.example.com");
     });
   });
 });

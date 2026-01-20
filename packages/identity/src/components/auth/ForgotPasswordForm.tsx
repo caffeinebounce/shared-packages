@@ -1,5 +1,6 @@
 "use client";
 
+import { getClientOrigin } from "@caffeinebounce/shared-utils";
 import { Button, FieldLabel, Input } from "@caffeinebounce/ui";
 import { useSearchParams } from "next/navigation";
 import { type ComponentType, useState } from "react";
@@ -78,8 +79,8 @@ export function ForgotPasswordForm({
     setLoading(true);
 
     const supabase = createClient();
-    // Use NEXT_PUBLIC_SITE_URL if set (for production), otherwise fall back to current origin
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    // Get the appropriate origin for this environment (handles preview vs production)
+    const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
     // Use callback route with next parameter for PKCE flow code exchange
     const callbackUrl = `${siteUrl}${mergedLinks.callback}?next=${encodeURIComponent(mergedLinks.resetPassword)}`;
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(

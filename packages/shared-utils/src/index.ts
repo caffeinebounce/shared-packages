@@ -52,17 +52,22 @@ export {
 } from "./string";
 // Re-export URL validators
 export {
-  // Factory functions (alphabetical)
+  // Factory functions
   createSocialHandleSchema,
   createSocialUrlSchema,
   createUrlSchema,
-  // Pre-built URL validators (alphabetical)
+  // Pre-built URL validators
   facebookUrlSchema,
-  // Pre-built handle validators (alphabetical)
+  // Environment detection
+  getClientOrigin,
+  getServerOrigin,
+  // Pre-built handle validators
   instagramHandleSchema,
+  isPreviewEnvironment,
+  isRenderPreviewDomain,
   linkedinUrlSchema,
   pinterestUrlSchema,
-  // Types (alphabetical)
+  // Types
   type SocialHandleSchemaConfig,
   type SocialUrlSchemaConfig,
   tiktokHandleSchema,
