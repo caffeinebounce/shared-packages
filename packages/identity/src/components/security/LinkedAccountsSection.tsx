@@ -1,5 +1,6 @@
 "use client";
 
+import { getClientOrigin } from "@caffeinebounce/shared-utils";
 import {
   Button,
   cn,
@@ -185,10 +186,12 @@ export function LinkedAccountsSection({
       setActionLoading(provider);
 
       const supabase = createClient();
+      // Get the appropriate origin for this environment (handles preview vs production)
+      const origin = getClientOrigin("NEXT_PUBLIC_SITE_URL");
       const { error } = await supabase.auth.linkIdentity({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/callback?next=${callbackRedirectUrl}`,
+          redirectTo: `${origin}/callback?next=${callbackRedirectUrl}`,
         },
       });
 

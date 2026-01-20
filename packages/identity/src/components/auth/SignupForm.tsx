@@ -1,5 +1,6 @@
 "use client";
 
+import { getClientOrigin } from "@caffeinebounce/shared-utils";
 import {
   Button,
   cn,
@@ -118,11 +119,8 @@ export function SignupForm({
     confirmPassword.length > 0 &&
     password !== confirmPassword;
 
-  // Use NEXT_PUBLIC_SITE_URL if set (for production), otherwise fall back to current origin
-  const siteUrl =
-    typeof window !== "undefined"
-      ? process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
-      : process.env.NEXT_PUBLIC_SITE_URL || "";
+  // Get the appropriate origin for this environment (handles preview vs production)
+  const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
 
   async function handleOAuthSignIn(provider: OAuthProvider) {
     setOauthLoading(provider);

@@ -58,8 +58,13 @@ export {
   createUrlSchema,
   // Pre-built URL validators (alphabetical)
   facebookUrlSchema,
+  // Environment detection (alphabetical)
+  getClientOrigin,
+  getServerOrigin,
   // Pre-built handle validators (alphabetical)
   instagramHandleSchema,
+  isPreviewEnvironment,
+  isRenderPreviewDomain,
   linkedinUrlSchema,
   pinterestUrlSchema,
   // Types (alphabetical)
