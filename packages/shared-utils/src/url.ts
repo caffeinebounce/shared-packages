@@ -356,18 +356,26 @@ export const websiteUrlSchema = createUrlSchema(
 
 /**
  * List of domains that are considered "preview" environments.
- * These are deployment platforms that may use different URLs than production.
+ * These are deployment platforms that typically use different URLs than production.
+ *
+ * Note: This list is intentionally conservative. Teams using these domains for
+ * production should either use custom domains or set FORCE_PRODUCTION_ORIGIN=true
+ * in their environment to override preview detection.
  */
 const PREVIEW_DOMAINS = [
-  "onrender.com", // Render PR previews
-  "vercel.app", // Vercel previews
+  "onrender.com", // Render PR previews (e.g., app-pr-123.onrender.com)
+  "vercel.app", // Vercel previews (production typically uses custom domains)
   "netlify.app", // Netlify previews
   "railway.app", // Railway previews
-  "render.com", // Render
 ] as const;
 
 /**
  * Strip port from hostname, handling both IPv4/domain and IPv6 formats.
+ *
+ * Note: This function assumes IPv6 addresses with ports use bracket notation
+ * (e.g., "[::1]:3000"), which is the standard format returned by
+ * `window.location.hostname` and HTTP Host headers. Raw IPv6 with port
+ * like "::1:3000" is ambiguous and not handled.
  *
  * @example
  * ```typescript
@@ -386,6 +394,7 @@ function stripPort(hostname: string): string {
   }
 
   // Handle IPv6 without port (contains multiple colons)
+  // Assumes standard bracket notation is used when a port is present
   if ((hostname.match(/:/g) || []).length > 1) {
     return hostname;
   }
@@ -407,12 +416,36 @@ function stripPort(hostname: string): string {
 export function isRenderPreviewDomain(hostname: string): boolean {
   const normalized = hostname.toLowerCase();
   const hostWithoutPort = stripPort(normalized);
-  // Matches: anything.onrender.com (but NOT app.anything.onrender.com or admin.anything.onrender.com)
-  return (
-    hostWithoutPort.endsWith(".onrender.com") &&
-    !hostWithoutPort.startsWith("app.") &&
-    !hostWithoutPort.startsWith("admin.")
-  );
+
+  if (!hostWithoutPort.endsWith(".onrender.com")) {
+    return false;
+  }
+
+  const suffix = ".onrender.com";
+  const withoutSuffix = hostWithoutPort.slice(0, -suffix.length); // e.g., "compass-pr-194" or "app.compass"
+  const labels = withoutSuffix.split(".").filter(Boolean);
+
+  // No labels before the suffix is not a valid preview domain shape
+  if (labels.length === 0) {
+    return false;
+  }
+
+  // A single label before `.onrender.com` is treated as a preview domain
+  // e.g., "compass-pr-194.onrender.com" or "application.onrender.com"
+  if (labels.length === 1) {
+    return true;
+  }
+
+  // Multiple labels before `.onrender.com`
+  // If the first label is "app" or "admin" (e.g., app.compass.onrender.com),
+  // treat this as a production-style domain, not a preview
+  const [firstLabel] = labels;
+  if (firstLabel === "app" || firstLabel === "admin") {
+    return false;
+  }
+
+  // Other multi-label domains under *.onrender.com are considered preview
+  return true;
 }
 
 /**
@@ -504,6 +537,9 @@ export function getClientOrigin(envVarName?: string): string {
   }
 
   // Production: prefer env var if set
+  // Note: process.env access here relies on build-time env injection
+  // from the bundler (e.g., Next.js, Vite). In a plain browser environment
+  // without such tooling, process.env will be undefined.
   const envValue = envVarName
     ? process.env[envVarName]
     : process.env.NEXT_PUBLIC_SITE_URL;
