@@ -2,8 +2,8 @@
  * Client-safe exports from @caffeinebounce/logger
  *
  * This module provides client-safe versions of logger utilities that
- * DO NOT import @logtail/next, avoiding the dynamic require() issue
- * with Turbopack.
+ * use dynamic imports to avoid the @logtail/next dynamic require()
+ * issue with Turbopack.
  *
  * Import from "@caffeinebounce/logger/client" in client components
  * instead of "@caffeinebounce/logger" to avoid build errors.
@@ -11,11 +11,15 @@
  * @example
  * ```typescript
  * // In client components:
- * import { useErrorLoggerSafe } from "@caffeinebounce/logger/client";
+ * import { useErrorLoggerSafe, authLoggerClient } from "@caffeinebounce/logger/client";
  *
  * function MyComponent() {
  *   const { logError } = useErrorLoggerSafe();
- *   // ...
+ *
+ *   const handleSignIn = async () => {
+ *     authLoggerClient.signInAttempt(email);
+ *     // ...
+ *   };
  * }
  * ```
  */
@@ -25,6 +29,8 @@ export type {
   ApiHandler,
   ErrorLoggingContext,
 } from "./api-wrapper";
+// Client-safe auth logger with lazy loading
+export { authLoggerClient } from "./auth-logger-client";
 export type {
   ApiErrorContext,
   ApiErrorResponse,
