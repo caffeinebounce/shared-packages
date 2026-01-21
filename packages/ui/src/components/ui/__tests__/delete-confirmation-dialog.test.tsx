@@ -148,4 +148,144 @@ describe("DeleteConfirmationDialog", () => {
     render(<DeleteConfirmationDialog {...defaultProps} open={false} />);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+
+  describe("type-to-confirm mode", () => {
+    const confirmationText = "DELETE";
+
+    it("renders input field when confirmationText is provided", () => {
+      render(
+        <DeleteConfirmationDialog
+          {...defaultProps}
+          confirmationText={confirmationText}
+        />,
+      );
+      expect(screen.getByRole("textbox")).toBeInTheDocument();
+      expect(screen.getByText(confirmationText)).toBeInTheDocument();
+    });
+
+    it("does not render input field when confirmationText is not provided", () => {
+      render(<DeleteConfirmationDialog {...defaultProps} />);
+      expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    });
+
+    it("disables delete button until input matches confirmationText", () => {
+      render(
+        <DeleteConfirmationDialog
+          {...defaultProps}
+          confirmationText={confirmationText}
+        />,
+      );
+
+      const deleteButton = screen.getByText("Delete");
+      const input = screen.getByRole("textbox");
+
+      // Initially disabled
+      expect(deleteButton).toBeDisabled();
+
+      // Type partial text - still disabled
+      fireEvent.change(input, { target: { value: "DEL" } });
+      expect(deleteButton).toBeDisabled();
+
+      // Type full text - enabled
+      fireEvent.change(input, { target: { value: confirmationText } });
+      expect(deleteButton).not.toBeDisabled();
+    });
+
+    it("enforces case sensitivity for confirmation text", () => {
+      render(
+        <DeleteConfirmationDialog
+          {...defaultProps}
+          confirmationText={confirmationText}
+        />,
+      );
+
+      const deleteButton = screen.getByText("Delete");
+      const input = screen.getByRole("textbox");
+
+      // Wrong case - should remain disabled
+      fireEvent.change(input, { target: { value: "delete" } });
+      expect(deleteButton).toBeDisabled();
+
+      // Correct case - should enable
+      fireEvent.change(input, { target: { value: "DELETE" } });
+      expect(deleteButton).not.toBeDisabled();
+    });
+
+    it("resets input value when dialog closes", async () => {
+      const { rerender } = render(
+        <DeleteConfirmationDialog
+          {...defaultProps}
+          confirmationText={confirmationText}
+        />,
+      );
+
+      const input = screen.getByRole("textbox");
+      fireEvent.change(input, { target: { value: confirmationText } });
+      expect(input).toHaveValue(confirmationText);
+
+      // Close dialog
+      rerender(
+        <DeleteConfirmationDialog
+          {...defaultProps}
+          confirmationText={confirmationText}
+          open={false}
+        />,
+      );
+
+      // Reopen dialog
+      rerender(
+        <DeleteConfirmationDialog
+          {...defaultProps}
+          confirmationText={confirmationText}
+          open={true}
+        />,
+      );
+
+      // Input should be reset
+      const newInput = screen.getByRole("textbox");
+      expect(newInput).toHaveValue("");
+    });
+
+    it("triggers confirmation on Enter key when input matches", async () => {
+      const onConfirm = vi.fn();
+      render(
+        <DeleteConfirmationDialog
+          {...defaultProps}
+          confirmationText={confirmationText}
+          onConfirm={onConfirm}
+        />,
+      );
+
+      const input = screen.getByRole("textbox");
+
+      // Type correct text
+      fireEvent.change(input, { target: { value: confirmationText } });
+
+      // Press Enter
+      fireEvent.keyDown(input, { key: "Enter" });
+
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not trigger confirmation on Enter when input does not match", () => {
+      const onConfirm = vi.fn();
+      render(
+        <DeleteConfirmationDialog
+          {...defaultProps}
+          confirmationText={confirmationText}
+          onConfirm={onConfirm}
+        />,
+      );
+
+      const input = screen.getByRole("textbox");
+
+      // Type incorrect text
+      fireEvent.change(input, { target: { value: "wrong" } });
+
+      // Press Enter
+      fireEvent.keyDown(input, { key: "Enter" });
+
+      expect(onConfirm).not.toHaveBeenCalled();
+    });
+  });
 });
