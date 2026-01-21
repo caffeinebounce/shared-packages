@@ -11,6 +11,18 @@ interface CheckboxProps
   onCheckedChange?: (checked: boolean) => void;
 }
 
+/**
+ * Checkbox - Checkable input for binary choices
+ *
+ * @example
+ * <Checkbox checked={isChecked} onCheckedChange={setIsChecked} />
+ *
+ * @example
+ * <label>
+ *   <Checkbox checked={agree} onCheckedChange={setAgree} />
+ *   I agree to the terms
+ * </label>
+ */
 function Checkbox({
   className,
   checked,

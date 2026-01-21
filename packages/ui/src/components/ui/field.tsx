@@ -7,6 +7,16 @@ import { cn } from "../../utils";
 import { Label } from "./label";
 import { Separator } from "./separator";
 
+/**
+ * FieldSet - Container for a group of related fields
+ *
+ * @example
+ * <FieldSet>
+ *   <FieldLegend>Contact Information</FieldLegend>
+ *   <Field>...</Field>
+ *   <Field>...</Field>
+ * </FieldSet>
+ */
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
     <fieldset
@@ -21,6 +31,9 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   );
 }
 
+/**
+ * FieldLegend - Title for a field set
+ */
 function FieldLegend({
   className,
   variant = "legend",
@@ -41,6 +54,9 @@ function FieldLegend({
   );
 }
 
+/**
+ * FieldGroup - Container for multiple fields with consistent spacing
+ */
 function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -78,6 +94,23 @@ const fieldVariants = cva(
   },
 );
 
+/**
+ * Field - Individual form field with label, input, and error support
+ *
+ * @example
+ * <Field>
+ *   <FieldLabel htmlFor="name">Name</FieldLabel>
+ *   <Input id="name" />
+ *   <FieldDescription>Enter your full name</FieldDescription>
+ * </Field>
+ *
+ * @example
+ * // Horizontal orientation
+ * <Field orientation="horizontal">
+ *   <FieldLabel>Subscribe</FieldLabel>
+ *   <Checkbox />
+ * </Field>
+ */
 function Field({
   className,
   orientation = "vertical",
@@ -93,6 +126,9 @@ function Field({
   );
 }
 
+/**
+ * FieldContent - Content wrapper for field elements
+ */
 function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -106,6 +142,9 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * FieldLabel - Label for a field, supports nested inputs
+ */
 function FieldLabel({
   className,
   ...props
@@ -124,6 +163,9 @@ function FieldLabel({
   );
 }
 
+/**
+ * FieldTitle - Alternative to FieldLabel for non-label text
+ */
 function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -137,6 +179,9 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * FieldDescription - Helpful text below a field
+ */
 function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
@@ -152,6 +197,9 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+/**
+ * FieldSeparator - Visual divider between fields
+ */
 function FieldSeparator({
   children,
   className,
@@ -182,6 +230,15 @@ function FieldSeparator({
   );
 }
 
+/**
+ * FieldError - Error message display for form validation
+ *
+ * @example
+ * <FieldError errors={form.errors.email} />
+ *
+ * @example
+ * <FieldError>Custom error message</FieldError>
+ */
 function FieldError({
   className,
   children,

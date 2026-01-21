@@ -5,6 +5,13 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Label - Accessible label for form inputs
+ *
+ * @example
+ * <Label htmlFor="email">Email Address</Label>
+ * <Input id="email" type="email" />
+ */
 function Label({
   className,
   ...props
