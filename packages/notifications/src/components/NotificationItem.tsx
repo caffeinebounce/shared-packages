@@ -3,6 +3,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { Bell, Check } from "lucide-react";
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import type { NotificationItemProps } from "../types";
 
 /**
@@ -23,6 +24,26 @@ export function NotificationItem({
   onMarkAsRead,
   isMarkingAsRead,
 }: NotificationItemProps) {
+  const [NextLink, setNextLink] = useState<
+    React.ComponentType<{
+      href: string;
+      onClick?: () => void;
+      className?: string;
+      children: React.ReactNode;
+    }> | null
+  >(null);
+
+  useEffect(() => {
+    // Try to dynamically import Next.js Link
+    import("next/link")
+      .then((module) => {
+        setNextLink(() => module.default);
+      })
+      .catch(() => {
+        // Ignore error - we'll use anchor tag fallback
+      });
+  }, []);
+
   const content = (
     <div
       className={`flex gap-3 p-3 ${
@@ -69,25 +90,20 @@ export function NotificationItem({
     </div>
   );
 
-  // If there's a link, try to use Next.js Link if available
+  // If there's a link, use Next.js Link if available, otherwise anchor tag
   if (link) {
-    // Dynamic import to make Next.js optional
-    try {
-      // biome-ignore lint/suspicious/noExplicitAny: Dynamic import for optional Next.js
-      const NextLink = require("next/link").default as any;
+    if (NextLink) {
       return (
         <NextLink href={link} onClick={onClick} className="block">
           {content}
         </NextLink>
       );
-    } catch {
-      // Fall back to regular anchor tag if Next.js is not available
-      return (
-        <a href={link} onClick={onClick} className="block">
-          {content}
-        </a>
-      );
     }
+    return (
+      <a href={link} onClick={onClick} className="block">
+        {content}
+      </a>
+    );
   }
 
   return (

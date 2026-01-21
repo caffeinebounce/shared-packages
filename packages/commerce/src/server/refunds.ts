@@ -15,7 +15,8 @@ export async function createRefund(
   amountCents?: number,
   reason: RefundReason = "requested_by_customer",
 ): Promise<Stripe.Refund> {
-  return getStripe().refunds.create({
+  const stripe = await getStripe();
+  return stripe.refunds.create({
     payment_intent: paymentIntentId,
     // Use !== undefined to properly handle zero-value refunds (amountCents of 0)
     ...(amountCents !== undefined && { amount: amountCents }),

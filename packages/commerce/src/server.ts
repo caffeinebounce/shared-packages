@@ -1,5 +1,5 @@
 // Server-side exports for @caffeinebounce/commerce/server
-// Import via: import { stripe } from "@caffeinebounce/commerce/server"
+// Import via: import { getStripe } from "@caffeinebounce/commerce/server"
 
 // Fee calculations
 export {
@@ -13,4 +13,4 @@ export {
 // Refunds
 export { createRefund, type RefundReason } from "./server/refunds";
 // Stripe client
-export { getStripe, stripe } from "./server/stripe";
+export { getStripe } from "./server/stripe";
