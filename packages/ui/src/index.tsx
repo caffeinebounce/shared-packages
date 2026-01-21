@@ -214,9 +214,16 @@ export {
 export type {
   ShortcutDefinition,
   ThemeMode,
+  ThemeProviderProps,
   ThemeToggleProps,
 } from "./blocks/theme";
-export { ThemeToggle, useTheme } from "./blocks/theme";
+export {
+  ThemeProvider,
+  ThemeToggle,
+  useTheme,
+  useThemeContext,
+  useThemeContextOptional,
+} from "./blocks/theme";
 export type {
   UserAvatarMenuItem,
   UserAvatarMenuProps,
@@ -515,6 +522,23 @@ export {
 } from "./components/ui/tooltip";
 export type { VerificationCodeInputProps } from "./components/ui/verification-code-input";
 export { VerificationCodeInput } from "./components/ui/verification-code-input";
+// Theme system types and configurations
+export type {
+  BadgeShape,
+  BadgeSize,
+  BuiltInThemeName,
+  ButtonCorners,
+  ButtonHoverEffect,
+  CardBorder,
+  CardElevation,
+  ColorScheme,
+  InputVariant,
+  ProductThemeConfig,
+  ThemeColors,
+  ThemeConfig,
+  ThemeFonts,
+  ThemeName,
+} from "./config";
 // Theme configuration
 export {
   type Animation,
@@ -523,8 +547,19 @@ export {
   type Breakpoints,
   borderRadius,
   breakpoints,
+  colorfulTheme,
+  compassThemeConfig,
+  darkTheme,
+  defaultThemes,
+  deuteranopiaTheme,
+  getColorScheme,
+  getDefaultTheme,
+  highContrastDarkTheme,
+  highContrastTheme,
   type Layout,
   layout,
+  lightTheme,
+  protanopiaTheme,
   type Shadows,
   type Spacing,
   shadows,
@@ -532,8 +567,10 @@ export {
   type Theme,
   type Typography,
   theme,
+  tritanopiaTheme,
   typography,
   type ZIndex,
+  zenbidThemeConfig,
   zIndex,
 } from "./config";
 export { useCopyToClipboard } from "./hooks/useCopyToClipboard";
