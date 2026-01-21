@@ -258,6 +258,55 @@ export const shadows = {
 } as const;
 
 // =============================================================================
+// BRAND CUSTOMIZATION (CSS Variables)
+// =============================================================================
+
+/**
+ * Brand customization CSS variable names.
+ * These correspond to the CSS custom properties defined in base.css.
+ * Products can override these to customize their brand appearance.
+ */
+export const brandVariables = {
+  /** Secondary brand color for highlights and gradients */
+  brandAccent: "--brand-accent",
+  /** Gradient start color */
+  brandGradientFrom: "--brand-gradient-from",
+  /** Gradient end color */
+  brandGradientTo: "--brand-gradient-to",
+  /** Text highlight/selection color */
+  highlightColor: "--highlight-color",
+  /** Shadow depth multiplier (0.5 = subtle, 1.5 = dramatic) */
+  shadowIntensity: "--shadow-intensity",
+  /** Spacing scale multiplier (0.875 = tighter, 1.125 = looser) */
+  spacingScale: "--spacing-scale",
+  /** Header font family */
+  fontHeaders: "--font-headers",
+  /** Display/marketing font family */
+  fontDisplay: "--font-display",
+  /** Header font weight */
+  headingWeight: "--heading-weight",
+  /** Header letter spacing */
+  headingTracking: "--heading-tracking",
+} as const;
+
+/**
+ * Default values for brand customization variables.
+ * Products can use these as starting points when customizing.
+ */
+export const brandDefaults = {
+  brandAccent: "var(--primary)",
+  brandGradientFrom: "var(--primary)",
+  brandGradientTo: "var(--brand-accent)",
+  highlightColor: "oklch(0.95 0.05 90)",
+  shadowIntensity: "1",
+  spacingScale: "1",
+  fontHeaders: "var(--font-sans)",
+  fontDisplay: "var(--font-sans)",
+  headingWeight: "600",
+  headingTracking: "-0.025em",
+} as const;
+
+// =============================================================================
 // COMBINED THEME OBJECT
 // =============================================================================
 
@@ -270,6 +319,8 @@ export const theme = {
   animation,
   borderRadius,
   shadows,
+  brandVariables,
+  brandDefaults,
 } as const;
 
 // =============================================================================
@@ -285,6 +336,8 @@ export type ZIndex = typeof zIndex;
 export type Animation = typeof animation;
 export type BorderRadius = typeof borderRadius;
 export type Shadows = typeof shadows;
+export type BrandVariables = typeof brandVariables;
+export type BrandDefaults = typeof brandDefaults;
 
 // Default export
 export default theme;
