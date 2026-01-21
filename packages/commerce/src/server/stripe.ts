@@ -7,14 +7,13 @@ let stripeInstance: Stripe | null = null;
  * Get a lazy-initialized Stripe server-side client
  * Requires STRIPE_SECRET_KEY environment variable
  */
-export function getStripe(): Stripe {
+export async function getStripe(): Promise<Stripe> {
   if (!stripeInstance) {
     if (!process.env.STRIPE_SECRET_KEY) {
       throw new Error("STRIPE_SECRET_KEY is not set");
     }
     // Dynamic import to avoid bundling stripe in client code
-    // biome-ignore lint/suspicious/noExplicitAny: Dynamic import for server-only code
-    const StripeClass = (require("stripe") as any).default;
+    const { default: StripeClass } = await import("stripe");
     stripeInstance = new StripeClass(process.env.STRIPE_SECRET_KEY, {
       apiVersion: "2025-02-24.acacia",
       typescript: true,
@@ -29,6 +28,7 @@ export function getStripe(): Stripe {
  */
 export const stripe = new Proxy({} as Stripe, {
   get(_, prop) {
-    return getStripe()[prop as keyof Stripe];
+    // Note: This will return a Promise that resolves to the property value
+    return getStripe().then((client) => client[prop as keyof Stripe]);
   },
 });

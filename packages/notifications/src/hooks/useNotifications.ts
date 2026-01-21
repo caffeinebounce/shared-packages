@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { Notification, NotificationsResponse } from "../types";
 
 interface UseNotificationsOptions {
@@ -40,6 +40,14 @@ export function useNotifications({
   const [error, setError] = useState<string | null>(null);
   const [markingAsRead, setMarkingAsRead] = useState<Set<string>>(new Set());
 
+  // Use refs to access latest values without adding to dependencies
+  const notificationsRef = useRef(notifications);
+  const markingAsReadRef = useRef(markingAsRead);
+
+  // Keep refs in sync
+  notificationsRef.current = notifications;
+  markingAsReadRef.current = markingAsRead;
+
   const fetchNotifications = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -63,11 +71,11 @@ export function useNotifications({
   const markAsRead = useCallback(
     async (id: string) => {
       // Skip if already marking this notification or already read
-      if (markingAsRead.has(id)) {
+      if (markingAsReadRef.current.has(id)) {
         return;
       }
 
-      const notification = notifications.find((n) => n.id === id);
+      const notification = notificationsRef.current.find((n) => n.id === id);
       if (notification?.isRead) {
         return;
       }
@@ -106,13 +114,15 @@ export function useNotifications({
         });
       }
     },
-    [notifications, markingAsRead, markReadEndpoint],
+    [markReadEndpoint],
   );
 
   const markAllAsRead = useCallback(async () => {
+    // Capture current state for potential rollback
+    const previousNotifications = notificationsRef.current;
+    const previousUnreadCount = previousNotifications.filter((n) => !n.isRead).length;
+
     // Optimistic update
-    const previousNotifications = notifications;
-    const previousUnreadCount = unreadCount;
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     setUnreadCount(0);
 
@@ -132,7 +142,7 @@ export function useNotifications({
       setUnreadCount(previousUnreadCount);
       console.error("Failed to mark all as read:", err);
     }
-  }, [notifications, unreadCount, markAllReadEndpoint]);
+  }, [markAllReadEndpoint]);
 
   return {
     notifications,
