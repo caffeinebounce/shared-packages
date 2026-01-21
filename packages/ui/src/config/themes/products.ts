@@ -13,7 +13,7 @@ import {
   lightTheme,
   protanopiaTheme,
   tritanopiaTheme,
-} from "./index";
+} from "./base";
 import type { ProductThemeConfig, Theme, ThemeColors } from "./types";
 
 // =============================================================================
@@ -25,7 +25,6 @@ import type { ProductThemeConfig, Theme, ThemeColors } from "./types";
  */
 const compassPrimaryLight = "oklch(0.55 0.145 170)";
 const compassPrimaryDark = "oklch(0.65 0.145 170)";
-const compassAccent = "oklch(0.6 0.12 200)";
 
 /**
  * Create Compass-branded light colors
@@ -152,7 +151,6 @@ export const compassThemeConfig: ProductThemeConfig = {
  */
 const zenbidPrimaryLight = "oklch(0.55 0.2 220)";
 const zenbidPrimaryDark = "oklch(0.65 0.2 220)";
-const zenbidAccent = "oklch(0.6 0.15 250)";
 
 /**
  * Create ZenBid-branded light colors

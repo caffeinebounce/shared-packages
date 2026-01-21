@@ -41,7 +41,19 @@ export {
   compassThemeConfig,
   zenbidThemeConfig,
 } from "./themes/products";
-// Theme system types and configurations
+/**
+ * Theme system types and configurations.
+ *
+ * NOTE: There are two "Theme" types with different purposes:
+ *
+ * - `Theme` (from config/theme.ts): The existing theme configuration object
+ *   containing layout, typography, spacing, border radius, etc. design tokens.
+ *   Used for general styling constants.
+ *
+ * - `ThemeConfig` (from config/themes/types.ts, aliased from Theme): The new
+ *   theme definition containing colors, name, colorScheme, and display properties
+ *   for the multi-theme system. Used by ThemeProvider for theme switching.
+ */
 export type {
   BadgeShape,
   BadgeSize,

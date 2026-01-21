@@ -110,6 +110,9 @@ export function ThemeProvider({
       return "system";
     }
 
+    // Note: "system" is a valid ThemeName but doesn't exist in allThemes.
+    // It's a special value that tells the provider to follow system preferences.
+    // We check for it explicitly above rather than looking it up in allThemes.
     if (stored && stored in allThemes) {
       return stored as ThemeName;
     }
@@ -139,6 +142,9 @@ export function ThemeProvider({
   // Apply theme to document
   const applyTheme = useCallback(
     (themeName: ThemeName) => {
+      // SSR guard - only run on client
+      if (typeof window === "undefined") return;
+
       const root = document.documentElement;
       const resolvedName =
         themeName === "system"
@@ -190,6 +196,9 @@ export function ThemeProvider({
   // Set theme and persist to storage
   const setTheme = useCallback(
     (newTheme: ThemeName) => {
+      // SSR guard - only run on client
+      if (typeof window === "undefined") return;
+
       setThemeState(newTheme);
 
       if (newTheme === "system") {
@@ -239,19 +248,19 @@ export function ThemeProvider({
 
   // Listen for prefers-contrast for accessibility
   useEffect(() => {
+    // SSR guard
+    if (typeof window === "undefined") return;
+
     const mediaQuery = window.matchMedia("(prefers-contrast: more)");
 
-    const handleContrastChange = (e: MediaQueryListEvent) => {
-      if (e.matches && !isSystemTheme) {
-        // Could auto-switch to high-contrast theme
-        // For now, just log - products can handle this
-        console.debug("[ThemeProvider] User prefers high contrast");
-      }
+    const handleContrastChange = (_e: MediaQueryListEvent) => {
+      // Products can listen to this event and switch to high-contrast theme
+      // For now, products can handle this if needed
     };
 
     mediaQuery.addEventListener("change", handleContrastChange);
     return () => mediaQuery.removeEventListener("change", handleContrastChange);
-  }, [isSystemTheme]);
+  }, []);
 
   const value = useMemo<ThemeContextValue>(
     () => ({
