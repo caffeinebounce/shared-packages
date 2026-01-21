@@ -493,3 +493,32 @@ textarea:-moz-autofill {
   background-color: var(--card);
   color: var(--foreground);
 }
+
+/* ===========================================
+   Button Slide Hover Effect
+   =========================================== */
+
+/* Default button with slide effect */
+[data-slot="button"][data-variant="default"] {
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+
+[data-slot="button"][data-variant="default"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--primary-foreground);
+  transform: translateY(100%);
+  transition: transform 300ms ease-out;
+  z-index: -1;
+}
+
+[data-slot="button"][data-variant="default"]:hover::before {
+  transform: translateY(0);
+}
+
+[data-slot="button"][data-variant="default"]:hover {
+  color: var(--primary);
+}

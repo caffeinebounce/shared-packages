@@ -10,7 +10,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default:
+          "bg-primary text-primary-foreground shadow-sm " +
+          "hover:bg-primary/90 hover:shadow-md " +
+          "active:bg-primary/80",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
@@ -20,6 +23,7 @@ const buttonVariants = cva(
         ghost: "text-foreground hover:bg-accent hover:text-accent-foreground",
         "ghost-icon":
           "text-icon hover:text-icon-hover [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:scale-110",
+        muted: "text-muted-foreground hover:text-foreground transition-colors",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -63,6 +67,7 @@ function Button({
     return (
       <Slot
         data-slot="button"
+        data-variant={variant || "default"}
         className={cn(buttonVariants({ variant, size, className }))}
         aria-disabled={disabled || loading || undefined}
         {...props}
@@ -75,6 +80,7 @@ function Button({
   return (
     <button
       data-slot="button"
+      data-variant={variant || "default"}
       className={cn(buttonVariants({ variant, size, className }))}
       disabled={disabled || loading}
       {...props}

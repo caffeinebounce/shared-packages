@@ -112,10 +112,9 @@ export function NavbarLogo({
       {text && (
         <span
           className={cn(
-            "text-sm text-foreground whitespace-nowrap uppercase",
+            "text-xl font-black text-foreground/50 whitespace-nowrap uppercase tracking-tight",
             textClassName,
           )}
-          style={{ letterSpacing: "0.12em", fontWeight: 800 }}
         >
           {text}
         </span>
