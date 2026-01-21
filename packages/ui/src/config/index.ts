@@ -58,16 +58,12 @@ export {
  *   theme definition containing colors, name, colorScheme, and display properties
  *   for the multi-theme system. Used by ThemeProvider for theme switching.
  */
+// Note: Component variant types (BadgeShape, BadgeSize, ButtonCorners, ButtonHoverEffect,
+// CardBorder, CardElevation, InputVariant) are exported from their respective component
+// files, not from here, to avoid duplicate exports.
 export type {
-  BadgeShape,
-  BadgeSize,
   BuiltInThemeName,
-  ButtonCorners,
-  ButtonHoverEffect,
-  CardBorder,
-  CardElevation,
   ColorScheme,
-  InputVariant,
   ProductThemeConfig,
   Theme as ThemeConfig,
   ThemeColors,

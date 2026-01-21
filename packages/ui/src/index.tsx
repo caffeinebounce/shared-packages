@@ -266,9 +266,13 @@ export { Autocomplete } from "./components/ui/autocomplete";
 export { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
 export type { BackLinkProps } from "./components/ui/back-link";
 export { BackLink } from "./components/ui/back-link";
-export type { BadgeProps } from "./components/ui/badge";
+export type { BadgeProps, BadgeShape, BadgeSize } from "./components/ui/badge";
 export { Badge, badgeVariants } from "./components/ui/badge";
-export type { ButtonProps } from "./components/ui/button";
+export type {
+  ButtonCorners,
+  ButtonHoverEffect,
+  ButtonProps,
+} from "./components/ui/button";
 export { Button, buttonVariants } from "./components/ui/button";
 export type { ButtonGroupProps } from "./components/ui/button-group";
 export {
@@ -278,6 +282,11 @@ export {
 } from "./components/ui/button-group";
 export type { CalendarProps } from "./components/ui/calendar";
 export { Calendar } from "./components/ui/calendar";
+export type {
+  CardBorder,
+  CardElevation,
+  CardProps,
+} from "./components/ui/card";
 export {
   Card,
   CardAction,
@@ -384,7 +393,8 @@ export {
   InlineEditableSelect,
   InlineEditableText,
 } from "./components/ui/inline-editable";
-export { Input } from "./components/ui/input";
+export type { InputProps, InputVariant } from "./components/ui/input";
+export { Input, inputVariants } from "./components/ui/input";
 export {
   InputOTP,
   InputOTPGroup,
@@ -523,16 +533,11 @@ export {
 export type { VerificationCodeInputProps } from "./components/ui/verification-code-input";
 export { VerificationCodeInput } from "./components/ui/verification-code-input";
 // Theme system types and configurations
+// Note: Component variant types (BadgeShape, BadgeSize, ButtonCorners, ButtonHoverEffect,
+// CardBorder, CardElevation, InputVariant) are exported from their respective component files above.
 export type {
-  BadgeShape,
-  BadgeSize,
   BuiltInThemeName,
-  ButtonCorners,
-  ButtonHoverEffect,
-  CardBorder,
-  CardElevation,
   ColorScheme,
-  InputVariant,
   ProductThemeConfig,
   ThemeColors,
   ThemeConfig,
