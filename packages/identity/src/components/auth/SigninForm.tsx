@@ -400,17 +400,15 @@ export function SigninForm({
               )}
             >
               {oauthLoading === "google" ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="size-5 animate-spin" />
               ) : (
                 <GoogleIcon
-                  className={cn("h-5 w-5", googleComingSoon && "opacity-50")}
+                  className={cn("size-5", googleComingSoon && "opacity-50")}
                 />
               )}
-              <span>
-                {oauthLoading === "google"
-                  ? "Redirecting..."
-                  : "Continue with Google"}
-              </span>
+              {oauthLoading === "google"
+                ? "Redirecting..."
+                : "Continue with Google"}
               {googleComingSoon && !oauthLoading && (
                 <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded ml-2">
                   Soon
@@ -428,15 +426,13 @@ export function SigninForm({
               className="w-full bg-muted/50 border-border text-foreground hover:bg-muted"
             >
               {oauthLoading === "azure" ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="size-5 animate-spin" />
               ) : (
-                <MicrosoftIcon className="h-5 w-5" />
+                <MicrosoftIcon className="size-5" />
               )}
-              <span>
-                {oauthLoading === "azure"
-                  ? "Redirecting..."
-                  : "Continue with Microsoft"}
-              </span>
+              {oauthLoading === "azure"
+                ? "Redirecting..."
+                : "Continue with Microsoft"}
             </Button>
           )}
         </div>
