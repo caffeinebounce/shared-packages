@@ -39,8 +39,35 @@
   --sidebar-width-mobile: 18rem;
   --sidebar-width-icon: 3rem;
 
-  /* Typography */
+  /* Typography - base */
   --text-base: 0.875rem;
+
+  /* ===========================================
+     Brand Customization Variables (Phase 2)
+     Products can override these for differentiation
+     =========================================== */
+
+  /* Brand accent - secondary brand color for highlights, gradients */
+  --brand-accent: var(--primary);
+
+  /* Brand gradients - for hero sections, buttons, backgrounds */
+  --brand-gradient-from: var(--primary);
+  --brand-gradient-to: var(--brand-accent);
+
+  /* Highlight color - for text highlights, selections */
+  --highlight-color: oklch(0.95 0.05 90);
+
+  /* Shadow intensity - multiplier for shadow depth (0.5 = subtle, 1.5 = dramatic) */
+  --shadow-intensity: 1;
+
+  /* Typography customization */
+  --font-headers: var(--font-sans);
+  --font-display: var(--font-sans);
+  --heading-weight: 600;
+  --heading-tracking: -0.025em;
+
+  /* Spacing scale - multiplier for consistent spacing adjustments */
+  --spacing-scale: 1;
 
   /* ===========================================
      Semantic Color Tokens (Light Mode)
@@ -173,6 +200,191 @@
 }
 
 /* ===========================================
+   Data-Theme Attribute Support (Phase 2)
+   Enables theme switching via data-theme attribute
+   Works alongside existing .dark class pattern
+   =========================================== */
+
+/* Light theme (explicit) */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Dark theme via data-theme attribute */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --secondary: oklch(0.205 0 0);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.205 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(1 0 0 / 0.15);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.627 0.194 149.214);
+  --border: oklch(1 0 0 / 0.15);
+  --input: oklch(1 0 0 / 0.15);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0 0 0);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(1 0 0 / 0.1);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0 / 0.15);
+  --sidebar-ring: oklch(0.556 0 0);
+  --icon: oklch(1 0 0 / 0.7);
+  --icon-hover: oklch(1 0 0);
+  --highlight-color: oklch(0.3 0.05 90);
+  --cell-border-color: oklch(1 0 0 / 0.2);
+  --cell-fill-color: oklch(1 0 0 / 0.08);
+  --cell-shadow-color: oklch(1 0 0 / 0.1);
+}
+
+/* Colorful theme - vibrant, saturated colors */
+[data-theme="colorful"] {
+  color-scheme: light;
+  --background: oklch(0.99 0.01 280);
+  --foreground: oklch(0.2 0.02 280);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.02 280);
+  --muted: oklch(0.95 0.02 280);
+  --muted-foreground: oklch(0.5 0.03 280);
+  --accent: oklch(0.92 0.05 200);
+  --accent-foreground: oklch(0.2 0.02 200);
+  --highlight-color: oklch(0.92 0.1 90);
+}
+
+/* High contrast theme - WCAG AAA compliant */
+[data-theme="high-contrast"] {
+  color-scheme: light;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0.1 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0 0);
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.9 0 0);
+  --muted-foreground: oklch(0.2 0 0);
+  --accent: oklch(0.9 0 0);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(0.45 0.3 25);
+  --success: oklch(0.35 0.2 145);
+  --border: oklch(0 0 0);
+  --input: oklch(0.8 0 0);
+  --ring: oklch(0 0 0);
+}
+
+/* High contrast dark theme */
+[data-theme="high-contrast-dark"] {
+  color-scheme: dark;
+  --background: oklch(0 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.05 0 0);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.05 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(1 0 0);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.15 0 0);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.85 0 0);
+  --accent: oklch(0.2 0 0);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.65 0.25 25);
+  --success: oklch(0.7 0.2 145);
+  --border: oklch(1 0 0);
+  --input: oklch(0.3 0 0);
+  --ring: oklch(1 0 0);
+}
+
+/* Deuteranopia theme - red-green colorblind safe */
+[data-theme="deuteranopia"] {
+  color-scheme: light;
+  --primary: oklch(0.55 0.15 250);
+  --primary-foreground: oklch(1 0 0);
+  --destructive: oklch(0.55 0.2 30);
+  --success: oklch(0.55 0.15 250);
+  --chart-1: oklch(0.55 0.15 250);
+  --chart-2: oklch(0.65 0.2 60);
+  --chart-3: oklch(0.5 0.1 200);
+  --chart-4: oklch(0.7 0.15 90);
+  --chart-5: oklch(0.45 0.12 280);
+}
+
+/* Protanopia theme - red colorblind safe */
+[data-theme="protanopia"] {
+  color-scheme: light;
+  --primary: oklch(0.55 0.15 250);
+  --primary-foreground: oklch(1 0 0);
+  --destructive: oklch(0.55 0.2 60);
+  --success: oklch(0.55 0.15 250);
+  --chart-1: oklch(0.55 0.15 250);
+  --chart-2: oklch(0.65 0.2 60);
+  --chart-3: oklch(0.5 0.1 200);
+  --chart-4: oklch(0.7 0.15 90);
+  --chart-5: oklch(0.45 0.12 280);
+}
+
+/* Tritanopia theme - blue-yellow colorblind safe */
+[data-theme="tritanopia"] {
+  color-scheme: light;
+  --primary: oklch(0.55 0.2 15);
+  --primary-foreground: oklch(1 0 0);
+  --destructive: oklch(0.5 0.25 15);
+  --success: oklch(0.55 0.15 170);
+  --chart-1: oklch(0.55 0.2 15);
+  --chart-2: oklch(0.55 0.15 170);
+  --chart-3: oklch(0.7 0.1 15);
+  --chart-4: oklch(0.4 0.15 170);
+  --chart-5: oklch(0.6 0.05 0);
+}
+
+/* ===========================================
+   Accessibility Media Queries (Phase 2)
+   Auto-adjusts for user preferences
+   =========================================== */
+
+/* High contrast preference - auto-switch to high-contrast theme */
+@media (prefers-contrast: more) {
+  :root:not([data-theme]) {
+    --foreground: oklch(0 0 0);
+    --muted-foreground: oklch(0.3 0 0);
+    --border: oklch(0.5 0 0);
+  }
+
+  .dark:not([data-theme]) {
+    --foreground: oklch(1 0 0);
+    --muted-foreground: oklch(0.8 0 0);
+    --border: oklch(0.6 0 0);
+  }
+}
+
+/* Reduced motion preference - disable animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===========================================
    Tailwind Theme Configuration
    Maps CSS variables to Tailwind utilities
    =========================================== */
@@ -223,6 +435,12 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-icon: var(--icon);
   --color-icon-hover: var(--icon-hover);
+
+  /* Brand customization colors */
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-gradient-from: var(--brand-gradient-from);
+  --color-brand-gradient-to: var(--brand-gradient-to);
+  --color-highlight: var(--highlight-color);
 
   /* BackgroundRippleEffect Animation */
   --animate-cell-ripple: cell-ripple var(--duration, 200ms) ease-out none 1
@@ -349,6 +567,8 @@ select:disabled,
   h5,
   h6 {
     font-family: var(--font-headers, inherit);
+    font-weight: var(--heading-weight, 600);
+    letter-spacing: var(--heading-tracking, -0.025em);
   }
 
   /* Monospace font customization */
