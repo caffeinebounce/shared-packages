@@ -27,6 +27,9 @@ export interface TextHighlightProps {
  * Animated text highlight component that draws a gradient background behind text.
  * Perfect for emphasizing key phrases in hero sections.
  *
+ * The animation respects the user's `prefers-reduced-motion` setting and will
+ * display the highlight instantly when reduced motion is preferred.
+ *
  * @example
  * ```tsx
  * <h1>
@@ -45,17 +48,22 @@ export function TextHighlight({
   gradient = "from-indigo-300 to-purple-300 dark:from-indigo-500 dark:to-purple-500",
   disableAnimation = false,
 }: TextHighlightProps) {
+  // Animation is controlled via CSS custom properties
+  // The actual animation respects prefers-reduced-motion in base.css
   const animationStyle = disableAnimation
-    ? {}
+    ? { backgroundSize: "100% 100%" }
     : {
-        animation: `text-highlight-draw ${duration}s linear ${delay}s forwards`,
-        backgroundSize: "0% 100%",
+        "--highlight-duration": `${duration}s`,
+        "--highlight-delay": `${delay}s`,
       };
 
   return (
     <span
+      data-slot="text-highlight"
+      data-animated={!disableAnimation}
       className={cn(
         "relative inline-block rounded-lg bg-gradient-to-r bg-no-repeat px-1 pb-1",
+        !disableAnimation && "text-highlight-animated",
         gradient,
         className,
       )}
