@@ -182,7 +182,12 @@ export function HeroSection({
       {/* Hero Content */}
       <div className="z-10 px-4">
         {typeof heading === "string" ? (
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-4">
+          // Responsive heading: clamp between 2.25rem (~36px) and 3.75rem (~60px),
+          // scaling with viewport width via 5vw + 1rem to keep hero titles legible on all screens.
+          <h1
+            className="font-bold tracking-tight text-foreground mb-4"
+            style={{ fontSize: "clamp(2.25rem, 5vw + 1rem, 3.75rem)" }}
+          >
             {heading}
           </h1>
         ) : (

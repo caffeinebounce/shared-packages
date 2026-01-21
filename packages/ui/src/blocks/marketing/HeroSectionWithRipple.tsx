@@ -104,7 +104,7 @@ export function HeroSectionWithRipple({
 
       {/* Layer 2: Ripple Effect (z-10) - semi-transparent when over images */}
       <div
-        className="relative z-10"
+        className="absolute inset-0 z-10"
         style={{ opacity: effectiveRippleOpacity / 100 }}
       >
         <BackgroundRippleEffect

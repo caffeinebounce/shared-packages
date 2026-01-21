@@ -107,18 +107,27 @@ export function Navbar({
   const variantClasses = {
     transparent: "bg-transparent",
     solid: "bg-background",
-    blur: "bg-background/80 backdrop-blur-md",
+    blur: "bg-background/60 backdrop-blur-xl backdrop-saturate-150 border-b border-border dark:border-white/10",
   };
 
   // Determine visibility based on scroll direction
   const shouldHide =
     sticky && hideOnScrollDown && !isAtTop && direction === "down";
 
+  // Use fixed positioning when hideOnScrollDown is enabled for smooth hide/show
+  // Otherwise use sticky for standard behavior
+  const positionClass =
+    sticky && hideOnScrollDown
+      ? "fixed top-0 left-0 right-0"
+      : sticky
+        ? "sticky top-0"
+        : "";
+
   return (
     <header
       className={cn(
         "z-50 w-full border-b border-border transition-transform duration-300",
-        sticky && "sticky top-0",
+        positionClass,
         variantClasses[variant],
         className,
       )}
