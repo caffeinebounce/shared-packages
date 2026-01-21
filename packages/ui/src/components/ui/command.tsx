@@ -7,6 +7,21 @@ import type * as React from "react";
 import { cn } from "../../utils";
 import { Dialog, DialogContent, DialogTitle } from "./dialog";
 
+/**
+ * Command - Command palette / search interface
+ *
+ * @example
+ * <Command>
+ *   <CommandInput placeholder="Search..." />
+ *   <CommandList>
+ *     <CommandEmpty>No results found.</CommandEmpty>
+ *     <CommandGroup heading="Suggestions">
+ *       <CommandItem>Calendar</CommandItem>
+ *       <CommandItem>Settings</CommandItem>
+ *     </CommandGroup>
+ *   </CommandList>
+ * </Command>
+ */
 function Command({
   className,
   ...props
@@ -22,6 +37,9 @@ function Command({
   );
 }
 
+/**
+ * CommandDialog - Command palette in a modal dialog
+ */
 function CommandDialog({
   children,
   title = "Command palette",
@@ -39,6 +57,9 @@ function CommandDialog({
   );
 }
 
+/**
+ * CommandInput - Search input for command palette
+ */
 function CommandInput({
   className,
   ...props
@@ -57,6 +78,9 @@ function CommandInput({
   );
 }
 
+/**
+ * CommandList - Scrollable list of command items
+ */
 function CommandList({
   className,
   ...props
@@ -72,6 +96,9 @@ function CommandList({
   );
 }
 
+/**
+ * CommandEmpty - Shown when no results match the search
+ */
 function CommandEmpty({
   className,
   ...props
@@ -84,6 +111,9 @@ function CommandEmpty({
   );
 }
 
+/**
+ * CommandGroup - Group of related command items
+ */
 function CommandGroup({
   className,
   ...props
@@ -99,6 +129,9 @@ function CommandGroup({
   );
 }
 
+/**
+ * CommandSeparator - Visual separator between command groups
+ */
 function CommandSeparator({
   className,
   ...props
@@ -111,6 +144,9 @@ function CommandSeparator({
   );
 }
 
+/**
+ * CommandItem - Individual selectable item in command palette
+ */
 function CommandItem({
   className,
   ...props
@@ -126,6 +162,9 @@ function CommandItem({
   );
 }
 
+/**
+ * CommandShortcut - Keyboard shortcut hint displayed on command items
+ */
 function CommandShortcut({
   className,
   ...props

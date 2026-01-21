@@ -8,6 +8,23 @@ interface ButtonGroupProps extends React.ComponentProps<"div"> {
   orientation?: "horizontal" | "vertical";
 }
 
+/**
+ * ButtonGroup - Group of related buttons with connected appearance
+ *
+ * @example
+ * <ButtonGroup>
+ *   <Button>Left</Button>
+ *   <Button>Middle</Button>
+ *   <Button>Right</Button>
+ * </ButtonGroup>
+ *
+ * @example
+ * // Vertical orientation
+ * <ButtonGroup orientation="vertical">
+ *   <Button>Top</Button>
+ *   <Button>Bottom</Button>
+ * </ButtonGroup>
+ */
 function ButtonGroup({
   className,
   orientation = "horizontal",
@@ -43,6 +60,9 @@ function ButtonGroup({
   );
 }
 
+/**
+ * ButtonGroupSeparator - Visual divider between button groups
+ */
 function ButtonGroupSeparator({
   className,
   orientation = "vertical",
@@ -63,6 +83,9 @@ function ButtonGroupSeparator({
   );
 }
 
+/**
+ * ButtonGroupText - Text label within a button group
+ */
 function ButtonGroupText({
   className,
   asChild = false,
