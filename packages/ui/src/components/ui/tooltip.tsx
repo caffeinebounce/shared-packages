@@ -5,6 +5,9 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * TooltipProvider - Context provider for tooltip configuration
+ */
 function TooltipProvider({
   delayDuration = 1000,
   skipDelayDuration = 300,
@@ -20,6 +23,19 @@ function TooltipProvider({
   );
 }
 
+/**
+ * Tooltip - Contextual information popup on hover
+ *
+ * @example
+ * <Tooltip>
+ *   <TooltipTrigger asChild>
+ *     <Button variant="outline">Hover me</Button>
+ *   </TooltipTrigger>
+ *   <TooltipContent>
+ *     <p>Helpful information</p>
+ *   </TooltipContent>
+ * </Tooltip>
+ */
 function Tooltip({
   delayDuration = 1000,
   ...props
@@ -33,12 +49,18 @@ function Tooltip({
   );
 }
 
+/**
+ * TooltipTrigger - Element that triggers the tooltip on hover
+ */
 function TooltipTrigger({
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
+/**
+ * TooltipContent - Content displayed in the tooltip
+ */
 function TooltipContent({
   className,
   sideOffset = 6,

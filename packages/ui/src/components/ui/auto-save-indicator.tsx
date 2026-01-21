@@ -11,6 +11,14 @@ export interface AutoSaveIndicatorProps extends React.ComponentProps<"span"> {
   status: SaveStatus;
 }
 
+/**
+ * AutoSaveIndicator - Visual indicator for auto-save status
+ *
+ * @example
+ * <AutoSaveIndicator status="saving" />
+ * <AutoSaveIndicator status="saved" />
+ * <AutoSaveIndicator status="error" />
+ */
 function AutoSaveIndicator({
   status,
   className,

@@ -5,6 +5,15 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Separator - Visual divider between content sections
+ *
+ * @example
+ * <Separator />
+ *
+ * @example
+ * <Separator orientation="vertical" className="h-6" />
+ */
 function Separator({
   className,
   orientation = "horizontal",

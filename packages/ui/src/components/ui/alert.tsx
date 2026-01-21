@@ -19,6 +19,23 @@ const alertVariants = cva(
   },
 );
 
+/**
+ * Alert - Notification component for displaying important messages
+ *
+ * @example
+ * <Alert>
+ *   <AlertCircle />
+ *   <AlertTitle>Heads up!</AlertTitle>
+ *   <AlertDescription>You can add components to your app.</AlertDescription>
+ * </Alert>
+ *
+ * @example
+ * <Alert variant="destructive">
+ *   <AlertTriangle />
+ *   <AlertTitle>Error</AlertTitle>
+ *   <AlertDescription>There was an error processing your request.</AlertDescription>
+ * </Alert>
+ */
 function Alert({
   className,
   variant,
@@ -34,6 +51,9 @@ function Alert({
   );
 }
 
+/**
+ * AlertTitle - Title/heading for an alert message
+ */
 function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -47,6 +67,9 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * AlertDescription - Detailed description text for an alert
+ */
 function AlertDescription({
   className,
   ...props

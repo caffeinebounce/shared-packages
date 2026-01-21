@@ -6,24 +6,47 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Select - Dropdown selection component
+ *
+ * @example
+ * <Select value={value} onValueChange={setValue}>
+ *   <SelectTrigger>
+ *     <SelectValue placeholder="Select option" />
+ *   </SelectTrigger>
+ *   <SelectContent>
+ *     <SelectItem value="option1">Option 1</SelectItem>
+ *     <SelectItem value="option2">Option 2</SelectItem>
+ *   </SelectContent>
+ * </Select>
+ */
 function Select({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
   return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 
+/**
+ * SelectGroup - Container for grouping select items
+ */
 function SelectGroup({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Group>) {
   return <SelectPrimitive.Group data-slot="select-group" {...props} />;
 }
 
+/**
+ * SelectValue - Displays the selected value
+ */
 function SelectValue({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Value>) {
   return <SelectPrimitive.Value data-slot="select-value" {...props} />;
 }
 
+/**
+ * SelectTrigger - Button that opens the select dropdown
+ */
 function SelectTrigger({
   className,
   size = "default",
@@ -50,6 +73,9 @@ function SelectTrigger({
   );
 }
 
+/**
+ * SelectContent - Dropdown content container for select items
+ */
 function SelectContent({
   className,
   children,
@@ -87,6 +113,9 @@ function SelectContent({
   );
 }
 
+/**
+ * SelectLabel - Label for a group of select items
+ */
 function SelectLabel({
   className,
   ...props

@@ -21,6 +21,15 @@ export interface SpinnerProps
   extends React.ComponentProps<"svg">,
     VariantProps<typeof spinnerVariants> {}
 
+/**
+ * Spinner - Loading indicator with customizable size
+ *
+ * @example
+ * <Spinner size="md" />
+ *
+ * @example
+ * <Spinner size="lg" className="text-primary" />
+ */
 function Spinner({ className, size, ...props }: SpinnerProps) {
   return (
     <Loader2 className={cn(spinnerVariants({ size, className }))} {...props} />

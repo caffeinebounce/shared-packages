@@ -5,6 +5,15 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Avatar - User profile image with fallback support
+ *
+ * @example
+ * <Avatar>
+ *   <AvatarImage src="/profile.jpg" alt="User" />
+ *   <AvatarFallback>JD</AvatarFallback>
+ * </Avatar>
+ */
 function Avatar({
   className,
   ...props
@@ -21,6 +30,9 @@ function Avatar({
   );
 }
 
+/**
+ * AvatarImage - Image element for avatar
+ */
 function AvatarImage({
   className,
   ...props
@@ -34,6 +46,9 @@ function AvatarImage({
   );
 }
 
+/**
+ * AvatarFallback - Fallback content when image fails to load (typically initials)
+ */
 function AvatarFallback({
   className,
   ...props

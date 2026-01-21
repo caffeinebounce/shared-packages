@@ -2,6 +2,15 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Input - Text input field with consistent styling
+ *
+ * @example
+ * <Input type="text" placeholder="Enter your name" />
+ *
+ * @example
+ * <Input type="email" placeholder="email@example.com" />
+ */
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input
