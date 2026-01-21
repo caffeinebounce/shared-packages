@@ -57,7 +57,9 @@ describe("useNotifications", () => {
         await result.current.fetchNotifications();
       });
 
-      expect(result.current.error).toBe("Unable to load notifications. Please try again.");
+      expect(result.current.error).toBe(
+        "Unable to load notifications. Please try again.",
+      );
       expect(result.current.notifications).toEqual([]);
     });
 
@@ -240,7 +242,9 @@ describe("useNotifications", () => {
         await result.current.markAsRead("1");
       });
 
-      expect(global.fetch).toHaveBeenCalledWith("/custom/read/1", { method: "PATCH" });
+      expect(global.fetch).toHaveBeenCalledWith("/custom/read/1", {
+        method: "PATCH",
+      });
     });
   });
 
@@ -363,7 +367,9 @@ describe("useNotifications", () => {
         await result.current.markAllAsRead();
       });
 
-      expect(global.fetch).toHaveBeenCalledWith("/custom/read-all", { method: "PATCH" });
+      expect(global.fetch).toHaveBeenCalledWith("/custom/read-all", {
+        method: "PATCH",
+      });
     });
   });
 });

@@ -4,13 +4,19 @@
  * This module provides a client-safe version of authLogger that uses dynamic imports
  * to avoid the @logtail/next dynamic require() issue with Turbopack.
  *
+ * **Important behavioral differences from authLogger:**
+ * - Uses async module loading - initial calls trigger dynamic import
+ * - Logs may be dropped silently if the module fails to load (e.g., SSG, edge environments)
+ * - Calls before the module loads are queued and executed when ready
+ * - A warning is logged to console if the module fails to load (client-side only)
+ *
  * Import from "@caffeinebounce/logger/client" in client components:
  *
  * @example
  * ```typescript
  * import { authLoggerClient } from "@caffeinebounce/logger/client";
  *
- * // Use exactly like authLogger
+ * // API matches authLogger but uses lazy loading
  * authLoggerClient.signInSuccess(userId, email);
  * ```
  */
@@ -55,12 +61,19 @@ function createLazyMethod<K extends keyof AuthLoggerInterface>(
       (loggerModule.authLogger[method] as any)(...args);
     } else {
       // Start loading and call when ready
-      ensureLoggerLoaded().then(() => {
-        if (loggerModule) {
-          // biome-ignore lint/suspicious/noExplicitAny: Dynamic method call requires any
-          (loggerModule.authLogger[method] as any)(...args);
-        }
-      });
+      ensureLoggerLoaded()
+        .then(() => {
+          if (loggerModule) {
+            // biome-ignore lint/suspicious/noExplicitAny: Dynamic method call requires any
+            (loggerModule.authLogger[method] as any)(...args);
+          }
+        })
+        .catch((error) => {
+          // Handle any unexpected errors during module loading
+          if (typeof window !== "undefined") {
+            console.warn("[logger] Failed to execute auth log:", error);
+          }
+        });
     }
   }) as AuthLoggerInterface[K];
 }
@@ -68,8 +81,13 @@ function createLazyMethod<K extends keyof AuthLoggerInterface>(
 /**
  * Client-safe auth logger
  *
- * Drop-in replacement for `authLogger` that uses dynamic imports to avoid
+ * Provides the same API as `authLogger` but uses dynamic imports to avoid
  * Turbopack SSG issues with @logtail/next.
+ *
+ * **Note:** This is NOT a true drop-in replacement. Key differences:
+ * - Async loading: The underlying logger is loaded on first use
+ * - Best-effort logging: Logs may be silently dropped if the module fails to load
+ * - Use in client components only where Turbopack compatibility is needed
  *
  * All methods match the original authLogger API:
  * - signInAttempt, signInSuccess, signInFailure

@@ -116,7 +116,9 @@ export function NotificationDropdown({
         if (focusableElements.length === 0) return;
 
         const firstElement = focusableElements[0] as HTMLElement;
-        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+        const lastElement = focusableElements[
+          focusableElements.length - 1
+        ] as HTMLElement;
 
         if (e.shiftKey) {
           // Shift+Tab: move to previous focusable element
