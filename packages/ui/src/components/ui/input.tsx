@@ -57,7 +57,6 @@ function Input({ className, type, variant, ...props }: InputProps) {
     <input
       type={type}
       data-slot="input"
-      data-variant={variant || "default"}
       className={cn(inputVariants({ variant, className }))}
       {...props}
     />

@@ -66,8 +66,6 @@ function Card({ className, elevation, border, ...props }: CardProps) {
   return (
     <div
       data-slot="card"
-      data-elevation={elevation || "raised"}
-      data-border={border || "default"}
       className={cn(cardVariants({ elevation, border, className }))}
       {...props}
     />
@@ -173,6 +171,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 
 export {
   Card,
+  cardVariants,
   CardHeader,
   CardFooter,
   CardTitle,

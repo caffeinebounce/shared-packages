@@ -533,16 +533,11 @@ export {
 export type { VerificationCodeInputProps } from "./components/ui/verification-code-input";
 export { VerificationCodeInput } from "./components/ui/verification-code-input";
 // Theme system types and configurations
+// Note: Component variant types (BadgeShape, BadgeSize, ButtonCorners, ButtonHoverEffect,
+// CardBorder, CardElevation, InputVariant) are exported from their respective component files above.
 export type {
-  BadgeShape,
-  BadgeSize,
   BuiltInThemeName,
-  ButtonCorners,
-  ButtonHoverEffect,
-  CardBorder,
-  CardElevation,
   ColorScheme,
-  InputVariant,
   ProductThemeConfig,
   ThemeColors,
   ThemeConfig,

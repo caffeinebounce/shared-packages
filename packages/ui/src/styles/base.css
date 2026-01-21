@@ -758,14 +758,14 @@ textarea:-moz-autofill {
    Button Slide Hover Effect
    =========================================== */
 
-/* Default button with slide effect */
-[data-slot="button"][data-variant="default"] {
+/* Default button with slide effect - only when hoverEffect="slide" (default) */
+[data-slot="button"][data-variant="default"][data-hover-effect="slide"] {
   position: relative;
   overflow: hidden;
   z-index: 0;
 }
 
-[data-slot="button"][data-variant="default"]::before {
+[data-slot="button"][data-variant="default"][data-hover-effect="slide"]::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -775,11 +775,11 @@ textarea:-moz-autofill {
   z-index: -1;
 }
 
-[data-slot="button"][data-variant="default"]:hover::before {
+[data-slot="button"][data-variant="default"][data-hover-effect="slide"]:hover::before {
   transform: translateY(0);
 }
 
-[data-slot="button"][data-variant="default"]:hover {
+[data-slot="button"][data-variant="default"][data-hover-effect="slide"]:hover {
   color: var(--primary);
 }
 

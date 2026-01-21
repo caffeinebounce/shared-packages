@@ -29,7 +29,7 @@ Object.defineProperty(window, "localStorage", { value: mockLocalStorage });
 
 // Mock matchMedia
 const mockMatchMedia = vi.fn((query: string) => ({
-  matches: query === "(prefers-color-scheme: dark)" ? false : false,
+  matches: false,
   media: query,
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),

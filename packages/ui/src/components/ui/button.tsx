@@ -58,10 +58,13 @@ const buttonVariants = cva(
         sharp: "rounded-none",
       },
       hoverEffect: {
-        slide: "", // Handled via CSS data-attribute for default variant
+        // Slide effect is handled via CSS pseudo-element (see base.css)
+        // Only applies when data-hover-effect="slide" and data-variant="default"
+        slide: "",
         glow: "hover:shadow-lg hover:shadow-primary/25",
         scale: "hover:scale-105 active:scale-95",
-        none: "hover:shadow-none",
+        // "none" disables extra hover effects but preserves variant hover styles
+        none: "",
       },
     },
     defaultVariants: {
