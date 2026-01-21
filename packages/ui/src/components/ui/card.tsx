@@ -2,6 +2,18 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Card - Container component for grouping related content
+ *
+ * @example
+ * <Card>
+ *   <CardHeader>
+ *     <CardTitle>Title</CardTitle>
+ *     <CardDescription>Description</CardDescription>
+ *   </CardHeader>
+ *   <CardContent>Content goes here</CardContent>
+ * </Card>
+ */
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -15,6 +27,15 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * CardHeader - Header section of a card, typically contains title and description
+ *
+ * @example
+ * <CardHeader>
+ *   <CardTitle>Settings</CardTitle>
+ *   <CardDescription>Manage your account settings</CardDescription>
+ * </CardHeader>
+ */
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -28,6 +49,9 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * CardTitle - Primary heading for a card
+ */
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -38,6 +62,9 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * CardDescription - Descriptive text for a card, appears below the title
+ */
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -48,6 +75,16 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * CardAction - Container for action buttons or controls in card header
+ *
+ * @example
+ * <CardAction>
+ *   <Button variant="ghost" size="icon-sm">
+ *     <MoreVertical />
+ *   </Button>
+ * </CardAction>
+ */
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -61,6 +98,9 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * CardContent - Main content area of a card
+ */
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -71,6 +111,9 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * CardFooter - Footer section of a card, typically contains actions or metadata
+ */
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div

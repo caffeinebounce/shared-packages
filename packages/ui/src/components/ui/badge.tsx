@@ -32,6 +32,18 @@ export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeVariants> {}
 
+/**
+ * Badge - Visual indicator for status, counts, or labels
+ *
+ * @example
+ * <Badge variant="secondary">New</Badge>
+ *
+ * @example
+ * <Badge variant="destructive">Error</Badge>
+ *
+ * @example
+ * <Badge variant="success">Active</Badge>
+ */
 function Badge({ className, variant, ...props }: BadgeProps) {
   return (
     <div className={cn(badgeVariants({ variant }), className)} {...props} />

@@ -6,30 +6,64 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Dialog - Modal dialog component built on Radix UI
+ *
+ * @example
+ * <Dialog open={isOpen} onOpenChange={setIsOpen}>
+ *   <DialogContent>
+ *     <DialogHeader>
+ *       <DialogTitle>Dialog Title</DialogTitle>
+ *       <DialogDescription>Dialog description text</DialogDescription>
+ *     </DialogHeader>
+ *     <div>Content goes here</div>
+ *     <DialogFooter>
+ *       <Button onClick={() => setIsOpen(false)}>Close</Button>
+ *     </DialogFooter>
+ *   </DialogContent>
+ * </Dialog>
+ */
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
+/**
+ * DialogTrigger - Button or element that opens the dialog when clicked
+ *
+ * @example
+ * <DialogTrigger asChild>
+ *   <Button>Open Dialog</Button>
+ * </DialogTrigger>
+ */
 function DialogTrigger({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 }
 
+/**
+ * DialogPortal - Portal container for dialog content
+ */
 function DialogPortal({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
+/**
+ * DialogClose - Button to close the dialog
+ */
 function DialogClose({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Close>) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
+/**
+ * DialogOverlay - Semi-transparent backdrop behind the dialog
+ */
 function DialogOverlay({
   className,
   ...props
@@ -46,6 +80,10 @@ function DialogOverlay({
   );
 }
 
+/**
+ * DialogContent - Main content container for the dialog
+ * Includes special handling for password managers and AI assistants to prevent unwanted close events
+ */
 function DialogContent({
   className,
   children,
@@ -135,6 +173,9 @@ function DialogContent({
   );
 }
 
+/**
+ * DialogHeader - Header section of the dialog, typically contains title and description
+ */
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -148,6 +189,9 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * DialogFooter - Footer section of the dialog, typically contains action buttons
+ */
 function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -161,6 +205,9 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * DialogTitle - Primary heading for the dialog
+ */
 function DialogTitle({
   className,
   ...props
@@ -177,6 +224,9 @@ function DialogTitle({
   );
 }
 
+/**
+ * DialogDescription - Descriptive text for the dialog, appears below the title
+ */
 function DialogDescription({
   className,
   ...props
