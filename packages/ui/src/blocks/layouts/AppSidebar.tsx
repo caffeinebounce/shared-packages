@@ -14,13 +14,20 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
 } from "../../components/ui/sidebar";
 import { Spinner } from "../../components/ui/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
 import { getAvatarGradient } from "../../utils/avatar-gradient";
 import { KeyboardShortcut } from "../keyboard/KeyboardShortcut";
 import {
@@ -41,6 +48,46 @@ export interface NavItem {
   shortcutDisplay?: string;
   /** Keyboard shortcut key (e.g., "1") - used with Ctrl modifier */
   shortcutKey?: string;
+  /** Whether the item is disabled (e.g., coming soon) */
+  disabled?: boolean;
+  /** Tooltip text when disabled */
+  disabledTooltip?: string;
+  /** Icon animation on hover */
+  iconAnimation?: "scale" | "rotate" | "bounce" | "none";
+}
+
+/** Section header with grouped nav items */
+export interface NavSection {
+  type: "section";
+  /** Section label (displayed as uppercase header) */
+  label: string;
+  /** Items within this section */
+  items: NavItem[];
+  /** Whether section is visible (for conditional rendering) */
+  visible?: boolean;
+}
+
+/** Simple visual divider */
+export interface NavDivider {
+  type: "divider";
+}
+
+/** Union type for all navigation elements */
+export type NavElement = NavItem | NavSection | NavDivider;
+
+/** Type guard for NavItem */
+export function isNavItem(element: NavElement): element is NavItem {
+  return !("type" in element);
+}
+
+/** Type guard for NavSection */
+export function isNavSection(element: NavElement): element is NavSection {
+  return "type" in element && element.type === "section";
+}
+
+/** Type guard for NavDivider */
+export function isNavDivider(element: NavElement): element is NavDivider {
+  return "type" in element && element.type === "divider";
 }
 
 export interface AppSidebarUser {
@@ -57,8 +104,8 @@ export interface AppSidebarUser {
 }
 
 export interface AppSidebarProps {
-  /** Navigation items */
-  navItems: NavItem[];
+  /** Navigation elements (items, sections, dividers) */
+  navItems: NavElement[];
   /** Current pathname for active state detection */
   pathname?: string;
   /** User information (null if not logged in) */
@@ -162,6 +209,19 @@ export function AppSidebar({
     return items;
   }, [userMenuItems, onSignOut]);
 
+  // Flatten all nav items from elements (including items inside sections)
+  const allNavItems = useMemo(() => {
+    const items: NavItem[] = [];
+    for (const element of navItems) {
+      if (isNavItem(element)) {
+        items.push(element);
+      } else if (isNavSection(element)) {
+        items.push(...element.items);
+      }
+    }
+    return items;
+  }, [navItems]);
+
   // Keyboard shortcuts for navigation (Ctrl+1, Ctrl+2, etc.)
   useEffect(() => {
     if (!enableKeyboardShortcuts || !onNavigate) return;
@@ -170,8 +230,10 @@ export function AppSidebar({
       // Only handle Ctrl+number shortcuts
       if (!e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
 
-      // Check if the key matches any nav item shortcut
-      const matchingItem = navItems.find((item) => item.shortcutKey === e.key);
+      // Check if the key matches any nav item shortcut (skip disabled items)
+      const matchingItem = allNavItems.find(
+        (item) => item.shortcutKey === e.key && !item.disabled,
+      );
 
       if (matchingItem) {
         e.preventDefault();
@@ -181,7 +243,7 @@ export function AppSidebar({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [enableKeyboardShortcuts, navItems, onNavigate]);
+  }, [enableKeyboardShortcuts, allNavItems, onNavigate]);
 
   // Determine active state for nav items
   const getIsActive = (item: NavItem) => {
@@ -194,16 +256,56 @@ export function AppSidebar({
     return pathname === item.href || pathname.startsWith(`${item.href}/`);
   };
 
+  // Get icon animation class
+  const getIconAnimationClass = (animation?: NavItem["iconAnimation"]) => {
+    switch (animation) {
+      case "rotate":
+        return "group-hover:rotate-90 transition-transform duration-150";
+      case "bounce":
+        return "group-hover:animate-bounce";
+      case "scale":
+        return "group-hover:scale-110 transition-transform duration-150";
+      case "none":
+        return "";
+      default:
+        return "group-hover:scale-110 transition-transform duration-150"; // default to scale
+    }
+  };
+
   // Render nav item with optional keyboard shortcut indicator
   const renderNavItem = (item: NavItem) => {
     const isActive = getIsActive(item);
     const Icon = item.icon;
     const Shortcut = ShortcutComponent || KeyboardShortcut;
+    const iconAnimationClass = item.disabled
+      ? ""
+      : getIconAnimationClass(item.iconAnimation);
 
+    // Disabled item with tooltip
+    if (item.disabled) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SidebarMenuButton
+              className="cursor-not-allowed opacity-40"
+              isActive={false}
+            >
+              <Icon className="shrink-0" />
+              <span>{item.label}</span>
+            </SidebarMenuButton>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            {item.disabledTooltip || "Coming soon"}
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    // Normal item
     return (
-      <SidebarMenuButton asChild isActive={isActive}>
+      <SidebarMenuButton asChild isActive={isActive} className="group">
         <Link href={item.href}>
-          <Icon />
+          <Icon className={`shrink-0 motion-safe:${iconAnimationClass}`} />
           <span>{item.label}</span>
           {shortcutsVisible && item.shortcutDisplay && (
             <Shortcut className="ml-auto text-[10px] text-muted-foreground">
@@ -220,17 +322,75 @@ export function AppSidebar({
       {header && <SidebarHeader>{header}</SidebarHeader>}
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  {renderNavItem(item)}
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {navItems.map((element, index) => {
+          // Divider
+          if (isNavDivider(element)) {
+            return (
+              <SidebarSeparator key={`divider-${index}`} className="my-2" />
+            );
+          }
+
+          // Section with header
+          if (isNavSection(element)) {
+            // Skip hidden sections
+            if (element.visible === false) return null;
+
+            return (
+              <SidebarGroup key={`section-${element.label}`}>
+                <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {element.label}
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {element.items.map((item) => (
+                      <SidebarMenuItem key={item.href}>
+                        {renderNavItem(item)}
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          }
+
+          // Plain NavItem (not in a section)
+          if (isNavItem(element)) {
+            // Check if this is the first item in a contiguous group of plain items
+            const isFirstPlainItem =
+              index === 0 || !isNavItem(navItems[index - 1]);
+
+            if (isFirstPlainItem) {
+              // Collect all contiguous plain items
+              const plainItems: NavItem[] = [element];
+              let nextIndex = index + 1;
+              while (
+                nextIndex < navItems.length &&
+                isNavItem(navItems[nextIndex])
+              ) {
+                plainItems.push(navItems[nextIndex] as NavItem);
+                nextIndex++;
+              }
+
+              return (
+                <SidebarGroup key={`plain-group-${index}`}>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {plainItems.map((item) => (
+                        <SidebarMenuItem key={item.href}>
+                          {renderNavItem(item)}
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              );
+            }
+            // Skip items that were already rendered in a group
+            return null;
+          }
+
+          return null;
+        })}
       </SidebarContent>
 
       <SidebarFooter>
