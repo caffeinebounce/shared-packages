@@ -266,9 +266,13 @@ export { Autocomplete } from "./components/ui/autocomplete";
 export { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
 export type { BackLinkProps } from "./components/ui/back-link";
 export { BackLink } from "./components/ui/back-link";
-export type { BadgeProps } from "./components/ui/badge";
+export type { BadgeProps, BadgeShape, BadgeSize } from "./components/ui/badge";
 export { Badge, badgeVariants } from "./components/ui/badge";
-export type { ButtonProps } from "./components/ui/button";
+export type {
+  ButtonCorners,
+  ButtonHoverEffect,
+  ButtonProps,
+} from "./components/ui/button";
 export { Button, buttonVariants } from "./components/ui/button";
 export type { ButtonGroupProps } from "./components/ui/button-group";
 export {
@@ -278,6 +282,11 @@ export {
 } from "./components/ui/button-group";
 export type { CalendarProps } from "./components/ui/calendar";
 export { Calendar } from "./components/ui/calendar";
+export type {
+  CardBorder,
+  CardElevation,
+  CardProps,
+} from "./components/ui/card";
 export {
   Card,
   CardAction,
@@ -384,7 +393,8 @@ export {
   InlineEditableSelect,
   InlineEditableText,
 } from "./components/ui/inline-editable";
-export { Input } from "./components/ui/input";
+export type { InputProps, InputVariant } from "./components/ui/input";
+export { Input, inputVariants } from "./components/ui/input";
 export {
   InputOTP,
   InputOTPGroup,

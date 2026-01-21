@@ -5,6 +5,23 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Hover effect styles for buttons
+ * - slide: Color slides up from bottom (default for primary buttons via CSS)
+ * - glow: Adds a glow effect on hover
+ * - scale: Scales up slightly on hover
+ * - none: No hover effect
+ */
+export type ButtonHoverEffect = "slide" | "glow" | "scale" | "none";
+
+/**
+ * Corner styles for buttons
+ * - default: Standard rounded corners (rounded-md)
+ * - pill: Fully rounded ends (rounded-full)
+ * - sharp: No rounding (rounded-none)
+ */
+export type ButtonCorners = "default" | "pill" | "sharp";
+
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
@@ -35,10 +52,23 @@ const buttonVariants = cva(
         "icon-xs": "size-6 [&_svg]:size-3.5",
         "icon-lg": "size-10",
       },
+      corners: {
+        default: "",
+        pill: "rounded-full",
+        sharp: "rounded-none",
+      },
+      hoverEffect: {
+        slide: "", // Handled via CSS data-attribute for default variant
+        glow: "hover:shadow-lg hover:shadow-primary/25",
+        scale: "hover:scale-105 active:scale-95",
+        none: "hover:shadow-none",
+      },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      corners: "default",
+      hoverEffect: "slide",
     },
   },
 );
@@ -55,6 +85,8 @@ function Button({
   className,
   variant,
   size,
+  corners,
+  hoverEffect,
   asChild = false,
   loading = false,
   disabled,
@@ -68,7 +100,10 @@ function Button({
       <Slot
         data-slot="button"
         data-variant={variant || "default"}
-        className={cn(buttonVariants({ variant, size, className }))}
+        data-hover-effect={hoverEffect || "slide"}
+        className={cn(
+          buttonVariants({ variant, size, corners, hoverEffect, className }),
+        )}
         aria-disabled={disabled || loading || undefined}
         {...props}
       >
@@ -81,7 +116,10 @@ function Button({
     <button
       data-slot="button"
       data-variant={variant || "default"}
-      className={cn(buttonVariants({ variant, size, className }))}
+      data-hover-effect={hoverEffect || "slide"}
+      className={cn(
+        buttonVariants({ variant, size, corners, hoverEffect, className }),
+      )}
       disabled={disabled || loading}
       {...props}
     >

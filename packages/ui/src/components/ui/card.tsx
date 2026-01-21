@@ -1,6 +1,49 @@
+import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 import { cn } from "../../utils";
+
+/**
+ * Elevation styles for cards
+ * - flat: No shadow, subtle background
+ * - raised: Default shadow (shadow-sm)
+ * - floating: Elevated shadow for emphasis
+ */
+export type CardElevation = "flat" | "raised" | "floating";
+
+/**
+ * Border styles for cards
+ * - default: Standard border
+ * - subtle: Lighter border
+ * - none: No border
+ */
+export type CardBorder = "default" | "subtle" | "none";
+
+const cardVariants = cva(
+  "bg-card text-card-foreground flex flex-col gap-6 rounded-xl py-6",
+  {
+    variants: {
+      elevation: {
+        flat: "shadow-none",
+        raised: "shadow-sm",
+        floating: "shadow-lg",
+      },
+      border: {
+        default: "border",
+        subtle: "border border-border/50",
+        none: "border-0",
+      },
+    },
+    defaultVariants: {
+      elevation: "raised",
+      border: "default",
+    },
+  },
+);
+
+export interface CardProps
+  extends React.ComponentProps<"div">,
+    VariantProps<typeof cardVariants> {}
 
 /**
  * Card - Container component for grouping related content
@@ -13,15 +56,19 @@ import { cn } from "../../utils";
  *   </CardHeader>
  *   <CardContent>Content goes here</CardContent>
  * </Card>
+ *
+ * @example
+ * <Card elevation="floating" border="none">
+ *   <CardContent>Floating card without border</CardContent>
+ * </Card>
  */
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+function Card({ className, elevation, border, ...props }: CardProps) {
   return (
     <div
       data-slot="card"
-      className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
-        className,
-      )}
+      data-elevation={elevation || "raised"}
+      data-border={border || "default"}
+      className={cn(cardVariants({ elevation, border, className }))}
       {...props}
     />
   );
