@@ -24,14 +24,12 @@ export function NotificationItem({
   onMarkAsRead,
   isMarkingAsRead,
 }: NotificationItemProps) {
-  const [NextLink, setNextLink] = useState<
-    React.ComponentType<{
-      href: string;
-      onClick?: () => void;
-      className?: string;
-      children: React.ReactNode;
-    }> | null
-  >(null);
+  const [NextLink, setNextLink] = useState<React.ComponentType<{
+    href: string;
+    onClick?: () => void;
+    className?: string;
+    children: React.ReactNode;
+  }> | null>(null);
 
   useEffect(() => {
     // Try to dynamically import Next.js Link

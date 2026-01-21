@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   CENTS_PER_DOLLAR,
-  PLATFORM_FEE_PERCENT,
   calculateNetAmount,
   calculatePlatformFee,
   centsToDollars,
   dollarsToCents,
+  PLATFORM_FEE_PERCENT,
 } from "../fees";
 
 describe("Fee Calculations", () => {
