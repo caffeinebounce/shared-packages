@@ -81,6 +81,17 @@ export interface DeleteConfirmationDialogProps {
  *   onConfirm={handleRemove}
  *   confirmLabel="Remove"
  * />
+ *
+ * @example
+ * // With type-to-confirm for critical deletions
+ * <DeleteConfirmationDialog
+ *   open={showDialog}
+ *   onOpenChange={setShowDialog}
+ *   itemName="Production Database"
+ *   itemType="database"
+ *   confirmationText="DELETE"
+ *   onConfirm={handleDelete}
+ * />
  */
 export function DeleteConfirmationDialog({
   open,
