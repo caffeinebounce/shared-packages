@@ -14,13 +14,20 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
 } from "../../components/ui/sidebar";
 import { Spinner } from "../../components/ui/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
 import { getAvatarGradient } from "../../utils/avatar-gradient";
 import { KeyboardShortcut } from "../keyboard/KeyboardShortcut";
 import {
@@ -41,6 +48,51 @@ export interface NavItem {
   shortcutDisplay?: string;
   /** Keyboard shortcut key (e.g., "1") - used with Ctrl modifier */
   shortcutKey?: string;
+  /** Whether the item is disabled (e.g., coming soon) */
+  disabled?: boolean;
+  /** Tooltip text when disabled */
+  disabledTooltip?: string;
+  /** Icon animation on hover */
+  iconAnimation?: "scale" | "rotate" | "bounce" | "none";
+}
+
+/** Section header with grouped nav items */
+export interface NavSection {
+  type: "section";
+  /** Section label (displayed as uppercase header) */
+  label: string;
+  /** Items within this section */
+  items: NavItem[];
+  /** Whether section is visible (for conditional rendering) */
+  visible?: boolean;
+}
+
+/** Simple visual divider */
+export interface NavDivider {
+  type: "divider";
+}
+
+/** Union type for all navigation elements */
+export type NavElement = NavItem | NavSection | NavDivider;
+
+/** Type guard for NavItem - checks for required NavItem properties */
+export function isNavItem(element: NavElement): element is NavItem {
+  return (
+    "label" in element &&
+    "href" in element &&
+    "icon" in element &&
+    !("type" in element)
+  );
+}
+
+/** Type guard for NavSection */
+export function isNavSection(element: NavElement): element is NavSection {
+  return "type" in element && element.type === "section";
+}
+
+/** Type guard for NavDivider */
+export function isNavDivider(element: NavElement): element is NavDivider {
+  return "type" in element && element.type === "divider";
 }
 
 export interface AppSidebarUser {
@@ -57,8 +109,8 @@ export interface AppSidebarUser {
 }
 
 export interface AppSidebarProps {
-  /** Navigation items */
-  navItems: NavItem[];
+  /** Navigation elements (items, sections, dividers) */
+  navItems: NavElement[];
   /** Current pathname for active state detection */
   pathname?: string;
   /** User information (null if not logged in) */
@@ -162,6 +214,62 @@ export function AppSidebar({
     return items;
   }, [userMenuItems, onSignOut]);
 
+  // Flatten all nav items from elements (including items inside sections)
+  const allNavItems = useMemo(() => {
+    const items: NavItem[] = [];
+    for (const element of navItems) {
+      if (isNavItem(element)) {
+        items.push(element);
+      } else if (isNavSection(element)) {
+        items.push(...element.items);
+      }
+    }
+    return items;
+  }, [navItems]);
+
+  // Preprocess navItems into renderable groups (O(n) instead of O(n²))
+  const processedNavGroups = useMemo(() => {
+    type NavGroup =
+      | { type: "divider"; key: string }
+      | { type: "section"; section: NavSection }
+      | { type: "plain-group"; items: NavItem[]; key: string };
+
+    const groups: NavGroup[] = [];
+    let dividerCount = 0;
+
+    let i = 0;
+    while (i < navItems.length) {
+      const element = navItems[i];
+
+      if (isNavDivider(element)) {
+        // Use divider count for stable key (dividers have no identity)
+        groups.push({ type: "divider", key: `divider-${dividerCount++}` });
+        i++;
+      } else if (isNavSection(element)) {
+        groups.push({ type: "section", section: element });
+        i++;
+      } else if (isNavItem(element)) {
+        // Collect contiguous plain items in single pass
+        const plainItems: NavItem[] = [element];
+        const startHref = element.href;
+        i++;
+        while (i < navItems.length && isNavItem(navItems[i])) {
+          plainItems.push(navItems[i] as NavItem);
+          i++;
+        }
+        groups.push({
+          type: "plain-group",
+          items: plainItems,
+          key: `plain-group-${startHref}`,
+        });
+      } else {
+        i++;
+      }
+    }
+
+    return groups;
+  }, [navItems]);
+
   // Keyboard shortcuts for navigation (Ctrl+1, Ctrl+2, etc.)
   useEffect(() => {
     if (!enableKeyboardShortcuts || !onNavigate) return;
@@ -170,8 +278,10 @@ export function AppSidebar({
       // Only handle Ctrl+number shortcuts
       if (!e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
 
-      // Check if the key matches any nav item shortcut
-      const matchingItem = navItems.find((item) => item.shortcutKey === e.key);
+      // Check if the key matches any nav item shortcut (skip disabled items)
+      const matchingItem = allNavItems.find(
+        (item) => item.shortcutKey === e.key && !item.disabled,
+      );
 
       if (matchingItem) {
         e.preventDefault();
@@ -181,7 +291,7 @@ export function AppSidebar({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [enableKeyboardShortcuts, navItems, onNavigate]);
+  }, [enableKeyboardShortcuts, allNavItems, onNavigate]);
 
   // Determine active state for nav items
   const getIsActive = (item: NavItem) => {
@@ -194,16 +304,60 @@ export function AppSidebar({
     return pathname === item.href || pathname.startsWith(`${item.href}/`);
   };
 
+  // Get icon animation class - returns complete Tailwind classes for purging
+  // Uses motion-safe: prefix for accessibility (respects prefers-reduced-motion)
+  const getIconAnimationClass = (animation?: NavItem["iconAnimation"]) => {
+    switch (animation) {
+      case "rotate":
+        return "motion-safe:group-hover:rotate-90 motion-safe:transition-transform motion-safe:duration-150";
+      case "bounce":
+        // Use scale instead of animate-bounce (continuous animation is problematic)
+        return "motion-safe:group-hover:scale-110 motion-safe:transition-transform motion-safe:duration-150";
+      case "scale":
+        return "motion-safe:group-hover:scale-110 motion-safe:transition-transform motion-safe:duration-150";
+      case "none":
+        return "";
+      default:
+        return "motion-safe:group-hover:scale-110 motion-safe:transition-transform motion-safe:duration-150";
+    }
+  };
+
   // Render nav item with optional keyboard shortcut indicator
   const renderNavItem = (item: NavItem) => {
     const isActive = getIsActive(item);
     const Icon = item.icon;
     const Shortcut = ShortcutComponent || KeyboardShortcut;
+    const iconAnimationClass = item.disabled
+      ? ""
+      : getIconAnimationClass(item.iconAnimation);
 
+    // Disabled item with tooltip - includes accessibility attributes
+    if (item.disabled) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SidebarMenuButton
+              className="cursor-not-allowed opacity-40"
+              isActive={false}
+              aria-disabled="true"
+              tabIndex={0}
+            >
+              <Icon className="shrink-0" />
+              <span>{item.label}</span>
+            </SidebarMenuButton>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            {item.disabledTooltip || "Coming soon"}
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    // Normal item
     return (
-      <SidebarMenuButton asChild isActive={isActive}>
+      <SidebarMenuButton asChild isActive={isActive} className="group">
         <Link href={item.href}>
-          <Icon />
+          <Icon className={`shrink-0 ${iconAnimationClass}`} />
           <span>{item.label}</span>
           {shortcutsVisible && item.shortcutDisplay && (
             <Shortcut className="ml-auto text-[10px] text-muted-foreground">
@@ -220,17 +374,55 @@ export function AppSidebar({
       {header && <SidebarHeader>{header}</SidebarHeader>}
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  {renderNavItem(item)}
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {processedNavGroups.map((group) => {
+          // Divider
+          if (group.type === "divider") {
+            return <SidebarSeparator key={group.key} className="my-2" />;
+          }
+
+          // Section with header
+          if (group.type === "section") {
+            const section = group.section;
+            // Skip hidden sections
+            if (section.visible === false) return null;
+
+            return (
+              <SidebarGroup key={`section-${section.label}`}>
+                <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {section.label}
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {section.items.map((item) => (
+                      <SidebarMenuItem key={item.href}>
+                        {renderNavItem(item)}
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          }
+
+          // Plain group (contiguous NavItems not in a section)
+          if (group.type === "plain-group") {
+            return (
+              <SidebarGroup key={group.key}>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {group.items.map((item) => (
+                      <SidebarMenuItem key={item.href}>
+                        {renderNavItem(item)}
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          }
+
+          return null;
+        })}
       </SidebarContent>
 
       <SidebarFooter>

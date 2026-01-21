@@ -10,7 +10,13 @@ export {
   AppSidebar,
   type AppSidebarProps,
   type AppSidebarUser,
+  isNavDivider,
+  isNavItem,
+  isNavSection,
+  type NavDivider,
+  type NavElement,
   type NavItem,
+  type NavSection,
 } from "./AppSidebar";
 export {
   BasePageLayout,
