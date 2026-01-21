@@ -120,7 +120,7 @@ export function useNotifications({
   const markAllAsRead = useCallback(async () => {
     // Capture current state for potential rollback
     const previousNotifications = notificationsRef.current;
-    const previousUnreadCount = previousNotifications.filter((n) => !n.isRead).length;
+    const previousUnreadCount = unreadCount;
 
     // Optimistic update
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
@@ -142,7 +142,7 @@ export function useNotifications({
       setUnreadCount(previousUnreadCount);
       console.error("Failed to mark all as read:", err);
     }
-  }, [markAllReadEndpoint]);
+  }, [markAllReadEndpoint, unreadCount]);
 
   return {
     notifications,

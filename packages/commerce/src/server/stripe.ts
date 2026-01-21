@@ -6,6 +6,12 @@ let stripeInstance: Stripe | null = null;
 /**
  * Get a lazy-initialized Stripe server-side client
  * Requires STRIPE_SECRET_KEY environment variable
+ *
+ * @example
+ * ```typescript
+ * const stripe = await getStripe();
+ * const refund = await stripe.refunds.create({ payment_intent: "pi_123" });
+ * ```
  */
 export async function getStripe(): Promise<Stripe> {
   if (!stripeInstance) {
@@ -21,14 +27,3 @@ export async function getStripe(): Promise<Stripe> {
   }
   return stripeInstance as Stripe;
 }
-
-/**
- * Lazy proxy that initializes Stripe client on first property access
- * Use this for convenient access without explicit initialization
- */
-export const stripe = new Proxy({} as Stripe, {
-  get(_, prop) {
-    // Note: This will return a Promise that resolves to the property value
-    return getStripe().then((client) => client[prop as keyof Stripe]);
-  },
-});

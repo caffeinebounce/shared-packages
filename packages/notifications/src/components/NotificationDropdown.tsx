@@ -96,10 +96,24 @@ export function NotificationDropdown({
 
       // Tab key handling to trap focus within dropdown
       if (e.key === "Tab") {
-        const focusableElements = dropdownRef.current?.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        const allElements = Array.from(
+          dropdownRef.current?.querySelectorAll(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ) || [],
         );
-        if (!focusableElements || focusableElements.length === 0) return;
+
+        // Filter for visible and non-hidden elements
+        const focusableElements = allElements.filter((el) => {
+          const element = el as HTMLElement;
+          return (
+            element.offsetWidth > 0 &&
+            element.offsetHeight > 0 &&
+            !element.hidden &&
+            window.getComputedStyle(element).visibility !== "hidden"
+          );
+        });
+
+        if (focusableElements.length === 0) return;
 
         const firstElement = focusableElements[0] as HTMLElement;
         const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
