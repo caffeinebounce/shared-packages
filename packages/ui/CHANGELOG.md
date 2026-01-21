@@ -1,5 +1,36 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.38.0
+
+### Minor Changes
+
+- 2caac8f: Add TextHighlight component for animated text emphasis
+
+  - New `TextHighlight` component that draws an animated gradient background behind text
+  - Perfect for emphasizing key phrases in hero sections
+  - Customizable gradient colors via Tailwind classes
+  - Configurable animation duration and delay
+  - Respects `prefers-reduced-motion` for accessibility
+  - CSS-only implementation (no motion library dependency)
+
+- a6acaa3: Add proper image layering to HeroSectionWithRipple
+
+  - Restructure HeroSectionWithRipple to properly layer images below ripple effect
+  - Images render at z-0, ripple at z-10 (semi-transparent), content at z-20
+  - Add `showArrows` prop to HeroSection to control arrow navigation visibility
+  - Add `carouselState` prop to HeroSection for external carousel control
+  - Add `rippleOpacity` prop to HeroSectionWithRipple (default 40% with images)
+  - Export CarouselState type from marketing barrel
+  - Remove arrow navigation in HeroSectionWithRipple (only dot indicators shown)
+
+### Patch Changes
+
+- 74dad22: Fix autofill background color unreadable in dark mode
+
+  - Override browser autofill styles to maintain proper text contrast
+  - Use CSS variables (--foreground, --background, --card) for theme consistency
+  - Support both WebKit/Blink (Chrome, Safari, Edge) and Firefox browsers
+
 ## 0.35.2
 
 ### Patch Changes
