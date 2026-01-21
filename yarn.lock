@@ -232,7 +232,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@caffeinebounce/logger@npm:^0.6.0, @caffeinebounce/logger@workspace:packages/logger":
+"@caffeinebounce/logger@npm:^0.6.0":
+  version: 0.6.2
+  resolution: "@caffeinebounce/logger@npm:0.6.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40caffeinebounce%2Flogger%2F0.6.2%2F4c6dfc47248f31973e0ed485b38fe9d5e96aa652"
+  dependencies:
+    "@logtail/next": "npm:^0.2.1"
+  peerDependencies:
+    next: ">=14.0"
+    react: ">=18.0.0"
+  checksum: 10c0/48a968ef3e867ee77aeb904ca95b9b242c774942146d007ab84ff2130750dacb9c70532b862acc69c4de1cac87b6215a0bf45c828eb4f36bc80e68a39c23e133
+  languageName: node
+  linkType: hard
+
+"@caffeinebounce/logger@workspace:packages/logger":
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/logger@workspace:packages/logger"
   dependencies:
