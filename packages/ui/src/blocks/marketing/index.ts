@@ -4,7 +4,11 @@ export {
   type BenefitsSectionProps,
   type Outcome,
 } from "./BenefitsSection";
-export { HeroSection, type HeroSectionProps } from "./HeroSection";
+export {
+  type CarouselState,
+  HeroSection,
+  type HeroSectionProps,
+} from "./HeroSection";
 export {
   HeroSectionWithRipple,
   type HeroSectionWithRippleProps,

@@ -5,6 +5,12 @@ import Image from "next/image";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { Button } from "../../components/ui/button";
 
+export interface CarouselState {
+  currentIndex: number;
+  totalSlides: number;
+  goToSlide: (index: number) => void;
+}
+
 export interface HeroSectionProps {
   /** Main heading */
   heading: ReactNode;
@@ -19,6 +25,10 @@ export interface HeroSectionProps {
   backgroundImages?: string[];
   /** Auto-play interval in milliseconds */
   autoPlayInterval?: number;
+  /** Show navigation arrows (default: true) */
+  showArrows?: boolean;
+  /** External carousel state (when images are managed by parent) */
+  carouselState?: CarouselState;
   /** Logo configuration */
   logo?: {
     src: string;
@@ -53,49 +63,58 @@ export function HeroSection({
   cta,
   backgroundImages = [],
   autoPlayInterval = 5000,
+  showArrows = true,
+  carouselState,
   logo,
   background = "default",
   padding = "lg",
   className = "",
   children,
 }: HeroSectionProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [internalIndex, setInternalIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const hasImages = backgroundImages.length > 0;
   const hasMultipleImages = backgroundImages.length > 1;
+
+  // Use external carousel state if provided, otherwise use internal state
+  const currentIndex = carouselState?.currentIndex ?? internalIndex;
+  const totalSlides = carouselState?.totalSlides ?? backgroundImages.length;
+  const hasMultipleSlides = totalSlides > 1;
 
   const goToSlide = useCallback(
     (index: number) => {
       if (isTransitioning) return;
       setIsTransitioning(true);
-      setCurrentIndex(index);
+      if (carouselState?.goToSlide) {
+        carouselState.goToSlide(index);
+      } else {
+        setInternalIndex(index);
+      }
       setTimeout(() => setIsTransitioning(false), 500);
     },
-    [isTransitioning],
+    [isTransitioning, carouselState],
   );
 
   const goToPrevious = useCallback(() => {
-    const newIndex =
-      currentIndex === 0 ? backgroundImages.length - 1 : currentIndex - 1;
+    const newIndex = currentIndex === 0 ? totalSlides - 1 : currentIndex - 1;
     goToSlide(newIndex);
-  }, [currentIndex, backgroundImages.length, goToSlide]);
+  }, [currentIndex, totalSlides, goToSlide]);
 
   const goToNext = useCallback(() => {
-    const newIndex =
-      currentIndex === backgroundImages.length - 1 ? 0 : currentIndex + 1;
+    const newIndex = currentIndex === totalSlides - 1 ? 0 : currentIndex + 1;
     goToSlide(newIndex);
-  }, [currentIndex, backgroundImages.length, goToSlide]);
+  }, [currentIndex, totalSlides, goToSlide]);
 
-  // Auto-play
+  // Auto-play (only when using internal state)
   useEffect(() => {
-    if (!hasMultipleImages || autoPlayInterval <= 0) return;
+    if (carouselState || !hasMultipleImages || autoPlayInterval <= 0) return;
 
     const interval = setInterval(() => {
       goToNext();
     }, autoPlayInterval);
 
     return () => clearInterval(interval);
-  }, [hasMultipleImages, autoPlayInterval, goToNext]);
+  }, [carouselState, hasMultipleImages, autoPlayInterval, goToNext]);
 
   return (
     <div
@@ -126,7 +145,7 @@ export function HeroSection({
       )}
 
       {/* Navigation Arrows */}
-      {hasMultipleImages && (
+      {showArrows && hasMultipleImages && (
         <>
           <button
             type="button"
@@ -187,12 +206,12 @@ export function HeroSection({
       </div>
 
       {/* Dot Indicators */}
-      {hasMultipleImages && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-          {backgroundImages.map((imageUrl, index) => (
+      {hasMultipleSlides && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+          {Array.from({ length: totalSlides }).map((_, index) => (
             <button
               type="button"
-              key={imageUrl}
+              key={`slide-dot-${index}`}
               onClick={() => goToSlide(index)}
               className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                 index === currentIndex
