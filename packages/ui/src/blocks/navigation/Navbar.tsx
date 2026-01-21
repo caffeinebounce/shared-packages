@@ -107,7 +107,7 @@ export function Navbar({
   const variantClasses = {
     transparent: "bg-transparent",
     solid: "bg-background",
-    blur: "bg-background/60 backdrop-blur-xl backdrop-saturate-150 border-b border-white/10",
+    blur: "bg-background/60 backdrop-blur-xl backdrop-saturate-150 border-b border-border dark:border-white/10",
   };
 
   // Determine visibility based on scroll direction
