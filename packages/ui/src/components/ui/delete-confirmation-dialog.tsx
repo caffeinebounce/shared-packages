@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "../../utils/cn";
 import { Button } from "./button";
 import {
@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./dialog";
+import { Input } from "./input";
 
 export interface DeleteConfirmationDialogProps {
   /** Whether the dialog is open */
@@ -40,6 +41,8 @@ export interface DeleteConfirmationDialogProps {
   details?: string;
   /** Additional className for the dialog content */
   className?: string;
+  /** Text user must type to confirm deletion (enables type-to-confirm mode) */
+  confirmationText?: string;
 }
 
 /**
@@ -93,9 +96,21 @@ export function DeleteConfirmationDialog({
   variant = "danger",
   details,
   className,
+  confirmationText,
 }: DeleteConfirmationDialogProps) {
   const [internalLoading, setInternalLoading] = useState(false);
+  const [inputValue, setInputValue] = useState("");
   const isLoading = externalLoading ?? internalLoading;
+
+  const requiresConfirmation = !!confirmationText;
+  const isConfirmed = !requiresConfirmation || inputValue === confirmationText;
+
+  // Reset input when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setInputValue("");
+    }
+  }, [open]);
 
   const defaultTitle = title ?? `Delete ${itemType}`;
 
@@ -110,6 +125,7 @@ export function DeleteConfirmationDialog({
   );
 
   const handleConfirm = useCallback(async () => {
+    if (!isConfirmed) return;
     try {
       setInternalLoading(true);
       await onConfirm();
@@ -120,7 +136,7 @@ export function DeleteConfirmationDialog({
     } finally {
       setInternalLoading(false);
     }
-  }, [onConfirm, onOpenChange]);
+  }, [onConfirm, onOpenChange, isConfirmed]);
 
   const handleCancel = useCallback(() => {
     if (!isLoading) {
@@ -159,15 +175,38 @@ export function DeleteConfirmationDialog({
             />
             {defaultTitle}
           </DialogTitle>
+          <DialogDescription>
+            {description ?? defaultDescription}
+            {details && (
+              <span className="mt-2 block text-sm text-muted-foreground/80">
+                {details}
+              </span>
+            )}
+          </DialogDescription>
         </DialogHeader>
-        <DialogDescription className="text-muted-foreground">
-          {description ?? defaultDescription}
-          {details && (
-            <span className="mt-2 block text-sm text-muted-foreground/80">
-              {details}
-            </span>
-          )}
-        </DialogDescription>
+
+        {requiresConfirmation && (
+          <div className="space-y-2">
+            <label
+              htmlFor="delete-confirmation-input"
+              className="text-sm text-muted-foreground"
+            >
+              Type{" "}
+              <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
+                {confirmationText}
+              </code>{" "}
+              to confirm:
+            </label>
+            <Input
+              id="delete-confirmation-input"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder={confirmationText}
+              autoComplete="off"
+            />
+          </div>
+        )}
+
         <DialogFooter className="gap-2 sm:gap-0">
           <Button
             type="button"
@@ -181,7 +220,7 @@ export function DeleteConfirmationDialog({
             type="button"
             variant={variant === "warning" ? "default" : "destructive"}
             onClick={handleConfirm}
-            disabled={isLoading}
+            disabled={isLoading || !isConfirmed}
             className={cn(
               variant === "warning" &&
                 "bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700",
