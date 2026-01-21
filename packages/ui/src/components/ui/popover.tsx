@@ -5,12 +5,34 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Popover - Floating content panel anchored to an element
+ *
+ * @example
+ * <Popover>
+ *   <PopoverTrigger asChild>
+ *     <Button variant="outline">Open</Button>
+ *   </PopoverTrigger>
+ *   <PopoverContent>
+ *     <p>Popover content goes here</p>
+ *   </PopoverContent>
+ * </Popover>
+ */
 const Popover = PopoverPrimitive.Root;
 
+/**
+ * PopoverTrigger - Element that opens the popover
+ */
 const PopoverTrigger = PopoverPrimitive.Trigger;
 
+/**
+ * PopoverAnchor - Anchor element for positioning the popover
+ */
 const PopoverAnchor = PopoverPrimitive.Anchor;
 
+/**
+ * PopoverContent - Content container for the popover
+ */
 function PopoverContent({
   className,
   align = "center",
