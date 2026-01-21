@@ -10,6 +10,18 @@ interface SwitchProps
   onCheckedChange?: (checked: boolean) => void;
 }
 
+/**
+ * Switch - Toggle switch for binary choices
+ *
+ * @example
+ * <Switch checked={enabled} onCheckedChange={setEnabled} />
+ *
+ * @example
+ * <label className="flex items-center gap-2">
+ *   <Switch checked={notifications} onCheckedChange={setNotifications} />
+ *   Enable notifications
+ * </label>
+ */
 const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
   (
     { className, checked = false, onCheckedChange, disabled, ...props },

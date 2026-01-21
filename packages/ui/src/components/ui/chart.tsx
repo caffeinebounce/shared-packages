@@ -31,6 +31,16 @@ function useChart() {
   return context;
 }
 
+/**
+ * ChartContainer - Container for Recharts components with theme support
+ *
+ * @example
+ * <ChartContainer config={chartConfig}>
+ *   <LineChart data={data}>
+ *     <Line dataKey="value" />
+ *   </LineChart>
+ * </ChartContainer>
+ */
 export const ChartContainer = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {

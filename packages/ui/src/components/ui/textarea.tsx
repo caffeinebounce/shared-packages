@@ -2,6 +2,12 @@ import type * as React from "react";
 
 import { cn } from "../../utils";
 
+/**
+ * Textarea - Multi-line text input field
+ *
+ * @example
+ * <Textarea placeholder="Enter description..." rows={4} />
+ */
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea
