@@ -75,9 +75,14 @@ export interface NavDivider {
 /** Union type for all navigation elements */
 export type NavElement = NavItem | NavSection | NavDivider;
 
-/** Type guard for NavItem */
+/** Type guard for NavItem - checks for required NavItem properties */
 export function isNavItem(element: NavElement): element is NavItem {
-  return !("type" in element);
+  return (
+    "label" in element &&
+    "href" in element &&
+    "icon" in element &&
+    !("type" in element)
+  );
 }
 
 /** Type guard for NavSection */
@@ -222,6 +227,49 @@ export function AppSidebar({
     return items;
   }, [navItems]);
 
+  // Preprocess navItems into renderable groups (O(n) instead of O(n²))
+  const processedNavGroups = useMemo(() => {
+    type NavGroup =
+      | { type: "divider"; key: string }
+      | { type: "section"; section: NavSection }
+      | { type: "plain-group"; items: NavItem[]; key: string };
+
+    const groups: NavGroup[] = [];
+    let dividerCount = 0;
+
+    let i = 0;
+    while (i < navItems.length) {
+      const element = navItems[i];
+
+      if (isNavDivider(element)) {
+        // Use divider count for stable key (dividers have no identity)
+        groups.push({ type: "divider", key: `divider-${dividerCount++}` });
+        i++;
+      } else if (isNavSection(element)) {
+        groups.push({ type: "section", section: element });
+        i++;
+      } else if (isNavItem(element)) {
+        // Collect contiguous plain items in single pass
+        const plainItems: NavItem[] = [element];
+        const startHref = element.href;
+        i++;
+        while (i < navItems.length && isNavItem(navItems[i])) {
+          plainItems.push(navItems[i] as NavItem);
+          i++;
+        }
+        groups.push({
+          type: "plain-group",
+          items: plainItems,
+          key: `plain-group-${startHref}`,
+        });
+      } else {
+        i++;
+      }
+    }
+
+    return groups;
+  }, [navItems]);
+
   // Keyboard shortcuts for navigation (Ctrl+1, Ctrl+2, etc.)
   useEffect(() => {
     if (!enableKeyboardShortcuts || !onNavigate) return;
@@ -256,19 +304,21 @@ export function AppSidebar({
     return pathname === item.href || pathname.startsWith(`${item.href}/`);
   };
 
-  // Get icon animation class
+  // Get icon animation class - returns complete Tailwind classes for purging
+  // Uses motion-safe: prefix for accessibility (respects prefers-reduced-motion)
   const getIconAnimationClass = (animation?: NavItem["iconAnimation"]) => {
     switch (animation) {
       case "rotate":
-        return "group-hover:rotate-90 transition-transform duration-150";
+        return "motion-safe:group-hover:rotate-90 motion-safe:transition-transform motion-safe:duration-150";
       case "bounce":
-        return "group-hover:animate-bounce";
+        // Use scale instead of animate-bounce (continuous animation is problematic)
+        return "motion-safe:group-hover:scale-110 motion-safe:transition-transform motion-safe:duration-150";
       case "scale":
-        return "group-hover:scale-110 transition-transform duration-150";
+        return "motion-safe:group-hover:scale-110 motion-safe:transition-transform motion-safe:duration-150";
       case "none":
         return "";
       default:
-        return "group-hover:scale-110 transition-transform duration-150"; // default to scale
+        return "motion-safe:group-hover:scale-110 motion-safe:transition-transform motion-safe:duration-150";
     }
   };
 
@@ -281,7 +331,7 @@ export function AppSidebar({
       ? ""
       : getIconAnimationClass(item.iconAnimation);
 
-    // Disabled item with tooltip
+    // Disabled item with tooltip - includes accessibility attributes
     if (item.disabled) {
       return (
         <Tooltip>
@@ -289,6 +339,8 @@ export function AppSidebar({
             <SidebarMenuButton
               className="cursor-not-allowed opacity-40"
               isActive={false}
+              aria-disabled="true"
+              tabIndex={0}
             >
               <Icon className="shrink-0" />
               <span>{item.label}</span>
@@ -305,7 +357,7 @@ export function AppSidebar({
     return (
       <SidebarMenuButton asChild isActive={isActive} className="group">
         <Link href={item.href}>
-          <Icon className={`shrink-0 motion-safe:${iconAnimationClass}`} />
+          <Icon className={`shrink-0 ${iconAnimationClass}`} />
           <span>{item.label}</span>
           {shortcutsVisible && item.shortcutDisplay && (
             <Shortcut className="ml-auto text-[10px] text-muted-foreground">
@@ -322,27 +374,26 @@ export function AppSidebar({
       {header && <SidebarHeader>{header}</SidebarHeader>}
 
       <SidebarContent>
-        {navItems.map((element, index) => {
+        {processedNavGroups.map((group) => {
           // Divider
-          if (isNavDivider(element)) {
-            return (
-              <SidebarSeparator key={`divider-${index}`} className="my-2" />
-            );
+          if (group.type === "divider") {
+            return <SidebarSeparator key={group.key} className="my-2" />;
           }
 
           // Section with header
-          if (isNavSection(element)) {
+          if (group.type === "section") {
+            const section = group.section;
             // Skip hidden sections
-            if (element.visible === false) return null;
+            if (section.visible === false) return null;
 
             return (
-              <SidebarGroup key={`section-${element.label}`}>
+              <SidebarGroup key={`section-${section.label}`}>
                 <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {element.label}
+                  {section.label}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {element.items.map((item) => (
+                    {section.items.map((item) => (
                       <SidebarMenuItem key={item.href}>
                         {renderNavItem(item)}
                       </SidebarMenuItem>
@@ -353,40 +404,21 @@ export function AppSidebar({
             );
           }
 
-          // Plain NavItem (not in a section)
-          if (isNavItem(element)) {
-            // Check if this is the first item in a contiguous group of plain items
-            const isFirstPlainItem =
-              index === 0 || !isNavItem(navItems[index - 1]);
-
-            if (isFirstPlainItem) {
-              // Collect all contiguous plain items
-              const plainItems: NavItem[] = [element];
-              let nextIndex = index + 1;
-              while (
-                nextIndex < navItems.length &&
-                isNavItem(navItems[nextIndex])
-              ) {
-                plainItems.push(navItems[nextIndex] as NavItem);
-                nextIndex++;
-              }
-
-              return (
-                <SidebarGroup key={`plain-group-${index}`}>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {plainItems.map((item) => (
-                        <SidebarMenuItem key={item.href}>
-                          {renderNavItem(item)}
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              );
-            }
-            // Skip items that were already rendered in a group
-            return null;
+          // Plain group (contiguous NavItems not in a section)
+          if (group.type === "plain-group") {
+            return (
+              <SidebarGroup key={group.key}>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {group.items.map((item) => (
+                      <SidebarMenuItem key={item.href}>
+                        {renderNavItem(item)}
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
           }
 
           return null;
