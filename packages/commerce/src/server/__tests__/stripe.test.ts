@@ -1,18 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock the stripe module
+// Mock the stripe module with a class that can be used with `new`
 vi.mock("stripe", () => {
-  const mockStripe = vi.fn().mockImplementation((secretKey: string, config: any) => ({
-    _secretKey: secretKey,
-    _config: config,
-    refunds: {
-      create: vi.fn(),
-    },
-    // Add other Stripe API methods as needed
-  }));
-
   return {
-    default: mockStripe,
+    default: class MockStripe {
+      _secretKey: string;
+      _config: Record<string, unknown>;
+      refunds = { create: vi.fn() };
+
+      constructor(secretKey: string, config: Record<string, unknown>) {
+        this._secretKey = secretKey;
+        this._config = config;
+      }
+    },
   };
 });
 
@@ -39,13 +39,13 @@ describe("Stripe Server Integration", () => {
     });
 
     it("creates Stripe instance with correct config", async () => {
-      process.env.STRIPE_SECRET_KEY = "sk_test_123";
+      process.env.STRIPE_SECRET_KEY = "sk_test_123"; // pragma: allowlist secret
 
       const { getStripe } = await import("../stripe");
       const stripe = await getStripe();
 
       expect(stripe).toBeDefined();
-      expect(stripe._secretKey).toBe("sk_test_123");
+      expect(stripe._secretKey).toBe("sk_test_123"); // pragma: allowlist secret
       expect(stripe._config).toEqual({
         apiVersion: "2025-02-24.acacia",
         typescript: true,
@@ -53,7 +53,7 @@ describe("Stripe Server Integration", () => {
     });
 
     it("returns same instance on subsequent calls (singleton)", async () => {
-      process.env.STRIPE_SECRET_KEY = "sk_test_123";
+      process.env.STRIPE_SECRET_KEY = "sk_test_123"; // pragma: allowlist secret
 
       const { getStripe } = await import("../stripe");
       const stripe1 = await getStripe();

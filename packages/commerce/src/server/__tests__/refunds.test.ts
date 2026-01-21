@@ -1,16 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createRefund } from "../refunds";
 
-// Mock the stripe module
-const mockRefundsCreate = vi.fn();
+// Store for mock reference (vi.mock is hoisted, so we use globalThis)
+declare global {
+  var __mockRefundsCreate: ReturnType<typeof vi.fn> | undefined;
+}
 
-vi.mock("../stripe", () => ({
-  getStripe: vi.fn().mockResolvedValue({
-    refunds: {
-      create: mockRefundsCreate,
-    },
-  }),
-}));
+vi.mock("../stripe", () => {
+  // Create mock inside factory since vi.mock is hoisted
+  const mockRefundsCreate = vi.fn();
+  // Store reference on globalThis for external access
+  globalThis.__mockRefundsCreate = mockRefundsCreate;
+  return {
+    getStripe: vi.fn().mockResolvedValue({
+      refunds: {
+        create: mockRefundsCreate,
+      },
+    }),
+  };
+});
+
+// Helper to get the mock (available after module initialization)
+const getMockRefundsCreate = () => globalThis.__mockRefundsCreate!;
 
 describe("Refunds", () => {
   beforeEach(() => {
@@ -25,11 +36,11 @@ describe("Refunds", () => {
         status: "succeeded",
       };
 
-      mockRefundsCreate.mockResolvedValueOnce(mockRefund);
+      getMockRefundsCreate().mockResolvedValueOnce(mockRefund);
 
       const result = await createRefund("pi_123");
 
-      expect(mockRefundsCreate).toHaveBeenCalledWith({
+      expect(getMockRefundsCreate()).toHaveBeenCalledWith({
         payment_intent: "pi_123",
         reason: "requested_by_customer",
       });
@@ -43,11 +54,11 @@ describe("Refunds", () => {
         status: "succeeded",
       };
 
-      mockRefundsCreate.mockResolvedValueOnce(mockRefund);
+      getMockRefundsCreate().mockResolvedValueOnce(mockRefund);
 
       const result = await createRefund("pi_123", 500);
 
-      expect(mockRefundsCreate).toHaveBeenCalledWith({
+      expect(getMockRefundsCreate()).toHaveBeenCalledWith({
         payment_intent: "pi_123",
         amount: 500,
         reason: "requested_by_customer",
@@ -62,11 +73,11 @@ describe("Refunds", () => {
         status: "succeeded",
       };
 
-      mockRefundsCreate.mockResolvedValueOnce(mockRefund);
+      getMockRefundsCreate().mockResolvedValueOnce(mockRefund);
 
       const result = await createRefund("pi_123", undefined, "fraudulent");
 
-      expect(mockRefundsCreate).toHaveBeenCalledWith({
+      expect(getMockRefundsCreate()).toHaveBeenCalledWith({
         payment_intent: "pi_123",
         reason: "fraudulent",
       });
@@ -80,11 +91,11 @@ describe("Refunds", () => {
         status: "succeeded",
       };
 
-      mockRefundsCreate.mockResolvedValueOnce(mockRefund);
+      getMockRefundsCreate().mockResolvedValueOnce(mockRefund);
 
       const result = await createRefund("pi_123", 0, "duplicate");
 
-      expect(mockRefundsCreate).toHaveBeenCalledWith({
+      expect(getMockRefundsCreate()).toHaveBeenCalledWith({
         payment_intent: "pi_123",
         amount: 0,
         reason: "duplicate",
@@ -93,9 +104,13 @@ describe("Refunds", () => {
     });
 
     it("propagates Stripe API errors", async () => {
-      mockRefundsCreate.mockRejectedValueOnce(new Error("Insufficient funds"));
+      getMockRefundsCreate().mockRejectedValueOnce(
+        new Error("Insufficient funds"),
+      );
 
-      await expect(createRefund("pi_123")).rejects.toThrow("Insufficient funds");
+      await expect(createRefund("pi_123")).rejects.toThrow(
+        "Insufficient funds",
+      );
     });
   });
 });
