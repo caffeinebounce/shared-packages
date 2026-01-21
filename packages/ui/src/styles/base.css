@@ -522,3 +522,31 @@ textarea:-moz-autofill {
 [data-slot="button"][data-variant="default"]:hover {
   color: var(--primary);
 }
+
+/* ===========================================
+   Text Highlight Animation
+   =========================================== */
+
+@keyframes text-highlight-draw {
+  from {
+    background-size: 0% 100%;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+
+/* Animated text highlight - uses CSS custom properties for duration/delay */
+.text-highlight-animated {
+  background-size: 0% 100%;
+  animation: text-highlight-draw var(--highlight-duration, 2s) linear
+    var(--highlight-delay, 0.5s) forwards;
+}
+
+/* Respect prefers-reduced-motion: show highlight instantly without animation */
+@media (prefers-reduced-motion: reduce) {
+  .text-highlight-animated {
+    animation: none;
+    background-size: 100% 100%;
+  }
+}

@@ -501,6 +501,8 @@ export {
   TableRow,
 } from "./components/ui/table";
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+export type { TextHighlightProps } from "./components/ui/text-highlight";
+export { TextHighlight } from "./components/ui/text-highlight";
 export { Textarea } from "./components/ui/textarea";
 export type { TimeEstimateProps } from "./components/ui/time-estimate";
 export { TimeEstimate } from "./components/ui/time-estimate";
