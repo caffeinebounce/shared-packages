@@ -80,8 +80,12 @@ export type {
 export { StudioEditor } from "./blocks/editor";
 export type { BackgroundRippleEffectProps } from "./blocks/effects";
 export { BackgroundRippleEffect } from "./blocks/effects";
-export type { FeedbackDialogProps } from "./blocks/feedback";
-export { FeedbackDialog } from "./blocks/feedback";
+export type {
+  FeedbackButtonProps,
+  FeedbackDialogProps,
+  FeedbackSubmission,
+} from "./blocks/feedback";
+export { FeedbackButton, FeedbackDialog } from "./blocks/feedback";
 export type {
   FormWizardNavigation,
   FormWizardProps,
@@ -114,7 +118,10 @@ export type {
   LegalLayoutProps,
   LegalSectionProps,
   MarketingLayoutProps,
+  NavDivider,
+  NavElement,
   NavItem,
+  NavSection,
   RootLayoutAnalytics,
   RootLayoutFont,
   RootLayoutProps,
@@ -135,6 +142,9 @@ export {
   HelpLayout,
   HelpPageLayout,
   HelpPanelLayout,
+  isNavDivider,
+  isNavItem,
+  isNavSection,
   LegalLayout,
   LegalSection,
   MarketingLayout,
@@ -599,6 +609,11 @@ export {
   type UseScrollDirectionOptions,
   useScrollDirection,
 } from "./hooks/useScrollDirection";
+export {
+  type SessionError,
+  type UseSessionErrorsOptions,
+  useSessionErrors,
+} from "./hooks/useSessionErrors";
 export {
   createDataRestorationHandler,
   createFormResetHandler,

@@ -6,7 +6,7 @@ import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { cn } from "../../utils";
 import type { UserAvatarMenuItem } from "../user/UserAvatarMenu";
 import { AppHeader, type HeaderLink } from "./AppHeader";
-import { AppSidebar, type AppSidebarUser, type NavItem } from "./AppSidebar";
+import { AppSidebar, type AppSidebarUser, type NavElement } from "./AppSidebar";
 import { FloatingUserMenu } from "./FloatingUserMenu";
 
 /**
@@ -17,8 +17,8 @@ export interface AppLayoutProps {
   children: ReactNode;
 
   // === Sidebar Props ===
-  /** Navigation items for the sidebar */
-  navItems?: NavItem[];
+  /** Navigation items for the sidebar (supports NavItem, NavSection, NavDivider) */
+  navItems?: NavElement[];
   /** Header content for sidebar (e.g., team switcher) */
   sidebarHeader?: ReactNode;
   /** Custom sidebar element (overrides navItems, user, etc.) */

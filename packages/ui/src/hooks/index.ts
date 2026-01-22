@@ -15,6 +15,11 @@ export {
   useScrollDirection,
 } from "./useScrollDirection";
 export {
+  type SessionError,
+  type UseSessionErrorsOptions,
+  useSessionErrors,
+} from "./useSessionErrors";
+export {
   createDataRestorationHandler,
   createFormResetHandler,
   createFormSubmitHandler,
