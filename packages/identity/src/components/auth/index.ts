@@ -19,6 +19,7 @@ export {
   type SigninFormProps,
 } from "./SigninForm";
 export {
+  type ConsentItem,
   type SignupEventCallbacks,
   SignupForm,
   type SignupFormProps,

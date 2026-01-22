@@ -2,6 +2,7 @@
 // Authentication forms
 export {
   type AuthEventCallbacks,
+  type ConsentItem,
   EmailVerificationPending,
   type EmailVerificationPendingProps,
   ForgotPasswordForm,

@@ -3,6 +3,7 @@
 import { getClientOrigin } from "@caffeinebounce/shared-utils";
 import {
   Button,
+  Checkbox,
   cn,
   defaultPasswordRules,
   FieldError,
@@ -35,6 +36,24 @@ export interface SignupEventCallbacks {
   onEmailVerificationSent?: (email: string) => void;
 }
 
+/**
+ * A single consent item configuration
+ */
+export interface ConsentItem {
+  /** Unique identifier, used as the key in user metadata (e.g., "email_marketing") */
+  id: string;
+  /** Label content displayed next to the checkbox (can include links) */
+  label: React.ReactNode;
+  /** Optional description below the label (can include links) */
+  description?: React.ReactNode;
+  /** Whether this consent is required to submit the form */
+  required?: boolean;
+  /** Default checked state */
+  defaultChecked?: boolean;
+  /** Error message shown when required consent is not given */
+  errorMessage?: string;
+}
+
 export interface SignupFormProps extends AuthFormConfig {
   /** Navigation links configuration */
   links?: AuthLinks;
@@ -60,6 +79,8 @@ export interface SignupFormProps extends AuthFormConfig {
   className?: string;
   /** Optional callbacks for logging authentication events */
   onAuthEvent?: SignupEventCallbacks;
+  /** Array of consent items to display (e.g., marketing opt-in, terms acceptance) */
+  consentItems?: ConsentItem[];
 }
 
 /**
@@ -88,6 +109,7 @@ export function SignupForm({
   googleComingSoon = false,
   className,
   onAuthEvent,
+  consentItems = [],
 }: SignupFormProps) {
   const mergedLinks = { ...defaultAuthLinks, ...links };
   const Link = LinkComponent;
@@ -103,6 +125,24 @@ export function SignupForm({
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
+
+  // Dynamic consent state - initialize from consentItems defaults
+  const [consentState, setConsentState] = useState<Record<string, boolean>>(
+    () =>
+      Object.fromEntries(
+        consentItems.map((item) => [item.id, item.defaultChecked ?? false]),
+      ),
+  );
+  const [consentTouched, setConsentTouched] = useState(false);
+
+  // Check if all required consents are given
+  const requiredConsentsValid = useMemo(
+    () =>
+      consentItems
+        .filter((item) => item.required)
+        .every((item) => consentState[item.id]),
+    [consentItems, consentState],
+  );
 
   const isEmailValid = useMemo(() => isEmail(email), [email]);
   const showEmailError = emailTouched && email && !isEmailValid;
@@ -160,6 +200,12 @@ export function SignupForm({
       return;
     }
 
+    // Validate required consents
+    if (!requiredConsentsValid) {
+      setConsentTouched(true);
+      return;
+    }
+
     setLoading(true);
 
     // Log sign-up attempt
@@ -171,6 +217,8 @@ export function SignupForm({
       password,
       options: {
         emailRedirectTo: `${siteUrl}/callback`,
+        // Pass all consent values as user metadata
+        data: consentState,
       },
     });
 
@@ -408,6 +456,54 @@ export function SignupForm({
                 </FieldError>
               )}
             </div>
+
+            {/* Consent Checkboxes */}
+            {consentItems.length > 0 && (
+              <div className="space-y-3 pt-2">
+                {consentItems.map((item) => {
+                  const isChecked = consentState[item.id] ?? false;
+                  const hasError =
+                    consentTouched && item.required && !isChecked;
+
+                  return (
+                    <div key={item.id}>
+                      <div className="flex items-start space-x-3">
+                        <Checkbox
+                          id={item.id}
+                          checked={isChecked}
+                          onCheckedChange={(checked) =>
+                            setConsentState((prev) => ({
+                              ...prev,
+                              [item.id]: checked === true,
+                            }))
+                          }
+                          aria-invalid={hasError || undefined}
+                        />
+                        <div className="grid gap-1.5 leading-none">
+                          <label
+                            htmlFor={item.id}
+                            className="text-sm font-medium leading-none cursor-pointer"
+                          >
+                            {item.label}
+                            {item.required && " *"}
+                          </label>
+                          {item.description && (
+                            <p className="text-xs text-muted-foreground">
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {hasError && (
+                        <p className="text-sm text-destructive ml-7 mt-1">
+                          {item.errorMessage || `This field is required.`}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
