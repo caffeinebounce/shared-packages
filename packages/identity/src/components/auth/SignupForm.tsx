@@ -14,7 +14,7 @@ import {
 } from "@caffeinebounce/ui";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type ComponentType, useMemo, useState } from "react";
+import { type ComponentType, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import isEmail from "validator/lib/isEmail";
 import type { AuthFormConfig, AuthLinks, OAuthProvider } from "../../types";
@@ -37,12 +37,16 @@ export interface SignupEventCallbacks {
 }
 
 /**
- * A single consent item configuration
+ * Configuration for a consent checkbox (program updates, marketing, etc.)
  */
 export interface ConsentItem {
   /** Unique identifier, used as the key in user metadata (e.g., "email_marketing") */
   id: string;
-  /** Label content displayed next to the checkbox (can include links) */
+  /**
+   * Label content displayed next to the checkbox.
+   * Note: Do not include a required indicator (*) in the label text - the component
+   * will automatically append it when required: true.
+   */
   label: React.ReactNode;
   /** Optional description below the label (can include links) */
   description?: React.ReactNode;
@@ -134,6 +138,26 @@ export function SignupForm({
       ),
   );
   const [consentTouched, setConsentTouched] = useState(false);
+
+  // Sync consentState when consentItems changes (add/remove items, change defaults)
+  useEffect(() => {
+    setConsentState((prev) => {
+      // Build new state from current consentItems
+      const newState: Record<string, boolean> = {};
+
+      for (const item of consentItems) {
+        // Preserve existing user choice if item was already present
+        if (item.id in prev) {
+          newState[item.id] = prev[item.id];
+        } else {
+          // New item - use defaultChecked
+          newState[item.id] = item.defaultChecked ?? false;
+        }
+      }
+
+      return newState;
+    });
+  }, [consentItems]);
 
   // Check if all required consents are given
   const requiredConsentsValid = useMemo(
@@ -464,12 +488,15 @@ export function SignupForm({
                   const isChecked = consentState[item.id] ?? false;
                   const hasError =
                     consentTouched && item.required && !isChecked;
+                  // Prefix id to avoid collisions and handle unsafe characters
+                  const domId = `consent-${item.id}`;
+                  const labelId = `${domId}-label`;
 
                   return (
                     <div key={item.id}>
                       <div className="flex items-start space-x-3">
                         <Checkbox
-                          id={item.id}
+                          id={domId}
                           checked={isChecked}
                           onCheckedChange={(checked) =>
                             setConsentState((prev) => ({
@@ -478,15 +505,16 @@ export function SignupForm({
                             }))
                           }
                           aria-invalid={hasError || undefined}
+                          aria-labelledby={labelId}
                         />
                         <div className="grid gap-1.5 leading-none">
-                          <label
-                            htmlFor={item.id}
-                            className="text-sm font-medium leading-none cursor-pointer"
+                          <div
+                            id={labelId}
+                            className="text-sm font-medium leading-none"
                           >
                             {item.label}
                             {item.required && " *"}
-                          </label>
+                          </div>
                           {item.description && (
                             <p className="text-xs text-muted-foreground">
                               {item.description}
@@ -495,9 +523,9 @@ export function SignupForm({
                         </div>
                       </div>
                       {hasError && (
-                        <p className="text-sm text-destructive ml-7 mt-1">
+                        <FieldError className="ml-7">
                           {item.errorMessage || `This field is required.`}
-                        </p>
+                        </FieldError>
                       )}
                     </div>
                   );
