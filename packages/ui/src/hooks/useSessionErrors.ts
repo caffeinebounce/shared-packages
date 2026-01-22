@@ -31,7 +31,9 @@ export interface UseSessionErrorsOptions {
 }
 
 /**
- * Add an error to session storage (limited to maxErrors)
+ * Add an error to session storage (limited to maxErrors).
+ * Note: sessionStorage has a ~5MB limit. With long stack traces, this could
+ * fill up. Stack traces are truncated to help mitigate quota issues.
  */
 function addError(error: SessionError) {
   if (typeof window === "undefined") return;
@@ -39,15 +41,31 @@ function addError(error: SessionError) {
     const stored = sessionStorage.getItem(currentStorageKey);
     const errors: SessionError[] = stored ? JSON.parse(stored) : [];
 
+    // Truncate stack trace to avoid quota issues (keep first 2000 chars)
+    const truncatedError: SessionError = {
+      ...error,
+      stack: error.stack?.slice(0, 2000),
+    };
+
     // Add new error and limit to max
-    errors.push(error);
+    errors.push(truncatedError);
     if (errors.length > currentMaxErrors) {
       errors.shift(); // Remove oldest
     }
 
     sessionStorage.setItem(currentStorageKey, JSON.stringify(errors));
-  } catch {
-    // Ignore storage errors
+  } catch (e) {
+    // Warn developers that error tracking may be incomplete
+    if (
+      e instanceof DOMException &&
+      (e.name === "QuotaExceededError" || e.code === 22)
+    ) {
+      console.warn(
+        "[useSessionErrors] sessionStorage quota exceeded. Recent errors may not be tracked.",
+      );
+    } else {
+      console.warn("[useSessionErrors] Failed to store error:", e);
+    }
   }
 }
 
@@ -119,9 +137,20 @@ export function useSessionErrors(options: UseSessionErrorsOptions = {}) {
     options;
 
   // Update module-level config (first caller wins for listeners)
+  // Warn if subsequent calls have different options
   if (!listenersInitialized) {
     currentMaxErrors = maxErrors;
     currentStorageKey = storageKey;
+  } else if (
+    process.env.NODE_ENV !== "production" &&
+    (maxErrors !== currentMaxErrors || storageKey !== currentStorageKey)
+  ) {
+    console.warn(
+      `[useSessionErrors] Hook called with different options than initial configuration. ` +
+        `Global listeners use: { maxErrors: ${currentMaxErrors}, storageKey: "${currentStorageKey}" }. ` +
+        `Received: { maxErrors: ${maxErrors}, storageKey: "${storageKey}" }. ` +
+        `Only the first configuration is used for global error listeners.`,
+    );
   }
 
   // Initialize global listeners on first hook usage

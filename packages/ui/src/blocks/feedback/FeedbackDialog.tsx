@@ -1,7 +1,7 @@
 "use client";
 
 import { Camera, Send, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "../../components/ui/button";
 import {
@@ -120,21 +120,28 @@ export function FeedbackDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [screenshotError, setScreenshotError] = useState(false);
 
+  // Track if capture should be aborted (dialog closed during capture)
+  const captureAbortedRef = useRef(false);
+
   // Capture screenshot when dialog opens
   const captureScreenshotFn = useCallback(async () => {
     if (typeof window === "undefined" || !captureScreenshot) return;
 
+    captureAbortedRef.current = false;
     setIsCapturing(true);
+
+    // Elements we hid - need to restore even if aborted
+    const elementsToHide: HTMLElement[] = [];
+
     try {
       // Dynamic import to reduce bundle size
       // Use html2canvas-pro which supports modern CSS colors (oklch, etc.)
+      // Note: allowTaint bypasses CORS for cross-origin images but may cause
+      // tainted canvas - this is acceptable for feedback screenshot use case
       const html2canvas = (await import("html2canvas-pro")).default;
 
       // Hide the entire dialog portal for screenshot
       // Radix portals are appended to document.body with specific attributes
-      const elementsToHide: HTMLElement[] = [];
-
-      // Find all portal, dialog, and overlay elements
       document
         .querySelectorAll(
           "[data-radix-portal], [data-radix-dialog-overlay], [data-radix-dialog-content], [role='dialog'], [data-state='open'], .fixed.inset-0, [data-radix-dialog-backdrop]",
@@ -152,38 +159,88 @@ export function FeedbackDialog({
           htmlEl.style.opacity = "0";
         });
 
-      // Small delay to ensure dialog is fully hidden and repaint occurs
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      const canvas = await html2canvas(document.body, {
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        scale: window.devicePixelRatio || 1,
-        backgroundColor: "#ffffff",
-        foreignObjectRendering: false,
-        ignoreElements: (el) => {
-          // Completely ignore the dialog portal, overlays, and all their children
-          if (el.hasAttribute("data-radix-portal")) return true;
-          if (el.hasAttribute("data-radix-dialog-overlay")) return true;
-          if (el.hasAttribute("data-radix-dialog-content")) return true;
-          if (el.hasAttribute("data-radix-dialog-backdrop")) return true;
-          if (el.getAttribute("data-state") === "open") return true;
-          if (el.getAttribute("role") === "dialog") return true;
-          if (el.closest("[data-radix-portal]")) return true;
-          // Also ignore fixed overlay elements (common backdrop pattern)
-          if (
-            el instanceof HTMLElement &&
-            el.classList.contains("fixed") &&
-            el.classList.contains("inset-0")
-          ) {
-            return true;
-          }
-          return false;
-        },
+      // Wait for the dialog hide styles to be applied and at least one paint
+      // Using double RAF is more reliable than setTimeout across devices
+      await new Promise<void>((resolve) => {
+        if (typeof window.requestAnimationFrame === "undefined") {
+          // Fallback for non-browser / very old environments
+          setTimeout(() => resolve(), 100);
+          return;
+        }
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            resolve();
+          });
+        });
       });
 
-      // Restore dialog visibility
+      // Check if dialog was closed during the wait
+      if (captureAbortedRef.current) {
+        return;
+      }
+
+      // Add a timeout so screenshot capture cannot hang indefinitely on slow devices
+      const SCREENSHOT_TIMEOUT_MS = 7000;
+      let screenshotTimeoutId: ReturnType<typeof setTimeout> | undefined;
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        screenshotTimeoutId = setTimeout(() => {
+          reject(new Error("Screenshot capture timed out"));
+        }, SCREENSHOT_TIMEOUT_MS);
+      });
+
+      const canvas = await Promise.race([
+        html2canvas(document.body, {
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          scale: window.devicePixelRatio || 1,
+          backgroundColor: "#ffffff",
+          foreignObjectRendering: false,
+          ignoreElements: (el) => {
+            // Completely ignore the dialog portal, overlays, and all their children
+            if (el.hasAttribute("data-radix-portal")) return true;
+            if (el.hasAttribute("data-radix-dialog-overlay")) return true;
+            if (el.hasAttribute("data-radix-dialog-content")) return true;
+            if (el.hasAttribute("data-radix-dialog-backdrop")) return true;
+            if (el.getAttribute("data-state") === "open") return true;
+            if (el.getAttribute("role") === "dialog") return true;
+            if (el.closest("[data-radix-portal]")) return true;
+            // Also ignore fixed overlay elements (common backdrop pattern)
+            if (
+              el instanceof HTMLElement &&
+              el.classList.contains("fixed") &&
+              el.classList.contains("inset-0")
+            ) {
+              return true;
+            }
+            return false;
+          },
+        }),
+        timeoutPromise,
+      ]);
+
+      if (screenshotTimeoutId !== undefined) {
+        clearTimeout(screenshotTimeoutId);
+      }
+
+      // Check if dialog was closed during capture
+      if (captureAbortedRef.current) {
+        return;
+      }
+
+      // Note: Screenshot data URLs can be large (1-5MB for high-res displays).
+      // Consumers should handle large payloads appropriately (e.g., compression,
+      // multipart upload, or separate image endpoint).
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+      setScreenshotDataUrl(dataUrl);
+    } catch (error) {
+      console.error("[FeedbackDialog] Screenshot capture failed:", error);
+      if (!captureAbortedRef.current) {
+        setScreenshotError(true);
+      }
+    } finally {
+      // Always restore dialog visibility
       elementsToHide.forEach((el) => {
         el.style.display = el.dataset.originalDisplay || "";
         el.style.visibility = el.dataset.originalVisibility || "";
@@ -194,17 +251,14 @@ export function FeedbackDialog({
         delete el.dataset.originalOpacity;
       });
 
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
-      setScreenshotDataUrl(dataUrl);
-    } catch (error) {
-      console.error("[FeedbackDialog] Screenshot capture failed:", error);
-      setScreenshotError(true);
-    } finally {
-      setIsCapturing(false);
+      if (!captureAbortedRef.current) {
+        setIsCapturing(false);
+      }
     }
   }, [captureScreenshot]);
 
   // Capture screenshot when dialog opens
+  // Note: captureScreenshotFn is stable (only depends on captureScreenshot prop)
   useEffect(() => {
     if (open && captureScreenshot && !screenshotDataUrl && !screenshotError) {
       captureScreenshotFn();
@@ -217,12 +271,16 @@ export function FeedbackDialog({
     captureScreenshotFn,
   ]);
 
-  // Reset state when dialog closes
+  // Reset state when dialog closes and abort any in-progress capture
   useEffect(() => {
     if (!open) {
-      setFeedbackText("");
+      captureAbortedRef.current = true;
+      setIsCapturing(false);
       setScreenshotDataUrl(null);
       setScreenshotError(false);
+      // Note: feedbackText is intentionally NOT cleared here to preserve draft
+      // if the user accidentally closes the dialog. It will be cleared on
+      // successful submission via onOpenChange(false) in handleSubmit.
     }
   }, [open]);
 
@@ -253,6 +311,9 @@ export function FeedbackDialog({
       if (includeSessionErrors) {
         clearErrors();
       }
+
+      // Clear feedback text on successful submission
+      setFeedbackText("");
 
       onSuccess?.();
       onOpenChange(false);
@@ -299,28 +360,47 @@ export function FeedbackDialog({
             />
           </div>
 
-          {/* Screenshot preview - hidden if capture failed or disabled */}
+          {/* Screenshot preview - hidden if capture failed or disabled
+              Note: Screenshots may capture sensitive information visible on screen.
+              Consumers should implement appropriate data handling policies. */}
           {captureScreenshot && !screenshotError && (
             <div className="space-y-2">
-              <Label>Screenshot</Label>
-              <div className="rounded-lg border bg-muted/50 p-2">
+              <Label id="screenshot-label">Screenshot</Label>
+              <section
+                className="rounded-lg border bg-muted/50 p-2"
+                aria-labelledby="screenshot-label"
+              >
                 {isCapturing ? (
-                  <div className="flex items-center justify-center h-24 text-muted-foreground">
-                    <Camera className="h-4 w-4 mr-2 animate-pulse" />
+                  <output
+                    className="flex items-center justify-center h-24 text-muted-foreground"
+                    aria-live="polite"
+                  >
+                    <Camera
+                      className="h-4 w-4 mr-2 animate-pulse"
+                      aria-hidden="true"
+                    />
                     <span className="text-sm">Capturing screenshot...</span>
-                  </div>
+                  </output>
                 ) : screenshotDataUrl ? (
-                  <img
-                    src={screenshotDataUrl}
-                    alt="Screenshot preview"
-                    className="w-full h-auto rounded max-h-32 object-contain"
-                  />
+                  <>
+                    <img
+                      src={screenshotDataUrl}
+                      alt="Screenshot of the current page that will be included with your feedback"
+                      className="w-full h-auto rounded max-h-32 object-contain"
+                    />
+                    <span className="sr-only">
+                      Screenshot captured successfully
+                    </span>
+                  </>
                 ) : (
-                  <div className="flex items-center justify-center h-24 text-muted-foreground">
+                  <output
+                    className="flex items-center justify-center h-24 text-muted-foreground"
+                    aria-live="polite"
+                  >
                     <span className="text-sm">Preparing screenshot...</span>
-                  </div>
+                  </output>
                 )}
-              </div>
+              </section>
             </div>
           )}
 

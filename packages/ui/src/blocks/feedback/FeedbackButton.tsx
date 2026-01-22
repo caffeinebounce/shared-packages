@@ -114,6 +114,11 @@ export function FeedbackButton({
   // Handle keyboard shortcut
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      // Don't trigger if any modifier keys are pressed (avoid conflicts with Ctrl+F, etc.)
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) {
+        return;
+      }
+
       // Don't trigger if user is typing in an input
       const target = e.target as HTMLElement;
       if (
