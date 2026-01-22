@@ -6,6 +6,7 @@ export {
   type AuthHeaderProps,
   AuthPageLayout,
   type AuthPageLayoutProps,
+  type ConsentItem,
   DeleteAccountSection,
   type DeleteAccountSectionProps,
   EmailSection,
