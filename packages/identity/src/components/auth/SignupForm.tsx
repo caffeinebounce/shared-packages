@@ -85,6 +85,10 @@ export interface SignupFormProps extends AuthFormConfig {
   onAuthEvent?: SignupEventCallbacks;
   /** Array of consent items to display (e.g., marketing opt-in, terms acceptance) */
   consentItems?: ConsentItem[];
+  /** Position of consent checkboxes relative to submit button (default: "above") */
+  consentPosition?: "above" | "below";
+  /** Size of consent text - compact uses smaller text (default: "default") */
+  consentSize?: "default" | "compact";
 }
 
 /**
@@ -114,6 +118,8 @@ export function SignupForm({
   className,
   onAuthEvent,
   consentItems = [],
+  consentPosition = "above",
+  consentSize = "default",
 }: SignupFormProps) {
   const mergedLinks = { ...defaultAuthLinks, ...links };
   const Link = LinkComponent;
@@ -481,14 +487,13 @@ export function SignupForm({
               )}
             </div>
 
-            {/* Consent Checkboxes */}
-            {consentItems.length > 0 && (
+            {/* Consent Checkboxes - Above Button */}
+            {consentPosition === "above" && consentItems.length > 0 && (
               <div className="space-y-3 pt-2">
                 {consentItems.map((item) => {
                   const isChecked = consentState[item.id] ?? false;
                   const hasError =
                     consentTouched && item.required && !isChecked;
-                  // Prefix id to avoid collisions and handle unsafe characters
                   const domId = `consent-${item.id}`;
                   const labelId = `${domId}-label`;
 
@@ -506,17 +511,30 @@ export function SignupForm({
                           }
                           aria-invalid={hasError || undefined}
                           aria-labelledby={labelId}
+                          className={consentSize === "compact" ? "mt-0.5" : ""}
                         />
-                        <div className="grid gap-1.5 leading-none">
+                        <div className="grid gap-1 leading-none">
                           <div
                             id={labelId}
-                            className="text-sm font-medium leading-none"
+                            className={cn(
+                              "font-medium leading-tight",
+                              consentSize === "compact"
+                                ? "text-xs"
+                                : "text-sm leading-none",
+                            )}
                           >
                             {item.label}
                             {item.required && " *"}
                           </div>
                           {item.description && (
-                            <p className="text-xs text-muted-foreground">
+                            <p
+                              className={cn(
+                                "text-muted-foreground leading-tight",
+                                consentSize === "compact"
+                                  ? "text-[11px]"
+                                  : "text-xs",
+                              )}
+                            >
                               {item.description}
                             </p>
                           )}
@@ -543,6 +561,71 @@ export function SignupForm({
         >
           {loading ? "Signing up..." : "Sign Up"}
         </Button>
+
+        {/* Consent Checkboxes - Below Button */}
+        {consentPosition === "below" &&
+          consentItems.length > 0 &&
+          isEmailValid && (
+            <div className="space-y-3 pt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              {consentItems.map((item) => {
+                const isChecked = consentState[item.id] ?? false;
+                const hasError = consentTouched && item.required && !isChecked;
+                const domId = `consent-${item.id}`;
+                const labelId = `${domId}-label`;
+
+                return (
+                  <div key={item.id}>
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id={domId}
+                        checked={isChecked}
+                        onCheckedChange={(checked) =>
+                          setConsentState((prev) => ({
+                            ...prev,
+                            [item.id]: checked === true,
+                          }))
+                        }
+                        aria-invalid={hasError || undefined}
+                        aria-labelledby={labelId}
+                        className={consentSize === "compact" ? "mt-0.5" : ""}
+                      />
+                      <div className="grid gap-1 leading-none">
+                        <div
+                          id={labelId}
+                          className={cn(
+                            "font-medium leading-tight",
+                            consentSize === "compact"
+                              ? "text-xs"
+                              : "text-sm leading-none",
+                          )}
+                        >
+                          {item.label}
+                          {item.required && " *"}
+                        </div>
+                        {item.description && (
+                          <p
+                            className={cn(
+                              "text-muted-foreground leading-tight",
+                              consentSize === "compact"
+                                ? "text-[11px]"
+                                : "text-xs",
+                            )}
+                          >
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {hasError && (
+                      <FieldError className="ml-7">
+                        {item.errorMessage || `This field is required.`}
+                      </FieldError>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
       </form>
     </AuthFormLayout>
   );
