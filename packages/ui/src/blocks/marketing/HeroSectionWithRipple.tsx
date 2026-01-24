@@ -77,7 +77,7 @@ export function HeroSectionWithRipple({
   }, [hasMultipleImages, autoPlayInterval, goToNext]);
 
   return (
-    <div className="relative min-h-[calc(100vh-3.5rem)] w-screen max-w-full overflow-x-hidden">
+    <div className="relative min-h-[calc(100vh-var(--navbar-height,3.5rem))] w-screen max-w-full overflow-x-hidden">
       {/* Layer 1: Background Images (z-0) */}
       {hasImages && (
         <div className="absolute inset-0 z-0">
