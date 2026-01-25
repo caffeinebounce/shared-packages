@@ -34,8 +34,8 @@ export interface BackgroundRippleEffectProps {
  * ```
  */
 export function BackgroundRippleEffect({
-  rows = 8,
-  cols, // No default - undefined means "auto-calculate"
+  rows, // No default - undefined means "auto-calculate based on viewport"
+  cols, // No default - undefined means "auto-calculate based on viewport"
   cellSize = 56,
   className,
   mask = true,
@@ -47,34 +47,51 @@ export function BackgroundRippleEffect({
   const [rippleKey, setRippleKey] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Track viewport width for dynamic column calculation
+  // Track viewport dimensions for dynamic grid calculation
   const [viewportWidth, setViewportWidth] = useState<number>(0);
+  const [viewportHeight, setViewportHeight] = useState<number>(0);
 
-  // Measure viewport width on mount and resize (debounced for performance)
+  // Measure viewport on mount and resize (debounced for performance)
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
 
-    const updateWidth = () => {
+    const updateDimensions = () => {
       setViewportWidth(window.innerWidth);
+      setViewportHeight(window.innerHeight);
     };
 
-    const debouncedUpdateWidth = () => {
+    const debouncedUpdate = () => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(updateWidth, 100);
+      timeoutId = setTimeout(updateDimensions, 100);
     };
 
     // Initial measurement without debounce
-    updateWidth();
+    updateDimensions();
 
-    window.addEventListener("resize", debouncedUpdateWidth);
+    window.addEventListener("resize", debouncedUpdate);
     return () => {
       clearTimeout(timeoutId);
-      window.removeEventListener("resize", debouncedUpdateWidth);
+      window.removeEventListener("resize", debouncedUpdate);
     };
   }, []);
 
   const resolvedCellSize = cellSize;
-  const resolvedRows = rows;
+
+  // Dynamic row calculation: if rows is undefined, calculate based on viewport height
+  const resolvedRows = useMemo(() => {
+    // If rows is explicitly provided, use it
+    if (rows !== undefined) {
+      return rows;
+    }
+
+    // Use measured viewport height, or a generous default for SSR
+    const height = viewportHeight > 0 ? viewportHeight : 2160; // Default to 4K for SSR
+
+    // Add extra rows to ensure we always overflow slightly
+    const neededRows = Math.ceil(height / resolvedCellSize) + 3;
+
+    return Math.max(8, neededRows);
+  }, [rows, resolvedCellSize, viewportHeight]);
 
   // Dynamic column calculation: if cols is undefined, calculate based on viewport width
   const resolvedCols = useMemo(() => {

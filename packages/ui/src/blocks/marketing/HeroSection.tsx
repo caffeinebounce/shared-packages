@@ -118,7 +118,7 @@ export function HeroSection({
 
   return (
     <div
-      className={`relative flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] text-center overflow-hidden ${backgroundClasses[background]} ${paddingClasses[padding]} ${className}`}
+      className={`relative flex flex-col items-center justify-center min-h-dvh text-center overflow-hidden ${backgroundClasses[background]} ${paddingClasses[padding]} ${className}`}
     >
       {/* Background Image Slider */}
       {hasImages && (
