@@ -112,7 +112,7 @@ export function NavbarLogo({
       {text && (
         <span
           className={cn(
-            "text-xl font-black text-foreground/50 whitespace-nowrap uppercase tracking-tight",
+            "text-xl font-black text-foreground/80 whitespace-nowrap uppercase tracking-tight",
             textClassName,
           )}
         >

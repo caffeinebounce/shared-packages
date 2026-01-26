@@ -104,8 +104,11 @@ export function Navbar({
   const LinkEl = LinkComponent || "a";
 
   // Build variant classes
+  // For transparent variant: only transparent when at top, otherwise use blur for readability
   const variantClasses = {
-    transparent: "bg-transparent",
+    transparent: isAtTop
+      ? "bg-transparent border-transparent"
+      : "bg-background/80 backdrop-blur-xl backdrop-saturate-150 border-b border-border dark:border-white/10",
     solid: "bg-background",
     blur: "bg-background/60 backdrop-blur-xl backdrop-saturate-150 border-b border-border dark:border-white/10",
   };
@@ -126,7 +129,7 @@ export function Navbar({
   return (
     <header
       className={cn(
-        "z-50 w-full border-b border-border transition-transform duration-300",
+        "z-50 w-full border-b border-border transition-all duration-300",
         positionClass,
         variantClasses[variant],
         className,
@@ -150,7 +153,7 @@ export function Navbar({
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors whitespace-nowrap"
+                  className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   {link.icon}
                   {link.label}
@@ -159,7 +162,7 @@ export function Navbar({
                 <LinkEl
                   key={link.href}
                   href={link.href}
-                  className="flex items-center gap-1.5 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors whitespace-nowrap"
+                  className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   {link.icon}
                   {link.label}
@@ -205,7 +208,7 @@ export function Navbar({
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors py-2"
+                      className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground transition-colors py-2"
                       onClick={closeMobileMenu}
                     >
                       {link.icon}
@@ -215,7 +218,7 @@ export function Navbar({
                     <LinkEl
                       key={link.href}
                       href={link.href}
-                      className="flex items-center gap-1.5 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors py-2"
+                      className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground transition-colors py-2"
                       onClick={closeMobileMenu}
                     >
                       {link.icon}
