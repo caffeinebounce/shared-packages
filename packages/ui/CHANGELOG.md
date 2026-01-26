@@ -1,5 +1,38 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.42.0
+
+### Minor Changes
+
+- e39c78d: Add CSS variable extensions and data-theme support for brand customization
+
+  - Add 10 new CSS custom properties for brand customization (accent colors, gradients, typography, shadow/spacing multipliers)
+  - Implement 8 theme variants via data-theme attribute (light, dark, colorful, high-contrast, high-contrast-dark, deuteranopia, protanopia, tritanopia)
+  - Add accessibility media queries for prefers-contrast and prefers-reduced-motion
+  - Map new brand variables to Tailwind color utilities
+  - Add TypeScript types for brand customization variables (brandVariables, brandDefaults)
+
+- e7334a0: Add sidebar navigation sections, dividers, and disabled items support
+
+  - Add `disabled` and `disabledTooltip` props to `NavItem` for "coming soon" items
+  - Add `iconAnimation` prop to `NavItem` for hover animations (scale, rotate, bounce)
+  - Add `NavSection` type for grouped nav items with section headers
+  - Add `NavDivider` type for visual separators
+  - Add `NavElement` union type combining all navigation element types
+  - Add type guards: `isNavItem`, `isNavSection`, `isNavDivider`
+  - Update `AppSidebar` to render sections with headers and dividers
+  - Disabled items show tooltip and have reduced opacity with cursor: not-allowed
+  - Keyboard shortcuts skip disabled items
+  - Animations respect `prefers-reduced-motion`
+
+### Patch Changes
+
+- a0c409c: Improve navbar visibility and transparent scroll behavior
+
+  - Increase brand name opacity from 50% to 80%
+  - Increase nav link visibility from muted-foreground/70 to foreground/70
+  - Transparent navbar now shows blur background when scrolled for better readability
+
 ## 0.38.0
 
 ### Minor Changes
