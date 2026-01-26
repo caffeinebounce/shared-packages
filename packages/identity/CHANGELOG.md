@@ -1,5 +1,21 @@
 # @caffeinebounce/identity
 
+## 0.9.0
+
+### Minor Changes
+
+- da74411: Add consentPosition and consentSize props to SignupForm
+
+  - `consentPosition`: Position consent checkboxes "above" (default) or "below" the submit button
+  - `consentSize`: Use "default" or "compact" text sizing for consent items
+
+### Patch Changes
+
+- Updated dependencies [e39c78d]
+- Updated dependencies [a0c409c]
+- Updated dependencies [e7334a0]
+  - @caffeinebounce/ui@0.42.0
+
 ## 0.5.6
 
 ### Patch Changes
