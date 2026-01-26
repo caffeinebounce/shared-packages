@@ -105,11 +105,12 @@ export function Navbar({
 
   // Build variant classes
   // For transparent variant: only transparent when at top, otherwise use blur for readability
+  // Border classes are included in each variant to avoid conflicts
   const variantClasses = {
     transparent: isAtTop
-      ? "bg-transparent border-transparent"
+      ? "bg-transparent border-b border-transparent"
       : "bg-background/80 backdrop-blur-xl backdrop-saturate-150 border-b border-border dark:border-white/10",
-    solid: "bg-background",
+    solid: "bg-background border-b border-border",
     blur: "bg-background/60 backdrop-blur-xl backdrop-saturate-150 border-b border-border dark:border-white/10",
   };
 
@@ -129,7 +130,7 @@ export function Navbar({
   return (
     <header
       className={cn(
-        "z-50 w-full border-b border-border transition-all duration-300",
+        "z-50 w-full transition-[transform,background-color,border-color,backdrop-filter] duration-300",
         positionClass,
         variantClasses[variant],
         className,
