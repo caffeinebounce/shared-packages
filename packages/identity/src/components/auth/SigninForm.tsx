@@ -170,6 +170,12 @@ export function SigninForm({
     // This prevents "invalid session" errors when signing in after sign-out
     clearStalePKCEState();
 
+    // Safety timeout: reset loading state if redirect doesn't happen within 5 seconds
+    // This handles cases where the redirect is blocked or fails silently
+    const timeoutId = setTimeout(() => {
+      setOauthLoading(null);
+    }, 5000);
+
     // Get the appropriate origin for this environment (handles preview vs production)
     const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
     const supabase = createClient();
@@ -181,10 +187,13 @@ export function SigninForm({
     });
 
     if (error) {
+      clearTimeout(timeoutId);
       setError(error.message);
       onAuthEvent?.onSignInFailure?.("", error.message);
       setOauthLoading(null);
     }
+    // Note: If successful, the browser redirects to OAuth provider and this component unmounts,
+    // so the timeout will be garbage collected and won't fire
   }
 
   // Check if email is valid format - stricter validation
@@ -393,27 +402,37 @@ export function SigninForm({
                 googleComingSoon ? undefined : () => handleOAuthSignIn("google")
               }
               className={cn(
-                "w-full bg-muted/50 border-border hover:bg-muted",
+                "w-full bg-muted/50 border-border hover:bg-muted relative overflow-hidden",
                 googleComingSoon
                   ? "text-muted-foreground justify-center"
                   : "text-foreground",
               )}
             >
-              {oauthLoading === "google" ? (
-                <Loader2 className="size-5 animate-spin" />
-              ) : (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-2 transition-opacity duration-150",
+                  oauthLoading === "google" ? "opacity-0" : "opacity-100",
+                )}
+              >
                 <GoogleIcon
                   className={cn("size-5", googleComingSoon && "opacity-50")}
                 />
-              )}
-              {oauthLoading === "google"
-                ? "Redirecting..."
-                : "Continue with Google"}
-              {googleComingSoon && !oauthLoading && (
-                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded ml-2">
-                  Soon
-                </span>
-              )}
+                Continue with Google
+                {googleComingSoon && (
+                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                    Soon
+                  </span>
+                )}
+              </span>
+              <span
+                className={cn(
+                  "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
+                  oauthLoading === "google" ? "opacity-100" : "opacity-0",
+                )}
+              >
+                <Loader2 className="size-5 animate-spin" />
+                Redirecting...
+              </span>
             </Button>
           )}
           {showMicrosoft && (
@@ -423,16 +442,26 @@ export function SigninForm({
               size="lg"
               onClick={() => handleOAuthSignIn("azure")}
               disabled={loading || oauthLoading !== null}
-              className="w-full bg-muted/50 border-border text-foreground hover:bg-muted"
+              className="w-full bg-muted/50 border-border text-foreground hover:bg-muted relative overflow-hidden"
             >
-              {oauthLoading === "azure" ? (
-                <Loader2 className="size-5 animate-spin" />
-              ) : (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-2 transition-opacity duration-150",
+                  oauthLoading === "azure" ? "opacity-0" : "opacity-100",
+                )}
+              >
                 <MicrosoftIcon className="size-5" />
-              )}
-              {oauthLoading === "azure"
-                ? "Redirecting..."
-                : "Continue with Microsoft"}
+                Continue with Microsoft
+              </span>
+              <span
+                className={cn(
+                  "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
+                  oauthLoading === "azure" ? "opacity-100" : "opacity-0",
+                )}
+              >
+                <Loader2 className="size-5 animate-spin" />
+                Redirecting...
+              </span>
             </Button>
           )}
         </div>
