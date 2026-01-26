@@ -14,7 +14,13 @@ import {
 } from "@caffeinebounce/ui";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type ComponentType, useEffect, useMemo, useState } from "react";
+import {
+  type ComponentType,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import isEmail from "validator/lib/isEmail";
 import type { AuthFormConfig, AuthLinks, OAuthProvider } from "../../types";
@@ -135,6 +141,7 @@ export function SignupForm({
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
+  const oauthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Dynamic consent state - initialize from consentItems defaults
   const [consentState, setConsentState] = useState<Record<string, boolean>>(
@@ -164,6 +171,15 @@ export function SignupForm({
       return newState;
     });
   }, [consentItems]);
+
+  // Cleanup OAuth timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (oauthTimeoutRef.current) {
+        clearTimeout(oauthTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Check if all required consents are given
   const requiredConsentsValid = useMemo(
@@ -202,9 +218,14 @@ export function SignupForm({
     // This prevents "invalid session" errors when signing in after sign-out
     clearStalePKCEState();
 
+    // Clear any existing timeout before setting a new one
+    if (oauthTimeoutRef.current) {
+      clearTimeout(oauthTimeoutRef.current);
+    }
+
     // Safety timeout: reset loading state if redirect doesn't happen within 5 seconds
     // This handles cases where the redirect is blocked or fails silently
-    const timeoutId = setTimeout(() => {
+    oauthTimeoutRef.current = setTimeout(() => {
       setOauthLoading(null);
     }, 5000);
 
@@ -217,11 +238,16 @@ export function SignupForm({
     });
 
     if (error) {
-      clearTimeout(timeoutId);
+      if (oauthTimeoutRef.current) {
+        clearTimeout(oauthTimeoutRef.current);
+        oauthTimeoutRef.current = null;
+      }
       toast.error(sanitizeSignupError(error.message));
       onAuthEvent?.onSignUpFailure?.("", error.message);
       setOauthLoading(null);
     }
+    // Note: On successful OAuth, the browser navigates to the provider's auth page,
+    // unloading this page. The cleanup useEffect handles clearing the timeout.
   }
 
   async function handleSignUp(e: React.FormEvent) {

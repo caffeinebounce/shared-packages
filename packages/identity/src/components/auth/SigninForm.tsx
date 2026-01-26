@@ -119,6 +119,7 @@ export function SigninForm({
   const [emailVerificationPending, setEmailVerificationPending] =
     useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const oauthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo =
@@ -145,6 +146,15 @@ export function SigninForm({
     }
   }, [showPassword]);
 
+  // Cleanup OAuth timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (oauthTimeoutRef.current) {
+        clearTimeout(oauthTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Show email verification pending if sign-in failed due to unverified email
   if (emailVerificationPending) {
     return (
@@ -170,9 +180,14 @@ export function SigninForm({
     // This prevents "invalid session" errors when signing in after sign-out
     clearStalePKCEState();
 
+    // Clear any existing timeout before setting a new one
+    if (oauthTimeoutRef.current) {
+      clearTimeout(oauthTimeoutRef.current);
+    }
+
     // Safety timeout: reset loading state if redirect doesn't happen within 5 seconds
     // This handles cases where the redirect is blocked or fails silently
-    const timeoutId = setTimeout(() => {
+    oauthTimeoutRef.current = setTimeout(() => {
       setOauthLoading(null);
     }, 5000);
 
@@ -187,13 +202,16 @@ export function SigninForm({
     });
 
     if (error) {
-      clearTimeout(timeoutId);
+      if (oauthTimeoutRef.current) {
+        clearTimeout(oauthTimeoutRef.current);
+        oauthTimeoutRef.current = null;
+      }
       setError(error.message);
       onAuthEvent?.onSignInFailure?.("", error.message);
       setOauthLoading(null);
     }
-    // Note: If successful, the browser redirects to OAuth provider and this component unmounts,
-    // so the timeout will be garbage collected and won't fire
+    // Note: On successful OAuth, the browser navigates to the provider's auth page,
+    // unloading this page. The cleanup useEffect handles clearing the timeout.
   }
 
   // Check if email is valid format - stricter validation
