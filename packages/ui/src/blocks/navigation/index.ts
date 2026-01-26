@@ -1,4 +1,9 @@
 export {
+  type AppDefinition,
+  AppSwitcher,
+  type AppSwitcherProps,
+} from "./AppSwitcher";
+export {
   ComingSoonButton,
   type ComingSoonButtonProps,
 } from "./ComingSoonButton";

@@ -183,6 +183,8 @@ export {
   TestimonialsSection,
 } from "./blocks/marketing";
 export type {
+  AppDefinition,
+  AppSwitcherProps,
   ComingSoonButtonProps,
   Entity,
   EntitySwitcherProps,
@@ -198,6 +200,7 @@ export type {
   NavLink,
 } from "./blocks/navigation";
 export {
+  AppSwitcher,
   ComingSoonButton,
   EntitySwitcher,
   Footer,
