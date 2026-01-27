@@ -1,5 +1,11 @@
 # @caffeinebounce/shared-utils
 
+## 0.6.0
+
+### Minor Changes
+
+- 67c0c8b: Add formatCompactCurrency utility for compact currency formatting with K/M suffixes
+
 ## 0.5.0
 
 ### Minor Changes

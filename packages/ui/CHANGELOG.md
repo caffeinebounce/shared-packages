@@ -1,5 +1,12 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.42.1
+
+### Patch Changes
+
+- Updated dependencies [67c0c8b]
+  - @caffeinebounce/shared-utils@0.6.0
+
 ## 0.42.0
 
 ### Minor Changes
