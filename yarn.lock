@@ -205,8 +205,8 @@ __metadata:
   resolution: "@caffeinebounce/identity@workspace:packages/identity"
   dependencies:
     "@caffeinebounce/logger": "npm:^0.6.0"
-    "@caffeinebounce/shared-utils": "npm:^0.5.0"
-    "@caffeinebounce/ui": "npm:^0.42.0"
+    "@caffeinebounce/shared-utils": "npm:^0.6.0"
+    "@caffeinebounce/ui": "npm:^0.42.1"
     "@supabase/ssr": "npm:^0.8.0"
     "@supabase/supabase-js": "npm:^2.49.4"
     "@types/node": "npm:^24.10.1"
@@ -294,7 +294,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@caffeinebounce/shared-utils@npm:^0.5.0, @caffeinebounce/shared-utils@workspace:packages/shared-utils":
+"@caffeinebounce/shared-utils@npm:^0.6.0, @caffeinebounce/shared-utils@workspace:packages/shared-utils":
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/shared-utils@workspace:packages/shared-utils"
   dependencies:
@@ -347,12 +347,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@caffeinebounce/ui@npm:^0.42.0, @caffeinebounce/ui@workspace:packages/ui":
+"@caffeinebounce/ui@npm:^0.42.1, @caffeinebounce/ui@workspace:packages/ui":
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/ui@workspace:packages/ui"
   dependencies:
     "@caffeinebounce/logger": "npm:^0.6.0"
-    "@caffeinebounce/shared-utils": "npm:^0.5.0"
+    "@caffeinebounce/shared-utils": "npm:^0.6.0"
     "@grapesjs/studio-sdk": "npm:^1.0.57"
     "@radix-ui/react-avatar": "npm:^1.1.11"
     "@radix-ui/react-collapsible": "npm:^1.1.12"
