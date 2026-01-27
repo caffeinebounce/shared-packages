@@ -14,6 +14,8 @@ export {
   ForgotPasswordForm,
   type ForgotPasswordFormProps,
   GoogleIcon,
+  LastSignInHint,
+  type LastSignInHintProps,
   LinkedAccountsSection,
   type LinkedAccountsSectionProps,
   MFAChallenge,
@@ -42,9 +44,16 @@ export {
   useMFA,
   useRequireMFA,
 } from "./components";
-
 // Handlers
 export { type AuthCallbackConfig, createAuthCallbackHandler } from "./handlers";
+// Hooks
+export {
+  type LastSignInData,
+  maskEmail,
+  type SignInMethod,
+  type UseLastSignInOptions,
+  useLastSignIn,
+} from "./hooks";
 
 // Types
 export {

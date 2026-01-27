@@ -13,10 +13,13 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type ComponentType, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import type { SignInMethod } from "../../hooks/useLastSignIn";
+import { useLastSignIn } from "../../hooks/useLastSignIn";
 import type { AuthFormConfig, AuthLinks, OAuthProvider } from "../../types";
 import { defaultAuthLinks } from "../../types";
 import { AuthFormLayout } from "../shared/AuthFormLayout";
 import { AuthHeader } from "../shared/AuthHeader";
+import { LastSignInHint } from "../shared/LastSignInHint";
 import { GoogleIcon, MicrosoftIcon } from "../shared/OAuthIcons";
 import { OrDivider } from "../shared/OrDivider";
 import { EmailVerificationPending } from "./EmailVerificationPending";
@@ -63,6 +66,10 @@ export interface SigninFormProps extends AuthFormConfig {
   className?: string;
   /** Optional callbacks for logging authentication events */
   onAuthEvent?: AuthEventCallbacks;
+  /** Show hint about last used sign-in method. Default: true */
+  showLastSignInHint?: boolean;
+  /** localStorage key for last sign-in data. Default: "last_signin" */
+  lastSignInStorageKey?: string;
 }
 
 /**
@@ -104,11 +111,21 @@ export function SigninForm({
   googleComingSoon = false,
   className,
   onAuthEvent,
+  showLastSignInHint = true,
+  lastSignInStorageKey = "last_signin",
 }: SigninFormProps) {
   const { logError } = useErrorLogger();
   const mergedLinks = { ...defaultAuthLinks, ...links };
   const Link = LinkComponent;
   const Image = ImageComponent;
+
+  // Last sign-in tracking
+  const {
+    lastSignIn,
+    isLoaded: lastSignInLoaded,
+    recordSignIn,
+    clearLastSignIn,
+  } = useLastSignIn({ storageKey: lastSignInStorageKey });
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -190,6 +207,13 @@ export function SigninForm({
     oauthTimeoutRef.current = setTimeout(() => {
       setOauthLoading(null);
     }, 5000);
+
+    // Store pending OAuth method for recording after successful callback
+    try {
+      sessionStorage.setItem("pending_oauth_method", provider);
+    } catch {
+      // Ignore sessionStorage errors
+    }
 
     // Get the appropriate origin for this environment (handles preview vs production)
     const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
@@ -312,6 +336,9 @@ export function SigninForm({
         // Log sign-in success (without MFA)
         onAuthEvent?.onSignInSuccess?.(userId, email.trim(), false);
 
+        // Record last sign-in method
+        recordSignIn("email", email.trim());
+
         // Use hard redirect to ensure middleware runs with fresh session
         window.location.href = redirectTo;
       }
@@ -346,6 +373,8 @@ export function SigninForm({
       <MFAChallengeComponent
         redirectTo={redirectTo}
         onSuccess={() => {
+          // Record last sign-in method (MFA still counts as email sign-in)
+          recordSignIn("email", email.trim());
           router.push(redirectTo);
           router.refresh();
         }}
@@ -356,6 +385,10 @@ export function SigninForm({
 
   const showGoogle = oauthProviders.includes("google");
   const showMicrosoft = oauthProviders.includes("azure");
+
+  // Check if a method matches the last sign-in for highlighting
+  const isLastMethod = (method: SignInMethod) =>
+    showLastSignInHint && lastSignIn?.method === method;
 
   return (
     <AuthFormLayout
@@ -407,6 +440,15 @@ export function SigninForm({
         </p>
       </div>
 
+      {/* Last Sign-In Hint */}
+      {showLastSignInHint && lastSignInLoaded && lastSignIn && (
+        <LastSignInHint
+          method={lastSignIn.method}
+          email={lastSignIn.email}
+          onClear={clearLastSignIn}
+        />
+      )}
+
       {/* OAuth Buttons */}
       {(showGoogle || showMicrosoft) && (
         <div className="grid gap-3">
@@ -424,6 +466,9 @@ export function SigninForm({
                 googleComingSoon
                   ? "text-muted-foreground justify-center"
                   : "text-foreground",
+                // Highlight if this was the last sign-in method
+                isLastMethod("google") &&
+                  "ring-2 ring-primary ring-offset-2 ring-offset-background",
               )}
             >
               <span
@@ -460,7 +505,12 @@ export function SigninForm({
               size="lg"
               onClick={() => handleOAuthSignIn("azure")}
               disabled={loading || oauthLoading !== null}
-              className="w-full bg-muted/50 border-border text-foreground hover:bg-muted relative overflow-hidden"
+              className={cn(
+                "w-full bg-muted/50 border-border text-foreground hover:bg-muted relative overflow-hidden",
+                // Highlight if this was the last sign-in method
+                isLastMethod("azure") &&
+                  "ring-2 ring-primary ring-offset-2 ring-offset-background",
+              )}
             >
               <span
                 className={cn(
