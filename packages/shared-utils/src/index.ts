@@ -18,6 +18,7 @@ export { type DeviceFingerprint, generateDeviceFingerprint } from "./browser";
 export { getEmailDomain } from "./email";
 // Re-export all formatters
 export {
+  formatCompactCurrency,
   formatCurrency,
   formatDate,
   formatDateTime,

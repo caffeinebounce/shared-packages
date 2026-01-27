@@ -135,6 +135,33 @@ export function formatCurrency(
 }
 
 /**
+ * Format currency in compact notation for charts and dashboards.
+ * Outputs values like "$1.5M", "$500K", or "$750" depending on magnitude.
+ *
+ * @param value - Number to format
+ * @returns Compact currency string with K/M suffixes
+ *
+ * @example
+ * ```ts
+ * formatCompactCurrency(1500000) // "$1.5M"
+ * formatCompactCurrency(500000) // "$500K"
+ * formatCompactCurrency(750) // "$750"
+ * formatCompactCurrency(-1200000) // "-$1.2M"
+ * ```
+ */
+export function formatCompactCurrency(value: number): string {
+  const absValue = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
+  if (absValue >= 1_000_000) {
+    return `${sign}$${(absValue / 1_000_000).toFixed(1)}M`;
+  }
+  if (absValue >= 1_000) {
+    return `${sign}$${(absValue / 1_000).toFixed(0)}K`;
+  }
+  return `${sign}$${absValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+}
+
+/**
  * Format a number as a percentage.
  *
  * @param value - Number or string to format

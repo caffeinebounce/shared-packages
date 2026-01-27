@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatCompactCurrency,
   formatCurrency,
   formatDate,
   formatDateTime,
@@ -102,6 +103,36 @@ describe("formatCurrency", () => {
 
   it("returns em dash for NaN", () => {
     expect(formatCurrency("not-a-number")).toBe("—");
+  });
+});
+
+describe("formatCompactCurrency", () => {
+  it("formats millions with M suffix", () => {
+    expect(formatCompactCurrency(1500000)).toBe("$1.5M");
+    expect(formatCompactCurrency(2000000)).toBe("$2.0M");
+  });
+
+  it("formats thousands with K suffix", () => {
+    expect(formatCompactCurrency(500000)).toBe("$500K");
+    expect(formatCompactCurrency(1000)).toBe("$1K");
+    expect(formatCompactCurrency(250000)).toBe("$250K");
+  });
+
+  it("formats small values without suffix", () => {
+    expect(formatCompactCurrency(750)).toBe("$750");
+    expect(formatCompactCurrency(0)).toBe("$0");
+    expect(formatCompactCurrency(999)).toBe("$999");
+  });
+
+  it("handles negative values", () => {
+    expect(formatCompactCurrency(-1200000)).toBe("-$1.2M");
+    expect(formatCompactCurrency(-50000)).toBe("-$50K");
+    expect(formatCompactCurrency(-500)).toBe("-$500");
+  });
+
+  it("handles edge cases at boundaries", () => {
+    expect(formatCompactCurrency(1000000)).toBe("$1.0M");
+    expect(formatCompactCurrency(999999)).toBe("$1000K");
   });
 });
 
