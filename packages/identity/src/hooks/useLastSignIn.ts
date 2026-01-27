@@ -2,8 +2,15 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-/** Supported sign-in methods */
-export type SignInMethod = "email" | "google" | "azure" | "github";
+/**
+ * Supported sign-in methods.
+ * NOTE: Keep in sync with OAuthProvider type in types.ts.
+ * Add new providers here only after they are fully wired into the sign-in flow.
+ */
+export type SignInMethod = "email" | "google" | "azure";
+
+/** Valid sign-in methods for runtime validation */
+const VALID_METHODS: SignInMethod[] = ["email", "google", "azure"];
 
 /** Stored last sign-in data */
 export interface LastSignInData {
@@ -27,7 +34,14 @@ export interface UseLastSignInOptions {
  * @example "user@example.com" -> "u***@example.com"
  */
 export function maskEmail(email: string): string {
-  const [localPart, domain] = email.split("@");
+  // Handle empty or invalid input
+  if (!email || !email.includes("@")) return email;
+
+  const parts = email.split("@");
+  // Only handle valid emails with exactly one @ symbol
+  if (parts.length !== 2) return email;
+
+  const [localPart, domain] = parts;
   if (!localPart || !domain) return email;
 
   if (localPart.length <= 1) {
@@ -71,8 +85,15 @@ export function useLastSignIn(options: UseLastSignInOptions = {}) {
       const stored = localStorage.getItem(storageKey);
       if (stored) {
         const data = JSON.parse(stored) as LastSignInData;
-        // Validate the data structure
-        if (data.method && data.email && data.timestamp) {
+        // Strictly validate the data structure
+        if (
+          data.method &&
+          VALID_METHODS.includes(data.method) &&
+          data.email &&
+          data.email.includes("@") &&
+          data.timestamp &&
+          !isNaN(Date.parse(data.timestamp))
+        ) {
           setLastSignIn(data);
         }
       }
@@ -90,7 +111,7 @@ export function useLastSignIn(options: UseLastSignInOptions = {}) {
     (method: SignInMethod, email: string) => {
       const data: LastSignInData = {
         method,
-        email,
+        email: email.trim(), // Trim for consistency
         timestamp: new Date().toISOString(),
       };
 
@@ -121,13 +142,29 @@ export function useLastSignIn(options: UseLastSignInOptions = {}) {
    * Complete pending OAuth sign-in recording.
    * Call this after a successful OAuth callback to record the method.
    * Checks sessionStorage for pending OAuth method and user email.
+   *
+   * @example
+   * ```tsx
+   * // In your OAuth callback page after successful auth:
+   * const { completePendingOAuthSignIn } = useLastSignIn();
+   * useEffect(() => {
+   *   if (user?.email) {
+   *     completePendingOAuthSignIn(user.email);
+   *   }
+   * }, [user?.email]);
+   * ```
    */
   const completePendingOAuthSignIn = useCallback(
     (email: string) => {
       try {
-        const pendingMethod = sessionStorage.getItem(
-          "pending_oauth_method",
-        ) as SignInMethod | null;
+        const pendingMethodRaw = sessionStorage.getItem("pending_oauth_method");
+        // Validate the stored method is a valid SignInMethod
+        const pendingMethod =
+          pendingMethodRaw &&
+          VALID_METHODS.includes(pendingMethodRaw as SignInMethod)
+            ? (pendingMethodRaw as SignInMethod)
+            : null;
+
         if (pendingMethod && email) {
           recordSignIn(pendingMethod, email);
           sessionStorage.removeItem("pending_oauth_method");

@@ -13,7 +13,6 @@ const METHOD_CONFIG: Record<
   email: { label: "email" },
   google: { label: "Google" },
   azure: { label: "Microsoft" },
-  github: { label: "GitHub" },
 };
 
 export interface LastSignInHintProps {
@@ -79,6 +78,7 @@ export function LastSignInHint({
           variant="ghost"
           size="sm"
           onClick={onClear}
+          aria-label="Clear stored sign-in information"
           className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground shrink-0"
         >
           <X className="h-3 w-3 mr-1" />
