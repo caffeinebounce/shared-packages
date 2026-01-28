@@ -8,10 +8,17 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
 import type { CreateClientFn } from "../../types";
+
+/**
+ * Debounce window for auth events in milliseconds.
+ * Prevents rapid successive refreshAAL calls from auth state changes.
+ */
+const AUTH_DEBOUNCE_MS = 100;
 
 interface MFAContextType {
   currentLevel: AuthenticatorAssuranceLevels | null;
@@ -60,6 +67,9 @@ export function MFAProvider({ createClient, children }: MFAProviderProps) {
     useState<AuthenticatorAssuranceLevels | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Track last auth event time for debouncing
+  const lastAuthEventRef = useRef<number>(0);
+
   const refreshAAL = useCallback(async () => {
     try {
       const supabase = createClient();
@@ -99,13 +109,21 @@ export function MFAProvider({ createClient, children }: MFAProviderProps) {
   }, [createClient, logError]);
 
   useEffect(() => {
+    // Mark initial load time to prevent immediate duplicate from listener
+    lastAuthEventRef.current = Date.now();
     refreshAAL();
 
-    // Listen for auth state changes
+    // Listen for auth state changes with debouncing
     const supabase = createClient();
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(() => {
+      // Debounce rapid auth events to prevent redundant getSession() calls
+      const now = Date.now();
+      if (now - lastAuthEventRef.current < AUTH_DEBOUNCE_MS) {
+        return;
+      }
+      lastAuthEventRef.current = now;
       refreshAAL();
     });
 
