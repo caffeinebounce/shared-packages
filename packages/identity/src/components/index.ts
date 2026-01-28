@@ -71,6 +71,8 @@ export {
   AuthPageLayout,
   type AuthPageLayoutProps,
   GoogleIcon,
+  LastSignInHint,
+  type LastSignInHintProps,
   MicrosoftIcon,
   OrDivider,
   type OrDividerProps,
