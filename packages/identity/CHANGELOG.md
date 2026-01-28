@@ -1,5 +1,12 @@
 # @caffeinebounce/identity
 
+## 0.10.0
+
+### Minor Changes
+
+- feat: track and display last used sign-in method
+  fix: add debouncing to MFAProvider auth state listener
+
 ## 0.9.1
 
 ### Patch Changes
