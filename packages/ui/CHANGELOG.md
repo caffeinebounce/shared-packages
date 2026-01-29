@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.43.0
+
+### Minor Changes
+
+- Add Slider component using Radix UI primitives
+
 ## 0.42.2
 
 ### Patch Changes
