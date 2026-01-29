@@ -19,6 +19,7 @@ export {
   type UseSessionErrorsOptions,
   useSessionErrors,
 } from "./useSessionErrors";
+export { type ToastOptions, useToast } from "./useToast";
 export {
   createDataRestorationHandler,
   createFormResetHandler,
