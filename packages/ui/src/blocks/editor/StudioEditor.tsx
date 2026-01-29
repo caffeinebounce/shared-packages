@@ -544,6 +544,74 @@ const formBlocks: StudioBlock[] = [
       </button>
     `,
   },
+  {
+    id: "number-input",
+    label: "Number Input",
+    category: "Form",
+    media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><text x="12" y="14" text-anchor="middle" font-size="8" fill="currentColor">123</text></svg>`,
+    content: `
+      <div class="form-field" data-gjs-name="Number Input Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Number Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Number</label>
+        <input type="number" data-gjs-name="Number Input" placeholder="0" min="0" max="100" step="1" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
+      </div>
+    `,
+  },
+  {
+    id: "date-input",
+    label: "Date Picker",
+    category: "Form",
+    media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/></svg>`,
+    content: `
+      <div class="form-field" data-gjs-name="Date Picker Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Date Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Date</label>
+        <input type="date" data-gjs-name="Date Input" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
+      </div>
+    `,
+  },
+  {
+    id: "file-upload",
+    label: "File Upload",
+    category: "Form",
+    media: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" fill="none" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="currentColor" fill="none" stroke-width="2"/><line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><polyline points="9 15 12 12 15 15" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
+    content: `
+      <div class="form-field" data-gjs-name="File Upload Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="File Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Upload File</label>
+        <div data-gjs-name="File Upload Zone" style="border: 2px dashed #d1d5db; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.2s;">
+          <input type="file" data-gjs-name="File Input" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style="display: none;" />
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" style="margin: 0 auto 12px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <p data-gjs-name="Upload Text" style="margin: 0 0 4px 0; font-size: 14px; color: #374151;">Click to upload or drag and drop</p>
+          <p data-gjs-name="Upload Hint" style="margin: 0; font-size: 12px; color: #9ca3af;">PDF, DOC, DOCX, PNG, JPG up to 10MB</p>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: "combobox",
+    label: "Combobox",
+    category: "Form",
+    media: `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="6" width="18" height="12" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><circle cx="8" cy="12" r="2" stroke="currentColor" fill="none" stroke-width="2"/><line x1="12" y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="2"/><path d="M17 10l2 2-2 2" stroke="currentColor" fill="none" stroke-width="2"/></svg>`,
+    content: `
+      <div class="form-field" data-gjs-name="Combobox Field" style="margin-bottom: 20px;">
+        <label data-gjs-name="Combobox Label" style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #374151;">Search & Select</label>
+        <div data-gjs-name="Combobox Container" style="position: relative;">
+          <input type="text" data-gjs-name="Combobox Input" list="combobox-options" placeholder="Type to search..." style="width: 100%; padding: 10px 40px 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; background: #ffffff; color: #111827;" />
+          <datalist id="combobox-options" data-gjs-name="Combobox Options">
+            <option value="Option 1">Option 1</option>
+            <option value="Option 2">Option 2</option>
+            <option value="Option 3">Option 3</option>
+          </datalist>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none;">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+      </div>
+    `,
+  },
 ];
 
 /** Default block categories for forms */
