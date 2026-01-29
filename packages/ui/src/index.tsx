@@ -499,6 +499,7 @@ export {
   useSidebar,
 } from "./components/ui/sidebar";
 export { Skeleton } from "./components/ui/skeleton";
+export { Slider } from "./components/ui/slider";
 export type {
   SocialIconProps,
   SocialPlatform,
