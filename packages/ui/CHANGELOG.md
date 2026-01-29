@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.42.2
+
+### Patch Changes
+
+- 1bd7455: Add useToast hook export for shadcn/ui-compatible toast interface using sonner
+
 ## 0.42.1
 
 ### Patch Changes
