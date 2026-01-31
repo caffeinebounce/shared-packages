@@ -322,6 +322,7 @@ export function sanitizeErrorMessageForClient(
 
     if (
       lowerMessage.includes("not-null") ||
+      lowerMessage.includes("not allowed") ||
       (lowerMessage.includes("null") && lowerMessage.includes("violates"))
     ) {
       return "Required information is missing";
