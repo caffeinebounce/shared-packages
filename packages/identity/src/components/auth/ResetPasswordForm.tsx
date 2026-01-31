@@ -7,6 +7,7 @@ import {
   FieldLabel,
   PasswordInput,
 } from "@caffeinebounce/ui";
+import { AlertCircle } from "lucide-react";
 import { type ComponentType, useEffect, useState } from "react";
 
 import type { AuthFormConfig, AuthLinks } from "../../types";
@@ -366,7 +367,10 @@ export function ResetPasswordForm({
           </div>
 
           {error && (
-            <FieldError className="text-destructive">{error}</FieldError>
+            <div className="animate-in fade-in slide-in-from-top-1 duration-200 flex items-center gap-2 rounded-md bg-red-500/10 border border-red-500/20 px-3 py-2 text-sm text-red-400">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
           )}
 
           <Button type="submit" size="lg" disabled={loading} className="w-full">
