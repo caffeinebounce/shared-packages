@@ -2,6 +2,7 @@
 
 import { getClientOrigin } from "@caffeinebounce/shared-utils";
 import { Button, FieldLabel, Input } from "@caffeinebounce/ui";
+import { AlertCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { type ComponentType, useState } from "react";
 
@@ -167,7 +168,12 @@ export function ForgotPasswordForm({
           />
         </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <div className="animate-in fade-in slide-in-from-top-1 duration-200 flex items-center gap-2 rounded-md bg-red-500/10 border border-red-500/20 px-3 py-2 text-sm text-red-400">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
 
         <Button type="submit" size="lg" disabled={loading} className="w-full">
           {loading ? "Sending..." : "Send Reset Link"}
