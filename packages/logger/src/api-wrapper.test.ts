@@ -4,6 +4,7 @@ import {
   type ApiErrorCode,
   type ApiHandler,
   type ErrorLoggingContext,
+  sanitizeErrorMessageForClient,
   withErrorLogging,
 } from "./api-wrapper";
 
@@ -421,5 +422,257 @@ describe("ApiErrorCode type", () => {
 
     // TypeScript will error if any code is not valid
     expect(validCodes).toHaveLength(8);
+  });
+});
+
+describe("sanitizeErrorMessageForClient", () => {
+  describe("SQL query detection and sanitization", () => {
+    it("should sanitize SELECT queries", () => {
+      const sqlMessage =
+        'Failed query: select "services"."id", "services"."business_id" from "services" where "services"."id" = $1 limit $2 params: 1,1';
+      const result = sanitizeErrorMessageForClient(sqlMessage);
+      expect(result).not.toContain("select");
+      expect(result).not.toContain("services");
+      expect(result).not.toContain("$1");
+      expect(result).toBe("A database error occurred");
+    });
+
+    it("should sanitize INSERT queries", () => {
+      const sqlMessage =
+        'INSERT INTO "users" ("email", "name") VALUES ($1, $2)';
+      const result = sanitizeErrorMessageForClient(sqlMessage);
+      expect(result).not.toContain("INSERT");
+      expect(result).not.toContain("users");
+      expect(result).toBe("A database error occurred");
+    });
+
+    it("should sanitize UPDATE queries", () => {
+      const sqlMessage = 'UPDATE "profiles" SET "name" = $1 WHERE "id" = $2';
+      const result = sanitizeErrorMessageForClient(sqlMessage);
+      expect(result).not.toContain("UPDATE");
+      expect(result).not.toContain("profiles");
+      expect(result).toBe("A database error occurred");
+    });
+
+    it("should sanitize DELETE queries", () => {
+      const sqlMessage = 'DELETE FROM "sessions" WHERE "expired" = true';
+      const result = sanitizeErrorMessageForClient(sqlMessage);
+      expect(result).not.toContain("DELETE");
+      expect(result).not.toContain("sessions");
+      expect(result).toBe("A database error occurred");
+    });
+
+    it("should sanitize complex JOIN queries", () => {
+      const sqlMessage =
+        'select "services"."id", "business_profiles"."name" from "services" inner join "business_profiles" on "services"."business_id" = "business_profiles"."id" where "services"."id" = $1';
+      const result = sanitizeErrorMessageForClient(sqlMessage);
+      expect(result).not.toContain("join");
+      expect(result).not.toContain("services");
+      expect(result).not.toContain("business_profiles");
+      expect(result).toBe("A database error occurred");
+    });
+
+    it("should detect Failed query: prefix", () => {
+      const sqlMessage = "Failed query: some query text";
+      const result = sanitizeErrorMessageForClient(sqlMessage);
+      expect(result).toBe("A database error occurred");
+    });
+
+    it("should detect params: suffix", () => {
+      const sqlMessage = "Some error message params: 1, 2, 3";
+      const result = sanitizeErrorMessageForClient(sqlMessage);
+      expect(result).toBe("A database error occurred");
+    });
+  });
+
+  describe("friendly messages based on error codes", () => {
+    it("should use friendly message for unique violation (23505)", () => {
+      const sqlMessage =
+        'duplicate key value violates unique constraint "users_email_key"';
+      const result = sanitizeErrorMessageForClient(sqlMessage, "23505");
+      expect(result).toBe("A record with this value already exists");
+    });
+
+    it("should use friendly message for foreign key violation (23503)", () => {
+      const sqlMessage =
+        'insert or update on table "orders" violates foreign key constraint';
+      const result = sanitizeErrorMessageForClient(sqlMessage, "23503");
+      expect(result).toBe("This operation references data that doesn't exist");
+    });
+
+    it("should use friendly message for not null violation (23502)", () => {
+      const sqlMessage =
+        'null value in column "email" violates not-null constraint';
+      const result = sanitizeErrorMessageForClient(sqlMessage, "23502");
+      expect(result).toBe("Required information is missing");
+    });
+
+    it("should use friendly message for invalid input (22P02)", () => {
+      const sqlMessage = 'invalid input syntax for type uuid: "not-a-uuid"';
+      const result = sanitizeErrorMessageForClient(sqlMessage, "22P02");
+      expect(result).toBe("Invalid input format");
+    });
+  });
+
+  describe("message inference without error code", () => {
+    it("should infer not found message", () => {
+      const result = sanitizeErrorMessageForClient(
+        'SELECT * FROM "users" WHERE "id" = $1 -- no rows returned, resource not found',
+      );
+      expect(result).toBe("The requested resource was not found");
+    });
+
+    it("should infer duplicate message", () => {
+      const result = sanitizeErrorMessageForClient(
+        'INSERT INTO "users" failed: duplicate key value',
+      );
+      expect(result).toBe("A record with this value already exists");
+    });
+
+    it("should infer required field message", () => {
+      const result = sanitizeErrorMessageForClient(
+        'INSERT INTO "users" failed: null value not allowed',
+      );
+      expect(result).toBe("Required information is missing");
+    });
+
+    it("should infer invalid format message", () => {
+      const result = sanitizeErrorMessageForClient(
+        'SELECT * FROM "users" WHERE "id" = $1 -- invalid uuid format',
+      );
+      expect(result).toBe("Invalid input format");
+    });
+  });
+
+  describe("non-SQL messages", () => {
+    it("should pass through safe error messages unchanged", () => {
+      const message = "Invalid email format";
+      const result = sanitizeErrorMessageForClient(message);
+      expect(result).toBe("Invalid email format");
+    });
+
+    it("should pass through generic validation errors", () => {
+      const message = "Password must be at least 8 characters";
+      const result = sanitizeErrorMessageForClient(message);
+      expect(result).toBe("Password must be at least 8 characters");
+    });
+
+    it("should sanitize quoted identifiers even in non-SQL messages", () => {
+      const message = 'The field "user_password" is required';
+      const result = sanitizeErrorMessageForClient(message);
+      expect(result).toBe("The field [field] is required");
+      expect(result).not.toContain("user_password");
+    });
+
+    it("should pass through simple error messages", () => {
+      const message = "An unexpected error occurred";
+      const result = sanitizeErrorMessageForClient(message);
+      expect(result).toBe("An unexpected error occurred");
+    });
+  });
+
+  describe("edge cases", () => {
+    it("should handle empty string", () => {
+      const result = sanitizeErrorMessageForClient("");
+      expect(result).toBe("");
+    });
+
+    it("should handle message with only SQL keywords", () => {
+      const result = sanitizeErrorMessageForClient("SELECT");
+      expect(result).toBe("A database error occurred");
+    });
+
+    it("should handle case variations", () => {
+      const result = sanitizeErrorMessageForClient(
+        "select * FROM users WHERE id = 1",
+      );
+      expect(result).toBe("A database error occurred");
+    });
+  });
+});
+
+describe("withErrorLogging SQL sanitization", () => {
+  const defaultContext: ErrorLoggingContext = {
+    endpoint: "/api/test",
+    method: "GET",
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should sanitize SQL query in error response", async () => {
+    const sqlError = new Error(
+      'Failed query: select "services"."id", "services"."business_id" from "services" where "services"."id" = $1 limit $2 params: 1,1',
+    );
+
+    const mockHandler: ApiHandler<undefined> = async () => {
+      throw sqlError;
+    };
+
+    const wrappedHandler = withErrorLogging(mockHandler, defaultContext);
+    const request = createMockRequest();
+    const response = await wrappedHandler(request);
+
+    const body = await response.json();
+    expect(body.error).not.toContain("select");
+    expect(body.error).not.toContain("services");
+    expect(body.error).not.toContain("$1");
+    expect(body.error).toBe("A database error occurred");
+  });
+
+  it("should sanitize postgres.js style errors with query property", async () => {
+    const postgresError = Object.assign(new Error("syntax error"), {
+      code: "42601",
+      query: 'SELECT * FROM "users" WHERE "id" = $1',
+      parameters: ["123"],
+    });
+
+    const mockHandler: ApiHandler<undefined> = async () => {
+      throw postgresError;
+    };
+
+    const wrappedHandler = withErrorLogging(mockHandler, defaultContext);
+    const request = createMockRequest();
+    const response = await wrappedHandler(request);
+
+    const body = await response.json();
+    expect(body.error).not.toContain("SELECT");
+    expect(body.error).not.toContain("users");
+  });
+
+  it("should use friendly message for postgres error codes", async () => {
+    const uniqueViolation = Object.assign(
+      new Error(
+        'duplicate key value violates unique constraint "users_email_key"',
+      ),
+      { code: "23505" },
+    );
+
+    const mockHandler: ApiHandler<undefined> = async () => {
+      throw uniqueViolation;
+    };
+
+    const wrappedHandler = withErrorLogging(mockHandler, defaultContext);
+    const request = createMockRequest();
+    const response = await wrappedHandler(request);
+
+    const body = await response.json();
+    expect(body.error).toBe("A record with this value already exists");
+  });
+
+  it("should preserve non-SQL error messages", async () => {
+    const validationError = new Error("Email format is invalid");
+
+    const mockHandler: ApiHandler<undefined> = async () => {
+      throw validationError;
+    };
+
+    const wrappedHandler = withErrorLogging(mockHandler, defaultContext);
+    const request = createMockRequest();
+    const response = await wrappedHandler(request);
+
+    const body = await response.json();
+    expect(body.error).toBe("Email format is invalid");
   });
 });
