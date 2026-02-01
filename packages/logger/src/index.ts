@@ -29,7 +29,7 @@ export type {
   ApiHandler,
   ErrorLoggingContext,
 } from "./api-wrapper";
-export { withErrorLogging } from "./api-wrapper";
+export { sanitizeErrorMessageForClient, withErrorLogging } from "./api-wrapper";
 export { authLogger } from "./auth-logger";
 // Deployment environment detection
 export {
