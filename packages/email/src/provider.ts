@@ -1,5 +1,9 @@
 import { Resend } from "resend";
-import { createMockEmailTransport, type MockEmailTransport } from "./mock";
+import {
+  createMockEmailTransport,
+  type MockEmailTransport,
+  mockEmailTransport,
+} from "./mock";
 import { createSmtpTransport } from "./smtp-adapter";
 import type {
   EmailPayload,
@@ -21,6 +25,12 @@ export interface ProviderConfig {
   smtpConfig?: SmtpConfig;
   /** Default "from" address */
   defaultFrom?: string;
+  /**
+   * Use the singleton mock transport instead of creating a new one.
+   * This allows test utilities to access captured emails via `mockEmailTransport`.
+   * Only applies when provider is 'mock'.
+   */
+  useSingletonMock?: boolean;
 }
 
 /**
@@ -74,6 +84,7 @@ export function createUniversalEmailClient(
           : undefined,
     },
     defaultFrom = process.env.EMAIL_FROM || "noreply@example.com",
+    useSingletonMock = process.env.EMAIL_USE_SINGLETON_MOCK === "true",
   } = config;
 
   // Determine provider
@@ -90,7 +101,9 @@ export function createUniversalEmailClient(
         console.warn(
           "Resend provider selected but no API key provided, falling back to mock",
         );
-        transport = createMockEmailTransport();
+        transport = useSingletonMock
+          ? mockEmailTransport
+          : createMockEmailTransport();
         break;
       }
       const resend = new Resend(resendApiKey);
@@ -105,7 +118,10 @@ export function createUniversalEmailClient(
 
     default: {
       // Handles 'mock' and any unknown provider
-      transport = createMockEmailTransport();
+      // Use singleton for E2E tests so captured emails are accessible
+      transport = useSingletonMock
+        ? mockEmailTransport
+        : createMockEmailTransport();
       break;
     }
   }
