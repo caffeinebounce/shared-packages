@@ -1,5 +1,11 @@
 # @caffeinebounce/logger
 
+## 0.9.6
+
+### Patch Changes
+
+- c56d519: Add DEPLOYMENT_ENV environment variable override for explicit environment detection. Set DEPLOYMENT_ENV=preview on persistent preview environments to correctly identify them in logs.
+
 ## 0.9.3
 
 ### Patch Changes
