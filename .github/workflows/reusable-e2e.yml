@@ -67,8 +67,8 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    # Job timeout = test timeout + 10 min buffer for setup/teardown
-    timeout-minutes: ${{ inputs.test-timeout-minutes + 10 }}
+    # Job timeout = test timeout + 3 min buffer (keep aggressive to preserve minutes)
+    timeout-minutes: ${{ inputs.test-timeout-minutes + 3 }}
 
     env:
       GITHUB_TOKEN: ${{ secrets.GH_PAT || github.token }}
@@ -108,11 +108,10 @@ jobs:
           restore-keys: |
             yarn-cache-${{ runner.os }}-
 
-      # Note: We rely on yarn cache for dependency restoration
-      # node_modules artifacts are not uploaded by the build job to save storage
+      # Rely on yarn cache for fast dependency restoration
       - name: Install Dependencies
         run: yarn install --immutable
-        timeout-minutes: 5
+        timeout-minutes: 3
 
       - name: Restore Playwright browsers
         id: restore-playwright
