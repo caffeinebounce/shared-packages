@@ -1,4 +1,4 @@
-// Client
+// Client (legacy Resend-only)
 export {
   createEmailClient,
   type EmailClient,
@@ -22,6 +22,22 @@ export {
   EmailText,
   type EmailTextProps,
 } from "./components/EmailPrimitives";
+// Mock Transport (for testing)
+export {
+  createMockEmailTransport,
+  type MockEmailTransport,
+  mockEmailTransport,
+  type StoredEmail,
+} from "./mock";
+// Universal Provider (supports Resend, SMTP, Mock)
+export {
+  createUniversalEmailClient,
+  isMockClient,
+  type ProviderConfig,
+  type UniversalEmailClient,
+} from "./provider";
+// SMTP Adapter
+export { createSmtpTransport } from "./smtp-adapter";
 export {
   MagicLinkTemplate,
   type MagicLinkTemplateProps,
@@ -48,3 +64,12 @@ export {
   defaultBrandConfig,
   defaultColors,
 } from "./types/brand";
+// Provider Types
+export {
+  DEFAULT_MAILPIT_CONFIG,
+  type EmailPayload,
+  type EmailProvider,
+  type EmailSendResult,
+  type EmailTransport,
+  type SmtpConfig,
+} from "./types/provider";

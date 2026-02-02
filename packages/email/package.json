@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
+    "@types/nodemailer": "^7",
     "@types/react": "^19.2.1",
     "@types/react-dom": "^19.2.1",
     "react": "^19.2.1",
@@ -48,6 +49,7 @@
   },
   "dependencies": {
     "@react-email/components": "^1.0.1",
+    "nodemailer": "^7.0.13",
     "resend": "^6.5.2"
   }
 }
