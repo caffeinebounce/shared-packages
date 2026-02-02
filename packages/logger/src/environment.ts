@@ -6,6 +6,9 @@
  * - development: Local development (localhost, etc.)
  * - preview: PR preview deployments (e.g., compass-pr-123.onrender.com)
  * - production: Production deployment
+ *
+ * Override: Set DEPLOYMENT_ENV env var to explicitly specify environment.
+ * Useful for persistent preview environments that don't match PR patterns.
  */
 
 export type DeploymentEnvironment = "development" | "preview" | "production";
@@ -19,6 +22,17 @@ export type DeploymentEnvironment = "development" | "preview" | "production";
 export function detectDeploymentEnvironment(
   hostname?: string | null,
 ): DeploymentEnvironment {
+  // Explicit override via DEPLOYMENT_ENV takes priority
+  // Use this for persistent preview environments (e.g., dev-preview on Render)
+  const explicitEnv = process.env.DEPLOYMENT_ENV;
+  if (
+    explicitEnv === "development" ||
+    explicitEnv === "preview" ||
+    explicitEnv === "production"
+  ) {
+    return explicitEnv;
+  }
+
   // Development if NODE_ENV is not production
   if (process.env.NODE_ENV !== "production") {
     return "development";
