@@ -132,7 +132,8 @@ export function FeedbackButton({
       // Check if the key matches (case-insensitive)
       if (e.key.toLowerCase() === keyboardShortcut.toLowerCase()) {
         e.preventDefault();
-        setDialogOpen(true);
+        // Toggle dialog open/closed
+        setDialogOpen((prev) => !prev);
       }
     },
     [keyboardShortcut],
