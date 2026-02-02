@@ -251,7 +251,8 @@ describe("withErrorLogging", () => {
 
       const body = await response.json();
       expect(body.code).toBe("supabase_error");
-      expect(body.error).toContain("Database");
+      // Error code 23505 is sanitized to user-friendly message
+      expect(body.error).toBe("A record with this value already exists");
     });
 
     it("should add correlation ID to error response", async () => {
