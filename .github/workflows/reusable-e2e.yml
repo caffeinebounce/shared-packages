@@ -67,7 +67,8 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Job timeout = test timeout + 10 min buffer for setup/teardown
+    timeout-minutes: ${{ inputs.test-timeout-minutes + 10 }}
 
     env:
       GITHUB_TOKEN: ${{ secrets.GH_PAT || github.token }}
@@ -107,36 +108,11 @@ jobs:
           restore-keys: |
             yarn-cache-${{ runner.os }}-
 
-      - name: Download node_modules artifact
-        id: download-node-modules
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: node-modules
-          path: ./node_modules_artifact
-
-      - name: Extract node_modules artifact
-        run: |
-          if [ -f ./node_modules_artifact/node_modules.tgz ]; then
-            echo 'Extracting node_modules.tgz'
-            tar -xzf ./node_modules_artifact/node_modules.tgz -C ./
-          else
-            echo 'No node_modules artifact present'
-          fi
-
-      - name: Check restored node_modules
-        id: node-mod-check
-        run: |
-          if [ -d "node_modules" ]; then
-            echo "restored=true" >> $GITHUB_OUTPUT
-          else
-            echo "restored=false" >> $GITHUB_OUTPUT
-          fi
-
+      # Note: We rely on yarn cache for dependency restoration
+      # node_modules artifacts are not uploaded by the build job to save storage
       - name: Install Dependencies
-        if: steps.node-mod-check.outputs.restored != 'true'
         run: yarn install --immutable
-        timeout-minutes: 3
+        timeout-minutes: 5
 
       - name: Restore Playwright browsers
         id: restore-playwright
