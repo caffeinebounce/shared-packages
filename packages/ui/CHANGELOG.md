@@ -1,5 +1,14 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.43.3
+
+### Patch Changes
+
+- 09525fa: fix(ui): feedback modal focus and toggle behavior
+
+  - Remove focus ring on dialog content when opened via keyboard
+  - Toggle feedback dialog with F key (pressing F when open closes it)
+
 ## 0.43.0
 
 ### Minor Changes
