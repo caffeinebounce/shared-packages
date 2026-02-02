@@ -146,7 +146,7 @@ export function Navbar({
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-2">
           {/* Navigation Links */}
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center gap-6">
             {links.map((link) =>
               link.external ? (
                 <a
@@ -173,7 +173,7 @@ export function Navbar({
           </nav>
 
           {/* Right Content */}
-          <div className="flex items-center gap-2">{rightContent}</div>
+          <div className="flex items-center gap-3 ml-4">{rightContent}</div>
         </div>
 
         {/* Mobile: Right content + Menu Button */}
