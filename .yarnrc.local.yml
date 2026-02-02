@@ -1,0 +1,5 @@
+npmScopes:
+  caffeinebounce:
+    npmAlwaysAuth: true
+    npmAuthToken: ""
+    npmRegistryServer: "https://npm.pkg.github.com"
