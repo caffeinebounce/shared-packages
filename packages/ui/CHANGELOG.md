@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.43.4
+
+### Patch Changes
+
+- fix(ui): improve navbar link spacing - change gap from 8px to 24px for better visual separation
+
 ## 0.43.3
 
 ### Patch Changes
