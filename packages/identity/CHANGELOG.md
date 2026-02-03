@@ -1,5 +1,18 @@
 # @caffeinebounce/identity
 
+## 0.10.4
+
+### Patch Changes
+
+- fix(SignupForm): Disable submit button until form is fully valid
+
+  The signup button was enabled with empty password fields once a valid email was entered. Now properly validates:
+
+  - Email is valid
+  - Password meets all requirements
+  - Confirm password matches
+  - Required consents are given
+
 ## 0.10.1
 
 ### Patch Changes
