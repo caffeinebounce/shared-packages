@@ -609,7 +609,14 @@ export function SignupForm({
         <Button
           type="submit"
           size="lg"
-          disabled={loading || oauthLoading !== null || !isEmailValid}
+          disabled={
+            loading ||
+            oauthLoading !== null ||
+            !isEmailValid ||
+            !allPasswordRulesMet ||
+            password !== confirmPassword ||
+            !requiredConsentsValid
+          }
           className="w-full"
         >
           {loading ? "Signing up..." : "Sign Up"}
