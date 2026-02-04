@@ -30,6 +30,7 @@ export default defineConfig({
     "next/link",
     "next/image",
     "next/navigation",
+    "sonner",
   ],
   treeshake: true,
   minify: false,
