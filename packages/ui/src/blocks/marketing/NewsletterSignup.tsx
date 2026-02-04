@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail } from "lucide-react";
+import { Check, Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
@@ -50,14 +50,14 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
 
   if (submitted) {
     return (
-      <div
-        className={`rounded-lg border border-green-200 bg-green-50 p-4 text-center dark:border-green-800 dark:bg-green-900/20 ${className || ""}`}
-      >
-        <p className="text-sm font-medium text-green-800 dark:text-green-200">
-          ✓ Thank you for subscribing!
-          <br />
-          Check your email for confirmation.
-        </p>
+      <div className={`flex items-center gap-3 ${className || ""}`}>
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500 text-white animate-in zoom-in duration-300">
+          <Check className="h-5 w-5 animate-in fade-in duration-500 delay-150" strokeWidth={3} />
+        </div>
+        <div className="animate-in slide-in-from-left-2 fade-in duration-300 delay-100">
+          <p className="font-medium text-foreground">You&apos;re subscribed!</p>
+          <p className="text-sm text-muted-foreground">Check your email to confirm.</p>
+        </div>
       </div>
     );
   }
