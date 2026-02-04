@@ -1,5 +1,17 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.44.0
+
+### Minor Changes
+
+- feat: add HoverEffect card component
+
+  Aceternity-style card hover effect where a background highlight smoothly slides to the currently hovered card.
+
+  - Added `motion` dependency for animations
+  - `HoverEffect` component with configurable items (title, description, optional link)
+  - Exported `HoverEffect`, `HoverEffectCard`, `HoverEffectCardTitle`, `HoverEffectCardDescription`
+
 ## 0.43.4
 
 ### Patch Changes
