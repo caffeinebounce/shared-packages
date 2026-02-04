@@ -473,6 +473,11 @@ export {
   SelectValue,
 } from "./components/ui/select";
 export { Separator } from "./components/ui/separator";
+export type {
+  PageSectionProps,
+  PageSectionsProps,
+} from "./components/ui/page-sections";
+export { PageSection, PageSections } from "./components/ui/page-sections";
 export {
   Sheet,
   SheetClose,
