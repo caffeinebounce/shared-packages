@@ -65,19 +65,21 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className={`flex flex-col gap-3 sm:flex-row ${className || ""}`}
+      className={`flex ${className || ""}`}
     >
-      <div className="flex-1">
-        <Input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full"
-        />
-      </div>
-      <Button type="submit" disabled={isSubmitting || !email}>
+      <Input
+        type="email"
+        placeholder="Enter your email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        className="flex-1 rounded-r-none border-r-0 focus-visible:z-10"
+      />
+      <Button 
+        type="submit" 
+        disabled={isSubmitting || !email}
+        className="rounded-l-none"
+      >
         <Mail className="mr-2 h-4 w-4" />
         {isSubmitting ? "Subscribing..." : "Subscribe"}
       </Button>
