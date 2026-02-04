@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.0
+
+### Minor Changes
+
+- Add PageSections layout component for structuring pages with optional separators between sections
+
 ## 0.44.0
 
 ### Minor Changes
