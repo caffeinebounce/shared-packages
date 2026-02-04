@@ -103,6 +103,7 @@
   },
   "dependencies": {
     "@caffeinebounce/logger": "^0.6.0",
+    "motion": "^12.4.7",
     "@caffeinebounce/shared-utils": "^0.6.0",
     "@grapesjs/studio-sdk": "^1.0.57",
     "@radix-ui/react-avatar": "^1.1.11",

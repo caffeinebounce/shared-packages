@@ -309,6 +309,19 @@ export {
   CardHeader,
   CardTitle,
 } from "./components/ui/card";
+export type {
+  HoverEffectCardDescriptionProps,
+  HoverEffectCardProps,
+  HoverEffectCardTitleProps,
+  HoverEffectItem,
+  HoverEffectProps,
+} from "./components/ui/card-hover-effect";
+export {
+  HoverEffect,
+  HoverEffectCard,
+  HoverEffectCardDescription,
+  HoverEffectCardTitle,
+} from "./components/ui/card-hover-effect";
 export type { ChartConfig } from "./components/ui/chart";
 export {
   ChartContainer,
