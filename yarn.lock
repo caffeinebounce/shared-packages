@@ -399,6 +399,7 @@ __metadata:
     next: ">=14.0.0"
     react: ^18 || ^19
     react-dom: ^18 || ^19
+    sonner: ^2.0.0
   peerDependenciesMeta:
     next:
       optional: true
