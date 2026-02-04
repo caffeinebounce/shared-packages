@@ -2,6 +2,7 @@
 
 import { Mail } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 
@@ -12,19 +13,18 @@ export interface NewsletterSignupProps {
 
 /**
  * NewsletterSignup - Newsletter signup form for marketing page
+ * Errors are displayed via toasts for better UX
  */
 export function NewsletterSignup({ className }: NewsletterSignupProps) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
     setIsSubmitting(true);
-    setError(null);
 
     try {
       const response = await fetch("/api/newsletter/subscribe", {
@@ -36,12 +36,13 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
       if (response.ok) {
         setSubmitted(true);
         setEmail("");
+        toast.success("Check your email to confirm your subscription!");
       } else {
         const data = await response.json();
-        setError(data.error || "Failed to subscribe. Please try again.");
+        toast.error(data.error || "Something went wrong. Please try again.");
       }
     } catch {
-      setError("Failed to subscribe. Please try again.");
+      toast.error("Unable to connect. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -80,7 +81,6 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
         <Mail className="mr-2 h-4 w-4" />
         {isSubmitting ? "Subscribing..." : "Subscribe"}
       </Button>
-      {error && <p className="text-sm text-destructive">{error}</p>}
     </form>
   );
 }
