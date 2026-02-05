@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.17
+
+### Patch Changes
+
+- Update radio group item to use primary color for focus ring
+
 ## 0.45.16
 
 ### Patch Changes
