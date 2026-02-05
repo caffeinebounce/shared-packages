@@ -73,7 +73,7 @@ const eligibilityConfig: Record<
     className: "bg-red-100 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30",
   },
   pending: {
-    label: "Checking",
+    label: "Pending Eligibility",
     icon: Clock,
     className: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30",
   },
