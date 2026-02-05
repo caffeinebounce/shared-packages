@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.20
+
+### Patch Changes
+
+- Radio group item: use box-shadow for focus effect instead of ring utility
+
 ## 0.45.19
 
 ### Patch Changes
