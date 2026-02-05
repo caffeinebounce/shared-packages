@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.41
+
+### Patch Changes
+
+- Revert sidebar changes to restore working state
+
 ## 0.45.40
 
 ### Patch Changes
