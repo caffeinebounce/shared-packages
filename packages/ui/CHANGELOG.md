@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.42
+
+### Patch Changes
+
+- Remove hover border from SidebarRail
+
 ## 0.45.41
 
 ### Patch Changes
