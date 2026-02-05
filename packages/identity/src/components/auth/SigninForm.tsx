@@ -443,94 +443,85 @@ export function SigninForm({
       {(showGoogle || showMicrosoft) && (
         <div className="grid gap-3">
           {showGoogle && (
-            <div className="relative">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                disabled={googleComingSoon || loading || oauthLoading !== null}
-                onClick={
-                  googleComingSoon
-                    ? undefined
-                    : () => handleOAuthSignIn("google")
-                }
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              disabled={googleComingSoon || loading || oauthLoading !== null}
+              onClick={
+                googleComingSoon
+                  ? undefined
+                  : () => handleOAuthSignIn("google")
+              }
+              className={cn(
+                "w-full bg-muted/50 border-border hover:bg-muted relative",
+                googleComingSoon
+                  ? "text-muted-foreground justify-center"
+                  : "text-foreground justify-between",
+              )}
+            >
+              <span
                 className={cn(
-                  "w-full bg-muted/50 border-border hover:bg-muted relative overflow-hidden",
-                  googleComingSoon
-                    ? "text-muted-foreground justify-center"
-                    : "text-foreground",
+                  "inline-flex items-center gap-2 transition-opacity duration-150",
+                  oauthLoading === "google" ? "opacity-0" : "opacity-100",
                 )}
               >
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-2 transition-opacity duration-150",
-                    oauthLoading === "google" ? "opacity-0" : "opacity-100",
-                  )}
-                >
-                  <GoogleIcon
-                    className={cn("size-5", googleComingSoon && "opacity-50")}
-                  />
-                  Continue with Google
-                  {googleComingSoon && (
-                    <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                      Soon
-                    </span>
-                  )}
-                </span>
-                <span
-                  className={cn(
-                    "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
-                    oauthLoading === "google" ? "opacity-100" : "opacity-0",
-                  )}
-                >
-                  <Loader2 className="size-5 animate-spin" />
-                  Redirecting...
-                </span>
-              </Button>
-              {isLastMethod("google") && (
-                <span className="absolute top-1/2 -translate-y-1/2 right-4 px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 rounded">
+                <GoogleIcon
+                  className={cn("size-5", googleComingSoon && "opacity-50")}
+                />
+                Continue with Google
+                {googleComingSoon && (
+                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                    Soon
+                  </span>
+                )}
+              </span>
+              {isLastMethod("google") && !oauthLoading && (
+                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 rounded">
                   Last Used
                 </span>
               )}
-            </div>
+              {oauthLoading === "google" && (
+                <span className="absolute inset-0 inline-flex items-center justify-center gap-2 bg-muted/50">
+                  <Loader2 className="size-5 animate-spin" />
+                  Redirecting...
+                </span>
+              )}
+            </Button>
           )}
           {showMicrosoft && (
-            <div className="relative">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={() => handleOAuthSignIn("azure")}
-                disabled={loading || oauthLoading !== null}
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => handleOAuthSignIn("azure")}
+              disabled={loading || oauthLoading !== null}
+              className={cn(
+                "w-full bg-muted/50 border-border text-foreground hover:bg-muted relative",
+                isLastMethod("azure") ? "justify-between" : "justify-center",
+              )}
+            >
+              <span
                 className={cn(
-                  "w-full bg-muted/50 border-border text-foreground hover:bg-muted relative overflow-hidden",
+                  "inline-flex items-center gap-2 transition-opacity duration-150",
+                  oauthLoading === "azure" ? "opacity-0" : "opacity-100",
                 )}
               >
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-2 transition-opacity duration-150",
-                    oauthLoading === "azure" ? "opacity-0" : "opacity-100",
-                  )}
-                >
-                  <MicrosoftIcon className="size-5" />
-                  Continue with Microsoft
-                </span>
-                <span
-                  className={cn(
-                    "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
-                    oauthLoading === "azure" ? "opacity-100" : "opacity-0",
-                  )}
-                >
-                  <Loader2 className="size-5 animate-spin" />
-                  Redirecting...
-                </span>
-              </Button>
-              {isLastMethod("azure") && (
-                <span className="absolute top-1/2 -translate-y-1/2 right-4 px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 rounded">
+                <MicrosoftIcon className="size-5" />
+                Continue with Microsoft
+              </span>
+              {isLastMethod("azure") && !oauthLoading && (
+                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 rounded">
                   Last Used
                 </span>
               )}
-            </div>
+              {oauthLoading === "azure" && (
+                <span className="absolute inset-0 inline-flex items-center justify-center gap-2 bg-muted/50">
+                  <Loader2 className="size-5 animate-spin" />
+                  Redirecting...
+                </span>
+              )}
+            </Button>
           )}
         </div>
       )}
