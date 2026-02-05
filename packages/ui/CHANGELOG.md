@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.21
+
+### Patch Changes
+
+- Button: use focus: instead of focus-visible: for consistent focus ring visibility
+
 ## 0.45.20
 
 ### Patch Changes
