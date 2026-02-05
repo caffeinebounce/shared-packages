@@ -1,7 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 import { cn } from "../../utils/cn";
 
 export interface NumberStepperProps
@@ -62,33 +62,61 @@ export function NumberStepper({
   ...props
 }: NumberStepperProps) {
   const sizes = sizeClasses[size];
+  
+  // Track internal string state to allow intermediate values while typing
+  const [inputValue, setInputValue] = React.useState(value.toString());
+  const [isFocused, setIsFocused] = React.useState(false);
+  
+  // Sync internal state when external value changes (but not while focused/editing)
+  React.useEffect(() => {
+    if (!isFocused) {
+      setInputValue(value.toString());
+    }
+  }, [value, isFocused]);
 
   const handleDecrement = () => {
     const newValue = Math.max(min, value - step);
     onChange(newValue);
+    setInputValue(newValue.toString());
   };
 
   const handleIncrement = () => {
     const newValue = Math.min(max, value + step);
     onChange(newValue);
+    setInputValue(newValue.toString());
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputVal = e.target.value;
-    // Allow empty string during editing, reset to min on blur
-    if (inputVal === "") {
-      return; // Let the input show empty, onBlur will fix it
-    }
-    const newValue = Number.parseInt(inputVal, 10);
-    if (!Number.isNaN(newValue)) {
-      onChange(Math.min(max, Math.max(min, newValue)));
+    
+    // Allow empty string and partial numbers while typing
+    if (inputVal === "" || /^[0-9]*$/.test(inputVal)) {
+      setInputValue(inputVal);
     }
   };
 
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
   const handleBlur = () => {
-    // If input is empty or NaN, reset to min
-    if (Number.isNaN(value) || value < min) {
+    setIsFocused(false);
+    
+    // On blur, validate and clamp the value
+    if (inputValue === "") {
       onChange(min);
+      setInputValue(min.toString());
+      return;
+    }
+    
+    const numValue = Number.parseInt(inputValue, 10);
+    if (Number.isNaN(numValue)) {
+      onChange(min);
+      setInputValue(min.toString());
+    } else {
+      const clampedValue = Math.min(max, Math.max(min, numValue));
+      onChange(clampedValue);
+      setInputValue(clampedValue.toString());
     }
   };
 
@@ -137,9 +165,10 @@ export function NumberStepper({
         type="text"
         inputMode="numeric"
         pattern="[0-9]*"
-        value={value}
+        value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
         onBlur={handleBlur}
         disabled={disabled}
         className={cn(

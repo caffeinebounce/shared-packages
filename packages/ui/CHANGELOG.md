@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.13
+
+### Patch Changes
+
+- Fix NumberStepper typing behavior - allow intermediate values while editing
+
 ## 0.45.0
 
 ### Minor Changes
