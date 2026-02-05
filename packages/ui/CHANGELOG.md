@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.36
+
+### Patch Changes
+
+- Add slide hover effect for destructive button variant
+
 ## 0.45.35
 
 ### Patch Changes
