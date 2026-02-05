@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.37
+
+### Patch Changes
+
+- Fix destructive button slide effect - starts with light bg, fills red on hover
+
 ## 0.45.36
 
 ### Patch Changes
