@@ -828,11 +828,13 @@ textarea:-moz-autofill {
   z-index: -1;
 }
 
-[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"]:hover::before {
+[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"]:hover::before,
+[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"][data-active]::before {
   transform: translateY(0);
 }
 
-[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"]:hover {
+[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"]:hover,
+[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"][data-active] {
   color: white;
 }
 
