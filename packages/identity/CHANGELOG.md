@@ -1,5 +1,11 @@
 # @caffeinebounce/identity
 
+## 0.10.8
+
+### Patch Changes
+
+- ffc5951: Replace last sign-in hint banner with a badge on the OAuth button
+
 ## 0.10.7
 
 ### Patch Changes
