@@ -39,9 +39,9 @@ export function LegalSection({
     <section id={id} className={cn("mb-8 scroll-mt-20 print:mb-6", className)}>
       <a
         href={`#${id}`}
-        className="group inline-flex items-center gap-2 no-underline text-foreground print:no-underline mb-4"
+        className="group inline-flex items-center gap-2 no-underline hover:no-underline text-foreground print:no-underline mb-4"
       >
-        <h2 className="text-2xl font-semibold underline underline-offset-4 decoration-muted-foreground/50 group-hover:decoration-foreground print:text-xl print:no-underline my-0!">
+        <h2 className="text-2xl font-semibold border-b border-muted-foreground/30 group-hover:border-foreground pb-1 print:text-xl print:border-0 my-0!">
           {title}
         </h2>
         <Link2 className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity print:hidden shrink-0" />
