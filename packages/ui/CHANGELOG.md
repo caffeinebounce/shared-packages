@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.16
+
+### Patch Changes
+
+- Add visible focus ring to buttons using theme primary color with offset for better accessibility
+
 ## 0.45.15
 
 ### Patch Changes
