@@ -19,7 +19,6 @@ import type { AuthFormConfig, AuthLinks, OAuthProvider } from "../../types";
 import { defaultAuthLinks } from "../../types";
 import { AuthFormLayout } from "../shared/AuthFormLayout";
 import { AuthHeader } from "../shared/AuthHeader";
-import { LastSignInHint } from "../shared/LastSignInHint";
 import { GoogleIcon, MicrosoftIcon } from "../shared/OAuthIcons";
 import { OrDivider } from "../shared/OrDivider";
 import { EmailVerificationPending } from "./EmailVerificationPending";
@@ -440,97 +439,102 @@ export function SigninForm({
         </p>
       </div>
 
-      {/* Last Sign-In Hint */}
-      {showLastSignInHint && lastSignInLoaded && lastSignIn && (
-        <LastSignInHint
-          method={lastSignIn.method}
-          email={lastSignIn.email}
-          onClear={clearLastSignIn}
-        />
-      )}
-
       {/* OAuth Buttons */}
       {(showGoogle || showMicrosoft) && (
         <div className="grid gap-3">
           {showGoogle && (
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={googleComingSoon || loading || oauthLoading !== null}
-              onClick={
-                googleComingSoon ? undefined : () => handleOAuthSignIn("google")
-              }
-              className={cn(
-                "w-full bg-muted/50 border-border hover:bg-muted relative overflow-hidden",
-                googleComingSoon
-                  ? "text-muted-foreground justify-center"
-                  : "text-foreground",
-                // Highlight if this was the last sign-in method
-                isLastMethod("google") &&
-                  "ring-2 ring-primary ring-offset-2 ring-offset-background",
+            <div className="relative">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                disabled={googleComingSoon || loading || oauthLoading !== null}
+                onClick={
+                  googleComingSoon ? undefined : () => handleOAuthSignIn("google")
+                }
+                className={cn(
+                  "w-full bg-muted/50 border-border hover:bg-muted relative overflow-hidden",
+                  googleComingSoon
+                    ? "text-muted-foreground justify-center"
+                    : "text-foreground",
+                  // Highlight if this was the last sign-in method
+                  isLastMethod("google") &&
+                    "ring-2 ring-primary ring-offset-2 ring-offset-background",
+                )}
+              >
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-2 transition-opacity duration-150",
+                    oauthLoading === "google" ? "opacity-0" : "opacity-100",
+                  )}
+                >
+                  <GoogleIcon
+                    className={cn("size-5", googleComingSoon && "opacity-50")}
+                  />
+                  Continue with Google
+                  {googleComingSoon && (
+                    <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                      Soon
+                    </span>
+                  )}
+                </span>
+                <span
+                  className={cn(
+                    "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
+                    oauthLoading === "google" ? "opacity-100" : "opacity-0",
+                  )}
+                >
+                  <Loader2 className="size-5 animate-spin" />
+                  Redirecting...
+                </span>
+              </Button>
+              {isLastMethod("google") && (
+                <span className="absolute -top-2 -right-2 px-2 py-0.5 text-[10px] font-medium bg-primary text-primary-foreground rounded-full">
+                  Last used
+                </span>
               )}
-            >
-              <span
-                className={cn(
-                  "inline-flex items-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "google" ? "opacity-0" : "opacity-100",
-                )}
-              >
-                <GoogleIcon
-                  className={cn("size-5", googleComingSoon && "opacity-50")}
-                />
-                Continue with Google
-                {googleComingSoon && (
-                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                    Soon
-                  </span>
-                )}
-              </span>
-              <span
-                className={cn(
-                  "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "google" ? "opacity-100" : "opacity-0",
-                )}
-              >
-                <Loader2 className="size-5 animate-spin" />
-                Redirecting...
-              </span>
-            </Button>
+            </div>
           )}
           {showMicrosoft && (
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={() => handleOAuthSignIn("azure")}
-              disabled={loading || oauthLoading !== null}
-              className={cn(
-                "w-full bg-muted/50 border-border text-foreground hover:bg-muted relative overflow-hidden",
-                // Highlight if this was the last sign-in method
-                isLastMethod("azure") &&
-                  "ring-2 ring-primary ring-offset-2 ring-offset-background",
+            <div className="relative">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={() => handleOAuthSignIn("azure")}
+                disabled={loading || oauthLoading !== null}
+                className={cn(
+                  "w-full bg-muted/50 border-border text-foreground hover:bg-muted relative overflow-hidden",
+                  // Highlight if this was the last sign-in method
+                  isLastMethod("azure") &&
+                    "ring-2 ring-primary ring-offset-2 ring-offset-background",
+                )}
+              >
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-2 transition-opacity duration-150",
+                    oauthLoading === "azure" ? "opacity-0" : "opacity-100",
+                  )}
+                >
+                  <MicrosoftIcon className="size-5" />
+                  Continue with Microsoft
+                </span>
+                <span
+                  className={cn(
+                    "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
+                    oauthLoading === "azure" ? "opacity-100" : "opacity-0",
+                  )}
+                >
+                  <Loader2 className="size-5 animate-spin" />
+                  Redirecting...
+                </span>
+              </Button>
+              {isLastMethod("azure") && (
+                <span className="absolute -top-2 -right-2 px-2 py-0.5 text-[10px] font-medium bg-primary text-primary-foreground rounded-full">
+                  Last used
+                </span>
               )}
-            >
-              <span
-                className={cn(
-                  "inline-flex items-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "azure" ? "opacity-0" : "opacity-100",
-                )}
-              >
-                <MicrosoftIcon className="size-5" />
-                Continue with Microsoft
-              </span>
-              <span
-                className={cn(
-                  "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "azure" ? "opacity-100" : "opacity-0",
-                )}
-              >
-                <Loader2 className="size-5 animate-spin" />
-                Redirecting...
-              </span>
-            </Button>
+            </div>
           )}
         </div>
       )}
