@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.19
+
+### Patch Changes
+
+- Radio group item: add transition and border change on focus for better visibility
+
 ## 0.45.18
 
 ### Patch Changes

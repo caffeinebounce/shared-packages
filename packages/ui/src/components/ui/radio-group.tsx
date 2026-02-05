@@ -25,8 +25,8 @@ const RadioGroupItem = ({
   return (
     <RadioGroupPrimitive.Item
       className={cn(
-        "aspect-square h-4 w-4 rounded-full border-2 border-muted-foreground/50 text-primary shadow-sm",
-        "outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
+        "aspect-square h-4 w-4 rounded-full border-2 border-muted-foreground/50 text-primary shadow-sm transition-all",
+        "outline-none ring-offset-background focus:border-primary focus:ring-2 focus:ring-primary focus:ring-offset-2",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "data-[state=checked]:border-primary data-[state=checked]:bg-primary",
         className,
