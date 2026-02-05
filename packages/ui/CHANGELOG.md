@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.39
+
+### Patch Changes
+
+- Remove focus ring from SidebarMenuButton to prevent border flash on hover/click
+
 ## 0.45.38
 
 ### Patch Changes
