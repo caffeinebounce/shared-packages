@@ -488,7 +488,7 @@ export function SigninForm({
                 </span>
               </Button>
               {isLastMethod("google") && (
-                <span className="absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-medium bg-muted-foreground/20 text-muted-foreground rounded">
+                <span className="absolute top-1/2 -translate-y-1/2 right-4 px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 rounded">
                   Last Used
                 </span>
               )}
@@ -526,7 +526,7 @@ export function SigninForm({
                 </span>
               </Button>
               {isLastMethod("azure") && (
-                <span className="absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-medium bg-muted-foreground/20 text-muted-foreground rounded">
+                <span className="absolute top-1/2 -translate-y-1/2 right-4 px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 rounded">
                   Last Used
                 </span>
               )}
