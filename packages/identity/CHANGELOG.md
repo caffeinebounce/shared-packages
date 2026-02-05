@@ -1,5 +1,11 @@
 # @caffeinebounce/identity
 
+## 0.10.7
+
+### Patch Changes
+
+- Fix: include dist folder in published package
+
 ## 0.10.6
 
 ### Patch Changes
