@@ -92,9 +92,9 @@ export function LegalLayout({
       <div className="lg:grid lg:grid-cols-12 lg:gap-8">
         {/* Table of Contents - Desktop Sidebar */}
         {tableOfContents && tableOfContents.length > 0 && (
-          <aside className="hidden lg:col-span-3 lg:block print:hidden">
+          <aside className="hidden lg:col-span-3 lg:block print:hidden self-start">
             <nav
-              className="sticky top-20 space-y-1"
+              className="sticky top-24 space-y-1 max-h-[calc(100vh-8rem)] overflow-y-auto"
               aria-label="Table of contents"
             >
               <h3 className="text-sm font-semibold text-foreground mb-4">
@@ -186,7 +186,8 @@ export function LegalLayout({
               "prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2",
               // Paragraphs - reduced top margin
               "prose-p:text-base prose-p:leading-7 prose-p:mb-4 prose-p:mt-0",
-              // Links - explicit styling for visibility
+              // Links - explicit styling for visibility (but not on section header links)
+              "[&>section>a]:no-underline [&>section>a:hover]:no-underline",
               "prose-a:text-primary prose-a:underline prose-a:underline-offset-2",
               "hover:prose-a:text-primary/80",
               // Lists - ensure bullets/numbers are visible
