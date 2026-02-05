@@ -51,9 +51,12 @@ export function getServerLogger(): BetterStackLogger | null {
       "https://in.logs.betterstack.com";
 
     if (!token) {
-      console.warn(
-        "[Logger] No server token found. Set BETTER_STACK_SOURCE_TOKEN in .env.local",
-      );
+      // Only warn in non-CI environments to avoid noisy CI logs
+      if (!process.env.CI) {
+        console.warn(
+          "[Logger] No server token found. Set BETTER_STACK_SOURCE_TOKEN in .env.local",
+        );
+      }
       return null;
     }
 
@@ -88,9 +91,12 @@ export function getClientLogger(): BetterStackLogger | null {
       "https://in.logs.betterstack.com";
 
     if (!token) {
-      console.warn(
-        "[Logger] No client token found. Set NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN in .env.local",
-      );
+      // Only warn in non-CI environments to avoid noisy CI logs
+      if (!process.env.CI) {
+        console.warn(
+          "[Logger] No client token found. Set NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN in .env.local",
+        );
+      }
       return null;
     }
 
