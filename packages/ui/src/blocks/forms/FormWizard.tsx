@@ -485,23 +485,12 @@ export function FormWizard<T = unknown>({
   );
 
   // Calculate progress percentage for the animated line
-  // Progress fills up to and including completed steps
+  // Line fills TO the current step (not past it)
   const progressPercentage = useMemo(() => {
     if (totalSteps <= 1) return 0;
-    
-    // Count completed steps
-    let completedCount = 0;
-    for (let i = 0; i < totalSteps; i++) {
-      if (stepStatuses[i] === "complete") {
-        completedCount = i + 1;
-      } else {
-        break; // Stop at first non-complete step
-      }
-    }
-    
-    // Calculate percentage (0% at first step, 100% when all complete)
-    return (completedCount / (totalSteps - 1)) * 100;
-  }, [stepStatuses, totalSteps]);
+    // Current step position as percentage (0% at first, 100% at last)
+    return (currentStep / (totalSteps - 1)) * 100;
+  }, [currentStep, totalSteps]);
 
   return (
     <TooltipProvider>
