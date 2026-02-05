@@ -40,22 +40,20 @@ function ButtonGroup({
         orientation === "horizontal"
           ? "flex-row items-center -space-x-px"
           : "flex-col -space-y-px",
-        // Style direct button children to have connected appearance
-        // Also target anchors for Button asChild with Link
-        "[&>button]:rounded-none [&>a]:rounded-none",
-        "[&>button:first-child]:rounded-l-md [&>a:first-child]:rounded-l-md",
-        "[&>button:last-child]:rounded-r-md [&>a:last-child]:rounded-r-md",
+        // Style direct children to have connected appearance
+        // Use !important to override Button's own rounded-md classes
+        "[&>*]:!rounded-none",
+        "[&>*:first-child]:!rounded-l-md",
+        "[&>*:last-child]:!rounded-r-md",
         orientation === "vertical" && [
-          "[&>button:first-child]:rounded-t-md [&>button:first-child]:rounded-l-none",
-          "[&>button:last-child]:rounded-b-md [&>button:last-child]:rounded-r-none",
-          "[&>a:first-child]:rounded-t-md [&>a:first-child]:rounded-l-none",
-          "[&>a:last-child]:rounded-b-md [&>a:last-child]:rounded-r-none",
+          "[&>*:first-child]:!rounded-t-md [&>*:first-child]:!rounded-l-none",
+          "[&>*:last-child]:!rounded-b-md [&>*:last-child]:!rounded-r-none",
         ],
         // Handle nested button groups
         "**:[role=group]:flex",
-        "**:[role=group]>button:rounded-none",
-        "[&>[role=group]:first-child>button:first-child]:rounded-l-md",
-        "[&>[role=group]:last-child>button:last-child]:rounded-r-md",
+        "**:[role=group]>*:!rounded-none",
+        "[&>[role=group]:first-child>*:first-child]:!rounded-l-md",
+        "[&>[role=group]:last-child>*:last-child]:!rounded-r-md",
         className,
       )}
       {...props}
