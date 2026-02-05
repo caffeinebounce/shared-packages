@@ -808,6 +808,31 @@ textarea:-moz-autofill {
   color: var(--primary-foreground);
 }
 
+/* Destructive button with slide effect - fills with lighter red on hover */
+[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"] {
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+
+[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--background);
+  transform: translateY(100%);
+  transition: transform 300ms ease-out;
+  z-index: -1;
+}
+
+[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"]:hover::before {
+  transform: translateY(0);
+}
+
+[data-slot="button"][data-variant="destructive"][data-hover-effect="slide"]:hover {
+  color: var(--destructive);
+}
+
 /* ===========================================
    Text Highlight Animation
    =========================================== */
