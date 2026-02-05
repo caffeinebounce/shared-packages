@@ -459,9 +459,6 @@ export function SigninForm({
                   googleComingSoon
                     ? "text-muted-foreground justify-center"
                     : "text-foreground",
-                  // Highlight if this was the last sign-in method
-                  isLastMethod("google") &&
-                    "ring-2 ring-primary ring-offset-2 ring-offset-background",
                 )}
               >
                 <span
@@ -491,8 +488,8 @@ export function SigninForm({
                 </span>
               </Button>
               {isLastMethod("google") && (
-                <span className="absolute -top-2 -right-2 px-2 py-0.5 text-[10px] font-medium bg-primary text-primary-foreground rounded-full">
-                  Last used
+                <span className="absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-medium bg-muted-foreground/20 text-muted-foreground rounded">
+                  Last Used
                 </span>
               )}
             </div>
@@ -507,9 +504,6 @@ export function SigninForm({
                 disabled={loading || oauthLoading !== null}
                 className={cn(
                   "w-full bg-muted/50 border-border text-foreground hover:bg-muted relative overflow-hidden",
-                  // Highlight if this was the last sign-in method
-                  isLastMethod("azure") &&
-                    "ring-2 ring-primary ring-offset-2 ring-offset-background",
                 )}
               >
                 <span
@@ -532,8 +526,8 @@ export function SigninForm({
                 </span>
               </Button>
               {isLastMethod("azure") && (
-                <span className="absolute -top-2 -right-2 px-2 py-0.5 text-[10px] font-medium bg-primary text-primary-foreground rounded-full">
-                  Last used
+                <span className="absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-medium bg-muted-foreground/20 text-muted-foreground rounded">
+                  Last Used
                 </span>
               )}
             </div>
