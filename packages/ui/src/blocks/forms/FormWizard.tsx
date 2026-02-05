@@ -495,18 +495,16 @@ export function FormWizard<T = unknown>({
             <div className="absolute top-5 left-0 right-0 flex items-center px-5">
               {steps.slice(0, -1).map((step, index) => {
                 const status = stepStatuses[index];
-                const nextStatus = stepStatuses[index + 1];
-                // Line is filled if current step is complete and next step has been started
-                const isFilled =
-                  status === "complete" && nextStatus !== "not-started";
+                // Line fills when this step is complete
+                const isFilled = status === "complete";
                 return (
                   <div
                     key={`connector-${step.id}`}
-                    className="flex-1 h-1 mx-1 bg-muted/50 rounded-full relative overflow-hidden"
+                    className="flex-1 h-0.5 mx-1 bg-border rounded-full relative overflow-hidden"
                   >
                     <div
                       className={cn(
-                        "absolute inset-0 bg-foreground rounded-full origin-left transition-transform duration-500 ease-out",
+                        "absolute inset-0 bg-muted-foreground rounded-full origin-left transition-transform duration-500 ease-out",
                         isFilled ? "scale-x-100" : "scale-x-0",
                       )}
                     />
