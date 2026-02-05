@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.38
+
+### Patch Changes
+
+- Add data-active support for destructive button to persist hover state
+
 ## 0.45.37
 
 ### Patch Changes
