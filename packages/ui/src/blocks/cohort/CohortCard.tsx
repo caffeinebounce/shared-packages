@@ -148,21 +148,21 @@ export function CohortCard({
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col justify-between p-5">
         {/* Top section - badges */}
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-wrap items-start justify-between gap-2">
           {/* Cohort type badge */}
-          <span className="inline-flex items-center rounded-full bg-white/10 backdrop-blur-sm px-3 py-1 text-xs font-medium text-white/90 border border-white/10">
+          <span className="inline-flex items-center rounded-full bg-white/10 backdrop-blur-sm px-3 py-1 text-xs font-medium text-white/90 border border-white/10 max-w-[45%] truncate">
             {type}
           </span>
 
           {/* Eligibility badge */}
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border backdrop-blur-sm",
+              "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border backdrop-blur-sm shrink-0",
               eligibilityInfo.className,
             )}
           >
-            <EligibilityIcon className="size-3.5" />
-            {eligibilityInfo.label}
+            <EligibilityIcon className="size-3.5 shrink-0" />
+            <span className="truncate">{eligibilityInfo.label}</span>
           </span>
         </div>
 
