@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.18
+
+### Patch Changes
+
+- Radio group item shows focus ring on all focus (not just focus-visible)
+
 ## 0.45.17
 
 ### Patch Changes
