@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.34
+
+### Patch Changes
+
+- 2852a6a: Fix ButtonGroup styling for Button asChild with Link - now properly removes rounded corners on anchor elements
+
 ## 0.45.22
 
 ### Patch Changes
