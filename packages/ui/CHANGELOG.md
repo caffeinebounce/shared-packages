@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.35
+
+### Patch Changes
+
+- Fix ButtonGroup connected appearance by using !important to override Button's rounded classes
+
 ## 0.45.34
 
 ### Patch Changes
