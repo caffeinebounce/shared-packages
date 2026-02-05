@@ -11,7 +11,7 @@ const SHAKE_STYLE_ID = "newsletter-shake-keyframes";
 function injectShakeKeyframes() {
   if (typeof document === "undefined") return;
   if (document.getElementById(SHAKE_STYLE_ID)) return;
-  
+
   const style = document.createElement("style");
   style.id = SHAKE_STYLE_ID;
   style.textContent = `
@@ -67,7 +67,9 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
         setTimeout(() => setHasError(false), 500);
       }
     } catch {
-      toast.error("Unable to connect. Please check your connection and try again.");
+      toast.error(
+        "Unable to connect. Please check your connection and try again.",
+      );
       setHasError(true);
       setTimeout(() => setHasError(false), 500);
     } finally {
@@ -77,13 +79,20 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
 
   if (submitted) {
     return (
-      <div className={`flex items-center justify-center gap-3 rounded-md border border-border px-4 py-3 ${className || ""}`}>
+      <div
+        className={`flex items-center justify-center gap-3 rounded-md border border-border px-4 py-3 ${className || ""}`}
+      >
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground animate-in zoom-in duration-300">
-          <Check className="h-4 w-4 animate-in fade-in duration-500 delay-150" strokeWidth={3} />
+          <Check
+            className="h-4 w-4 animate-in fade-in duration-500 delay-150"
+            strokeWidth={3}
+          />
         </div>
         <div className="animate-in slide-in-from-left-2 fade-in duration-300 delay-100 text-left">
           <p className="font-medium text-foreground">You&apos;re subscribed!</p>
-          <p className="text-sm text-muted-foreground">Check your email to confirm.</p>
+          <p className="text-sm text-muted-foreground">
+            Check your email to confirm.
+          </p>
         </div>
       </div>
     );
@@ -103,8 +112,8 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
         required
         className="flex-1 rounded-r-none border-r-0 focus-visible:z-10"
       />
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         disabled={isSubmitting || !email}
         className="rounded-l-none"
       >

@@ -62,11 +62,11 @@ export function NumberStepper({
   ...props
 }: NumberStepperProps) {
   const sizes = sizeClasses[size];
-  
+
   // Track internal string state to allow intermediate values while typing
   const [inputValue, setInputValue] = React.useState(value.toString());
   const [isFocused, setIsFocused] = React.useState(false);
-  
+
   // Sync internal state when external value changes (but not while focused/editing)
   React.useEffect(() => {
     if (!isFocused) {
@@ -88,7 +88,7 @@ export function NumberStepper({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputVal = e.target.value;
-    
+
     // Allow empty string and partial numbers while typing
     if (inputVal === "" || /^[0-9]*$/.test(inputVal)) {
       setInputValue(inputVal);
@@ -101,14 +101,14 @@ export function NumberStepper({
 
   const handleBlur = () => {
     setIsFocused(false);
-    
+
     // On blur, validate and clamp the value
     if (inputValue === "") {
       onChange(min);
       setInputValue(min.toString());
       return;
     }
-    
+
     const numValue = Number.parseInt(inputValue, 10);
     if (Number.isNaN(numValue)) {
       onChange(min);

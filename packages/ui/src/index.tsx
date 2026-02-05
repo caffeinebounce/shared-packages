@@ -439,6 +439,11 @@ export type { PageHeaderProps } from "./components/ui/page-header";
 export { PageHeader } from "./components/ui/page-header";
 export type { PageLoaderProps } from "./components/ui/page-loader";
 export { PageLoader } from "./components/ui/page-loader";
+export type {
+  PageSectionProps,
+  PageSectionsProps,
+} from "./components/ui/page-sections";
+export { PageSection, PageSections } from "./components/ui/page-sections";
 export { PasswordInput } from "./components/ui/password-input";
 export type { PasswordRule } from "./components/ui/password-requirements";
 export {
@@ -473,11 +478,6 @@ export {
   SelectValue,
 } from "./components/ui/select";
 export { Separator } from "./components/ui/separator";
-export type {
-  PageSectionProps,
-  PageSectionsProps,
-} from "./components/ui/page-sections";
-export { PageSection, PageSections } from "./components/ui/page-sections";
 export {
   Sheet,
   SheetClose,

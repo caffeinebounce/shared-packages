@@ -66,7 +66,9 @@ function PageSections({
   separatorClassName,
   className,
 }: PageSectionsProps) {
-  const sections = React.Children.toArray(children).filter(React.isValidElement);
+  const sections = React.Children.toArray(children).filter(
+    React.isValidElement,
+  );
 
   return (
     <div className={cn(className)}>
