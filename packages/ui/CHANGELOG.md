@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.22
+
+### Patch Changes
+
+- 9a54b6c: fix: Legal pages - remove double underline on headers, make TOC sticky
+
 ## 0.45.21
 
 ### Patch Changes
