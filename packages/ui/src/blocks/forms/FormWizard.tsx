@@ -484,6 +484,25 @@ export function FormWizard<T = unknown>({
     [stepStatuses, currentStep, steps, getStepTooltip],
   );
 
+  // Calculate progress percentage for the animated line
+  // Progress fills up to and including completed steps
+  const progressPercentage = useMemo(() => {
+    if (totalSteps <= 1) return 0;
+    
+    // Count completed steps
+    let completedCount = 0;
+    for (let i = 0; i < totalSteps; i++) {
+      if (stepStatuses[i] === "complete") {
+        completedCount = i + 1;
+      } else {
+        break; // Stop at first non-complete step
+      }
+    }
+    
+    // Calculate percentage (0% at first step, 100% when all complete)
+    return (completedCount / (totalSteps - 1)) * 100;
+  }, [stepStatuses, totalSteps]);
+
   return (
     <TooltipProvider>
       <div className={cn("space-y-8", className)}>
@@ -491,26 +510,15 @@ export function FormWizard<T = unknown>({
         <div className="space-y-4">
           {/* Step indicators */}
           <div className="relative flex items-center justify-between">
-            {/* Connection lines - positioned absolutely behind icons */}
-            <div className="absolute top-5 left-0 right-0 flex items-center px-5">
-              {steps.slice(0, -1).map((step, index) => {
-                const status = stepStatuses[index];
-                // Line fills when this step is complete
-                const isFilled = status === "complete";
-                return (
-                  <div
-                    key={`connector-${step.id}`}
-                    className="flex-1 h-0.5 mx-1 bg-border rounded-full relative overflow-hidden"
-                  >
-                    <div
-                      className={cn(
-                        "absolute inset-0 bg-muted-foreground rounded-full origin-left transition-transform duration-500 ease-out",
-                        isFilled ? "scale-x-100" : "scale-x-0",
-                      )}
-                    />
-                  </div>
-                );
-              })}
+            {/* Single continuous progress line */}
+            <div className="absolute top-5 left-5 right-5 h-[2px]">
+              {/* Background track */}
+              <div className="absolute inset-0 bg-border/60 rounded-full" />
+              {/* Animated fill */}
+              <div 
+                className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progressPercentage}%` }}
+              />
             </div>
 
             {/* Step icons */}
