@@ -172,7 +172,7 @@ export function NumberStepper({
         onBlur={handleBlur}
         disabled={disabled}
         className={cn(
-          "border-0 bg-transparent text-center focus:outline-none focus:ring-0",
+          "border-0 bg-transparent text-center focus:outline-none focus:ring-0 selection:bg-primary selection:text-primary-foreground",
           "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
           sizes.input,
         )}

@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.15
+
+### Patch Changes
+
+- Add theme selection color to Textarea, NumberStepper, and CommandInput
+
 ## 0.45.14
 
 ### Patch Changes
