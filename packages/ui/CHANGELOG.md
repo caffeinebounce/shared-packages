@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.14
+
+### Patch Changes
+
+- Change SelectContent default alignment to start (left-aligned)
+
 ## 0.45.13
 
 ### Patch Changes
