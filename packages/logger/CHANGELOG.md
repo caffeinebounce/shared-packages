@@ -1,5 +1,11 @@
 # @caffeinebounce/logger
 
+## 0.9.7
+
+### Patch Changes
+
+- 49348f2: Suppress logger token warnings in CI environments to reduce noise in build logs
+
 ## 0.9.6
 
 ### Patch Changes
