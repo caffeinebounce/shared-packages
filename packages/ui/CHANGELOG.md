@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.46.0
+
+### Minor Changes
+
+- 1088844: Add FormDialog component for modal forms with built-in header, footer, and loading state handling.
+
 ## 0.45.45
 
 ### Patch Changes
