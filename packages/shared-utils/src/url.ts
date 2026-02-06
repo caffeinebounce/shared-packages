@@ -526,7 +526,18 @@ export function getClientOrigin(envVarName?: string): string {
     const envValue = envVarName
       ? process.env[envVarName]
       : process.env.NEXT_PUBLIC_SITE_URL;
-    return envValue || "";
+
+    if (!envValue) {
+      // In SSR without env var, we can't determine origin
+      // Log warning and return a safe placeholder that won't crash URL parsing
+      // but will be obviously wrong if used
+      console.warn(
+        `[getClientOrigin] Missing ${envVarName || "NEXT_PUBLIC_SITE_URL"} env var during SSR. ` +
+          "Ensure NEXT_PUBLIC_* vars are set at build time.",
+      );
+      return "https://localhost:3000";
+    }
+    return envValue;
   }
 
   const hostname = window.location.hostname;
