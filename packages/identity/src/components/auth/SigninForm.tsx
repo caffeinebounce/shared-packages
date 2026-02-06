@@ -477,7 +477,7 @@ export function SigninForm({
                 )}
               </span>
               {isLastMethod("google") && !oauthLoading && (
-                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-background text-primary border border-primary/30 rounded z-10 relative">
+                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/30 rounded z-10 relative">
                   Last Used
                 </span>
               )}
@@ -511,7 +511,7 @@ export function SigninForm({
                 Continue with Microsoft
               </span>
               {isLastMethod("azure") && !oauthLoading && (
-                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-background text-primary border border-primary/30 rounded z-10 relative">
+                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/30 rounded z-10 relative">
                   Last Used
                 </span>
               )}
