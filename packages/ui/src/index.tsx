@@ -370,6 +370,7 @@ export {
   DialogTitle,
   DialogTrigger,
 } from "./components/ui/dialog";
+export { FormDialog } from "./components/ui/form-dialog";
 export type {
   DisplayFieldGroupProps,
   DisplayFieldProps,
