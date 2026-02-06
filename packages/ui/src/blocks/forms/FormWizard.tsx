@@ -504,7 +504,7 @@ export function FormWizard<T = unknown>({
               {/* Background track */}
               <div className="absolute inset-0 bg-border/60 rounded-full" />
               {/* Animated fill */}
-              <div 
+              <div
                 className="absolute inset-y-0 left-0 bg-foreground rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progressPercentage}%` }}
               />

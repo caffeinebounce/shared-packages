@@ -1,7 +1,13 @@
-import * as React from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, }
-from './dialog';
-import { Button } from './button';
+import type * as React from "react";
+import { Button } from "./button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./dialog";
 
 interface FormDialogProps {
   open: boolean;
@@ -22,8 +28,8 @@ export function FormDialog({
   description,
   children,
   onSubmit,
-  submitLabel = 'Save',
-  cancelLabel = 'Cancel',
+  submitLabel = "Save",
+  cancelLabel = "Cancel",
   isLoading = false,
 }: FormDialogProps) {
   return (
@@ -35,12 +41,16 @@ export function FormDialog({
         </DialogHeader>
         {children}
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+          >
             {cancelLabel}
           </Button>
           {onSubmit && (
             <Button onClick={onSubmit} disabled={isLoading}>
-              {isLoading ? 'Saving...' : submitLabel}
+              {isLoading ? "Saving..." : submitLabel}
             </Button>
           )}
         </DialogFooter>

@@ -370,7 +370,6 @@ export {
   DialogTitle,
   DialogTrigger,
 } from "./components/ui/dialog";
-export { FormDialog } from "./components/ui/form-dialog";
 export type {
   DisplayFieldGroupProps,
   DisplayFieldProps,
@@ -405,6 +404,7 @@ export {
   FieldSet,
   FieldTitle,
 } from "./components/ui/field";
+export { FormDialog } from "./components/ui/form-dialog";
 export type { IconButtonProps } from "./components/ui/icon-button";
 export { IconButton, iconButtonVariants } from "./components/ui/icon-button";
 export type { InfoTooltipProps } from "./components/ui/info-tooltip";

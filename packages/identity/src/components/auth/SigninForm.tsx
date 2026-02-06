@@ -449,9 +449,7 @@ export function SigninForm({
               size="lg"
               disabled={googleComingSoon || loading || oauthLoading !== null}
               onClick={
-                googleComingSoon
-                  ? undefined
-                  : () => handleOAuthSignIn("google")
+                googleComingSoon ? undefined : () => handleOAuthSignIn("google")
               }
               className={cn(
                 "w-full bg-muted/50 border-border hover:bg-muted relative",
