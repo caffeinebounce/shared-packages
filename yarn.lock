@@ -207,7 +207,7 @@ __metadata:
   resolution: "@caffeinebounce/identity@workspace:packages/identity"
   dependencies:
     "@caffeinebounce/logger": "npm:^0.6.0"
-    "@caffeinebounce/shared-utils": "npm:^0.7.0"
+    "@caffeinebounce/shared-utils": "npm:^0.7.2"
     "@caffeinebounce/ui": "npm:^0.46.0"
     "@supabase/ssr": "npm:^0.8.0"
     "@supabase/supabase-js": "npm:^2.49.4"
@@ -296,7 +296,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@caffeinebounce/shared-utils@npm:^0.7.0, @caffeinebounce/shared-utils@workspace:packages/shared-utils":
+"@caffeinebounce/shared-utils@npm:^0.7.0, @caffeinebounce/shared-utils@npm:^0.7.2, @caffeinebounce/shared-utils@workspace:packages/shared-utils":
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/shared-utils@workspace:packages/shared-utils"
   dependencies:
