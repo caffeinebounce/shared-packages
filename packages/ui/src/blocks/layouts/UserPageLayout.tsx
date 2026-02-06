@@ -52,6 +52,8 @@ export interface UserPageLayoutProps {
   tabs?: PageTab[];
   /** Default selected tab value (first tab if not specified) */
   defaultTab?: string;
+  /** Callback when tab changes */
+  onTabChange?: (value: string) => void;
   /** Main content (optional if tabs are provided) */
   children?: React.ReactNode;
   /** Optional footer content */
@@ -74,6 +76,7 @@ export function UserPageLayout({
   children,
   tabs,
   defaultTab,
+  onTabChange,
   footer,
   backLink,
 }: UserPageLayoutProps) {
@@ -108,6 +111,7 @@ export function UserPageLayout({
           ) : tabs && tabs.length > 0 ? (
             <Tabs
               defaultValue={defaultTab || tabs[0].value}
+              onValueChange={onTabChange}
               className="space-y-4"
             >
               <TabsList>

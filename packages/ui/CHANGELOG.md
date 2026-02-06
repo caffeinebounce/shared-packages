@@ -1,5 +1,24 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.45.45
+
+### Patch Changes
+
+- Updated dependencies [e3a3a28]
+  - @caffeinebounce/shared-utils@0.7.0
+
+## 0.45.44
+
+### Patch Changes
+
+- Add onTabChange prop to UserPageLayout for tab persistence
+
+## 0.45.43
+
+### Patch Changes
+
+- Fix Dialog close button positioning - add relative to DialogContent so X button stays in modal corner
+
 ## 0.45.42
 
 ### Patch Changes

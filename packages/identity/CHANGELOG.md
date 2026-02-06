@@ -1,5 +1,13 @@
 # @caffeinebounce/identity
 
+## 0.10.17
+
+### Patch Changes
+
+- Updated dependencies [e3a3a28]
+  - @caffeinebounce/shared-utils@0.7.0
+  - @caffeinebounce/ui@0.45.45
+
 ## 0.10.8
 
 ### Patch Changes

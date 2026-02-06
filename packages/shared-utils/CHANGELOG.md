@@ -1,5 +1,11 @@
 # @caffeinebounce/shared-utils
 
+## 0.7.0
+
+### Minor Changes
+
+- e3a3a28: Add normalizeEmail and now() utilities for DRY refactoring
+
 ## 0.6.0
 
 ### Minor Changes
