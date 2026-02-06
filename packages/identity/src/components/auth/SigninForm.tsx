@@ -455,7 +455,10 @@ export function SigninForm({
                 "w-full bg-muted/50 border-border hover:bg-muted relative",
                 googleComingSoon
                   ? "text-muted-foreground justify-center"
-                  : "text-foreground justify-between",
+                  : "text-foreground",
+                !googleComingSoon && isLastMethod("google")
+                  ? "justify-between"
+                  : "justify-center",
               )}
             >
               <span
