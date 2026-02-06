@@ -1,5 +1,14 @@
 # @caffeinebounce/identity
 
+## 0.10.21
+
+### Patch Changes
+
+- bc7f814: fix: make Last Used badge visible on OAuth buttons
+- a4a9009: fix: only use justify-between when last used method exists
+- Updated dependencies [288609a]
+  - @caffeinebounce/shared-utils@0.7.2
+
 ## 0.10.18
 
 ### Patch Changes
