@@ -14,6 +14,8 @@ export {
 } from "./auth";
 // Re-export browser utilities
 export { type DeviceFingerprint, generateDeviceFingerprint } from "./browser";
+// Re-export date utilities
+export { now } from "./date";
 // Re-export email utilities
 export { getEmailDomain } from "./email";
 // Re-export all formatters
@@ -47,6 +49,7 @@ export {
   capitalize,
   ensureAbsoluteUrl,
   getInitials,
+  normalizeEmail,
   pluralize,
   slugify,
   truncate,

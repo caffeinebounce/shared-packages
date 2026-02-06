@@ -116,6 +116,23 @@ export function capitalize(text: string | null | undefined): string {
 }
 
 /**
+ * Normalize an email address for consistent comparison.
+ * Trims whitespace and converts to lowercase.
+ *
+ * @param email - Email address to normalize
+ * @returns Normalized email address
+ *
+ * @example
+ * ```ts
+ * normalizeEmail("  USER@EXAMPLE.COM  ") // "user@example.com"
+ * normalizeEmail("Test@Domain.org") // "test@domain.org"
+ * ```
+ */
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+/**
  * Simple pluralization helper.
  *
  * @param count - Number to check for pluralization
