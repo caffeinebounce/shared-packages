@@ -487,6 +487,13 @@ export function isPreviewEnvironment(hostname: string): boolean {
     return true;
   }
 
+  // Raw IP addresses are dev/preview environments (production uses domain names)
+  // Matches IPv4 addresses like 192.168.1.1, 100.107.35.36 (Tailscale), etc.
+  const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+  if (ipv4Pattern.test(hostWithoutPort)) {
+    return true;
+  }
+
   // Check against known preview domains
   for (const domain of PREVIEW_DOMAINS) {
     if (hostWithoutPort.endsWith(`.${domain}`)) {
