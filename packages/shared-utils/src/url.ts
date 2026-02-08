@@ -542,7 +542,7 @@ export function getClientOrigin(envVarName?: string): string {
         `[getClientOrigin] Missing ${envVarName || "NEXT_PUBLIC_SITE_URL"} env var during SSR. ` +
           "Ensure NEXT_PUBLIC_* vars are set at build time.",
       );
-      return "https://localhost:3000";
+      return "";
     }
     return envValue;
   }
