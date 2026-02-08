@@ -3,7 +3,7 @@
  * Tests #832: Sidebar has overflow-x-hidden to prevent horizontal scrollbar
  */
 
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { Sidebar, SidebarContent, SidebarProvider } from "./sidebar";
 
@@ -63,10 +63,7 @@ describe("Sidebar - Overflow Control", () => {
     const sidebarContainer = container.querySelector('[data-sidebar="sidebar"]');
     expect(sidebarContainer).toBeInTheDocument();
 
-    // Get computed styles
-    const computedStyle = window.getComputedStyle(sidebarContainer!);
-    
-    // Verify overflow-x is hidden (either from class or computed)
+    // Verify overflow-x is hidden
     // The className contains overflow-x-hidden, which translates to overflowX: 'hidden'
     expect(sidebarContainer?.className).toContain("overflow-x-hidden");
   });
