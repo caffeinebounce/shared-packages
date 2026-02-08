@@ -110,6 +110,8 @@ export function FeedbackButton({
   pillStyle = false,
 }: FeedbackButtonProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  // Prevent rapid keyboard toggles that can cause flash/reopen (#834)
+  const toggleInProgressRef = useRef(false);
 
   // Handle keyboard shortcut
   const handleKeyDown = useCallback(
@@ -132,8 +134,20 @@ export function FeedbackButton({
       // Check if the key matches (case-insensitive)
       if (e.key.toLowerCase() === keyboardShortcut.toLowerCase()) {
         e.preventDefault();
+        
+        // Guard against rapid toggles (debounce with ref)
+        if (toggleInProgressRef.current) {
+          return;
+        }
+        
+        toggleInProgressRef.current = true;
         // Toggle dialog open/closed
         setDialogOpen((prev) => !prev);
+        
+        // Reset guard after a short delay to allow intentional re-toggles
+        setTimeout(() => {
+          toggleInProgressRef.current = false;
+        }, 200);
       }
     },
     [keyboardShortcut],
