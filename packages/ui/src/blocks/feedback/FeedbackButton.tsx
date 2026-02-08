@@ -150,6 +150,7 @@ export function FeedbackButton({
         }, 200);
       }
     },
+    // biome-ignore lint/correctness/useExhaustiveDependencies: ref.current should not be a dependency
     [keyboardShortcut],
   );
 
