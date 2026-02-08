@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.46.2
+
+### Patch Changes
+
+- fd65591: Prevent Textarea from expanding layout when value contains a single very long word by constraining width and forcing word wrapping.
+
 ## 0.46.0
 
 ### Minor Changes
