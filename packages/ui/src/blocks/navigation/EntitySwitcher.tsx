@@ -264,7 +264,7 @@ export function EntitySwitcher<T extends Entity>({
                   </AvatarFallback>
                 </Avatar>
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+              <div className="grid flex-1 min-w-0 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-semibold">{displayName}</span>
               </div>
               {openShortcutDisplay && (

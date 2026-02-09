@@ -480,7 +480,7 @@ export function AppSidebar({
                         {user.initials || user.name?.[0]?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
+                    <div className="grid flex-1 min-w-0 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">
                         {user.name || "User"}
                       </span>
