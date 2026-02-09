@@ -2,7 +2,7 @@
 
 import { MessageSquare } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button, type ButtonProps } from "../../components/ui/button";
 import { cn } from "../../utils";
@@ -110,8 +110,11 @@ export function FeedbackButton({
   pillStyle = false,
 }: FeedbackButtonProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  // Prevent rapid keyboard toggles that can cause flash/reopen (#834)
+  const toggleInProgressRef = useRef(false);
 
   // Handle keyboard shortcut
+  // biome-ignore lint/correctness/useExhaustiveDependencies: toggleInProgressRef is a stable ref, .current should not be a dependency
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       // Don't trigger if any modifier keys are pressed (avoid conflicts with Ctrl+F, etc.)
@@ -132,8 +135,20 @@ export function FeedbackButton({
       // Check if the key matches (case-insensitive)
       if (e.key.toLowerCase() === keyboardShortcut.toLowerCase()) {
         e.preventDefault();
+
+        // Guard against rapid toggles (debounce with ref)
+        if (toggleInProgressRef.current) {
+          return;
+        }
+
+        toggleInProgressRef.current = true;
         // Toggle dialog open/closed
         setDialogOpen((prev) => !prev);
+
+        // Reset guard after a short delay to allow intentional re-toggles
+        setTimeout(() => {
+          toggleInProgressRef.current = false;
+        }, 200);
       }
     },
     [keyboardShortcut],
