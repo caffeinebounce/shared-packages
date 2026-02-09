@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.47.0
+
+### Minor Changes
+
+- Update ThemeToggle to use next-themes instead of internal state management. ThemeProvider is now a re-export from next-themes. Removes useThemeContext/useThemeContextOptional exports.
+
 ## 0.46.2
 
 ### Patch Changes
