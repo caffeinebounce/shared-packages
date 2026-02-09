@@ -2,7 +2,7 @@
 
 import { MessageSquare } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button, type ButtonProps } from "../../components/ui/button";
 import { cn } from "../../utils";
