@@ -1,9 +1,4 @@
-export {
-  ThemeProvider,
-  type ThemeProviderProps,
-  useThemeContext,
-  useThemeContextOptional,
-} from "./ThemeProvider";
+export { ThemeProvider, type ThemeProviderProps } from "./ThemeProvider";
 export {
   type ShortcutDefinition,
   type ThemeMode,
