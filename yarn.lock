@@ -208,7 +208,7 @@ __metadata:
   dependencies:
     "@caffeinebounce/logger": "npm:^0.6.0"
     "@caffeinebounce/shared-utils": "npm:^0.7.2"
-    "@caffeinebounce/ui": "npm:^0.46.0"
+    "@caffeinebounce/ui": "npm:^0.47.0"
     "@supabase/ssr": "npm:^0.8.0"
     "@supabase/supabase-js": "npm:^2.49.4"
     "@types/node": "npm:^24.10.1"
@@ -349,7 +349,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@caffeinebounce/ui@npm:^0.46.0, @caffeinebounce/ui@workspace:packages/ui":
+"@caffeinebounce/ui@npm:^0.47.0, @caffeinebounce/ui@workspace:packages/ui":
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/ui@workspace:packages/ui"
   dependencies:
@@ -384,6 +384,7 @@ __metadata:
     lucide-react: "npm:^0.556.0"
     motion: "npm:^12.4.7"
     next: "npm:^16.0.7"
+    next-themes: "npm:^0.4.6"
     react: "npm:^19.2.1"
     react-day-picker: "npm:^9.13.0"
     react-dom: "npm:^19.2.1"
@@ -397,11 +398,14 @@ __metadata:
     zod: "npm:^3.23.8"
   peerDependencies:
     next: ">=14.0.0"
+    next-themes: ">=0.4.0"
     react: ^18 || ^19
     react-dom: ^18 || ^19
     sonner: ^2.0.0
   peerDependenciesMeta:
     next:
+      optional: true
+    next-themes:
       optional: true
   languageName: unknown
   linkType: soft
@@ -5139,6 +5143,16 @@ __metadata:
   version: 1.0.0
   resolution: "negotiator@npm:1.0.0"
   checksum: 10c0/4c559dd52669ea48e1914f9d634227c561221dd54734070791f999c52ed0ff36e437b2e07d5c1f6e32909fc625fe46491c16e4a8f0572567d4dd15c3a4fda04b
+  languageName: node
+  linkType: hard
+
+"next-themes@npm:^0.4.6":
+  version: 0.4.6
+  resolution: "next-themes@npm:0.4.6"
+  peerDependencies:
+    react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+  checksum: 10c0/83590c11d359ce7e4ced14f6ea9dd7a691d5ce6843fe2dc520fc27e29ae1c535118478d03e7f172609c41b1ef1b8da6b8dd2d2acd6cd79cac1abbdbd5b99f2c4
   languageName: node
   linkType: hard
 
