@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.47.1
+
+### Patch Changes
+
+- Add min-w-0 to flex containers in EntitySwitcher and AppSidebar for proper text truncation
+
 ## 0.47.0
 
 ### Minor Changes
