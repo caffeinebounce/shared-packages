@@ -230,13 +230,7 @@ export type {
   ThemeProviderProps,
   ThemeToggleProps,
 } from "./blocks/theme";
-export {
-  ThemeProvider,
-  ThemeToggle,
-  useTheme,
-  useThemeContext,
-  useThemeContextOptional,
-} from "./blocks/theme";
+export { ThemeProvider, ThemeToggle, useTheme } from "./blocks/theme";
 export type {
   UserAvatarMenuItem,
   UserAvatarMenuProps,
