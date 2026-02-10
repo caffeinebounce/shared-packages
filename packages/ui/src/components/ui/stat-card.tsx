@@ -450,7 +450,7 @@ export function StatCard({
             </span>
           </div>
           {(description || trend) && (
-            <div className="-mt-6 flex items-center gap-2">
+            <div className="-mt-6 flex items-center gap-2 min-w-0">
               {trend && <TrendBadge trend={trend} />}
               {description && (
                 <p className="text-xs text-foreground/80 truncate">
@@ -460,12 +460,12 @@ export function StatCard({
             </div>
           )}
           {footer && (
-            <p className="text-xs text-muted-foreground mt-2 truncate">
+            <p className="text-xs text-muted-foreground mt-1 truncate">
               {footer}
             </p>
           )}
           {trend?.label && (
-            <p className="text-xs text-muted-foreground mt-1">{trend.label}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{trend.label}</p>
           )}
         </CardContent>
       </Card>
@@ -475,7 +475,7 @@ export function StatCard({
   // With chart: render flipping card
   return (
     <div
-      className={cn("group h-full", className)}
+      className={cn("group h-full min-h-[160px]", className)}
       style={{ perspective: "1000px" }}
     >
       <button
@@ -507,7 +507,7 @@ export function StatCard({
               </span>
             </div>
             {(description || trend) && (
-              <div className="-mt-6 flex items-center gap-2">
+              <div className="-mt-6 flex items-center gap-2 min-w-0">
                 {trend && <TrendBadge trend={trend} />}
                 {description && (
                   <p className="text-xs text-foreground/80 truncate">
@@ -517,12 +517,12 @@ export function StatCard({
               </div>
             )}
             {footer && (
-              <p className="text-xs text-muted-foreground mt-2 truncate">
+              <p className="text-xs text-muted-foreground mt-1 truncate">
                 {footer}
               </p>
             )}
             {trend?.label && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">
                 {trend.label}
               </p>
             )}
