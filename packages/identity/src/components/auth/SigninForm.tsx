@@ -196,6 +196,10 @@ export function SigninForm({
     // This prevents "invalid session" errors when signing in after sign-out
     clearStalePKCEState();
 
+    // Clear any existing session to prevent stale token conflicts
+    const supabase = createClient();
+    await supabase.auth.signOut();
+
     // Clear any existing timeout before setting a new one
     if (oauthTimeoutRef.current) {
       clearTimeout(oauthTimeoutRef.current);
@@ -216,7 +220,6 @@ export function SigninForm({
 
     // Get the appropriate origin for this environment (handles preview vs production)
     const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
-    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
