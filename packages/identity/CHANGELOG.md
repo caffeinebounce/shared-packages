@@ -1,5 +1,11 @@
 # @caffeinebounce/identity
 
+## 0.10.23
+
+### Patch Changes
+
+- Clear stale Supabase session before initiating OAuth sign-in to prevent first-click failures
+
 ## 0.10.22
 
 ### Patch Changes
