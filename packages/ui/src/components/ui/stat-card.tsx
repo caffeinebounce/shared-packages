@@ -444,13 +444,13 @@ export function StatCard({
       >
         {renderHeader()}
         <CardContent className="relative px-4 py-0">
-          <div className="relative">
-            <span className="text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10">
+          <div className="relative overflow-hidden">
+            <span className="block text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10 truncate">
               {displayValue}
             </span>
           </div>
           {(description || trend) && (
-            <div className="-mt-6 flex items-center gap-2">
+            <div className="-mt-6 flex items-center gap-2 min-w-0">
               {trend && <TrendBadge trend={trend} />}
               {description && (
                 <p className="text-xs text-foreground/80 truncate">
@@ -460,12 +460,12 @@ export function StatCard({
             </div>
           )}
           {footer && (
-            <p className="text-xs text-muted-foreground mt-2 truncate">
+            <p className="text-xs text-muted-foreground mt-1 truncate">
               {footer}
             </p>
           )}
           {trend?.label && (
-            <p className="text-xs text-muted-foreground mt-1">{trend.label}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{trend.label}</p>
           )}
         </CardContent>
       </Card>
@@ -475,7 +475,7 @@ export function StatCard({
   // With chart: render flipping card
   return (
     <div
-      className={cn("group h-full", className)}
+      className={cn("group h-full min-h-[160px]", className)}
       style={{ perspective: "1000px" }}
     >
       <button
@@ -495,19 +495,19 @@ export function StatCard({
         <Card
           className={cn(
             cardBaseStyles,
-            "absolute inset-0 [backface-visibility:hidden]",
+            "absolute inset-0 [backface-visibility:hidden] [transform-style:preserve-3d] [transform:rotateY(0deg)]",
             "transition-colors hover:border-primary/50",
           )}
         >
           {renderHeader()}
           <CardContent className="relative px-4 py-0">
-            <div className="relative">
-              <span className="text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10">
+            <div className="relative overflow-hidden">
+              <span className="block text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10 truncate">
                 {displayValue}
               </span>
             </div>
             {(description || trend) && (
-              <div className="-mt-6 flex items-center gap-2">
+              <div className="-mt-6 flex items-center gap-2 min-w-0">
                 {trend && <TrendBadge trend={trend} />}
                 {description && (
                   <p className="text-xs text-foreground/80 truncate">
@@ -517,12 +517,12 @@ export function StatCard({
               </div>
             )}
             {footer && (
-              <p className="text-xs text-muted-foreground mt-2 truncate">
+              <p className="text-xs text-muted-foreground mt-1 truncate">
                 {footer}
               </p>
             )}
             {trend?.label && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">
                 {trend.label}
               </p>
             )}
@@ -534,7 +534,7 @@ export function StatCard({
         <Card
           className={cn(
             cardBaseStyles,
-            "absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]",
+            "absolute inset-0 [backface-visibility:hidden] [transform-style:preserve-3d] [transform:rotateY(180deg)]",
             "transition-colors hover:border-primary/50",
           )}
         >
