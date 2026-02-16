@@ -14,7 +14,6 @@ export function LampContainer({ children, className }: LampContainerProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Small delay to ensure hydration is complete before starting animation
     const timer = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(timer);
   }, []);
@@ -26,45 +25,38 @@ export function LampContainer({ children, className }: LampContainerProps) {
         className,
       )}
     >
+      {/* Subtle radial ambient glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(129,140,248,0.10),transparent_55%)] dark:bg-[radial-gradient(circle_at_top,rgba(129,140,248,0.22),transparent_55%)]" />
 
+      {/* Lamp glow — blur on a STATIC div, width animated via CSS transition (not framer-motion) */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
-        <motion.div
-          initial={false}
-          animate={
-            mounted
-              ? { opacity: 1, width: "36rem" }
-              : { opacity: 0.4, width: "14rem" }
-          }
-          transition={{ duration: 1.2, ease: "easeOut" }}
+        <div
+          className="h-72 transition-all duration-[1200ms] ease-out"
           style={{
             backgroundImage:
               "conic-gradient(from 210deg at 50% 0%, rgba(129,140,248,0.55), transparent 55%, rgba(129,140,248,0.35))",
             filter: "blur(64px)",
-            opacity: 0.4,
-            width: "14rem",
+            WebkitFilter: "blur(64px)",
+            transform: "translateZ(0)",
+            willChange: "opacity, width",
+            opacity: mounted ? 1 : 0,
+            width: mounted ? "36rem" : "14rem",
           }}
-          className="h-72"
         />
       </div>
 
+      {/* Accent line */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
-        <motion.div
-          initial={false}
-          animate={
-            mounted
-              ? { opacity: 0.65, width: "58rem" }
-              : { opacity: 0.2, width: "24rem" }
-          }
-          transition={{ duration: 1.4, ease: "easeOut" }}
+        <div
+          className="h-px bg-gradient-to-r from-transparent via-indigo-400/90 to-transparent transition-all duration-[1400ms] ease-out dark:via-indigo-300/90"
           style={{
-            opacity: 0.2,
-            width: "24rem",
+            opacity: mounted ? 0.65 : 0,
+            width: mounted ? "58rem" : "24rem",
           }}
-          className="h-px bg-gradient-to-r from-transparent via-indigo-400/90 to-transparent dark:via-indigo-300/90"
         />
       </div>
 
+      {/* Top fade overlay */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-white via-white/85 to-transparent dark:from-black dark:via-black/85" />
 
       <div className="relative z-10 w-full">{children}</div>
