@@ -161,6 +161,8 @@ export type {
   BenefitsSectionProps,
   HeroSectionProps,
   HeroSectionWithRippleProps,
+  LampHeroProps,
+  LampHeroSocialLink,
   ImpactSectionProps,
   LocationCard,
   MissionSectionProps,
@@ -176,6 +178,7 @@ export {
   BenefitsSection,
   HeroSection,
   HeroSectionWithRipple,
+  LampHero,
   ImpactSection,
   MissionSection,
   NewsletterSignup,
@@ -424,6 +427,8 @@ export {
 } from "./components/ui/input-otp";
 export { Kbd, KbdGroup } from "./components/ui/kbd";
 export { Label } from "./components/ui/label";
+export type { LampContainerProps } from "./components/ui/lamp";
+export { LampContainer } from "./components/ui/lamp";
 export type { LocationMapProps } from "./components/ui/location-map";
 export { LocationMap } from "./components/ui/location-map";
 export type { ModernCalendarProps } from "./components/ui/modern-calendar";
@@ -548,6 +553,8 @@ export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 export type { TextHighlightProps } from "./components/ui/text-highlight";
 export { TextHighlight } from "./components/ui/text-highlight";
 export { Textarea } from "./components/ui/textarea";
+export type { TextGenerateEffectProps } from "./components/ui/text-generate-effect";
+export { TextGenerateEffect } from "./components/ui/text-generate-effect";
 export type { TimeEstimateProps } from "./components/ui/time-estimate";
 export { TimeEstimate } from "./components/ui/time-estimate";
 export { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
