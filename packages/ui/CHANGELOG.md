@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.48.0
+
+### Minor Changes
+
+- feat: add LampContainer, TextGenerateEffect, and LampHero block
+
 ## 0.47.1
 
 ### Patch Changes
