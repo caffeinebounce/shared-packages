@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { cn } from "../../utils";
 
@@ -11,6 +11,14 @@ export interface LampContainerProps {
 }
 
 export function LampContainer({ children, className }: LampContainerProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Small delay to ensure hydration is complete before starting animation
+    const timer = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(timer);
+  }, []);
+
   return (
     <div
       className={cn(
@@ -22,22 +30,37 @@ export function LampContainer({ children, className }: LampContainerProps) {
 
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
         <motion.div
-          initial={{ opacity: 0.4, width: "14rem" }}
-          whileInView={{ opacity: 1, width: "36rem" }}
-          transition={{ duration: 0.85, ease: "easeInOut" }}
+          initial={false}
+          animate={
+            mounted
+              ? { opacity: 1, width: "36rem" }
+              : { opacity: 0.4, width: "14rem" }
+          }
+          transition={{ duration: 1.2, ease: "easeOut" }}
           style={{
             backgroundImage:
               "conic-gradient(from 210deg at 50% 0%, rgba(129,140,248,0.55), transparent 55%, rgba(129,140,248,0.35))",
+            filter: "blur(64px)",
+            opacity: 0.4,
+            width: "14rem",
           }}
-          className="h-72 blur-3xl"
+          className="h-72"
         />
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
         <motion.div
-          initial={{ opacity: 0.2, width: "24rem" }}
-          whileInView={{ opacity: 0.65, width: "58rem" }}
-          transition={{ duration: 1, ease: "easeInOut" }}
+          initial={false}
+          animate={
+            mounted
+              ? { opacity: 0.65, width: "58rem" }
+              : { opacity: 0.2, width: "24rem" }
+          }
+          transition={{ duration: 1.4, ease: "easeOut" }}
+          style={{
+            opacity: 0.2,
+            width: "24rem",
+          }}
           className="h-px bg-gradient-to-r from-transparent via-indigo-400/90 to-transparent dark:via-indigo-300/90"
         />
       </div>
