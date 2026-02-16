@@ -58,6 +58,8 @@ export interface NavbarProps {
   mobileMenuOpenIcon?: ReactNode;
   /** Custom mobile menu button content when closed */
   mobileMenuClosedIcon?: ReactNode;
+  /** Max width for the inner container (e.g., "max-w-5xl", "max-w-7xl"). Defaults to full container width. */
+  containerClassName?: string;
 }
 
 /**
@@ -91,6 +93,7 @@ export function Navbar({
   showMobileMenu = true,
   mobileMenuOpenIcon,
   mobileMenuClosedIcon,
+  containerClassName,
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { direction, isAtTop } = useScrollDirection({
@@ -139,7 +142,7 @@ export function Navbar({
         transform: shouldHide ? "translateY(-100%)" : "translateY(0)",
       }}
     >
-      <div className="container mx-auto flex h-14 items-center justify-between gap-4 px-4 md:px-8">
+      <div className={cn("container mx-auto flex h-14 items-center justify-between gap-4 px-4 md:px-8", containerClassName)}>
         {/* Logo/Brand */}
         {logo}
 

@@ -23,6 +23,8 @@ export interface FooterProps {
   /** Additional bottom content */
   bottomContent?: ReactNode;
   className?: string;
+  /** Additional className for the inner container (e.g., "max-w-5xl") */
+  containerClassName?: string;
 }
 
 export function Footer({
@@ -32,10 +34,11 @@ export function Footer({
   copyright,
   bottomContent,
   className,
+  containerClassName,
 }: FooterProps) {
   return (
     <footer className={cn("bg-muted/50 border-t", className)}>
-      <div className="container mx-auto px-4 py-12 md:py-16">
+      <div className={cn("container mx-auto px-4 md:px-8 py-12 md:py-16", containerClassName)}>
         <div className="flex flex-col md:flex-row justify-between gap-8">
           {/* Brand Section */}
           {logo && (
