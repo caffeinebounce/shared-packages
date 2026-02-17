@@ -6,7 +6,13 @@ import {
   type Row,
   type Table as TanStackTable,
 } from "@tanstack/react-table";
-import { ChevronDown, ChevronRight, GripVertical } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  ChevronsDownUp,
+  ChevronsUpDown,
+  GripVertical,
+} from "lucide-react";
 import * as React from "react";
 
 import {
@@ -663,6 +669,10 @@ export function DataTable<TData, TValue>({
                             className={cn(
                               isSimpleHeader ? "px-2" : "p-0", // Add padding for simple headers, let component headers handle their own
                               headerHeight,
+                              // Tree view first column: flex layout for expand-all button + header
+                              enableTreeView &&
+                                headerIndex === 0 &&
+                                "flex items-center",
                               "relative overflow-hidden text-ellipsis border-b border-border",
                               !columnWrapping[header.id] && "whitespace-nowrap",
                               columnWrapping[header.id] && "whitespace-normal",
@@ -679,17 +689,71 @@ export function DataTable<TData, TValue>({
                                   : undefined
                             }
                           >
-                            {header.isPlaceholder ? null : isSimpleHeader ? (
-                              <span
-                                className={cn("font-medium", fontSizeClass)}
-                              >
-                                {headerDef}
-                              </span>
-                            ) : (
-                              flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )
+                            {header.isPlaceholder ? null : (
+                              <>
+                                {/* Tree view: expand/collapse all toggle on first column header */}
+                                {enableTreeView && headerIndex === 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const isAllExpanded =
+                                        table.getIsAllRowsExpanded();
+                                      table.toggleAllRowsExpanded(
+                                        !isAllExpanded,
+                                      );
+                                    }}
+                                    className={cn(
+                                      "inline-flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground rounded hover:bg-accent transition-colors",
+                                      density === "compact"
+                                        ? "size-5 ml-0.5"
+                                        : "size-6 ml-1",
+                                    )}
+                                    aria-label={
+                                      table.getIsAllRowsExpanded()
+                                        ? "Collapse all rows"
+                                        : "Expand all rows"
+                                    }
+                                    title={
+                                      table.getIsAllRowsExpanded()
+                                        ? "Collapse all"
+                                        : "Expand all"
+                                    }
+                                  >
+                                    {table.getIsAllRowsExpanded() ? (
+                                      <ChevronsDownUp
+                                        className={
+                                          density === "compact"
+                                            ? "size-3.5"
+                                            : "size-4"
+                                        }
+                                      />
+                                    ) : (
+                                      <ChevronsUpDown
+                                        className={
+                                          density === "compact"
+                                            ? "size-3.5"
+                                            : "size-4"
+                                        }
+                                      />
+                                    )}
+                                  </button>
+                                )}
+                                {isSimpleHeader ? (
+                                  <span
+                                    className={cn(
+                                      "font-medium",
+                                      fontSizeClass,
+                                    )}
+                                  >
+                                    {headerDef}
+                                  </span>
+                                ) : (
+                                  flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )
+                                )}
+                              </>
                             )}
                             {/* Resize handle - not shown for fixed-width or last column */}
                             {enableColumnResizing &&
