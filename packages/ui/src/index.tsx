@@ -32,6 +32,8 @@ export type {
   DataTableColumnMeta,
   DataTableExportButtonProps,
   DataTableFilter,
+  DataTableSettingDef,
+  DataTableSettingsProps,
   DataTableFilterBadgesProps,
   DataTablePaginationProps,
   DataTableProps,
@@ -58,6 +60,7 @@ export {
   DataTableColumnHeader,
   DataTableExportButton,
   DataTableFilterBadges,
+  DataTableSettings,
   DataTablePagination,
   DataTableRowActions,
   DataTableSearch,
@@ -68,6 +71,7 @@ export {
   DataTableViewOptions,
   DataTableViews,
   useDataTableContext,
+  useDataTableSettings,
 } from "./blocks/data-table";
 export type {
   StudioBlock,
