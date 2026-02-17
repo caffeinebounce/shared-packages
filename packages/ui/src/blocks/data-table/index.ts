@@ -90,3 +90,8 @@ export {
   type DataTableSettingsProps,
   useDataTableSettings,
 } from "./DataTableSettings";
+export {
+  DataTableCurrencyCell,
+  type DataTableCurrencyCellProps,
+  formatCurrencyValue,
+} from "./DataTableCurrencyCell";
