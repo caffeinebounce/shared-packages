@@ -6,7 +6,7 @@ import {
   type Row,
   type Table as TanStackTable,
 } from "@tanstack/react-table";
-import { GripVertical } from "lucide-react";
+import { ChevronDown, ChevronRight, GripVertical } from "lucide-react";
 import * as React from "react";
 
 import {
@@ -105,6 +105,12 @@ export interface DataTableProps<TData, TValue>
   onRowClick?: (row: Row<TData>) => void;
   /** Optional summary component to render below the table but inside the scroll container */
   summary?: React.ReactNode;
+  /** Enable tree view with expand/collapse and indentation for hierarchical data */
+  enableTreeView?: boolean;
+  /** Indent in pixels per depth level (default: 20) */
+  treeIndentPx?: number;
+  /** Optional callback to add extra CSS class(es) to a specific row */
+  getRowClassName?: (row: Row<TData>) => string | undefined;
 }
 
 /**
@@ -148,6 +154,9 @@ export function DataTable<TData, TValue>({
   onColumnWrappingChange,
   onRowClick,
   summary,
+  enableTreeView = false,
+  treeIndentPx = 20,
+  getRowClassName,
   className,
   children,
   ...props
@@ -755,6 +764,7 @@ export function DataTable<TData, TValue>({
                         className={cn(
                           "group/row",
                           onRowClick && "cursor-pointer hover:bg-muted/50",
+                          getRowClassName?.(row),
                           // Add bottom border to last row when summary exists
                           summary &&
                             rowIndex === table.getRowModel().rows.length - 1 &&
@@ -900,6 +910,16 @@ export function DataTable<TData, TValue>({
                             // Check if wrapping is enabled for this column
                             const isWrapped = columnWrapping[cell.column.id];
 
+                            // Tree view: first data cell (cellIndex === 0) gets indent + chevron
+                            const isFirstDataCell = cellIndex === 0;
+                            const showTreeUI =
+                              enableTreeView && isFirstDataCell;
+                            const treeIndent = showTreeUI
+                              ? row.depth * treeIndentPx
+                              : 0;
+                            const canExpand =
+                              showTreeUI && row.getCanExpand();
+
                             return (
                               <TableCell
                                 key={cell.id}
@@ -936,12 +956,59 @@ export function DataTable<TData, TValue>({
                                   width: resizedWidth || cell.column.getSize(),
                                 }}
                               >
-                                <div className={cn(!isWrapped && "truncate")}>
-                                  {flexRender(
-                                    cell.column.columnDef.cell,
-                                    cell.getContext(),
-                                  )}
-                                </div>
+                                {showTreeUI ? (
+                                  <div
+                                    className="flex items-center gap-1"
+                                    style={{ paddingLeft: `${treeIndent}px` }}
+                                  >
+                                    {canExpand ? (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          row.toggleExpanded();
+                                        }}
+                                        className="shrink-0 text-muted-foreground hover:text-foreground"
+                                        aria-label={
+                                          row.getIsExpanded()
+                                            ? "Collapse"
+                                            : "Expand"
+                                        }
+                                      >
+                                        {row.getIsExpanded() ? (
+                                          <ChevronDown className="size-4" />
+                                        ) : (
+                                          <ChevronRight className="size-4" />
+                                        )}
+                                      </button>
+                                    ) : (
+                                      <span
+                                        className="inline-block shrink-0 size-4"
+                                        aria-hidden="true"
+                                      />
+                                    )}
+                                    <div
+                                      className={cn(
+                                        "min-w-0",
+                                        !isWrapped && "truncate",
+                                      )}
+                                    >
+                                      {flexRender(
+                                        cell.column.columnDef.cell,
+                                        cell.getContext(),
+                                      )}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div
+                                    className={cn(!isWrapped && "truncate")}
+                                  >
+                                    {flexRender(
+                                      cell.column.columnDef.cell,
+                                      cell.getContext(),
+                                    )}
+                                  </div>
+                                )}
                               </TableCell>
                             );
                           })}
