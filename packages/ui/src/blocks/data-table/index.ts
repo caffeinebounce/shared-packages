@@ -84,3 +84,9 @@ export {
   DataTableViews,
   type DataTableViewsProps,
 } from "./DataTableViews";
+export {
+  DataTableSettings,
+  type DataTableSettingDef,
+  type DataTableSettingsProps,
+  useDataTableSettings,
+} from "./DataTableSettings";

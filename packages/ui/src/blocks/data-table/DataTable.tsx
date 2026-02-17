@@ -220,7 +220,11 @@ export function DataTable<TData, TValue>({
   const defaultColumnOrder = React.useMemo(
     () =>
       columns.map((col) =>
-        "accessorKey" in col ? String(col.accessorKey) : (col.id ?? ""),
+        col.id
+          ? col.id
+          : "accessorKey" in col
+            ? String(col.accessorKey)
+            : "",
       ),
     [columns],
   );
@@ -974,6 +978,18 @@ export function DataTable<TData, TValue>({
                             // Check if wrapping is enabled for this column
                             const isWrapped = columnWrapping[cell.column.id];
 
+                            // Column alignment from meta
+                            const colMeta = cell.column.columnDef
+                              .meta as Record<string, unknown> | undefined;
+                            const colAlign =
+                              (colMeta?.align as string) ?? "left";
+                            const alignClass =
+                              colAlign === "right"
+                                ? "text-right"
+                                : colAlign === "center"
+                                  ? "text-center"
+                                  : "";
+
                             // Tree view: first data cell (cellIndex === 0) gets indent + chevron
                             const isFirstDataCell = cellIndex === 0;
                             const showTreeUI =
@@ -1065,7 +1081,10 @@ export function DataTable<TData, TValue>({
                                   </div>
                                 ) : (
                                   <div
-                                    className={cn(!isWrapped && "truncate")}
+                                    className={cn(
+                                      !isWrapped && "truncate",
+                                      alignClass,
+                                    )}
                                   >
                                     {flexRender(
                                       cell.column.columnDef.cell,

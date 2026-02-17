@@ -92,6 +92,8 @@ export interface DataTableColumnMeta {
   filterOptions?: FilterOption[];
   /** Placeholder text for filter input */
   filterPlaceholder?: string;
+  /** Text alignment for this column's cells */
+  align?: "left" | "center" | "right";
 }
 
 export interface DataTableColumnHeaderProps<TData, TValue>
