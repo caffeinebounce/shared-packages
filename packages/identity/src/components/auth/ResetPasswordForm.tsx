@@ -3,7 +3,6 @@
 import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
 import {
   Button,
-  FieldError,
   FieldLabel,
   PasswordInput,
 } from "@caffeinebounce/ui";
