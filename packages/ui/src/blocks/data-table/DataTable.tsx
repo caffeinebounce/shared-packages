@@ -119,6 +119,108 @@ export interface DataTableProps<TData, TValue>
   getRowClassName?: (row: Row<TData>) => string | undefined;
 }
 
+// ── Tree expand cycle button ──────────────────────────────────────────────────
+
+/** Cycles expand state: level 0 → level 1 → … → all → collapse */
+function TreeExpandCycleButton<TData>({
+  table,
+  density,
+}: {
+  table: TanStackTable<TData>;
+  density: DataTableDensity;
+}) {
+  // Find max depth across all rows
+  const maxDepth = React.useMemo(() => {
+    let max = 0;
+    const walk = (rows: Row<TData>[]) => {
+      for (const row of rows) {
+        if (row.depth > max) max = row.depth;
+        if (row.subRows?.length) walk(row.subRows);
+      }
+    };
+    walk(table.getPreExpandedRowModel?.()?.rows ?? table.getCoreRowModel().rows);
+    return max;
+  }, [table]);
+
+  const handleClick = React.useCallback(() => {
+    const expanded = table.getState().expanded;
+    const isAllExpanded = table.getIsAllRowsExpanded();
+
+    if (isAllExpanded) {
+      // Fully expanded → collapse all
+      table.toggleAllRowsExpanded(false);
+      return;
+    }
+
+    // Find current max expanded depth
+    let currentMaxDepth = -1;
+    if (typeof expanded === "object") {
+      const allRows = table.getRowModel().flatRows;
+      for (const row of allRows) {
+        if (row.getIsExpanded() && row.depth > currentMaxDepth) {
+          currentMaxDepth = row.depth;
+        }
+      }
+    }
+
+    // Expand next depth level
+    const targetDepth = currentMaxDepth + 1;
+    const newExpanded: Record<string, boolean> = {};
+    const allRows = (
+      table.getPreExpandedRowModel?.()?.rows ??
+      table.getCoreRowModel().rows
+    );
+
+    const walk = (rows: Row<TData>[]) => {
+      for (const row of rows) {
+        if (row.depth <= targetDepth && row.getCanExpand()) {
+          newExpanded[row.id] = true;
+        }
+        if (row.subRows?.length) walk(row.subRows);
+      }
+    };
+    walk(allRows);
+
+    table.setExpanded(newExpanded);
+  }, [table, maxDepth]);
+
+  const isAllExpanded = table.getIsAllRowsExpanded();
+  const isSomeExpanded = table.getIsSomeRowsExpanded();
+
+  const iconSize = density === "compact" ? "size-3.5" : "size-4";
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={cn(
+        "inline-flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground rounded hover:bg-accent transition-colors",
+        density === "compact" ? "size-5 ml-0.5" : "size-6 ml-1",
+      )}
+      aria-label={
+        isAllExpanded
+          ? "Collapse all rows"
+          : "Expand next level"
+      }
+      title={
+        isAllExpanded
+          ? "Collapse all"
+          : isSomeExpanded
+            ? "Expand next level"
+            : "Expand all"
+      }
+    >
+      {isAllExpanded ? (
+        <ChevronsDownUp className={iconSize} />
+      ) : isSomeExpanded ? (
+        <ChevronsUpDown className={iconSize} />
+      ) : (
+        <ChevronsUpDown className={iconSize} />
+      )}
+    </button>
+  );
+}
+
 /**
  * A data table component built on TanStack Table.
  * Renders the table with headers and body rows.
@@ -695,52 +797,12 @@ export function DataTable<TData, TValue>({
                           >
                             {header.isPlaceholder ? null : (
                               <>
-                                {/* Tree view: expand/collapse all toggle on first column header */}
+                                {/* Tree view: cycle expand depth on first column header */}
                                 {enableTreeView && headerIndex === 0 && (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const isAllExpanded =
-                                        table.getIsAllRowsExpanded();
-                                      table.toggleAllRowsExpanded(
-                                        !isAllExpanded,
-                                      );
-                                    }}
-                                    className={cn(
-                                      "inline-flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground rounded hover:bg-accent transition-colors",
-                                      density === "compact"
-                                        ? "size-5 ml-0.5"
-                                        : "size-6 ml-1",
-                                    )}
-                                    aria-label={
-                                      table.getIsAllRowsExpanded()
-                                        ? "Collapse all rows"
-                                        : "Expand all rows"
-                                    }
-                                    title={
-                                      table.getIsAllRowsExpanded()
-                                        ? "Collapse all"
-                                        : "Expand all"
-                                    }
-                                  >
-                                    {table.getIsAllRowsExpanded() ? (
-                                      <ChevronsDownUp
-                                        className={
-                                          density === "compact"
-                                            ? "size-3.5"
-                                            : "size-4"
-                                        }
-                                      />
-                                    ) : (
-                                      <ChevronsUpDown
-                                        className={
-                                          density === "compact"
-                                            ? "size-3.5"
-                                            : "size-4"
-                                        }
-                                      />
-                                    )}
-                                  </button>
+                                  <TreeExpandCycleButton
+                                    table={table}
+                                    density={density}
+                                  />
                                 )}
                                 {isSimpleHeader ? (
                                   <span

@@ -225,11 +225,20 @@ export function DataTableColumnHeader<TData, TValue>({
 
   // If no actions available, just render the title (with matching px-2 padding)
   // Note: Drag-to-reorder requires mouse/touch. Keyboard reordering would need arrow key handling + state management.
+  const colAlign = meta?.align ?? "left";
+  const justifyClass =
+    colAlign === "right"
+      ? "justify-end"
+      : colAlign === "center"
+        ? "justify-center"
+        : "";
+
   if (!canSort && !canHide && !showFilter) {
     return (
       <div
         className={cn(
           "flex items-center gap-1.5 px-2 h-full",
+          justifyClass,
           canDrag && "cursor-grab",
           className,
         )}
@@ -260,7 +269,8 @@ export function DataTableColumnHeader<TData, TValue>({
               onClick={handleClick}
               style={{ pointerEvents: "auto" }}
               className={cn(
-                "flex items-center gap-1.5 w-full h-full px-2 text-left",
+                "flex items-center gap-1.5 w-full h-full px-2",
+                justifyClass || "text-left",
                 "hover:bg-accent/50 transition-colors",
                 isOpen && "bg-accent",
                 "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
