@@ -182,7 +182,7 @@ function TreeExpandCycleButton<TData>({
     walk(allRows);
 
     table.setExpanded(newExpanded);
-  }, [table, maxDepth]);
+  }, [table]);
 
   const isAllExpanded = table.getIsAllRowsExpanded();
   const isSomeExpanded = table.getIsSomeRowsExpanded();
