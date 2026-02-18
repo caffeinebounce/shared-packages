@@ -130,13 +130,14 @@ interface StatementRow {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function toPeriodKey(date: string, unit: TimeUnit): string {
-  const d = new Date(date);
-  if (unit === "year") return String(d.getFullYear());
+  // Parse as local date parts to avoid UTC offset shifting months
+  const [y, m] = date.split("-").map(Number);
+  if (unit === "year") return String(y);
   if (unit === "quarter") {
-    const q = Math.floor(d.getMonth() / 3) + 1;
-    return `${d.getFullYear()}-Q${q}`;
+    const q = Math.floor((m - 1) / 3) + 1;
+    return `${y}-Q${q}`;
   }
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  return `${y}-${String(m).padStart(2, "0")}`;
 }
 
 function toPeriodLabel(key: string, unit: TimeUnit): string {
@@ -757,7 +758,7 @@ export function FinancialStatementTable({
   return (
     <div className={className}>
       {toolbar && (
-        <div className="flex items-center justify-end gap-1 px-1 pb-1.5">
+        <div className="flex items-center justify-end gap-1 pb-1">
           {toolbar}
         </div>
       )}
