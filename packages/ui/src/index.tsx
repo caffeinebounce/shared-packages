@@ -95,8 +95,14 @@ export {
   useDataTableContext,
   useDataTableSettings,
   FinanceDecimalsProvider,
+  FinanceDisplayProvider,
   useFinanceDecimals,
+  useFinanceDisplay,
   useFinanceDecimalsSetting,
+  getUnitDivisor,
+  getUnitLabel,
+  getUnitSuffix,
+  type DisplayUnits,
 } from "./blocks/data-table";
 export type {
   StudioBlock,
