@@ -381,7 +381,7 @@ export function SummaryPanel({
                       className={cn(
                         "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors outline-none focus-visible:outline-none",
                         activeChartType === ct
-                          ? "bg-muted text-foreground"
+                          ? "bg-primary/10 text-primary"
                           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                       )}
                     >
