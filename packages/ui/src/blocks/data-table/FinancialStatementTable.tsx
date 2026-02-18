@@ -32,7 +32,7 @@ function RecCheck({ computed, raw }: { computed: number; raw: number }) {
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="inline-flex items-center ml-1">
+          <span className="inline-flex items-center ml-1 opacity-0 group-hover/rec:opacity-100 transition-opacity">
             {matches ? (
               <CheckCircle2 className="size-3 text-emerald-500/70" />
             ) : (
@@ -701,7 +701,7 @@ function buildColumns(
         }
         const rawVal = isTotalRow ? r._rawPeriodAmounts?.[pk] : undefined;
         return (
-          <span className={cn(bold, "inline-flex items-center")}>
+          <span className={cn(bold, "inline-flex items-center", isTotalRow && "group/rec")}>
             <DataTableCurrencyCell value={val} dashZero />
             {isTotalRow && rawVal !== undefined && <RecCheck computed={val} raw={rawVal} />}
           </span>
@@ -738,7 +738,7 @@ function buildColumns(
         return <span className={bold}>{renderAmountCell(r, null, r.total)}</span>;
       }
       return (
-        <span className={cn(bold, "inline-flex items-center")}>
+        <span className={cn(bold, "inline-flex items-center", isTotalRow && "group/rec")}>
           <DataTableCurrencyCell value={r.total} dashZero />
           {isTotalRow && r._rawTotal !== undefined && <RecCheck computed={r.total} raw={r._rawTotal} />}
         </span>
