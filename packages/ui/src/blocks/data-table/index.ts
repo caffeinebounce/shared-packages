@@ -95,3 +95,15 @@ export {
   type DataTableCurrencyCellProps,
   formatCurrencyValue,
 } from "./DataTableCurrencyCell";
+export {
+  BALANCE_SHEET_CONFIG,
+  buildFinancialStatementData,
+  type FinancialStatementConfig,
+  type FinancialStatementEntry,
+  type FinancialStatementSection,
+  FinancialStatementTable,
+  type FinancialStatementTableProps,
+  type FinancialStatementTotal,
+  INCOME_STATEMENT_CONFIG,
+  type TimeUnit,
+} from "./FinancialStatementTable";
