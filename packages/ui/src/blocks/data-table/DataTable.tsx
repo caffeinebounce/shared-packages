@@ -163,6 +163,12 @@ function TreeExpandCycleButton<TData>({
       }
     }
 
+    // If already at or past max depth, collapse all
+    if (currentMaxDepth >= maxDepth) {
+      table.toggleAllRowsExpanded(false);
+      return;
+    }
+
     // Expand next depth level
     const targetDepth = currentMaxDepth + 1;
     const newExpanded: Record<string, boolean> = {};
