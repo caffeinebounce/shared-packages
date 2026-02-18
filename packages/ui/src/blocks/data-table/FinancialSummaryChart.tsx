@@ -266,17 +266,43 @@ export interface FinancialSummaryChartProps {
 
 // ── Sparkline card ─────────────────────────────────────────────────────────────
 
-function CardSparkline({ data, dataKey, color }: { data: Record<string, unknown>[]; dataKey: string; color: string }) {
+function SparklineTooltip({ active, payload, color, divisor = 1 }: {
+  active?: boolean;
+  payload?: Array<{ value: number; payload: Record<string, unknown> }>;
+  color: string;
+  divisor?: number;
+}) {
+  if (!active || !payload?.length) return null;
+  const entry = payload[0];
+  const label = entry.payload.periodLabel as string;
+  return (
+    <ChartTooltipShell className="px-2 py-1">
+      <div className="flex items-center gap-2 text-xs">
+        <div className="size-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+        <span className="text-muted-foreground">{label}</span>
+        <span className={cn("font-mono font-medium ml-auto", entry.value < 0 && "text-destructive")}>
+          {formatTooltipCurrency(entry.value, divisor)}
+        </span>
+      </div>
+    </ChartTooltipShell>
+  );
+}
+
+function CardSparkline({ data, dataKey, color, divisor = 1 }: { data: Record<string, unknown>[]; dataKey: string; color: string; divisor?: number }) {
   return (
     <div className="h-10 w-full mt-1">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 2, right: 2, bottom: 0, left: 2 }}>
+        <AreaChart data={data} margin={{ top: 4, right: 6, bottom: 2, left: 6 }}>
           <defs>
             <linearGradient id={`spark-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={color} stopOpacity={0.3} />
               <stop offset="95%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
+          <Tooltip
+            content={<SparklineTooltip color={color} divisor={divisor} />}
+            cursor={false}
+          />
           <Area
             type="monotone"
             dataKey={dataKey}
@@ -284,6 +310,7 @@ function CardSparkline({ data, dataKey, color }: { data: Record<string, unknown>
             strokeWidth={1.5}
             fill={`url(#spark-${dataKey})`}
             dot={false}
+            activeDot={{ r: 3, strokeWidth: 1.5, fill: "var(--background, #fff)", stroke: color }}
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -430,7 +457,7 @@ export function FinancialSummaryChart({
                           )}
                         </>
                       ) : (
-                        <CardSparkline data={chartData} dataKey={card.key} color={card.color} />
+                        <CardSparkline data={chartData} dataKey={card.key} color={card.color} divisor={divisor} />
                       )}
                       {/* Dot indicators */}
                       <div className="flex justify-center gap-1.5 mt-1.5">
