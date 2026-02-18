@@ -1,6 +1,10 @@
 "use client";
 
-import type { ColumnDef, ExpandedState, VisibilityState } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  ExpandedState,
+  VisibilityState,
+} from "@tanstack/react-table";
 import {
   getCoreRowModel,
   getExpandedRowModel,
@@ -27,6 +31,16 @@ export interface FinancialStatementEntry {
   account_number: string | null;
   /** High-level classification: "Revenue" | "Expense" | "Asset" | "Liability" | "Equity" */
   account_class: string;
+  /** Account type (e.g. "Income", "Cost of Goods Sold", "Expense") */
+  account_type?: string;
+  /** Account sub-type */
+  account_sub_type?: string | null;
+  /** Whether this account is a child of another */
+  is_sub_account?: boolean;
+  /** Parent account number */
+  parent_account_number?: string | null;
+  /** Parent account name */
+  parent_account_name?: string | null;
   /** Amount for this period */
   amount: number;
 }
@@ -75,7 +89,7 @@ export interface FinancialStatementTableProps {
 
 // ── Internal row type ─────────────────────────────────────────────────────────
 
-type RowType = "section" | "account" | "total";
+type RowType = "section-header" | "account-group" | "account" | "section-total" | "grand-total";
 
 interface StatementRow {
   _type: RowType;
@@ -85,6 +99,8 @@ interface StatementRow {
   periodAmounts: Record<string, number>;
   total: number;
   children: StatementRow[];
+  /** Depth hint for styling (0 = section header/total, 1+ = accounts) */
+  depth: number;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -107,6 +123,106 @@ function toPeriodLabel(key: string, unit: TimeUnit): string {
   return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
 }
 
+/** Sum period amounts from children into a parent record */
+function sumChildPeriods(children: StatementRow[]): { periodAmounts: Record<string, number>; total: number } {
+  const periodAmounts: Record<string, number> = {};
+  let total = 0;
+  for (const child of children) {
+    total += child.total;
+    for (const [pk, amt] of Object.entries(child.periodAmounts)) {
+      periodAmounts[pk] = (periodAmounts[pk] || 0) + amt;
+    }
+  }
+  return { periodAmounts, total };
+}
+
+// ── Tree builder ──────────────────────────────────────────────────────────────
+
+interface AccountAgg {
+  id: string;
+  name: string;
+  number: string | null;
+  type: string;
+  subType: string | null;
+  isSubAccount: boolean;
+  parentNumber: string | null;
+  parentName: string | null;
+  periods: Record<string, number>;
+  total: number;
+}
+
+/**
+ * Build a tree of accounts within a section, using parent_account_number to
+ * establish parent/child relationships — same logic as COA tree.
+ */
+function buildAccountTree(
+  accounts: AccountAgg[],
+  sign: number,
+): StatementRow[] {
+  // Index accounts by account_number for parent lookup
+  const byNumber = new Map<string, AccountAgg>();
+  for (const a of accounts) {
+    if (a.number) byNumber.set(a.number, a);
+  }
+
+  // Separate root accounts from sub-accounts
+  const roots: AccountAgg[] = [];
+  const childrenOf = new Map<string, AccountAgg[]>();
+
+  for (const a of accounts) {
+    if (a.isSubAccount && a.parentNumber && byNumber.has(a.parentNumber)) {
+      const existing = childrenOf.get(a.parentNumber) || [];
+      existing.push(a);
+      childrenOf.set(a.parentNumber, existing);
+    } else {
+      roots.push(a);
+    }
+  }
+
+  // Recursively build rows
+  function buildRow(acct: AccountAgg, depth: number): StatementRow {
+    const kids = childrenOf.get(acct.number ?? "") || [];
+    const childRows = kids
+      .sort((a, b) => (a.number ?? "").localeCompare(b.number ?? ""))
+      .map((k) => buildRow(k, depth + 1));
+
+    // If this account has children, its amounts are the sum of itself + children
+    // (the data may already include the parent's own amounts, or they may be 0)
+    let periodAmounts: Record<string, number> = {};
+    let total = 0;
+
+    if (childRows.length > 0) {
+      // Parent row = its own amounts + children amounts
+      const childSums = sumChildPeriods(childRows);
+      total = acct.total * sign + childSums.total;
+      for (const pk of Object.keys({ ...acct.periods, ...childSums.periodAmounts })) {
+        periodAmounts[pk] = (acct.periods[pk] || 0) * sign + (childSums.periodAmounts[pk] || 0);
+      }
+    } else {
+      // Leaf account — just apply sign
+      total = acct.total * sign;
+      for (const [pk, amt] of Object.entries(acct.periods)) {
+        periodAmounts[pk] = amt * sign;
+      }
+    }
+
+    return {
+      _type: childRows.length > 0 ? "account-group" : "account",
+      id: acct.id,
+      name: acct.name,
+      accountNumber: acct.number,
+      periodAmounts,
+      total,
+      children: childRows,
+      depth,
+    };
+  }
+
+  return roots
+    .sort((a, b) => (a.number ?? "").localeCompare(b.number ?? ""))
+    .map((r) => buildRow(r, 0));
+}
+
 // ── Data builder ──────────────────────────────────────────────────────────────
 
 export function buildFinancialStatementData(
@@ -114,15 +230,14 @@ export function buildFinancialStatementData(
   config: FinancialStatementConfig,
   timeUnit: TimeUnit,
 ): { rows: StatementRow[]; periods: string[] } {
-  // Get all period keys
+  // Collect all period keys
   const periodSet = new Set<string>();
   for (const entry of data) {
     periodSet.add(toPeriodKey(entry.period_first_day, timeUnit));
   }
   const periods = [...periodSet].sort();
 
-  // Build section rows
-  const sectionMap = new Map<string, StatementRow>();
+  const sectionTotals = new Map<string, { periodAmounts: Record<string, number>; total: number }>();
   const rows: StatementRow[] = [];
 
   for (const section of config.sections) {
@@ -130,69 +245,69 @@ export function buildFinancialStatementData(
     const sign = section.sign ?? 1;
 
     // Aggregate by account
-    const accountMap = new Map<
-      string,
-      { name: string; number: string | null; periods: Record<string, number>; total: number }
-    >();
+    const accountMap = new Map<string, AccountAgg>();
 
     for (const entry of data) {
       if (!classSet.has(entry.account_class)) continue;
-      if (entry.amount === 0) continue;
 
       const pk = toPeriodKey(entry.period_first_day, timeUnit);
       if (!accountMap.has(entry.account_id)) {
         accountMap.set(entry.account_id, {
+          id: entry.account_id,
           name: entry.account_name,
           number: entry.account_number,
+          type: entry.account_type ?? "",
+          subType: entry.account_sub_type ?? null,
+          isSubAccount: entry.is_sub_account ?? false,
+          parentNumber: entry.parent_account_number ?? null,
+          parentName: entry.parent_account_name ?? null,
           periods: {},
           total: 0,
         });
       }
       const acct = accountMap.get(entry.account_id)!;
-      acct.periods[pk] = (acct.periods[pk] || 0) + entry.amount * sign;
-      acct.total += entry.amount * sign;
+      acct.periods[pk] = (acct.periods[pk] || 0) + entry.amount;
+      acct.total += entry.amount;
     }
 
-    // Build account rows, skip zero-total accounts
-    const accountRows: StatementRow[] = [...accountMap.entries()]
-      .filter(([, a]) => Math.abs(a.total) >= 0.01)
-      .sort(([, a], [, b]) => (a.number ?? "").localeCompare(b.number ?? ""))
-      .map(([id, a]) => ({
-        _type: "account" as RowType,
-        id,
-        name: a.name,
-        accountNumber: a.number,
-        periodAmounts: a.periods,
-        total: a.total,
-        children: [],
-      }));
+    // Build tree from accounts
+    const accountList = [...accountMap.values()];
+    const accountTree = buildAccountTree(accountList, sign);
 
-    if (accountRows.length === 0) continue;
+    if (accountTree.length === 0) continue;
 
-    // Section totals
-    const sectionPeriods: Record<string, number> = {};
-    for (const acct of accountRows) {
-      for (const [pk, amt] of Object.entries(acct.periodAmounts)) {
-        sectionPeriods[pk] = (sectionPeriods[pk] || 0) + amt;
-      }
-    }
-    const sectionTotal = accountRows.reduce((s, r) => s + r.total, 0);
+    // Calculate section totals from root-level tree rows
+    const sectionSums = sumChildPeriods(accountTree);
+    sectionTotals.set(section.id, sectionSums);
 
-    const sectionRow: StatementRow = {
-      _type: "section",
-      id: section.id,
+    // Section header row
+    const sectionHeader: StatementRow = {
+      _type: "section-header",
+      id: `section-${section.id}`,
       name: section.label,
       accountNumber: null,
-      periodAmounts: sectionPeriods,
-      total: sectionTotal,
-      children: accountRows,
+      periodAmounts: {},
+      total: 0,
+      children: accountTree,
+      depth: 0,
     };
 
-    sectionMap.set(section.id, sectionRow);
-    rows.push(sectionRow);
+    rows.push(sectionHeader);
+
+    // Section total row (after the tree)
+    rows.push({
+      _type: "section-total",
+      id: `total-${section.id}`,
+      name: `Total ${section.label}`,
+      accountNumber: null,
+      periodAmounts: sectionSums.periodAmounts,
+      total: sectionSums.total,
+      children: [],
+      depth: 0,
+    });
   }
 
-  // Computed totals
+  // Computed grand totals
   for (const total of config.totals) {
     const totalPeriods: Record<string, number> = {};
     let totalAmount = 0;
@@ -200,24 +315,25 @@ export function buildFinancialStatementData(
     for (const ref of total.formula) {
       const subtract = ref.startsWith("-");
       const sectionId = subtract ? ref.slice(1) : ref;
-      const section = sectionMap.get(sectionId);
-      if (!section) continue;
+      const sums = sectionTotals.get(sectionId);
+      if (!sums) continue;
 
       const mult = subtract ? -1 : 1;
-      totalAmount += section.total * mult;
+      totalAmount += sums.total * mult;
       for (const pk of periods) {
-        totalPeriods[pk] = (totalPeriods[pk] || 0) + (section.periodAmounts[pk] || 0) * mult;
+        totalPeriods[pk] = (totalPeriods[pk] || 0) + (sums.periodAmounts[pk] || 0) * mult;
       }
     }
 
     rows.push({
-      _type: "total",
-      id: `total-${total.label.toLowerCase().replace(/\s+/g, "-")}`,
+      _type: "grand-total",
+      id: `grand-total-${total.label.toLowerCase().replace(/\s+/g, "-")}`,
       name: total.label,
       accountNumber: null,
       periodAmounts: totalPeriods,
       total: totalAmount,
       children: [],
+      depth: 0,
     });
   }
 
@@ -238,26 +354,42 @@ function buildColumns(
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Account" />
       ),
-      meta: { displayName: "Account", icon: BookOpen } satisfies DataTableColumnMeta,
+      meta: {
+        displayName: "Account",
+        icon: BookOpen,
+      } satisfies DataTableColumnMeta,
       cell: ({ row }) => {
         const r = row.original;
-        if (r._type === "section") {
+        if (r._type === "section-header") {
           return (
-            <span className="font-semibold tracking-wide">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {r.name}
-              <span className="ml-2 text-xs font-normal text-muted-foreground">
-                ({r.children.length})
-              </span>
             </span>
           );
         }
-        if (r._type === "total") {
-          return <span className="font-bold">{r.name}</span>;
+        if (r._type === "section-total") {
+          return <span className="font-semibold">{r.name}</span>;
         }
+        if (r._type === "grand-total") {
+          return <span className="font-bold text-base">{r.name}</span>;
+        }
+        if (r._type === "account-group") {
+          return (
+            <span className="font-medium">
+              {showAccountNumbers && r.accountNumber && (
+                <span className="font-mono text-muted-foreground mr-1.5 text-xs">
+                  {r.accountNumber}
+                </span>
+              )}
+              {r.name}
+            </span>
+          );
+        }
+        // Regular account
         return (
           <span>
             {showAccountNumbers && r.accountNumber && (
-              <span className="font-mono text-muted-foreground mr-1.5">
+              <span className="font-mono text-muted-foreground mr-1.5 text-xs">
                 {r.accountNumber}
               </span>
             )}
@@ -266,7 +398,7 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: 280,
+      size: 300,
       minSize: 200,
     },
   ];
@@ -279,14 +411,23 @@ function buildColumns(
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={label} />
       ),
-      meta: { displayName: label, icon: Calendar, align: "right" } satisfies DataTableColumnMeta,
+      meta: {
+        displayName: label,
+        icon: Calendar,
+        align: "right",
+      } satisfies DataTableColumnMeta,
       cell: ({ row }) => {
         const r = row.original;
         const val = r.periodAmounts[pk] ?? 0;
-        const weight =
-          r._type === "total" ? "font-bold" : r._type === "section" ? "font-semibold" : "";
+        if (r._type === "section-header") return null;
+        const bold =
+          r._type === "grand-total"
+            ? "font-bold"
+            : r._type === "section-total" || r._type === "account-group"
+              ? "font-semibold"
+              : "";
         return (
-          <span className={weight}>
+          <span className={bold}>
             <DataTableCurrencyCell value={val} dashZero />
           </span>
         );
@@ -303,13 +444,22 @@ function buildColumns(
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Total" />
     ),
-    meta: { displayName: "Total", icon: DollarSign, align: "right" } satisfies DataTableColumnMeta,
+    meta: {
+      displayName: "Total",
+      icon: DollarSign,
+      align: "right",
+    } satisfies DataTableColumnMeta,
     cell: ({ row }) => {
       const r = row.original;
-      const weight =
-        r._type === "total" ? "font-bold" : r._type === "section" ? "font-semibold" : "";
+      if (r._type === "section-header") return null;
+      const bold =
+        r._type === "grand-total"
+          ? "font-bold"
+          : r._type === "section-total" || r._type === "account-group"
+            ? "font-semibold"
+            : "";
       return (
-        <span className={weight}>
+        <span className={bold}>
           <DataTableCurrencyCell value={r.total} dashZero />
         </span>
       );
@@ -325,9 +475,18 @@ function buildColumns(
 // ── Row styling ───────────────────────────────────────────────────────────────
 
 function getRowClassName(row: { original: StatementRow }): string | undefined {
-  if (row.original._type === "section") return "bg-muted/40";
-  if (row.original._type === "total") return "bg-muted/60 border-t-2 border-border";
-  return undefined;
+  switch (row.original._type) {
+    case "section-header":
+      return "bg-muted/30 border-b-0";
+    case "section-total":
+      return "bg-muted/40 border-t border-border font-semibold";
+    case "grand-total":
+      return "bg-muted/60 border-t-2 border-double border-border";
+    case "account-group":
+      return undefined;
+    default:
+      return undefined;
+  }
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -336,27 +495,11 @@ function getRowClassName(row: { original: StatementRow }): string | undefined {
  * Reusable financial statement table component.
  *
  * Renders a tree-structured DataTable with:
- * - Configurable sections (Revenue, Expenses, etc.)
- * - Dynamic period columns (monthly/quarterly/yearly)
- * - Computed total rows (Net Income, Gross Profit, etc.)
+ * - Sections (Revenue, Expenses) as expandable headers
+ * - Parent/child account tree with subtotals at each level
+ * - Section totals (Total Revenue, Total Expenses)
+ * - Computed grand totals (Net Income, Gross Profit)
  * - Accounting-format currency (brackets for negatives, red)
- *
- * @example
- * ```tsx
- * <FinancialStatementTable
- *   data={entries}
- *   timeUnit="month"
- *   config={{
- *     sections: [
- *       { id: "revenue", label: "Revenue", accountClasses: ["Revenue"] },
- *       { id: "expenses", label: "Expenses", accountClasses: ["Expense"] },
- *     ],
- *     totals: [
- *       { label: "Net Income", formula: ["revenue", "-expenses"] },
- *     ],
- *   }}
- * />
- * ```
  */
 export function FinancialStatementTable({
   data,
@@ -367,7 +510,8 @@ export function FinancialStatementTable({
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
 
   const { rows, periods } = React.useMemo(
     () => buildFinancialStatementData(data, config, timeUnit),
@@ -379,12 +523,20 @@ export function FinancialStatementTable({
     [periods, timeUnit, showAccountNumbers],
   );
 
-  // Auto-expand sections
+  // Auto-expand: section headers expanded, account groups expanded 1 level
   React.useEffect(() => {
     if (rows.length === 0) return;
     const toExpand: Record<string, boolean> = {};
     for (const row of rows) {
-      if (row._type === "section") toExpand[row.id] = true;
+      if (row._type === "section-header") {
+        toExpand[row.id] = true;
+        // Also expand top-level account groups within the section
+        for (const child of row.children) {
+          if (child._type === "account-group") {
+            toExpand[child.id] = true;
+          }
+        }
+      }
     }
     setExpanded(toExpand);
   }, [rows]);
@@ -394,7 +546,8 @@ export function FinancialStatementTable({
     columns,
     getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
-    getSubRows: (row) => (row.children.length > 0 ? row.children : undefined),
+    getSubRows: (row) =>
+      row.children.length > 0 ? row.children : undefined,
     getExpandedRowModel: getExpandedRowModel(),
     state: { expanded, columnVisibility },
     onExpandedChange: setExpanded,
@@ -434,6 +587,9 @@ export const BALANCE_SHEET_CONFIG: FinancialStatementConfig = {
     { id: "equity", label: "Equity", accountClasses: ["Equity"] },
   ],
   totals: [
-    { label: "Total Liabilities & Equity", formula: ["liabilities", "equity"] },
+    {
+      label: "Total Liabilities & Equity",
+      formula: ["liabilities", "equity"],
+    },
   ],
 };
