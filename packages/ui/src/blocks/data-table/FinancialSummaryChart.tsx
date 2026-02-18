@@ -96,7 +96,7 @@ export const INCOME_STATEMENT_CHART_CONFIG: FinancialSummaryChartConfig = {
     {
       key: "netIncome",
       label: "Net Income",
-      formula: ["revenue", "-expenses"],
+      formula: ["revenue", "expenses"],
       color: "var(--chart-3, #3b82f6)",
       chartType: "line",
       dashed: true,
