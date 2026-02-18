@@ -597,7 +597,7 @@ export function DataTable<TData, TValue>({
           >
             <table
               className={cn(
-                "caption-bottom border-separate border-spacing-0",
+                "w-full caption-bottom border-separate border-spacing-0",
                 fontSizeClass,
               )}
             >
