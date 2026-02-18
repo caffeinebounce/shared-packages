@@ -196,10 +196,16 @@ function buildChartData(
   ];
 
   const summaryCards = allMetrics.map(({ key, label, color }) => {
+    // Sum across all periods in the range
+    let total = 0;
+    for (const pk of periods) {
+      total += periodMetrics.get(pk)?.[key] ?? 0;
+    }
+    // Trend: compare last period vs the one before it
     const latest = periods.length > 0 ? (periodMetrics.get(periods[periods.length - 1])?.[key] ?? 0) : 0;
     const prior = periods.length > 1 ? (periodMetrics.get(periods[periods.length - 2])?.[key] ?? 0) : 0;
     const trend = prior !== 0 ? ((latest - prior) / Math.abs(prior)) * 100 : 0;
-    return { key, label, value: latest, color, trend };
+    return { key, label, value: total, color, trend };
   });
 
   return { chartData, summaryCards };
