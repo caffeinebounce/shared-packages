@@ -383,7 +383,6 @@ export function FinancialSummaryChart({
         <div className="overflow-hidden">
           <div className="px-4 pb-4">
             {/* Summary cards */}
-            <TooltipProvider delayDuration={300}>
             <div className="mb-4 grid grid-cols-3 gap-3">
               {summaryCards.map((card) => {
                 const isPositiveTrend = card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
@@ -392,13 +391,13 @@ export function FinancialSummaryChart({
                 // Get last 3 periods for the hover tooltip
                 const recentPeriods = chartData.slice(-3);
                 return (
-                  <RadixTooltip key={card.key}>
+                  <RadixTooltip key={card.key} delayDuration={200}>
                     <TooltipTrigger asChild>
                   <button
                     type="button"
                     onClick={() => handleCardClick(card.key)}
                     className={cn(
-                      "relative overflow-hidden rounded-lg border bg-gradient-to-br from-background to-muted/20 p-3 text-left transition-all cursor-pointer",
+                      "relative rounded-lg border bg-gradient-to-br from-background to-muted/20 p-3 text-left transition-all cursor-pointer",
                       isActive && "border-transparent",
                       !isActive && activeMetric && "opacity-50",
                     )}
@@ -409,7 +408,7 @@ export function FinancialSummaryChart({
                       className="absolute inset-y-0 left-0 w-1 rounded-l-lg"
                       style={{ backgroundColor: card.color }}
                     />
-                    <div className="pl-2">
+                    <div className="pl-3">
                       <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                         {card.label}
                       </p>
@@ -459,30 +458,27 @@ export function FinancialSummaryChart({
                     </div>
                   </button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" align="center" className="p-0 bg-transparent border-0 shadow-none">
-                      <ChartTooltipShell>
-                        <ChartTooltipTitle>{card.label} — Recent Periods</ChartTooltipTitle>
-                        <div className="space-y-1">
-                          {recentPeriods.map((period) => {
-                            const val = (period[card.key] as number) ?? 0;
-                            return (
-                              <ChartTooltipRow
-                                key={period.periodLabel as string}
-                                color={card.color}
-                                label={period.periodLabel as string}
-                                value={formatTooltipCurrency(val, divisor)}
-                                isNegative={val < 0}
-                              />
-                            );
-                          })}
-                        </div>
-                      </ChartTooltipShell>
+                    <TooltipContent side="bottom" align="center" sideOffset={8} className="max-w-none rounded-lg border bg-popover px-3 py-2 text-popover-foreground shadow-md">
+                      <ChartTooltipTitle>{card.label} — Recent Periods</ChartTooltipTitle>
+                      <div className="space-y-1">
+                        {recentPeriods.map((period) => {
+                          const val = (period[card.key] as number) ?? 0;
+                          return (
+                            <ChartTooltipRow
+                              key={period.periodLabel as string}
+                              color={card.color}
+                              label={period.periodLabel as string}
+                              value={formatTooltipCurrency(val, divisor)}
+                              isNegative={val < 0}
+                            />
+                          );
+                        })}
+                      </div>
                     </TooltipContent>
                   </RadixTooltip>
                 );
               })}
             </div>
-            </TooltipProvider>
 
             {/* Chart */}
             <div style={{ height: config.height ?? 240 }}>
