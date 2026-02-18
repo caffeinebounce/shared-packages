@@ -85,6 +85,9 @@ export {
   DataTableViews,
   useDataTableContext,
   useDataTableSettings,
+  FinanceDecimalsProvider,
+  useFinanceDecimals,
+  useFinanceDecimalsSetting,
 } from "./blocks/data-table";
 export type {
   StudioBlock,
