@@ -94,6 +94,9 @@ export {
   DataTableCurrencyCell,
   type DataTableCurrencyCellProps,
   formatCurrencyValue,
+  FinanceDecimalsProvider,
+  useFinanceDecimals,
+  useFinanceDecimalsSetting,
 } from "./DataTableCurrencyCell";
 export {
   BALANCE_SHEET_CONFIG,

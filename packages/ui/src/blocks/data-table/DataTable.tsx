@@ -63,7 +63,7 @@ export type DataTableDensity = "compact" | "comfy";
 export type DataTableFontSize = "xs" | "sm" | "md" | "lg";
 
 /** Row selection style - controls how checkboxes appear */
-export type RowSelectionStyle = "always" | "hover";
+export type RowSelectionStyle = "always" | "hover" | "none";
 
 export interface DataTableProps<TData, TValue>
   extends React.ComponentProps<"div"> {

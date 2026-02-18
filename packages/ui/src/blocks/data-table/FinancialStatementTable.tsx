@@ -562,6 +562,8 @@ export function FinancialStatementTable({
       treeIndentPx={treeIndentPx}
       getRowClassName={getRowClassName as never}
       enableColumnResizing
+      enableRowDrag={false}
+      rowSelectionStyle="none"
       density="compact"
       fontSize="sm"
     />
