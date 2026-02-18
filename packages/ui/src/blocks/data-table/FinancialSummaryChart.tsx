@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useFinanceDisplay as _useFinanceDisplay, getUnitDivisor as _getUnitDivisor } from "./DataTableCurrencyCell";
 import {
   Area,
   AreaChart,
@@ -124,17 +125,19 @@ function toPeriodLabel(key: string, unit: TimeUnit): string {
   return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
 }
 
-function formatCurrency(value: number): string {
-  if (value === 0) return "$0";
-  const abs = Math.abs(value);
-  if (abs >= 1_000_000) return `${value < 0 ? "-" : ""}$${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${value < 0 ? "-" : ""}$${(abs / 1_000).toFixed(0)}K`;
-  return `${value < 0 ? "(" : ""}$${abs.toFixed(0)}${value < 0 ? ")" : ""}`;
+function formatCurrency(value: number, divisor = 1): string {
+  const v = divisor === 1 ? value : value / divisor;
+  if (v === 0) return "$0";
+  const abs = Math.abs(v);
+  if (abs >= 1_000_000) return `${v < 0 ? "-" : ""}$${(abs / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${v < 0 ? "-" : ""}$${(abs / 1_000).toFixed(0)}K`;
+  return `${v < 0 ? "(" : ""}$${abs.toFixed(0)}${v < 0 ? ")" : ""}`;
 }
 
-function formatTooltipCurrency(value: number): string {
-  if (value < 0) return `($${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })})`;
-  return `$${value.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+function formatTooltipCurrency(value: number, divisor = 1): string {
+  const v = divisor === 1 ? value : value / divisor;
+  if (v < 0) return `($${Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })})`;
+  return `$${v.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
 // ── Build chart data ──────────────────────────────────────────────────────────
@@ -218,9 +221,10 @@ interface CustomTooltipProps {
   payload?: Array<{ name: string; value: number; color: string; dataKey: string }>;
   label?: string;
   metrics: { key: string; label: string; color: string }[];
+  divisor?: number;
 }
 
-function CustomTooltip({ active, payload, label, metrics }: CustomTooltipProps) {
+function CustomTooltip({ active, payload, label, metrics, divisor = 1 }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
 
   return (
@@ -239,7 +243,7 @@ function CustomTooltip({ active, payload, label, metrics }: CustomTooltipProps) 
                 <span>{metric?.label ?? entry.name}</span>
               </div>
               <span className={cn("font-mono font-medium", entry.value < 0 && "text-destructive")}>
-                {formatTooltipCurrency(entry.value)}
+                {formatTooltipCurrency(entry.value, divisor)}
               </span>
             </div>
           );
@@ -269,6 +273,9 @@ export function FinancialSummaryChart({
   className,
 }: FinancialSummaryChartProps) {
   const [expanded, setExpanded] = React.useState(config.defaultExpanded ?? true);
+
+  const { displayUnits } = _useFinanceDisplay();
+  const divisor = _getUnitDivisor(displayUnits);
 
   const { chartData, summaryCards } = React.useMemo(
     () => buildChartData(data, config, timeUnit),
@@ -302,7 +309,7 @@ export function FinancialSummaryChart({
               <div className="size-1.5 rounded-full" style={{ backgroundColor: card.color }} />
               <span className="text-muted-foreground">{card.label}:</span>
               <span className={cn("font-mono font-medium", card.value < 0 && "text-destructive")}>
-                {formatCurrency(card.value)}
+                {formatCurrency(card.value, divisor)}
               </span>
             </div>
           ))}
@@ -345,7 +352,7 @@ export function FinancialSummaryChart({
                         "mt-0.5 text-lg font-semibold tabular-nums tracking-tight",
                         card.value < 0 && "text-destructive",
                       )}>
-                        {formatTooltipCurrency(card.value)}
+                        {formatTooltipCurrency(card.value, divisor)}
                       </p>
                       {card.trend !== undefined && card.trend !== 0 && (
                         <p className={cn(
@@ -393,7 +400,7 @@ export function FinancialSummaryChart({
                     tick={{ fontSize: 11, fill: "var(--muted-foreground, #9ca3af)" }}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(v) => formatCurrency(v as number)}
+                    tickFormatter={(v) => formatCurrency(v as number, divisor)}
                     width={65}
                   />
                   {config.showZeroLine && (
@@ -404,7 +411,7 @@ export function FinancialSummaryChart({
                     />
                   )}
                   <Tooltip
-                    content={<CustomTooltip metrics={allMetrics} />}
+                    content={<CustomTooltip metrics={allMetrics} divisor={divisor} />}
                     cursor={{ stroke: "var(--border, #e5e7eb)", strokeDasharray: "3 3" }}
                   />
                   {allMetrics.map((m) =>

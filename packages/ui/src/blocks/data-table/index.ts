@@ -93,10 +93,16 @@ export {
 export {
   DataTableCurrencyCell,
   type DataTableCurrencyCellProps,
+  type DisplayUnits,
   formatCurrencyValue,
   FinanceDecimalsProvider,
+  FinanceDisplayProvider,
   useFinanceDecimals,
+  useFinanceDisplay,
   useFinanceDecimalsSetting,
+  getUnitDivisor,
+  getUnitLabel,
+  getUnitSuffix,
 } from "./DataTableCurrencyCell";
 export {
   BALANCE_SHEET_CONFIG,

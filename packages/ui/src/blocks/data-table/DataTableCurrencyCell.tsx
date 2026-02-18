@@ -3,20 +3,57 @@
 import * as React from "react";
 import { cn } from "../../utils";
 
-// ── Finance decimals context ──────────────────────────────────────────────────
+// ── Finance display context ───────────────────────────────────────────────────
 
+export type DisplayUnits = "actuals" | "thousands" | "millions";
+
+interface FinanceDisplayContextValue {
+  decimals: number;
+  displayUnits: DisplayUnits;
+}
+
+const FinanceDisplayContext = React.createContext<FinanceDisplayContextValue>({
+  decimals: 0,
+  displayUnits: "actuals",
+});
+
+// Back-compat: decimals-only context (still used by old FinanceDecimalsProvider)
 const FinanceDecimalsContext = React.createContext<number>(0);
 
 /**
- * Provider for global finance decimal places setting.
- * Wrap your finance pages with this to control currency display precision.
+ * Provider for global finance display settings (decimals + units).
  *
  * @example
  * ```tsx
- * <FinanceDecimalsProvider decimals={0}>
+ * <FinanceDisplayProvider decimals={0} displayUnits="thousands">
  *   <IncomeStatement />
- * </FinanceDecimalsProvider>
+ * </FinanceDisplayProvider>
  * ```
+ */
+export function FinanceDisplayProvider({
+  decimals,
+  displayUnits = "actuals",
+  children,
+}: {
+  decimals: number;
+  displayUnits?: DisplayUnits;
+  children: React.ReactNode;
+}) {
+  const value = React.useMemo(
+    () => ({ decimals, displayUnits }),
+    [decimals, displayUnits],
+  );
+  return (
+    <FinanceDisplayContext.Provider value={value}>
+      <FinanceDecimalsContext.Provider value={decimals}>
+        {children}
+      </FinanceDecimalsContext.Provider>
+    </FinanceDisplayContext.Provider>
+  );
+}
+
+/**
+ * @deprecated Use FinanceDisplayProvider instead
  */
 export function FinanceDecimalsProvider({
   decimals,
@@ -26,15 +63,47 @@ export function FinanceDecimalsProvider({
   children: React.ReactNode;
 }) {
   return (
-    <FinanceDecimalsContext.Provider value={decimals}>
+    <FinanceDisplayProvider decimals={decimals}>
       {children}
-    </FinanceDecimalsContext.Provider>
+    </FinanceDisplayProvider>
   );
 }
 
 /** Read the current finance decimal places setting (default: 0) */
 export function useFinanceDecimals(): number {
   return React.useContext(FinanceDecimalsContext);
+}
+
+/** Read the full finance display context (decimals + units) */
+export function useFinanceDisplay(): FinanceDisplayContextValue {
+  return React.useContext(FinanceDisplayContext);
+}
+
+/** Get the divisor for display units */
+export function getUnitDivisor(units: DisplayUnits): number {
+  switch (units) {
+    case "thousands": return 1000;
+    case "millions": return 1000000;
+    default: return 1;
+  }
+}
+
+/** Get the unit suffix label */
+export function getUnitLabel(units: DisplayUnits): string | null {
+  switch (units) {
+    case "thousands": return "in thousands";
+    case "millions": return "in millions";
+    default: return null;
+  }
+}
+
+/** Get the short unit suffix */
+export function getUnitSuffix(units: DisplayUnits): string | null {
+  switch (units) {
+    case "thousands": return "(000s)";
+    case "millions": return "(M)";
+    default: return null;
+  }
 }
 
 /**
@@ -110,10 +179,13 @@ export function formatCurrencyValue(
     locale?: string;
     dashZero?: boolean;
     decimals?: number;
+    displayUnits?: DisplayUnits;
   },
 ): { text: string; isNegative: boolean; isZero: boolean } {
-  const v = value ?? 0;
-  const isZero = v === 0;
+  const raw = value ?? 0;
+  const divisor = getUnitDivisor(options?.displayUnits ?? "actuals");
+  const v = divisor === 1 ? raw : raw / divisor;
+  const isZero = raw === 0;
   const isNegative = v < 0;
   const curr = options?.currency ?? "USD";
   const locale = options?.locale ?? "en-US";
@@ -149,15 +221,16 @@ export function DataTableCurrencyCell({
   decimals,
   className,
 }: DataTableCurrencyCellProps) {
-  // Use context decimals if not explicitly provided
-  const ctxDecimals = useFinanceDecimals();
-  const resolvedDecimals = decimals ?? ctxDecimals;
+  // Use context decimals + units if not explicitly provided
+  const ctx = useFinanceDisplay();
+  const resolvedDecimals = decimals ?? ctx.decimals;
 
   const { text, isNegative, isZero } = formatCurrencyValue(value, {
     currency: currencyCode,
     locale,
     dashZero,
     decimals: resolvedDecimals,
+    displayUnits: ctx.displayUnits,
   });
 
   return (
