@@ -109,8 +109,13 @@ export function DataTableFilterBadges({
               )}
               <button
                 type="button"
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   onRemoveFilter(filter.id);
                 }}
                 className="ml-0.5 rounded-sm p-0.5 hover:bg-sky-200/50 dark:hover:bg-sky-800/50 -mr-0.5"
