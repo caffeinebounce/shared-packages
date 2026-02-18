@@ -436,13 +436,18 @@ function filterZeroRows(rows: StatementRow[]): StatementRow[] {
       return acc;
     }
 
-    // For account groups, filter children
+    // For account groups, filter children but always keep parent if it has non-zero children
     if (row._type === "account-group") {
       const filteredChildren = filterZeroRows(row.children);
-      // Check if this row itself has non-zero values
-      const hasOwnValues = row.total !== 0 || Object.values(row.periodAmounts).some(v => v !== 0);
-      if (filteredChildren.length > 0 || hasOwnValues) {
+      if (filteredChildren.length > 0) {
+        // Parent has non-zero children — always keep it to preserve tree structure
         acc.push({ ...row, children: filteredChildren });
+      } else {
+        // No non-zero children — only keep if parent itself has values
+        const hasOwnValues = row.total !== 0 || Object.values(row.periodAmounts).some(v => v !== 0);
+        if (hasOwnValues) {
+          acc.push({ ...row, children: [] });
+        }
       }
       return acc;
     }
