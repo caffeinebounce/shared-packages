@@ -390,7 +390,7 @@ export function SummaryPanel({
 
             {/* Chart */}
             {hasChart && (
-              <div style={{ width: "100%", height: chartHeight }}>
+              <div style={{ width: "100%", ...(renderChart ? {} : { height: chartHeight }) }}>
                 {renderChart ? (
                   renderChart(activeChartType, chartData ?? [], chartSeries ?? [], chartHeight)
                 ) : activeChartType === "pie" ? (
