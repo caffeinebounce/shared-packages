@@ -129,7 +129,10 @@ function TreeExpandCycleButton<TData>({
   table: TanStackTable<TData>;
   density: DataTableDensity;
 }) {
-  // Find max depth across all rows
+  // Track which depth level we're at (cycle counter)
+  const depthRef = React.useRef(-1);
+
+  // Find max depth across all rows (walk full pre-expanded model)
   const maxDepth = React.useMemo(() => {
     let max = 0;
     const walk = (rows: Row<TData>[]) => {
@@ -143,34 +146,16 @@ function TreeExpandCycleButton<TData>({
   }, [table]);
 
   const handleClick = React.useCallback(() => {
-    const expanded = table.getState().expanded;
-    const isAllExpanded = table.getIsAllRowsExpanded();
+    const nextDepth = depthRef.current + 1;
 
-    if (isAllExpanded) {
-      // Fully expanded → collapse all
+    // Past max expandable depth → collapse all, reset counter
+    if (nextDepth > maxDepth) {
       table.toggleAllRowsExpanded(false);
+      depthRef.current = -1;
       return;
     }
 
-    // Find current max expanded depth
-    let currentMaxDepth = -1;
-    if (typeof expanded === "object") {
-      const allRows = table.getRowModel().flatRows;
-      for (const row of allRows) {
-        if (row.getIsExpanded() && row.depth > currentMaxDepth) {
-          currentMaxDepth = row.depth;
-        }
-      }
-    }
-
-    // If already at or past max depth, collapse all
-    if (currentMaxDepth >= maxDepth) {
-      table.toggleAllRowsExpanded(false);
-      return;
-    }
-
-    // Expand next depth level
-    const targetDepth = currentMaxDepth + 1;
+    // Expand all rows up to nextDepth
     const newExpanded: Record<string, boolean> = {};
     const allRows = (
       table.getPreExpandedRowModel?.()?.rows ??
@@ -179,7 +164,7 @@ function TreeExpandCycleButton<TData>({
 
     const walk = (rows: Row<TData>[]) => {
       for (const row of rows) {
-        if (row.depth <= targetDepth && row.getCanExpand()) {
+        if (row.depth <= nextDepth && row.getCanExpand()) {
           newExpanded[row.id] = true;
         }
         if (row.subRows?.length) walk(row.subRows);
@@ -188,7 +173,8 @@ function TreeExpandCycleButton<TData>({
     walk(allRows);
 
     table.setExpanded(newExpanded);
-  }, [table]);
+    depthRef.current = nextDepth;
+  }, [table, maxDepth]);
 
   const isAllExpanded = table.getIsAllRowsExpanded();
   const isSomeExpanded = table.getIsSomeRowsExpanded();
