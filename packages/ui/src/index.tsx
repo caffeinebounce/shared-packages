@@ -39,6 +39,7 @@ export type {
   FinancialSummaryChartConfig,
   FinancialSummaryChartProps,
   FlatExportRow,
+  StatementRow,
   SubtotalRule,
   SubtotalRulesConfig,
   FinancialStatementSection,

@@ -110,6 +110,7 @@ export {
   type FlatExportRow,
   flattenStatementForExport,
   INCOME_STATEMENT_CONFIG,
+  type StatementRow,
   type SubtotalRule,
   type SubtotalRulesConfig,
   type TimeUnit,

@@ -107,6 +107,8 @@ export interface FinancialStatementTableProps {
   hideZeroRows?: boolean;
   /** Toolbar content rendered above the table (right-aligned) */
   toolbar?: React.ReactNode;
+  /** Custom cell renderer for currency amounts — receives row data, period key (null for total), and value */
+  renderAmountCell?: (row: StatementRow, periodKey: string | null, value: number) => React.ReactNode;
   /** Additional class name */
   className?: string;
 }
@@ -115,7 +117,7 @@ export interface FinancialStatementTableProps {
 
 type RowType = "section-header" | "account-group" | "account" | "section-total" | "grand-total" | "subtotal-group" | "subtotal-total";
 
-interface StatementRow {
+export interface StatementRow {
   _type: RowType;
   id: string;
   name: string;
@@ -525,6 +527,7 @@ function buildColumns(
   periods: string[],
   unit: TimeUnit,
   showAccountNumbers: boolean,
+  renderAmountCell?: (row: StatementRow, periodKey: string | null, value: number) => React.ReactNode,
 ): ColumnDef<StatementRow>[] {
   const cols: ColumnDef<StatementRow>[] = [
     {
@@ -608,6 +611,10 @@ function buildColumns(
             : r._type === "section-total" || r._type === "subtotal-total" || r._type === "account-group" || r._type === "subtotal-group"
               ? "font-semibold"
               : "";
+        // Use custom renderer for leaf accounts and account-groups
+        if (renderAmountCell && (r._type === "account" || r._type === "account-group") && val !== 0) {
+          return <span className={bold}>{renderAmountCell(r, pk, val)}</span>;
+        }
         return (
           <span className={bold}>
             <DataTableCurrencyCell value={val} dashZero />
@@ -640,6 +647,9 @@ function buildColumns(
           : r._type === "section-total" || r._type === "subtotal-total" || r._type === "account-group" || r._type === "subtotal-group"
             ? "font-semibold"
             : "";
+      if (renderAmountCell && (r._type === "account" || r._type === "account-group") && r.total !== 0) {
+        return <span className={bold}>{renderAmountCell(r, null, r.total)}</span>;
+      }
       return (
         <span className={bold}>
           <DataTableCurrencyCell value={r.total} dashZero />
@@ -695,6 +705,7 @@ export function FinancialStatementTable({
   subtotalRules,
   hideZeroRows = false,
   toolbar,
+  renderAmountCell,
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -712,8 +723,8 @@ export function FinancialStatementTable({
   );
 
   const columns = React.useMemo(
-    () => buildColumns(periods, timeUnit, showAccountNumbers),
-    [periods, timeUnit, showAccountNumbers],
+    () => buildColumns(periods, timeUnit, showAccountNumbers, renderAmountCell),
+    [periods, timeUnit, showAccountNumbers, renderAmountCell],
   );
 
   // Auto-expand: section headers expanded, account groups expanded 1 level
