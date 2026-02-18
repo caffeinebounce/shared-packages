@@ -418,7 +418,7 @@ export function FinancialSummaryChart({
                 // Get last 3 periods for the hover tooltip
                 const recentPeriods = chartData.slice(-3);
                 return (
-                  <RadixTooltip key={card.key} delayDuration={200}>
+                  <RadixTooltip key={card.key} delayDuration={200} open={isFlipped ? false : undefined}>
                     <TooltipTrigger asChild>
                   <button
                     type="button"
