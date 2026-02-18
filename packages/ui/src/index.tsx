@@ -36,6 +36,8 @@ export type {
   DataTableCurrencyCellProps,
   FinancialStatementConfig,
   FinancialStatementEntry,
+  SubtotalRule,
+  SubtotalRulesConfig,
   FinancialStatementSection,
   FinancialStatementTableProps,
   FinancialStatementTotal,

@@ -108,5 +108,7 @@ export {
   type FinancialStatementTableProps,
   type FinancialStatementTotal,
   INCOME_STATEMENT_CONFIG,
+  type SubtotalRule,
+  type SubtotalRulesConfig,
   type TimeUnit,
 } from "./FinancialStatementTable";

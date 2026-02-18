@@ -72,6 +72,24 @@ export interface FinancialStatementConfig {
   totals: FinancialStatementTotal[];
 }
 
+/** Subtotal grouping rule — regex on account_number */
+export interface SubtotalRule {
+  /** Display label (e.g. "Program", "Opex") */
+  label: string;
+  /** Regex pattern matched against account_number */
+  pattern: string;
+  /** Display order (lower = first) */
+  order: number;
+}
+
+/** Subtotal rules settings (as stored in system_settings) */
+export interface SubtotalRulesConfig {
+  /** Whether subtotal grouping is enabled */
+  enabled: boolean;
+  /** Ordered list of regex rules */
+  rules: SubtotalRule[];
+}
+
 export interface FinancialStatementTableProps {
   /** Raw data entries */
   data: FinancialStatementEntry[];
@@ -83,13 +101,15 @@ export interface FinancialStatementTableProps {
   showAccountNumbers?: boolean;
   /** Tree indent in px */
   treeIndentPx?: number;
+  /** Subtotal grouping rules (regex on account_number) */
+  subtotalRules?: SubtotalRulesConfig;
   /** Additional class name */
   className?: string;
 }
 
 // ── Internal row type ─────────────────────────────────────────────────────────
 
-type RowType = "section-header" | "account-group" | "account" | "section-total" | "grand-total";
+type RowType = "section-header" | "account-group" | "account" | "section-total" | "grand-total" | "subtotal-group" | "subtotal-total";
 
 interface StatementRow {
   _type: RowType;
@@ -225,10 +245,100 @@ function buildAccountTree(
 
 // ── Data builder ──────────────────────────────────────────────────────────────
 
+/**
+ * Apply subtotal rules to partition account tree rows into named groups.
+ * Each rule is a regex on account_number. Unmatched accounts go to "Other".
+ * Returns an array of subtotal-group rows wrapping the original account rows.
+ */
+function applySubtotalRules(
+  accountTree: StatementRow[],
+  rules: SubtotalRule[],
+  sectionId: string,
+): StatementRow[] {
+  // Sort rules by order
+  const sortedRules = [...rules].sort((a, b) => a.order - b.order);
+
+  // Compile regexes
+  const compiled = sortedRules.map((r) => ({
+    rule: r,
+    regex: new RegExp(r.pattern),
+  }));
+
+  // Partition accounts into groups
+  const groups = new Map<string, StatementRow[]>();
+  const unmatched: StatementRow[] = [];
+
+  // Initialize groups in order
+  for (const r of sortedRules) {
+    groups.set(r.label, []);
+  }
+
+  // Helper: get the "root" account number for matching
+  // For account-group rows, use their own accountNumber
+  // For account rows, use their own accountNumber
+  function matchRow(row: StatementRow): string | null {
+    // Match against this row's account number
+    for (const { rule, regex } of compiled) {
+      if (row.accountNumber && regex.test(row.accountNumber)) {
+        return rule.label;
+      }
+    }
+    return null;
+  }
+
+  for (const row of accountTree) {
+    const groupLabel = matchRow(row);
+    if (groupLabel) {
+      groups.get(groupLabel)!.push(row);
+    } else {
+      unmatched.push(row);
+    }
+  }
+
+  // Build subtotal-group rows
+  const result: StatementRow[] = [];
+
+  for (const rule of sortedRules) {
+    const groupRows = groups.get(rule.label) ?? [];
+    if (groupRows.length === 0) continue;
+
+    const sums = sumChildPeriods(groupRows);
+
+    result.push({
+      _type: "subtotal-group",
+      id: `subtotal-${sectionId}-${rule.label.toLowerCase().replace(/\s+/g, "-")}`,
+      name: rule.label,
+      accountNumber: null,
+      periodAmounts: sums.periodAmounts,
+      total: sums.total,
+      children: groupRows,
+      depth: 0,
+    });
+  }
+
+  // "Other" group for unmatched
+  if (unmatched.length > 0) {
+    const sums = sumChildPeriods(unmatched);
+    result.push({
+      _type: "subtotal-group",
+      id: `subtotal-${sectionId}-other`,
+      name: "Other",
+      accountNumber: null,
+      periodAmounts: sums.periodAmounts,
+      total: sums.total,
+      children: unmatched,
+      depth: 0,
+    });
+  }
+
+  return result;
+}
+
 export function buildFinancialStatementData(
   data: FinancialStatementEntry[],
   config: FinancialStatementConfig,
   timeUnit: TimeUnit,
+  subtotalRules?: SubtotalRulesConfig,
 ): { rows: StatementRow[]; periods: string[] } {
   // Collect all period keys
   const periodSet = new Set<string>();
@@ -276,7 +386,13 @@ export function buildFinancialStatementData(
 
     if (accountTree.length === 0) continue;
 
-    // Calculate section totals from root-level tree rows
+    // Apply subtotal rules if enabled — wraps account tree in subtotal-group rows
+    const useSubtotals = subtotalRules?.enabled && subtotalRules.rules.length > 0;
+    const sectionChildren = useSubtotals
+      ? applySubtotalRules(accountTree, subtotalRules!.rules, section.id)
+      : accountTree;
+
+    // Calculate section totals from root-level tree rows (use original accountTree, not grouped)
     const sectionSums = sumChildPeriods(accountTree);
     sectionTotals.set(section.id, sectionSums);
 
@@ -288,7 +404,7 @@ export function buildFinancialStatementData(
       accountNumber: null,
       periodAmounts: {},
       total: 0,
-      children: accountTree,
+      children: sectionChildren,
       depth: 0,
     };
 
@@ -367,7 +483,10 @@ function buildColumns(
             </span>
           );
         }
-        if (r._type === "section-total") {
+        if (r._type === "subtotal-group") {
+          return <span className="font-semibold text-sm">{r.name}</span>;
+        }
+        if (r._type === "section-total" || r._type === "subtotal-total") {
           return <span className="font-semibold">{r.name}</span>;
         }
         if (r._type === "grand-total") {
@@ -423,7 +542,7 @@ function buildColumns(
         const bold =
           r._type === "grand-total"
             ? "font-bold"
-            : r._type === "section-total" || r._type === "account-group"
+            : r._type === "section-total" || r._type === "subtotal-total" || r._type === "account-group" || r._type === "subtotal-group"
               ? "font-semibold"
               : "";
         return (
@@ -455,7 +574,7 @@ function buildColumns(
       const bold =
         r._type === "grand-total"
           ? "font-bold"
-          : r._type === "section-total" || r._type === "account-group"
+          : r._type === "section-total" || r._type === "subtotal-total" || r._type === "account-group" || r._type === "subtotal-group"
             ? "font-semibold"
             : "";
       return (
@@ -478,7 +597,10 @@ function getRowClassName(row: { original: StatementRow }): string | undefined {
   switch (row.original._type) {
     case "section-header":
       return "bg-muted/30 border-b-0";
+    case "subtotal-group":
+      return "bg-muted/20";
     case "section-total":
+    case "subtotal-total":
       return "bg-muted/40 border-t border-border font-semibold";
     case "grand-total":
       return "bg-muted/60 border-t-2 border-double border-border";
@@ -507,6 +629,7 @@ export function FinancialStatementTable({
   config,
   showAccountNumbers = true,
   treeIndentPx = 20,
+  subtotalRules,
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -514,8 +637,8 @@ export function FinancialStatementTable({
     React.useState<VisibilityState>({});
 
   const { rows, periods } = React.useMemo(
-    () => buildFinancialStatementData(data, config, timeUnit),
-    [data, config, timeUnit],
+    () => buildFinancialStatementData(data, config, timeUnit, subtotalRules),
+    [data, config, timeUnit, subtotalRules],
   );
 
   const columns = React.useMemo(
@@ -530,10 +653,18 @@ export function FinancialStatementTable({
     for (const row of rows) {
       if (row._type === "section-header") {
         toExpand[row.id] = true;
-        // Also expand top-level account groups within the section
+        // Also expand top-level children (account groups or subtotal groups)
         for (const child of row.children) {
-          if (child._type === "account-group") {
+          if (child._type === "account-group" || child._type === "subtotal-group") {
             toExpand[child.id] = true;
+            // If subtotal group, also expand account groups within it
+            if (child._type === "subtotal-group") {
+              for (const grandchild of child.children) {
+                if (grandchild._type === "account-group") {
+                  toExpand[grandchild.id] = true;
+                }
+              }
+            }
           }
         }
       }
