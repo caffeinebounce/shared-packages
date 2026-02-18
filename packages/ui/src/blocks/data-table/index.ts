@@ -114,3 +114,12 @@ export {
   type SubtotalRulesConfig,
   type TimeUnit,
 } from "./FinancialStatementTable";
+export {
+  type ChartVariant,
+  type ComputedMetric,
+  type FinancialMetric,
+  FinancialSummaryChart,
+  type FinancialSummaryChartConfig,
+  type FinancialSummaryChartProps,
+  INCOME_STATEMENT_CHART_CONFIG,
+} from "./FinancialSummaryChart";
