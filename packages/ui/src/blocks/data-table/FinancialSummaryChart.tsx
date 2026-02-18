@@ -150,7 +150,7 @@ function buildChartData(
   config: FinancialSummaryChartConfig,
   timeUnit: TimeUnit,
   priorTotals?: Record<string, number>,
-): { chartData: Record<string, unknown>[]; summaryCards: { key: string; label: string; value: number; color: string; trend?: number }[] } {
+): { chartData: Record<string, unknown>[]; summaryCards: { key: string; label: string; value: number; color: string; trend?: number; priorValue?: number }[] } {
   // Aggregate by period + metric
   const periodMetrics = new Map<string, Record<string, number>>();
   const periodSet = new Set<string>();
@@ -202,18 +202,26 @@ function buildChartData(
     ...(config.computedMetrics ?? []).map((m) => ({ key: m.key, label: m.label, color: m.color })),
   ];
 
+  // Build sign map from metrics config so prior totals get the same treatment
+  const signMap = new Map<string, number>();
+  for (const m of config.metrics) {
+    signMap.set(m.key, m.sign ?? 1);
+  }
+
   const summaryCards = allMetrics.map(({ key, label, color }) => {
-    // Sum across all periods in the range
+    // Sum across all periods in the range (already has sign applied via aggregation)
     let total = 0;
     for (const pk of periods) {
       total += periodMetrics.get(pk)?.[key] ?? 0;
     }
-    // Trend: compare current range total vs prior period total (passed in)
-    const priorTotal = priorTotals?.[key];
+    // Apply same sign to prior total so comparison is apples-to-apples
+    const rawPrior = priorTotals?.[key];
+    const sign = signMap.get(key) ?? 1;
+    const priorTotal = rawPrior != null ? rawPrior * sign : undefined;
     const trend = priorTotal != null && priorTotal !== 0
       ? ((total - priorTotal) / Math.abs(priorTotal)) * 100
       : 0;
-    return { key, label, value: total, color, trend };
+    return { key, label, value: total, color, trend, priorValue: priorTotal };
   });
 
   return { chartData, summaryCards };
@@ -497,12 +505,12 @@ export function FinancialSummaryChart({
                           value={formatTooltipCurrency(card.value, divisor)}
                           isNegative={card.value < 0}
                         />
-                        {priorTotalsProp?.[card.key] != null && (
+                        {card.priorValue != null && (
                           <ChartTooltipRow
                             color="var(--muted-foreground, #9ca3af)"
                             label="Prior"
-                            value={formatTooltipCurrency(priorTotalsProp[card.key], divisor)}
-                            isNegative={priorTotalsProp[card.key] < 0}
+                            value={formatTooltipCurrency(card.priorValue, divisor)}
+                            isNegative={card.priorValue < 0}
                           />
                         )}
                         {card.trend !== undefined && card.trend !== 0 && (
