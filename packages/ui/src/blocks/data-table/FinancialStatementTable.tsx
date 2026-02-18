@@ -447,15 +447,6 @@ export function buildFinancialStatementData(
     const accountList = [...accountMap.values()];
     const accountTree = buildAccountTree(accountList, sign);
 
-    // Debug: log section totals
-    if (typeof window !== "undefined") {
-      const treeTotal = accountTree.reduce((s, r) => s + r.total, 0);
-      console.log(`[FinStmt] Section "${section.label}": ${accountList.length} accounts, ${accountTree.length} roots, total=${treeTotal.toFixed(2)}`);
-      for (const r of accountTree) {
-        if (r.total !== 0) console.log(`  ${r.accountNumber} ${r.name}: ${r.total.toFixed(2)} (${r._type}, children=${r.children.length})`);
-      }
-    }
-
     if (accountTree.length === 0) continue;
 
     // Apply subtotal rules if enabled — wraps account tree in subtotal-group rows
