@@ -701,7 +701,7 @@ function buildColumns(
         }
         const rawVal = isTotalRow ? r._rawPeriodAmounts?.[pk] : undefined;
         return (
-          <span className={cn(bold, "inline-flex items-center", isTotalRow && "group/rec")}>
+          <span className={cn(bold, isTotalRow ? "flex items-center justify-end group/rec" : "")}>
             <DataTableCurrencyCell value={val} dashZero />
             {isTotalRow && rawVal !== undefined && <RecCheck computed={val} raw={rawVal} />}
           </span>
@@ -738,7 +738,7 @@ function buildColumns(
         return <span className={bold}>{renderAmountCell(r, null, r.total)}</span>;
       }
       return (
-        <span className={cn(bold, "inline-flex items-center", isTotalRow && "group/rec")}>
+        <span className={cn(bold, isTotalRow ? "flex items-center justify-end group/rec" : "")}>
           <DataTableCurrencyCell value={r.total} dashZero />
           {isTotalRow && r._rawTotal !== undefined && <RecCheck computed={r.total} raw={r._rawTotal} />}
         </span>
