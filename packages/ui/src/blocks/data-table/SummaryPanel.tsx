@@ -92,6 +92,8 @@ export interface SummaryPanelProps {
   className?: string;
   /** Render prop for chart — receives (activeChartType, data, series, height). Use when built-in charts don't work in your bundler. */
   renderChart?: (chartType: SummaryChartType, data: SummaryChartDataPoint[], series: SummaryChartSeries[], height: number) => React.ReactNode;
+  /** Extra controls to render on the same line as chart type toggles (e.g., data mode dropdown) */
+  chartControls?: React.ReactNode;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -289,6 +291,7 @@ export function SummaryPanel({
   formatValue,
   className,
   renderChart,
+  chartControls,
 }: SummaryPanelProps) {
   const [expanded, setExpanded] = React.useState(defaultExpanded);
   const [activeChartType, setActiveChartType] = React.useState<SummaryChartType>(defaultChartType);
@@ -303,7 +306,7 @@ export function SummaryPanel({
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted/30"
+        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted/30 outline-none focus-visible:outline-none"
       >
         <div className="flex items-center gap-2">
           <BarChart3 className="size-4 text-muted-foreground" />
@@ -366,25 +369,28 @@ export function SummaryPanel({
               })}
             </div>
 
-            {/* Chart type toggle */}
-            {hasChart && hasChartToggle && (
-              <div className="mb-3 flex items-center gap-1">
-                {chartTypes!.map((ct) => (
-                  <button
-                    key={ct}
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); setActiveChartType(ct); }}
-                    className={cn(
-                      "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors",
-                      activeChartType === ct
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                    )}
-                  >
-                    {CHART_TYPE_ICONS[ct]}
-                    {CHART_TYPE_LABELS[ct]}
-                  </button>
-                ))}
+            {/* Chart toolbar: type toggles + extra controls */}
+            {hasChart && (hasChartToggle || chartControls) && (
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  {hasChartToggle && chartTypes!.map((ct) => (
+                    <button
+                      key={ct}
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setActiveChartType(ct); }}
+                      className={cn(
+                        "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors outline-none focus-visible:outline-none",
+                        activeChartType === ct
+                          ? "bg-muted text-foreground"
+                          : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                      )}
+                    >
+                      {CHART_TYPE_ICONS[ct]}
+                      {CHART_TYPE_LABELS[ct]}
+                    </button>
+                  ))}
+                </div>
+                {chartControls && <div className="flex items-center">{chartControls}</div>}
               </div>
             )}
 
