@@ -420,8 +420,6 @@ export function FinancialSummaryChart({
                 const isPositiveTrend = card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
                 const isActive = activeMetric === card.key;
                 const isFlipped = flippedCards.has(card.key);
-                // Get last 3 periods for the hover tooltip
-                const recentPeriods = chartData.slice(-3);
                 return (
                   <RadixTooltip key={card.key} delayDuration={200} open={isFlipped ? false : undefined}>
                     <TooltipTrigger asChild>
@@ -491,20 +489,33 @@ export function FinancialSummaryChart({
                   </button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" align="center" sideOffset={8} className="max-w-none rounded-lg border bg-popover px-3 py-2 text-popover-foreground shadow-md">
-                      <ChartTooltipTitle>{card.label} — Recent Periods</ChartTooltipTitle>
+                      <ChartTooltipTitle>{card.label} — vs Prior Period</ChartTooltipTitle>
                       <div className="space-y-1">
-                        {recentPeriods.map((period) => {
-                          const val = (period[card.key] as number) ?? 0;
-                          return (
-                            <ChartTooltipRow
-                              key={period.periodLabel as string}
-                              color={card.color}
-                              label={period.periodLabel as string}
-                              value={formatTooltipCurrency(val, divisor)}
-                              isNegative={val < 0}
-                            />
-                          );
-                        })}
+                        <ChartTooltipRow
+                          color={card.color}
+                          label="Current"
+                          value={formatTooltipCurrency(card.value, divisor)}
+                          isNegative={card.value < 0}
+                        />
+                        {priorTotalsProp?.[card.key] != null && (
+                          <ChartTooltipRow
+                            color="var(--muted-foreground, #9ca3af)"
+                            label="Prior"
+                            value={formatTooltipCurrency(priorTotalsProp[card.key], divisor)}
+                            isNegative={priorTotalsProp[card.key] < 0}
+                          />
+                        )}
+                        {card.trend !== undefined && card.trend !== 0 && (
+                          <div className="border-t border-border/40 pt-1 mt-1 text-xs flex justify-between gap-4">
+                            <span className="text-muted-foreground">Change</span>
+                            <span className={cn(
+                              "font-mono font-medium",
+                              (card.key === "expenses" ? card.trend < 0 : card.trend > 0) ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400",
+                            )}>
+                              {card.trend > 0 ? "↑" : "↓"} {Math.abs(card.trend).toFixed(1)}%
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </TooltipContent>
                   </RadixTooltip>
