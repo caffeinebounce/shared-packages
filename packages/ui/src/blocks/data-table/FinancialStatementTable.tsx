@@ -103,6 +103,8 @@ export interface FinancialStatementTableProps {
   treeIndentPx?: number;
   /** Subtotal grouping rules (regex on account_number) */
   subtotalRules?: SubtotalRulesConfig;
+  /** Hide rows where all visible period amounts and total are zero */
+  hideZeroRows?: boolean;
   /** Additional class name */
   className?: string;
 }
@@ -286,13 +288,22 @@ function applySubtotalRules(
     return null;
   }
 
+  let anyMatched = false;
+
   for (const row of accountTree) {
     const groupLabel = matchRow(row);
     if (groupLabel) {
       groups.get(groupLabel)!.push(row);
+      anyMatched = true;
     } else {
       unmatched.push(row);
     }
+  }
+
+  // If no rules matched any accounts in this section, return the tree as-is
+  // (don't wrap unrelated sections in an "Other" group)
+  if (!anyMatched) {
+    return accountTree;
   }
 
   // Build subtotal-group rows
@@ -316,7 +327,7 @@ function applySubtotalRules(
     });
   }
 
-  // "Other" group for unmatched
+  // "Other" group for unmatched (only within sections that have matches)
   if (unmatched.length > 0) {
     const sums = sumChildPeriods(unmatched);
     result.push({
@@ -332,6 +343,55 @@ function applySubtotalRules(
   }
 
   return result;
+}
+
+/**
+ * Recursively filter out rows where all period amounts and total are zero.
+ * Preserves section headers/totals. Removes empty parents after filtering children.
+ */
+function filterZeroRows(rows: StatementRow[]): StatementRow[] {
+  return rows.reduce<StatementRow[]>((acc, row) => {
+    // Always keep section headers, section totals, and grand totals
+    if (row._type === "section-header" || row._type === "section-total" || row._type === "grand-total") {
+      // For section headers, filter children recursively
+      if (row.children.length > 0) {
+        const filteredChildren = filterZeroRows(row.children);
+        // Keep the header even if empty (it still has a total row)
+        acc.push({ ...row, children: filteredChildren });
+      } else {
+        acc.push(row);
+      }
+      return acc;
+    }
+
+    // For subtotal groups, filter children and skip if empty
+    if (row._type === "subtotal-group") {
+      const filteredChildren = filterZeroRows(row.children);
+      if (filteredChildren.length > 0) {
+        const sums = sumChildPeriods(filteredChildren);
+        acc.push({ ...row, children: filteredChildren, periodAmounts: sums.periodAmounts, total: sums.total });
+      }
+      return acc;
+    }
+
+    // For account groups, filter children
+    if (row._type === "account-group") {
+      const filteredChildren = filterZeroRows(row.children);
+      // Check if this row itself has non-zero values
+      const hasOwnValues = row.total !== 0 || Object.values(row.periodAmounts).some(v => v !== 0);
+      if (filteredChildren.length > 0 || hasOwnValues) {
+        acc.push({ ...row, children: filteredChildren });
+      }
+      return acc;
+    }
+
+    // Leaf accounts — skip if all zeros
+    const isZero = row.total === 0 && Object.values(row.periodAmounts).every(v => v === 0);
+    if (!isZero) {
+      acc.push(row);
+    }
+    return acc;
+  }, []);
 }
 
 export function buildFinancialStatementData(
@@ -484,7 +544,7 @@ function buildColumns(
           );
         }
         if (r._type === "subtotal-group") {
-          return <span className="font-semibold text-sm">{r.name}</span>;
+          return <span className="font-semibold">{r.name}</span>;
         }
         if (r._type === "section-total" || r._type === "subtotal-total") {
           return <span className="font-semibold">{r.name}</span>;
@@ -630,15 +690,21 @@ export function FinancialStatementTable({
   showAccountNumbers = true,
   treeIndentPx = 20,
   subtotalRules,
+  hideZeroRows = false,
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
-  const { rows, periods } = React.useMemo(
+  const { rows: rawRows, periods } = React.useMemo(
     () => buildFinancialStatementData(data, config, timeUnit, subtotalRules),
     [data, config, timeUnit, subtotalRules],
+  );
+
+  const rows = React.useMemo(
+    () => (hideZeroRows ? filterZeroRows(rawRows) : rawRows),
+    [rawRows, hideZeroRows],
   );
 
   const columns = React.useMemo(
