@@ -583,7 +583,9 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: 300,
+      // Flex to fill: period cols are ~110px each + 120px total
+      // Give account col all remaining space
+      size: Math.max(300, 900 - periods.length * 110),
       minSize: 200,
     },
   ];
