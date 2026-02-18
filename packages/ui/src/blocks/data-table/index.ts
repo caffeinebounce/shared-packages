@@ -130,3 +130,11 @@ export {
   type FinancialSummaryChartProps,
   INCOME_STATEMENT_CHART_CONFIG,
 } from "./FinancialSummaryChart";
+export {
+  SummaryPanel,
+  type SummaryPanelProps,
+  type SummaryMetric,
+  type SummaryChartDataPoint,
+  type SummaryChartSeries,
+  type SummaryChartType,
+} from "./SummaryPanel";
