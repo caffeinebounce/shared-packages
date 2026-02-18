@@ -10,13 +10,67 @@ import {
   getExpandedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { BookOpen, Calendar, DollarSign } from "lucide-react";
+import { AlertTriangle, BookOpen, Calendar, CheckCircle2, DollarSign } from "lucide-react";
 import * as React from "react";
 
 import { DataTable } from "./DataTable";
 import { DataTableColumnHeader } from "./DataTableColumnHeader";
 import type { DataTableColumnMeta } from "./DataTableColumnHeader";
-import { DataTableCurrencyCell } from "./DataTableCurrencyCell";
+import { DataTableCurrencyCell, formatCurrencyValue, useFinanceDisplay, getUnitDivisor } from "./DataTableCurrencyCell";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip";
+import { cn } from "../../utils";
+
+// ── Reconciliation check indicator ────────────────────────────────────────────
+
+const TOLERANCE = 0.01; // rounding tolerance
+
+function RecCheck({ computed, raw }: { computed: number; raw: number }) {
+  const diff = Math.abs(computed - raw);
+  const matches = diff <= TOLERANCE;
+
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="inline-flex items-center ml-1">
+            {matches ? (
+              <CheckCircle2 className="size-3 text-emerald-500/70" />
+            ) : (
+              <AlertTriangle className="size-3 text-amber-500" />
+            )}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent side="left" className="text-[11px] max-w-none p-2">
+          {matches ? (
+            <span className="text-emerald-400">✓ Reconciled — tree sum matches raw data</span>
+          ) : (
+            <div className="space-y-1">
+              <div className="text-amber-400 font-medium">⚠ Reconciliation variance</div>
+              <table className="text-[11px]">
+                <tbody>
+                  <tr>
+                    <td className="pr-3 text-muted-foreground">Tree sum:</td>
+                    <td className="font-mono tabular-nums text-right">{formatCurrencyValue(computed, { decimals: 2 }).text}</td>
+                  </tr>
+                  <tr>
+                    <td className="pr-3 text-muted-foreground">Raw sum:</td>
+                    <td className="font-mono tabular-nums text-right">{formatCurrencyValue(raw, { decimals: 2 }).text}</td>
+                  </tr>
+                  <tr className="border-t border-border/40">
+                    <td className="pr-3 text-muted-foreground pt-0.5">Variance:</td>
+                    <td className="font-mono tabular-nums text-right pt-0.5 text-amber-400">
+                      {formatCurrencyValue(computed - raw, { decimals: 2 }).text}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -127,6 +181,9 @@ export interface StatementRow {
   children: StatementRow[];
   /** Depth hint for styling (0 = section header/total, 1+ = accounts) */
   depth: number;
+  /** Independent raw sum from source data (for reconciliation on total rows) */
+  _rawPeriodAmounts?: Record<string, number>;
+  _rawTotal?: number;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -413,6 +470,8 @@ export function buildFinancialStatementData(
   const periods = [...periodSet].sort();
 
   const sectionTotals = new Map<string, { periodAmounts: Record<string, number>; total: number }>();
+  // Independent raw sums — computed directly from source data, no tree involved
+  const sectionRawTotals = new Map<string, { periodAmounts: Record<string, number>; total: number }>();
   const rows: StatementRow[] = [];
 
   for (const section of config.sections) {
@@ -445,6 +504,18 @@ export function buildFinancialStatementData(
       acct.total += entry.amount;
     }
 
+    // Independent raw sum: sum entry.amount directly, no tree, no parent/child
+    const rawPeriods: Record<string, number> = {};
+    let rawTotal = 0;
+    for (const entry of data) {
+      if (!classSet.has(entry.account_class)) continue;
+      const pk = toPeriodKey(entry.period_first_day, timeUnit);
+      const val = entry.amount * sign;
+      rawPeriods[pk] = (rawPeriods[pk] || 0) + val;
+      rawTotal += val;
+    }
+    sectionRawTotals.set(section.id, { periodAmounts: rawPeriods, total: rawTotal });
+
     // Build tree from accounts
     const accountList = [...accountMap.values()];
     const accountTree = buildAccountTree(accountList, sign);
@@ -476,6 +547,7 @@ export function buildFinancialStatementData(
     rows.push(sectionHeader);
 
     // Section total row (after the tree)
+    const rawSums = sectionRawTotals.get(section.id);
     rows.push({
       _type: "section-total",
       id: `total-${section.id}`,
@@ -485,6 +557,8 @@ export function buildFinancialStatementData(
       total: sectionSums.total,
       children: [],
       depth: 0,
+      _rawPeriodAmounts: rawSums?.periodAmounts,
+      _rawTotal: rawSums?.total,
     });
   }
 
@@ -492,17 +566,22 @@ export function buildFinancialStatementData(
   for (const total of config.totals) {
     const totalPeriods: Record<string, number> = {};
     let totalAmount = 0;
+    const rawTotalPeriods: Record<string, number> = {};
+    let rawTotalAmount = 0;
 
     for (const ref of total.formula) {
       const subtract = ref.startsWith("-");
       const sectionId = subtract ? ref.slice(1) : ref;
       const sums = sectionTotals.get(sectionId);
+      const rawSums = sectionRawTotals.get(sectionId);
       if (!sums) continue;
 
       const mult = subtract ? -1 : 1;
       totalAmount += sums.total * mult;
+      rawTotalAmount += (rawSums?.total ?? 0) * mult;
       for (const pk of periods) {
         totalPeriods[pk] = (totalPeriods[pk] || 0) + (sums.periodAmounts[pk] || 0) * mult;
+        rawTotalPeriods[pk] = (rawTotalPeriods[pk] || 0) + (rawSums?.periodAmounts[pk] || 0) * mult;
       }
     }
 
@@ -515,6 +594,8 @@ export function buildFinancialStatementData(
       total: totalAmount,
       children: [],
       depth: 0,
+      _rawPeriodAmounts: rawTotalPeriods,
+      _rawTotal: rawTotalAmount,
     });
   }
 
@@ -607,6 +688,7 @@ function buildColumns(
         const r = row.original;
         const val = r.periodAmounts[pk] ?? 0;
         if (r._type === "section-header") return null;
+        const isTotalRow = r._type === "section-total" || r._type === "grand-total";
         const bold =
           r._type === "grand-total"
             ? "font-bold"
@@ -617,9 +699,11 @@ function buildColumns(
         if (renderAmountCell && (r._type === "account" || r._type === "account-group") && val !== 0) {
           return <span className={bold}>{renderAmountCell(r, pk, val)}</span>;
         }
+        const rawVal = isTotalRow ? r._rawPeriodAmounts?.[pk] : undefined;
         return (
-          <span className={bold}>
+          <span className={cn(bold, "inline-flex items-center")}>
             <DataTableCurrencyCell value={val} dashZero />
+            {isTotalRow && rawVal !== undefined && <RecCheck computed={val} raw={rawVal} />}
           </span>
         );
       },
@@ -643,6 +727,7 @@ function buildColumns(
     cell: ({ row }) => {
       const r = row.original;
       if (r._type === "section-header") return null;
+      const isTotalRow = r._type === "section-total" || r._type === "grand-total";
       const bold =
         r._type === "grand-total"
           ? "font-bold"
@@ -653,14 +738,15 @@ function buildColumns(
         return <span className={bold}>{renderAmountCell(r, null, r.total)}</span>;
       }
       return (
-        <span className={bold}>
+        <span className={cn(bold, "inline-flex items-center")}>
           <DataTableCurrencyCell value={r.total} dashZero />
+          {isTotalRow && r._rawTotal !== undefined && <RecCheck computed={r.total} raw={r._rawTotal} />}
         </span>
       );
     },
     enableSorting: false,
-    size: 120,
-    minSize: 90,
+    size: 130,
+    minSize: 100,
   });
 
   return cols;
