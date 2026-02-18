@@ -105,6 +105,8 @@ export interface FinancialStatementTableProps {
   subtotalRules?: SubtotalRulesConfig;
   /** Hide rows where all visible period amounts and total are zero */
   hideZeroRows?: boolean;
+  /** Toolbar content rendered above the table (right-aligned) */
+  toolbar?: React.ReactNode;
   /** Additional class name */
   className?: string;
 }
@@ -691,6 +693,7 @@ export function FinancialStatementTable({
   treeIndentPx = 20,
   subtotalRules,
   hideZeroRows = false,
+  toolbar,
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -752,19 +755,82 @@ export function FinancialStatementTable({
   });
 
   return (
-    <DataTable
-      table={table}
-      columns={columns}
-      enableTreeView
-      treeIndentPx={treeIndentPx}
-      getRowClassName={getRowClassName as never}
-      enableColumnResizing
-      enableRowDrag={false}
-      rowSelectionStyle="none"
-      density="compact"
-      fontSize="sm"
-    />
+    <div className={className}>
+      {toolbar && (
+        <div className="flex items-center justify-end gap-1 px-1 pb-1.5">
+          {toolbar}
+        </div>
+      )}
+      <DataTable
+        table={table}
+        columns={columns}
+        enableTreeView
+        treeIndentPx={treeIndentPx}
+        getRowClassName={getRowClassName as never}
+        enableColumnResizing
+        enableRowDrag={false}
+        rowSelectionStyle="none"
+        density="compact"
+        fontSize="sm"
+      />
+    </div>
   );
+}
+
+// ── Export helper ─────────────────────────────────────────────────────────────
+
+export interface FlatExportRow {
+  type: string;
+  account: string;
+  accountNumber: string;
+  [period: string]: string | number;
+}
+
+/**
+ * Flatten the financial statement tree into export-ready rows.
+ * Includes indentation hints in the account name.
+ */
+export function flattenStatementForExport(
+  data: FinancialStatementEntry[],
+  config: FinancialStatementConfig,
+  timeUnit: TimeUnit,
+  subtotalRules?: SubtotalRulesConfig,
+  hideZeroRows?: boolean,
+): { rows: FlatExportRow[]; periodKeys: string[] } {
+  let { rows: tree, periods } = buildFinancialStatementData(data, config, timeUnit, subtotalRules);
+  if (hideZeroRows) tree = filterZeroRows(tree);
+
+  const flat: FlatExportRow[] = [];
+
+  function walk(rows: StatementRow[], indent: number) {
+    for (const row of rows) {
+      const prefix = "  ".repeat(indent);
+      const exportRow: FlatExportRow = {
+        type: row._type,
+        account: `${prefix}${row.accountNumber ? `${row.accountNumber} ` : ""}${row.name}`,
+        accountNumber: row.accountNumber ?? "",
+      };
+      for (const pk of periods) {
+        exportRow[pk] = row.periodAmounts[pk] ?? 0;
+      }
+      exportRow.total = row.total;
+
+      // Skip section-header amounts (they don't have values)
+      if (row._type !== "section-header" || row.children.length === 0) {
+        flat.push(exportRow);
+      } else {
+        // Push header label row
+        flat.push(exportRow);
+      }
+
+      if (row.children.length > 0) {
+        walk(row.children, indent + 1);
+      }
+    }
+  }
+
+  walk(tree, 0);
+  return { rows: flat, periodKeys: periods };
 }
 
 // ── Preset configs ────────────────────────────────────────────────────────────

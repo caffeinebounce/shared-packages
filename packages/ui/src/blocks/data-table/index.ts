@@ -107,6 +107,8 @@ export {
   FinancialStatementTable,
   type FinancialStatementTableProps,
   type FinancialStatementTotal,
+  type FlatExportRow,
+  flattenStatementForExport,
   INCOME_STATEMENT_CONFIG,
   type SubtotalRule,
   type SubtotalRulesConfig,
