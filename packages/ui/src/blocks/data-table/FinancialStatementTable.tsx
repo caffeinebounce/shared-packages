@@ -195,7 +195,7 @@ function buildAccountTree(
   const childrenOf = new Map<string, AccountAgg[]>();
 
   for (const a of accounts) {
-    if (a.isSubAccount && a.parentNumber && byNumber.has(a.parentNumber)) {
+    if (a.isSubAccount && a.parentNumber && a.parentNumber !== a.number && byNumber.has(a.parentNumber)) {
       const existing = childrenOf.get(a.parentNumber) || [];
       existing.push(a);
       childrenOf.set(a.parentNumber, existing);
@@ -446,6 +446,15 @@ export function buildFinancialStatementData(
     // Build tree from accounts
     const accountList = [...accountMap.values()];
     const accountTree = buildAccountTree(accountList, sign);
+
+    // Debug: log section totals
+    if (typeof window !== "undefined") {
+      const treeTotal = accountTree.reduce((s, r) => s + r.total, 0);
+      console.log(`[FinStmt] Section "${section.label}": ${accountList.length} accounts, ${accountTree.length} roots, total=${treeTotal.toFixed(2)}`);
+      for (const r of accountTree) {
+        if (r.total !== 0) console.log(`  ${r.accountNumber} ${r.name}: ${r.total.toFixed(2)} (${r._type}, children=${r.children.length})`);
+      }
+    }
 
     if (accountTree.length === 0) continue;
 
