@@ -130,6 +130,7 @@ export function formatCurrency(
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
+    currencySign: "accounting",
     ...options,
   }).format(num);
 }
@@ -146,19 +147,19 @@ export function formatCurrency(
  * formatCompactCurrency(1500000) // "$1.5M"
  * formatCompactCurrency(500000) // "$500K"
  * formatCompactCurrency(750) // "$750"
- * formatCompactCurrency(-1200000) // "-$1.2M"
+ * formatCompactCurrency(-1200000) // "($1.2M)"
  * ```
  */
 export function formatCompactCurrency(value: number): string {
   const absValue = Math.abs(value);
-  const sign = value < 0 ? "-" : "";
+  const neg = value < 0;
   if (absValue >= 1_000_000) {
-    return `${sign}$${(absValue / 1_000_000).toFixed(1)}M`;
+    return `${neg ? "(" : ""}$${(absValue / 1_000_000).toFixed(1)}M${neg ? ")" : ""}`;
   }
   if (absValue >= 1_000) {
-    return `${sign}$${(absValue / 1_000).toFixed(0)}K`;
+    return `${neg ? "(" : ""}$${(absValue / 1_000).toFixed(0)}K${neg ? ")" : ""}`;
   }
-  return `${sign}$${absValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  return `${neg ? "(" : ""}$${absValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}${neg ? ")" : ""}`;
 }
 
 /**

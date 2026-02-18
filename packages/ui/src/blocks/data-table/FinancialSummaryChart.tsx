@@ -129,9 +129,10 @@ function formatCurrency(value: number, divisor = 1): string {
   const v = divisor === 1 ? value : value / divisor;
   if (v === 0) return "$0";
   const abs = Math.abs(v);
-  if (abs >= 1_000_000) return `${v < 0 ? "-" : ""}$${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${v < 0 ? "-" : ""}$${(abs / 1_000).toFixed(0)}K`;
-  return `${v < 0 ? "(" : ""}$${abs.toFixed(0)}${v < 0 ? ")" : ""}`;
+  const neg = v < 0;
+  if (abs >= 1_000_000) return `${neg ? "(" : ""}$${(abs / 1_000_000).toFixed(1)}M${neg ? ")" : ""}`;
+  if (abs >= 1_000) return `${neg ? "(" : ""}$${(abs / 1_000).toFixed(0)}K${neg ? ")" : ""}`;
+  return `${neg ? "(" : ""}$${abs.toFixed(0)}${neg ? ")" : ""}`;
 }
 
 function formatTooltipCurrency(value: number, divisor = 1): string {

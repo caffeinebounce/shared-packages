@@ -125,9 +125,9 @@ describe("formatCompactCurrency", () => {
   });
 
   it("handles negative values", () => {
-    expect(formatCompactCurrency(-1200000)).toBe("-$1.2M");
-    expect(formatCompactCurrency(-50000)).toBe("-$50K");
-    expect(formatCompactCurrency(-500)).toBe("-$500");
+    expect(formatCompactCurrency(-1200000)).toBe("($1.2M)");
+    expect(formatCompactCurrency(-50000)).toBe("($50K)");
+    expect(formatCompactCurrency(-500)).toBe("($500)");
   });
 
   it("handles edge cases at boundaries", () => {
