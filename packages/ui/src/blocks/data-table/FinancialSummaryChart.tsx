@@ -267,6 +267,35 @@ export interface FinancialSummaryChartProps {
   className?: string;
 }
 
+// ── Sparkline card ─────────────────────────────────────────────────────────────
+
+function CardSparkline({ data, dataKey, color }: { data: Record<string, unknown>[]; dataKey: string; color: string }) {
+  return (
+    <div className="h-10 w-full mt-1">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 2, right: 2, bottom: 0, left: 2 }}>
+          <defs>
+            <linearGradient id={`spark-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={color} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <Area
+            type="monotone"
+            dataKey={dataKey}
+            stroke={color}
+            strokeWidth={1.5}
+            fill={`url(#spark-${dataKey})`}
+            dot={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
 export function FinancialSummaryChart({
   data,
   timeUnit,
@@ -274,6 +303,8 @@ export function FinancialSummaryChart({
   className,
 }: FinancialSummaryChartProps) {
   const [expanded, setExpanded] = React.useState(config.defaultExpanded ?? true);
+  const [activeMetric, setActiveMetric] = React.useState<string | null>(null);
+  const [flippedCards, setFlippedCards] = React.useState<Set<string>>(new Set());
 
   const { displayUnits } = _useFinanceDisplay();
   const divisor = _getUnitDivisor(displayUnits);
@@ -289,6 +320,29 @@ export function FinancialSummaryChart({
       ...(config.computedMetrics ?? []).map((m) => ({ key: m.key, label: m.label, color: m.color, chartType: m.chartType ?? config.chartType ?? "area", dashed: m.dashed ?? false })),
     ],
     [config],
+  );
+
+  const handleCardClick = React.useCallback((key: string) => {
+    setActiveMetric((prev) => (prev === key ? null : key));
+  }, []);
+
+  const handleFlip = React.useCallback((e: React.MouseEvent, key: string) => {
+    e.stopPropagation();
+    setFlippedCards((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+
+  // Compute opacity for each metric based on activeMetric
+  const getMetricOpacity = React.useCallback(
+    (key: string) => {
+      if (!activeMetric) return 1;
+      return key === activeMetric ? 1 : 0.15;
+    },
+    [activeMetric],
   );
 
   return (
@@ -335,10 +389,19 @@ export function FinancialSummaryChart({
             <div className="mb-4 grid grid-cols-3 gap-3">
               {summaryCards.map((card) => {
                 const isPositiveTrend = card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
+                const isActive = activeMetric === card.key;
+                const isFlipped = flippedCards.has(card.key);
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={card.key}
-                    className="relative overflow-hidden rounded-lg border bg-gradient-to-br from-background to-muted/20 p-3"
+                    onClick={() => handleCardClick(card.key)}
+                    className={cn(
+                      "relative overflow-hidden rounded-lg border bg-gradient-to-br from-background to-muted/20 p-3 text-left transition-all cursor-pointer",
+                      isActive && "border-transparent",
+                      !isActive && activeMetric && "opacity-50",
+                    )}
+                    style={isActive ? { borderColor: card.color, boxShadow: `0 0 0 2px ${card.color}40` } : undefined}
                   >
                     {/* Accent bar */}
                     <div
@@ -349,22 +412,51 @@ export function FinancialSummaryChart({
                       <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                         {card.label}
                       </p>
-                      <p className={cn(
-                        "mt-0.5 text-lg font-semibold tabular-nums tracking-tight",
-                        card.value < 0 && "text-destructive",
-                      )}>
-                        {formatTooltipCurrency(card.value, divisor)}
-                      </p>
-                      {card.trend !== undefined && card.trend !== 0 && (
-                        <p className={cn(
-                          "mt-0.5 text-[11px] font-medium",
-                          isPositiveTrend ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400",
-                        )}>
-                          {card.trend > 0 ? "↑" : "↓"} {Math.abs(card.trend).toFixed(1)}% vs prior
-                        </p>
+                      {!isFlipped ? (
+                        <>
+                          <p className={cn(
+                            "mt-0.5 text-lg font-semibold tabular-nums tracking-tight",
+                            card.value < 0 && "text-destructive",
+                          )}>
+                            {formatTooltipCurrency(card.value, divisor)}
+                          </p>
+                          {card.trend !== undefined && card.trend !== 0 && (
+                            <p className={cn(
+                              "mt-0.5 text-[11px] font-medium",
+                              isPositiveTrend ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400",
+                            )}>
+                              {card.trend > 0 ? "↑" : "↓"} {Math.abs(card.trend).toFixed(1)}% vs prior
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <CardSparkline data={chartData} dataKey={card.key} color={card.color} />
                       )}
+                      {/* Dot indicators */}
+                      <div className="flex justify-center gap-1.5 mt-1.5">
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => { if (isFlipped) handleFlip(e, card.key); }}
+                          onKeyDown={(e) => { if (e.key === "Enter" && isFlipped) handleFlip(e as unknown as React.MouseEvent, card.key); }}
+                          className={cn(
+                            "size-1.5 rounded-full transition-colors",
+                            !isFlipped ? "bg-foreground/60" : "bg-foreground/20 hover:bg-foreground/40",
+                          )}
+                        />
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => { if (!isFlipped) handleFlip(e, card.key); }}
+                          onKeyDown={(e) => { if (e.key === "Enter" && !isFlipped) handleFlip(e as unknown as React.MouseEvent, card.key); }}
+                          className={cn(
+                            "size-1.5 rounded-full transition-colors",
+                            isFlipped ? "bg-foreground/60" : "bg-foreground/20 hover:bg-foreground/40",
+                          )}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -379,7 +471,7 @@ export function FinancialSummaryChart({
                   <defs>
                     {allMetrics.map((m) => (
                       <linearGradient key={m.key} id={`gradient-${m.key}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={m.color} stopOpacity={0.2} />
+                        <stop offset="0%" stopColor={m.color} stopOpacity={activeMetric ? (m.key === activeMetric ? 0.3 : 0.02) : 0.2} />
                         <stop offset="95%" stopColor={m.color} stopOpacity={0} />
                       </linearGradient>
                     ))}
@@ -415,15 +507,17 @@ export function FinancialSummaryChart({
                     content={<CustomTooltip metrics={allMetrics} divisor={divisor} />}
                     cursor={{ stroke: "var(--border, #e5e7eb)", strokeDasharray: "3 3" }}
                   />
-                  {allMetrics.map((m) =>
-                    m.chartType === "line" || m.dashed ? (
+                  {allMetrics.map((m) => {
+                    const opacity = getMetricOpacity(m.key);
+                    return m.chartType === "line" || m.dashed ? (
                       <Line
                         key={m.key}
                         type="monotone"
                         dataKey={m.key}
                         stroke={m.color}
-                        strokeWidth={2}
+                        strokeWidth={m.key === activeMetric ? 3 : 2}
                         strokeDasharray={m.dashed ? "6 3" : undefined}
+                        strokeOpacity={opacity}
                         dot={false}
                         activeDot={{ r: 4, strokeWidth: 2, fill: "var(--background, #fff)" }}
                       />
@@ -433,7 +527,7 @@ export function FinancialSummaryChart({
                         dataKey={m.key}
                         fill={m.color}
                         radius={[4, 4, 0, 0]}
-                        fillOpacity={0.8}
+                        fillOpacity={opacity * 0.8}
                       />
                     ) : (
                       <Area
@@ -441,13 +535,15 @@ export function FinancialSummaryChart({
                         type="monotone"
                         dataKey={m.key}
                         stroke={m.color}
-                        strokeWidth={2}
+                        strokeWidth={m.key === activeMetric ? 3 : 2}
+                        strokeOpacity={opacity}
                         fill={`url(#gradient-${m.key})`}
+                        fillOpacity={opacity}
                         dot={false}
                         activeDot={{ r: 4, strokeWidth: 2, fill: "var(--background, #fff)" }}
                       />
-                    ),
-                  )}
+                    );
+                  })}
                 </AreaChart>
               </ResponsiveContainer>
             </div>
