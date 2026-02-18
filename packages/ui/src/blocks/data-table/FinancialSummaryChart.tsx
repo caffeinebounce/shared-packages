@@ -149,7 +149,7 @@ function buildChartData(
   data: FinancialStatementEntry[],
   config: FinancialSummaryChartConfig,
   timeUnit: TimeUnit,
-  priorData?: FinancialStatementEntry[],
+  priorTotals?: Record<string, number>,
 ): { chartData: Record<string, unknown>[]; summaryCards: { key: string; label: string; value: number; color: string; trend?: number }[] } {
   // Aggregate by period + metric
   const periodMetrics = new Map<string, Record<string, number>>();
@@ -202,39 +202,14 @@ function buildChartData(
     ...(config.computedMetrics ?? []).map((m) => ({ key: m.key, label: m.label, color: m.color })),
   ];
 
-  // Aggregate prior period data for trend comparison
-  const priorTotals = new Map<string, number>();
-  if (priorData && priorData.length > 0) {
-    for (const metric of config.metrics) {
-      const sign = metric.sign ?? 1;
-      let sum = 0;
-      for (const entry of priorData) {
-        if (metric.accountClasses.includes(entry.account_class)) {
-          sum += entry.amount * sign;
-        }
-      }
-      priorTotals.set(metric.key, sum);
-    }
-    // Compute derived prior metrics
-    for (const cm of config.computedMetrics ?? []) {
-      let val = 0;
-      for (const ref of cm.formula) {
-        const subtract = ref.startsWith("-");
-        const mKey = subtract ? ref.slice(1) : ref;
-        val += (priorTotals.get(mKey) || 0) * (subtract ? -1 : 1);
-      }
-      priorTotals.set(cm.key, val);
-    }
-  }
-
   const summaryCards = allMetrics.map(({ key, label, color }) => {
     // Sum across all periods in the range
     let total = 0;
     for (const pk of periods) {
       total += periodMetrics.get(pk)?.[key] ?? 0;
     }
-    // Trend: compare current range total vs equivalent prior range total
-    const priorTotal = priorTotals.get(key);
+    // Trend: compare current range total vs prior period total (passed in)
+    const priorTotal = priorTotals?.[key];
     const trend = priorTotal != null && priorTotal !== 0
       ? ((total - priorTotal) / Math.abs(priorTotal)) * 100
       : 0;
@@ -287,8 +262,8 @@ export interface FinancialSummaryChartProps {
   timeUnit: TimeUnit;
   /** Chart configuration */
   config: FinancialSummaryChartConfig;
-  /** Prior period data for trend comparison (same length range, shifted back) */
-  priorData?: FinancialStatementEntry[];
+  /** Prior period totals for trend comparison — keyed by metric key (e.g. { revenue: 100000, expenses: 80000, netIncome: 20000 }) */
+  priorTotals?: Record<string, number>;
   /** Additional class name */
   className?: string;
 }
@@ -353,7 +328,7 @@ export function FinancialSummaryChart({
   data,
   timeUnit,
   config,
-  priorData,
+  priorTotals: priorTotalsProp,
   className,
 }: FinancialSummaryChartProps) {
   const [expanded, setExpanded] = React.useState(config.defaultExpanded ?? true);
@@ -364,8 +339,8 @@ export function FinancialSummaryChart({
   const divisor = _getUnitDivisor(displayUnits);
 
   const { chartData, summaryCards } = React.useMemo(
-    () => buildChartData(data, config, timeUnit, priorData),
-    [data, config, timeUnit, priorData],
+    () => buildChartData(data, config, timeUnit, priorTotalsProp),
+    [data, config, timeUnit, priorTotalsProp],
   );
 
   const allMetrics = React.useMemo(
