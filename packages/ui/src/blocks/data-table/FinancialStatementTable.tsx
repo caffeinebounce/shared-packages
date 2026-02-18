@@ -637,7 +637,7 @@ function buildColumns(
           return <span className="font-semibold">{r.name}</span>;
         }
         if (r._type === "grand-total") {
-          return <span className="font-bold text-base">{r.name}</span>;
+          return <span className="font-bold">{r.name}</span>;
         }
         if (r._type === "account-group") {
           return (
