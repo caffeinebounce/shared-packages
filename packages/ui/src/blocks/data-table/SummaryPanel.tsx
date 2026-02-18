@@ -41,6 +41,8 @@ export interface SummaryMetric {
   invertTrend?: boolean;
   /** Subtitle text */
   subtitle?: string;
+  /** Custom display string (overrides default currency formatting) */
+  displayValue?: string;
 }
 
 export interface SummaryChartDataPoint {
@@ -307,7 +309,7 @@ export function SummaryPanel({
               <div className="size-1.5 rounded-full" style={{ backgroundColor: m.color }} />
               <span className="text-muted-foreground">{m.label}:</span>
               <span className={cn("font-mono font-medium", m.value < 0 && "text-destructive")}>
-                {formatFn(m.value)}
+                {m.displayValue ?? formatFn(m.value)}
               </span>
             </div>
           ))}
@@ -326,7 +328,12 @@ export function SummaryPanel({
         <div className="overflow-hidden">
           <div className="px-4 pb-4">
             {/* Metric cards */}
-            <div className={cn("mb-4 grid gap-3", `grid-cols-${Math.min(metrics.length, 4)}`)}>
+            <div className={cn("mb-4 grid gap-3", {
+              "grid-cols-1": metrics.length === 1,
+              "grid-cols-2": metrics.length === 2,
+              "grid-cols-3": metrics.length === 3,
+              "grid-cols-4": metrics.length >= 4,
+            })}>
               {metrics.map((m) => {
                 const isPositiveTrend = m.invertTrend ? (m.trend ?? 0) < 0 : (m.trend ?? 0) > 0;
                 return (
@@ -338,7 +345,7 @@ export function SummaryPanel({
                     <div className="pl-2">
                       <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{m.label}</p>
                       <p className={cn("mt-0.5 text-lg font-semibold tabular-nums tracking-tight", m.value < 0 && "text-destructive")}>
-                        {tooltipFormat(m.value)}
+                        {m.displayValue ?? tooltipFormat(m.value)}
                       </p>
                       {m.trend !== undefined && m.trend !== 0 && (
                         <p className={cn("mt-0.5 text-[11px] font-medium",
