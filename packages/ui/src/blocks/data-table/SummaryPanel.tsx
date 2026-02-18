@@ -90,6 +90,8 @@ export interface SummaryPanelProps {
   formatValue?: (value: number) => string;
   /** Additional className */
   className?: string;
+  /** Render prop for chart — receives (activeChartType, data, series, height). Use when built-in charts don't work in your bundler. */
+  renderChart?: (chartType: SummaryChartType, data: SummaryChartDataPoint[], series: SummaryChartSeries[], height: number) => React.ReactNode;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -268,6 +270,10 @@ function PieChartView({ metrics, height, formatFn }: {
   );
 }
 
+// ── Exported chart renderers (for renderChart prop) ───────────────────────────
+
+export { AreaLineChart as SummaryAreaChart, ColumnChart as SummaryBarChart, PieChartView as SummaryPieChart };
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export function SummaryPanel({
@@ -282,12 +288,13 @@ export function SummaryPanel({
   defaultExpanded = true,
   formatValue,
   className,
+  renderChart,
 }: SummaryPanelProps) {
   const [expanded, setExpanded] = React.useState(defaultExpanded);
   const [activeChartType, setActiveChartType] = React.useState<SummaryChartType>(defaultChartType);
 
   const formatFn = formatValue ?? defaultFormat;
-  const hasChart = !!chartData && chartData.length > 0 && !!chartSeries;
+  const hasChart = (!!chartData && chartData.length > 0 && !!chartSeries) || !!renderChart;
   const hasChartToggle = chartTypes && chartTypes.length > 1;
 
   return (
@@ -321,11 +328,7 @@ export function SummaryPanel({
       </button>
 
       {/* Expandable content */}
-      <div className={cn(
-        "grid transition-all duration-300 ease-in-out",
-        expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
-      )}>
-        <div className="overflow-hidden">
+      {expanded && (
           <div className="px-4 pb-4">
             {/* Metric cards */}
             <div className={cn("mb-4 grid gap-3", {
@@ -386,19 +389,21 @@ export function SummaryPanel({
             )}
 
             {/* Chart */}
-            {hasChart && activeChartType !== "pie" && (
-              activeChartType === "bar" ? (
-                <ColumnChart data={chartData!} series={chartSeries!} height={chartHeight} showZeroLine={showZeroLine} formatFn={formatFn} />
-              ) : (
-                <AreaLineChart data={chartData!} series={chartSeries!} height={chartHeight} showZeroLine={showZeroLine} formatFn={formatFn} />
-              )
-            )}
-            {hasChart && activeChartType === "pie" && (
-              <PieChartView metrics={metrics} height={chartHeight} formatFn={formatFn} />
+            {hasChart && (
+              <div style={{ width: "100%", height: chartHeight }}>
+                {renderChart ? (
+                  renderChart(activeChartType, chartData ?? [], chartSeries ?? [], chartHeight)
+                ) : activeChartType === "pie" ? (
+                  <PieChartView metrics={metrics} height={chartHeight} formatFn={formatFn} />
+                ) : activeChartType === "bar" ? (
+                  <ColumnChart data={chartData!} series={chartSeries!} height={chartHeight} showZeroLine={showZeroLine} formatFn={formatFn} />
+                ) : (
+                  <AreaLineChart data={chartData!} series={chartSeries!} height={chartHeight} showZeroLine={showZeroLine} formatFn={formatFn} />
+                )}
+              </div>
             )}
           </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

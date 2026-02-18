@@ -132,6 +132,9 @@ export {
 } from "./FinancialSummaryChart";
 export {
   SummaryPanel,
+  SummaryAreaChart,
+  SummaryBarChart,
+  SummaryPieChart,
   type SummaryPanelProps,
   type SummaryMetric,
   type SummaryChartDataPoint,
