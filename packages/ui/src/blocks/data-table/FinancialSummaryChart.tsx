@@ -272,6 +272,8 @@ export interface FinancialSummaryChartProps {
   config: FinancialSummaryChartConfig;
   /** Prior period totals for trend comparison — keyed by metric key (e.g. { revenue: 100000, expenses: 80000, netIncome: 20000 }) */
   priorTotals?: Record<string, number>;
+  /** Short label for the time period (e.g. "LTM", "YTD", "FY25") — shown on stat cards */
+  periodLabel?: string;
   /** Additional class name */
   className?: string;
 }
@@ -337,6 +339,7 @@ export function FinancialSummaryChart({
   timeUnit,
   config,
   priorTotals: priorTotalsProp,
+  periodLabel: periodLabelProp,
   className,
 }: FinancialSummaryChartProps) {
   const [expanded, setExpanded] = React.useState(config.defaultExpanded ?? true);
@@ -449,6 +452,9 @@ export function FinancialSummaryChart({
                     <div className="pl-3">
                       <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                         {card.label}
+                        {periodLabelProp && (
+                          <span className="ml-1.5 font-normal text-muted-foreground/60">{periodLabelProp}</span>
+                        )}
                       </p>
                       {!isFlipped ? (
                         <>
