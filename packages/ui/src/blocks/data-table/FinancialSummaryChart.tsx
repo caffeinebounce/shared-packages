@@ -19,6 +19,8 @@ import {
 } from "recharts";
 import { ChevronDown, ChevronUp, BarChart3 } from "lucide-react";
 import { cn } from "../../utils/cn";
+import { Tooltip as RadixTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip";
+import { ChartTooltipShell, ChartTooltipTitle, ChartTooltipRow } from "./ChartTooltip";
 import type { FinancialStatementEntry, TimeUnit } from "./FinancialStatementTable";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -229,28 +231,23 @@ function CustomTooltip({ active, payload, label, metrics, divisor = 1 }: CustomT
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-lg border bg-popover px-3 py-2 text-popover-foreground shadow-md">
-      <p className="mb-1.5 text-xs font-medium text-muted-foreground">{label}</p>
+    <ChartTooltipShell>
+      <ChartTooltipTitle>{label}</ChartTooltipTitle>
       <div className="space-y-1">
         {payload.map((entry) => {
           const metric = metrics.find((m) => m.key === entry.dataKey);
           return (
-            <div key={entry.dataKey} className="flex items-center justify-between gap-4 text-xs">
-              <div className="flex items-center gap-1.5">
-                <div
-                  className="size-2 rounded-full"
-                  style={{ backgroundColor: entry.color }}
-                />
-                <span>{metric?.label ?? entry.name}</span>
-              </div>
-              <span className={cn("font-mono font-medium", entry.value < 0 && "text-destructive")}>
-                {formatTooltipCurrency(entry.value, divisor)}
-              </span>
-            </div>
+            <ChartTooltipRow
+              key={entry.dataKey}
+              color={entry.color}
+              label={metric?.label ?? entry.name}
+              value={formatTooltipCurrency(entry.value, divisor)}
+              isNegative={entry.value < 0}
+            />
           );
         })}
       </div>
-    </div>
+    </ChartTooltipShell>
   );
 }
 
@@ -386,15 +383,19 @@ export function FinancialSummaryChart({
         <div className="overflow-hidden">
           <div className="px-4 pb-4">
             {/* Summary cards */}
+            <TooltipProvider delayDuration={300}>
             <div className="mb-4 grid grid-cols-3 gap-3">
               {summaryCards.map((card) => {
                 const isPositiveTrend = card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
                 const isActive = activeMetric === card.key;
                 const isFlipped = flippedCards.has(card.key);
+                // Get last 3 periods for the hover tooltip
+                const recentPeriods = chartData.slice(-3);
                 return (
+                  <RadixTooltip key={card.key}>
+                    <TooltipTrigger asChild>
                   <button
                     type="button"
-                    key={card.key}
                     onClick={() => handleCardClick(card.key)}
                     className={cn(
                       "relative overflow-hidden rounded-lg border bg-gradient-to-br from-background to-muted/20 p-3 text-left transition-all cursor-pointer",
@@ -457,9 +458,31 @@ export function FinancialSummaryChart({
                       </div>
                     </div>
                   </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" align="center" className="p-0 bg-transparent border-0 shadow-none">
+                      <ChartTooltipShell>
+                        <ChartTooltipTitle>{card.label} — Recent Periods</ChartTooltipTitle>
+                        <div className="space-y-1">
+                          {recentPeriods.map((period) => {
+                            const val = (period[card.key] as number) ?? 0;
+                            return (
+                              <ChartTooltipRow
+                                key={period.periodLabel as string}
+                                color={card.color}
+                                label={period.periodLabel as string}
+                                value={formatTooltipCurrency(val, divisor)}
+                                isNegative={val < 0}
+                              />
+                            );
+                          })}
+                        </div>
+                      </ChartTooltipShell>
+                    </TooltipContent>
+                  </RadixTooltip>
                 );
               })}
             </div>
+            </TooltipProvider>
 
             {/* Chart */}
             <div style={{ height: config.height ?? 240 }}>
