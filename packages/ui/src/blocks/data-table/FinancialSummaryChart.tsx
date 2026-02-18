@@ -214,12 +214,15 @@ function buildChartData(
     for (const pk of periods) {
       total += periodMetrics.get(pk)?.[key] ?? 0;
     }
-    // Apply same sign to prior total so comparison is apples-to-apples
+    // Apply same sign to prior total for display, but compute trend on
+    // absolute values so direction is always intuitive (positive = magnitude grew)
     const rawPrior = priorTotals?.[key];
     const sign = signMap.get(key) ?? 1;
     const priorTotal = rawPrior != null ? rawPrior * sign : undefined;
-    const trend = priorTotal != null && priorTotal !== 0
-      ? ((total - priorTotal) / Math.abs(priorTotal)) * 100
+    const absTotal = Math.abs(total);
+    const absPrior = rawPrior != null ? Math.abs(rawPrior) : undefined;
+    const trend = absPrior != null && absPrior !== 0
+      ? ((absTotal - absPrior) / absPrior) * 100
       : 0;
     return { key, label, value: total, color, trend, priorValue: priorTotal };
   });
