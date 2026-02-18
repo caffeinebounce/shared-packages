@@ -407,47 +407,40 @@ function applySubtotalRules(
   return result;
 }
 
-/** Check if a row or any of its descendants has non-zero amounts. */
-function hasNonZeroDescendant(row: StatementRow): boolean {
-  if (row.total !== 0 || Object.values(row.periodAmounts).some(v => v !== 0)) return true;
-  return row.children.some(hasNonZeroDescendant);
-}
-
 /**
- * Recursively filter out rows where all period amounts and total are zero.
- * Preserves section headers/totals and any parent with non-zero descendants.
+ * Recursively filter out LEAF rows where all period amounts and total are zero.
+ * Only leaf accounts (no children) are candidates for removal.
+ * Parent rows, section headers, and structural rows are always preserved.
  */
 function filterZeroRows(rows: StatementRow[]): StatementRow[] {
   return rows.reduce<StatementRow[]>((acc, row) => {
-    // Always keep section headers, section totals, and grand totals
+    // Structural rows — always keep
     if (row._type === "section-header" || row._type === "section-total" || row._type === "grand-total") {
       if (row.children.length > 0) {
-        const filteredChildren = filterZeroRows(row.children);
-        acc.push({ ...row, children: filteredChildren });
+        acc.push({ ...row, children: filterZeroRows(row.children) });
       } else {
         acc.push(row);
       }
       return acc;
     }
 
-    // For any row with children (subtotal-group, account-group), keep if any descendant has values
+    // Any row with children — always keep, just filter children
     if (row.children.length > 0) {
       const filteredChildren = filterZeroRows(row.children);
-      if (filteredChildren.length > 0) {
-        if (row._type === "subtotal-group") {
-          const sums = sumChildPeriods(filteredChildren);
-          acc.push({ ...row, children: filteredChildren, periodAmounts: sums.periodAmounts, total: sums.total });
-        } else {
-          acc.push({ ...row, children: filteredChildren });
-        }
-      } else if (hasNonZeroDescendant(row)) {
-        // Edge case: children were all filtered but row itself or deep descendants have values
-        acc.push(row);
+      if (row._type === "subtotal-group" && filteredChildren.length === 0) {
+        // Empty subtotal group after filtering — drop it
+        return acc;
+      }
+      if (row._type === "subtotal-group") {
+        const sums = sumChildPeriods(filteredChildren);
+        acc.push({ ...row, children: filteredChildren, periodAmounts: sums.periodAmounts, total: sums.total });
+      } else {
+        acc.push({ ...row, children: filteredChildren });
       }
       return acc;
     }
 
-    // Leaf accounts — skip if all zeros
+    // Leaf accounts only — skip if all zeros
     const isZero = row.total === 0 && Object.values(row.periodAmounts).every(v => v === 0);
     if (!isZero) {
       acc.push(row);
