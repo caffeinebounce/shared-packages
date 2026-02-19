@@ -63,13 +63,13 @@ export function ComparisonSelector({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className={cn("gap-2 focus-visible:ring-0", className)}>
+        <Button variant="outline" size="sm" className={cn("h-8 w-[190px] justify-between gap-2 focus-visible:ring-0", className)}>
           <Percent className="size-3.5" />
           <span>{getTriggerLabel(mode)}</span>
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-[320px] p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <PopoverContent align="start" className="w-[380px] p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
         <div className="space-y-1">
           <button
             type="button"

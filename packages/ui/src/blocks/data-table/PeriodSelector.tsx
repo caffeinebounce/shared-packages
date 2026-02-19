@@ -265,10 +265,10 @@ export function PeriodSelector({
           type="button"
           variant="outline"
           size="sm"
-          className={cn("h-8 gap-2 focus-visible:ring-0 focus-visible:outline-none", className)}
+          className={cn("h-8 w-[190px] justify-between gap-2 focus-visible:ring-0 focus-visible:outline-none", className)}
         >
           <CalendarDays className="size-4" />
-          <span className="text-xs font-medium">{activeLabel}</span>
+          <span className="truncate text-xs font-medium">{activeLabel}</span>
         </Button>
       </PopoverTrigger>
 
