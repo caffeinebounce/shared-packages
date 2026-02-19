@@ -367,6 +367,7 @@ const PREVIEW_DOMAINS = [
   "vercel.app", // Vercel previews (production typically uses custom domains)
   "netlify.app", // Netlify previews
   "railway.app", // Railway previews
+  "ts.net", // Tailscale MagicDNS (e.g., machine.tailnet-name.ts.net)
 ] as const;
 
 /**
