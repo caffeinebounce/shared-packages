@@ -165,6 +165,8 @@ export interface FinancialStatementTableProps {
   renderAmountCell?: (row: StatementRow, periodKey: string | null, value: number) => React.ReactNode;
   /** Show section header + total rows even when no data exists for that section */
   preserveEmptySections?: boolean;
+  /** Show rightmost Total column */
+  showRowTotals?: boolean;
   /** Show a variance % column comparing current vs prior period (only when exactly 1 comparison period) */
   showVariance?: boolean;
   /** Number of current period columns (to split current vs comparison in variance calc) */
@@ -664,6 +666,7 @@ function buildColumns(
   unit: TimeUnit,
   showAccountNumbers: boolean,
   renderAmountCell?: (row: StatementRow, periodKey: string | null, value: number) => React.ReactNode,
+  showRowTotals = true,
   showVariance?: boolean,
   currentPeriodCount?: number,
 ): ColumnDef<StatementRow>[] {
@@ -779,50 +782,52 @@ function buildColumns(
     });
   }
 
-  cols.push({
-    id: "total",
-    accessorFn: (row) => row.total,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Total" />
-    ),
-    meta: {
-      displayName: "Total",
-      icon: DollarSign,
-      align: "right",
-    } satisfies DataTableColumnMeta,
-    cell: ({ row }) => {
-      const r = row.original;
-      if (r._type === "section-header") return null;
-      const isTotalRow = r._type === "section-total" || r._type === "grand-total";
-      const bold =
-        r._type === "grand-total"
-          ? "font-bold"
-          : r._type === "section-total" || r._type === "subtotal-total" || r._type === "account-group" || r._type === "subtotal-group"
-            ? "font-semibold"
-            : "";
-      if (renderAmountCell && (r._type === "account" || r._type === "account-group") && r.total !== 0) {
-        return <span className={bold}>{renderAmountCell(r, null, r.total)}</span>;
-      }
-      if (isTotalRow && r._rawTotal !== undefined) {
-        return (
-          <span className={cn(bold, "flex items-center justify-end gap-1.5 group/rec w-full h-full")}>
-            <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0 leading-[0]">
-              <RecCheck computed={r.total} raw={r._rawTotal} />
+  if (showRowTotals) {
+    cols.push({
+      id: "total",
+      accessorFn: (row) => row.total,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Total" />
+      ),
+      meta: {
+        displayName: "Total",
+        icon: DollarSign,
+        align: "right",
+      } satisfies DataTableColumnMeta,
+      cell: ({ row }) => {
+        const r = row.original;
+        if (r._type === "section-header") return null;
+        const isTotalRow = r._type === "section-total" || r._type === "grand-total";
+        const bold =
+          r._type === "grand-total"
+            ? "font-bold"
+            : r._type === "section-total" || r._type === "subtotal-total" || r._type === "account-group" || r._type === "subtotal-group"
+              ? "font-semibold"
+              : "";
+        if (renderAmountCell && (r._type === "account" || r._type === "account-group") && r.total !== 0) {
+          return <span className={bold}>{renderAmountCell(r, null, r.total)}</span>;
+        }
+        if (isTotalRow && r._rawTotal !== undefined) {
+          return (
+            <span className={cn(bold, "flex items-center justify-end gap-1.5 group/rec w-full h-full")}>
+              <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0 leading-[0]">
+                <RecCheck computed={r.total} raw={r._rawTotal} />
+              </span>
+              <span className="leading-none"><DataTableCurrencyCell value={r.total} dashZero /></span>
             </span>
-            <span className="leading-none"><DataTableCurrencyCell value={r.total} dashZero /></span>
+          );
+        }
+        return (
+          <span className={bold}>
+            <DataTableCurrencyCell value={r.total} dashZero />
           </span>
         );
-      }
-      return (
-        <span className={bold}>
-          <DataTableCurrencyCell value={r.total} dashZero />
-        </span>
-      );
-    },
-    enableSorting: false,
-    size: 130,
-    minSize: 100,
-  });
+      },
+      enableSorting: false,
+      size: 130,
+      minSize: 100,
+    });
+  }
 
   // Variance % column — shown only when comparing a single period
   if (showVariance && currentPeriodCount && currentPeriodCount > 0) {
@@ -851,7 +856,7 @@ function buildColumns(
         const currentSum = currentPeriods.reduce((s, pk) => s + (r.periodAmounts[pk] ?? 0), 0);
         const priorSum = priorPeriods.reduce((s, pk) => s + (r.periodAmounts[pk] ?? 0), 0);
         if (priorSum === 0 && currentSum === 0) return <span className="text-muted-foreground">–</span>;
-        if (priorSum === 0) return <span className="text-emerald-500">New</span>;
+        if (priorSum === 0) return <span className="text-muted-foreground">n/a</span>;
         const pct = ((currentSum - priorSum) / Math.abs(priorSum)) * 100;
         const isPositive = pct > 0;
         const isNegative = pct < 0;
@@ -921,6 +926,7 @@ export function FinancialStatementTable({
   subtotalRules,
   hideZeroRows = false,
   preserveEmptySections = false,
+  showRowTotals = true,
   showVariance = false,
   currentPeriodCount,
   toolbar,
@@ -942,8 +948,8 @@ export function FinancialStatementTable({
   );
 
   const columns = React.useMemo(
-    () => buildColumns(periods, timeUnit, showAccountNumbers, renderAmountCell, showVariance, currentPeriodCount),
-    [periods, timeUnit, showAccountNumbers, renderAmountCell, showVariance, currentPeriodCount],
+    () => buildColumns(periods, timeUnit, showAccountNumbers, renderAmountCell, showRowTotals, showVariance, currentPeriodCount),
+    [periods, timeUnit, showAccountNumbers, renderAmountCell, showRowTotals, showVariance, currentPeriodCount],
   );
 
   // Auto-expand: section headers expanded, account groups expanded 1 level
