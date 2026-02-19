@@ -10,7 +10,7 @@ import {
   getExpandedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { AlertTriangle, BookOpen, Calendar, CheckCircle2, DollarSign } from "lucide-react";
+import { AlertTriangle, BookOpen, Calendar, CheckCircle2, DollarSign, TrendingUp } from "lucide-react";
 import * as React from "react";
 
 import { DataTable } from "./DataTable";
@@ -165,6 +165,10 @@ export interface FinancialStatementTableProps {
   renderAmountCell?: (row: StatementRow, periodKey: string | null, value: number) => React.ReactNode;
   /** Show section header + total rows even when no data exists for that section */
   preserveEmptySections?: boolean;
+  /** Show a variance % column comparing current vs prior period (only when exactly 1 comparison period) */
+  showVariance?: boolean;
+  /** Number of current period columns (to split current vs comparison in variance calc) */
+  currentPeriodCount?: number;
   /** Additional class name */
   className?: string;
 }
@@ -660,6 +664,8 @@ function buildColumns(
   unit: TimeUnit,
   showAccountNumbers: boolean,
   renderAmountCell?: (row: StatementRow, periodKey: string | null, value: number) => React.ReactNode,
+  showVariance?: boolean,
+  currentPeriodCount?: number,
 ): ColumnDef<StatementRow>[] {
   const cols: ColumnDef<StatementRow>[] = [
     {
@@ -818,6 +824,59 @@ function buildColumns(
     minSize: 100,
   });
 
+  // Variance % column — shown only when comparing a single period
+  if (showVariance && currentPeriodCount && currentPeriodCount > 0) {
+    const priorPeriods = periods.slice(0, periods.length - currentPeriodCount);
+    const currentPeriods = periods.slice(periods.length - currentPeriodCount);
+
+    cols.push({
+      id: "variance",
+      accessorFn: (row) => {
+        const currentSum = currentPeriods.reduce((s, pk) => s + (row.periodAmounts[pk] ?? 0), 0);
+        const priorSum = priorPeriods.reduce((s, pk) => s + (row.periodAmounts[pk] ?? 0), 0);
+        if (priorSum === 0) return currentSum === 0 ? 0 : Infinity;
+        return ((currentSum - priorSum) / Math.abs(priorSum)) * 100;
+      },
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Δ%" />
+      ),
+      meta: {
+        displayName: "Variance %",
+        icon: TrendingUp,
+        align: "right",
+      } satisfies DataTableColumnMeta,
+      cell: ({ row }) => {
+        const r = row.original;
+        if (r._type === "section-header") return null;
+        const currentSum = currentPeriods.reduce((s, pk) => s + (r.periodAmounts[pk] ?? 0), 0);
+        const priorSum = priorPeriods.reduce((s, pk) => s + (r.periodAmounts[pk] ?? 0), 0);
+        if (priorSum === 0 && currentSum === 0) return <span className="text-muted-foreground">–</span>;
+        if (priorSum === 0) return <span className="text-emerald-500">New</span>;
+        const pct = ((currentSum - priorSum) / Math.abs(priorSum)) * 100;
+        const isPositive = pct > 0;
+        const isNegative = pct < 0;
+        const bold =
+          r._type === "grand-total" ? "font-bold"
+            : r._type === "section-total" || r._type === "subtotal-total" ? "font-semibold"
+            : "";
+        return (
+          <span className={cn(
+            bold,
+            "tabular-nums text-xs",
+            isPositive && "text-emerald-500",
+            isNegative && "text-red-500",
+            !isPositive && !isNegative && "text-muted-foreground",
+          )}>
+            {isPositive ? "+" : ""}{pct.toFixed(1)}%
+          </span>
+        );
+      },
+      enableSorting: false,
+      size: 80,
+      minSize: 60,
+    });
+  }
+
   return cols;
 }
 
@@ -862,6 +921,8 @@ export function FinancialStatementTable({
   subtotalRules,
   hideZeroRows = false,
   preserveEmptySections = false,
+  showVariance = false,
+  currentPeriodCount,
   toolbar,
   renderAmountCell,
   className,
@@ -881,8 +942,8 @@ export function FinancialStatementTable({
   );
 
   const columns = React.useMemo(
-    () => buildColumns(periods, timeUnit, showAccountNumbers, renderAmountCell),
-    [periods, timeUnit, showAccountNumbers, renderAmountCell],
+    () => buildColumns(periods, timeUnit, showAccountNumbers, renderAmountCell, showVariance, currentPeriodCount),
+    [periods, timeUnit, showAccountNumbers, renderAmountCell, showVariance, currentPeriodCount],
   );
 
   // Auto-expand: section headers expanded, account groups expanded 1 level
