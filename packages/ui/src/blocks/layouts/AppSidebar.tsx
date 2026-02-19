@@ -407,9 +407,9 @@ export function AppSidebar({
                       asChild
                       className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
                     >
-                      <CollapsibleTrigger className="group/trigger flex w-full items-center justify-between">
+                      <CollapsibleTrigger className="flex w-full items-center justify-between [&[data-state=open]>svg]:rotate-180">
                         {section.label}
-                        <ChevronDown className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/trigger:rotate-180" />
+                        <ChevronDown className="ml-auto size-4 transition-transform duration-200" />
                       </CollapsibleTrigger>
                     </SidebarGroupLabel>
                     <CollapsibleContent>
