@@ -467,7 +467,7 @@ export function FinancialSummaryChart({
         <div className="overflow-hidden">
           <div className="px-4 pb-4">
             {/* Summary cards */}
-            <div className="mb-4 grid grid-cols-3 gap-3">
+            <div className="mb-4 grid gap-3" style={{ gridTemplateColumns: `repeat(${summaryCards.length}, minmax(0, 1fr))` }}>
               {summaryCards.map((card) => {
                 const isPositiveTrend = card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
                 const isActive = activeMetric === card.key;
