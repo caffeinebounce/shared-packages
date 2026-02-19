@@ -32,7 +32,7 @@ function RecCheck({ computed, raw }: { computed: number; raw: number }) {
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="inline-flex items-center translate-y-px">
+          <span className="inline-flex items-center translate-y-[2px]">
             {matches ? (
               <CheckCircle2 className="size-3.5 text-white fill-emerald-500" />
             ) : (
