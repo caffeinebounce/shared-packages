@@ -32,28 +32,28 @@ function RecCheck({ computed, raw }: { computed: number; raw: number }) {
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="absolute left-0.5 top-1/2 -translate-y-1/2 opacity-0 group-hover/rec:opacity-100 transition-opacity">
+          <span className="absolute left-1 inset-y-0 flex items-center opacity-0 group-hover/rec:opacity-100 transition-opacity">
             {matches ? (
-              <CheckCircle2 className="size-4 text-emerald-500 fill-emerald-500" />
+              <CheckCircle2 className="size-3.5 text-emerald-500 fill-emerald-500" />
             ) : (
-              <AlertTriangle className="size-4 text-amber-500 fill-amber-500" />
+              <AlertTriangle className="size-3.5 text-amber-500 fill-amber-500" />
             )}
           </span>
         </TooltipTrigger>
         <TooltipContent side="left" className="text-[11px] max-w-none p-2">
           {matches ? (
-            <span className="text-emerald-400">✓ Reconciled — tree sum matches raw data</span>
+            <span className="text-emerald-400">✓ Balanced — computed total matches source data</span>
           ) : (
             <div className="space-y-1">
-              <div className="text-amber-400 font-medium">⚠ Reconciliation variance</div>
+              <div className="text-amber-400 font-medium">⚠ Variance detected</div>
               <table className="text-[11px]">
                 <tbody>
                   <tr>
-                    <td className="pr-3 text-muted-foreground">Tree sum:</td>
+                    <td className="pr-3 text-muted-foreground">Computed:</td>
                     <td className="font-mono tabular-nums text-right">{formatCurrencyValue(computed, { decimals: 2 }).text}</td>
                   </tr>
                   <tr>
-                    <td className="pr-3 text-muted-foreground">Raw sum:</td>
+                    <td className="pr-3 text-muted-foreground">Source:</td>
                     <td className="font-mono tabular-nums text-right">{formatCurrencyValue(raw, { decimals: 2 }).text}</td>
                   </tr>
                   <tr className="border-t border-border/40">
