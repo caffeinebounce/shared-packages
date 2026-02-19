@@ -28,17 +28,17 @@ function RecCheck({ computed, raw }: { computed: number; raw: number }) {
   const diff = Math.abs(computed - raw);
   const matches = diff <= TOLERANCE;
 
+  const icon = matches ? (
+    <CheckCircle2 className="size-3.5 text-white fill-emerald-500" />
+  ) : (
+    <AlertTriangle className="size-3.5 text-white fill-amber-500" />
+  );
+
   return (
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="inline-flex items-center translate-y-[2px]">
-            {matches ? (
-              <CheckCircle2 className="size-3.5 text-white fill-emerald-500" />
-            ) : (
-              <AlertTriangle className="size-3.5 text-white fill-amber-500" />
-            )}
-          </span>
+          <span>{icon}</span>
         </TooltipTrigger>
         <TooltipContent side="left" className="text-[11px] max-w-none p-2">
           {matches ? (
@@ -753,11 +753,11 @@ function buildColumns(
         const rawVal = isTotalRow ? r._rawPeriodAmounts?.[pk] : undefined;
         if (isTotalRow && rawVal !== undefined) {
           return (
-            <span className={cn(bold, "flex items-center justify-end gap-1 group/rec w-full")}>
-              <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0">
+            <span className={cn(bold, "flex items-center justify-end gap-1.5 group/rec w-full h-full")}>
+              <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0 leading-[0]">
                 <RecCheck computed={val} raw={rawVal} />
               </span>
-              <DataTableCurrencyCell value={val} dashZero />
+              <span className="leading-none"><DataTableCurrencyCell value={val} dashZero /></span>
             </span>
           );
         }
@@ -799,11 +799,11 @@ function buildColumns(
       }
       if (isTotalRow && r._rawTotal !== undefined) {
         return (
-          <span className={cn(bold, "flex items-center justify-end gap-1 group/rec w-full")}>
-            <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0">
+          <span className={cn(bold, "flex items-center justify-end gap-1.5 group/rec w-full h-full")}>
+            <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0 leading-[0]">
               <RecCheck computed={r.total} raw={r._rawTotal} />
             </span>
-            <DataTableCurrencyCell value={r.total} dashZero />
+            <span className="leading-none"><DataTableCurrencyCell value={r.total} dashZero /></span>
           </span>
         );
       }
