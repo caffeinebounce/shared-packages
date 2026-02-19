@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronLeft, ChevronRight, Percent } from "lucide-react";
+import { Check, Percent } from "lucide-react";
 
 import { Button } from "../../components/ui/button";
 import { DateRangePicker } from "../../components/ui/date-picker";
@@ -36,17 +36,10 @@ export interface ComparisonSelectorProps {
   className?: string;
 }
 
-function getTriggerLabel(mode: ComparisonMode, periods: number) {
+function getTriggerLabel(mode: ComparisonMode) {
   if (mode === "none") return "Comparison";
-
-  if (mode === "previous") {
-    return periods === 1 ? "vs Prior Period" : `vs ${periods} Prior Periods`;
-  }
-
-  if (mode === "same-period-last-year") {
-    return periods === 1 ? "vs Last Year" : `vs ${periods} Years Ago`;
-  }
-
+  if (mode === "previous") return "vs Prior Period";
+  if (mode === "same-period-last-year") return "vs Last Year";
   return "vs Custom";
 }
 
@@ -59,33 +52,9 @@ export function ComparisonSelector({
   className,
 }: ComparisonSelectorProps) {
   const setMode = (nextMode: ComparisonMode) => {
-    if (nextMode === "previous") {
-      onChange({ mode: nextMode, periods: Math.min(5, Math.max(1, periods || 1)) });
-      return;
-    }
-
-    if (nextMode === "same-period-last-year") {
-      onChange({ mode: nextMode, periods: Math.min(3, Math.max(1, periods || 1)) });
-      return;
-    }
-
     onChange({
       mode: nextMode,
-      periods: periods || 1,
-      customStart,
-      customEnd,
-    });
-  };
-
-  const updatePeriods = (nextPeriods: number) => {
-    const bounded =
-      mode === "previous"
-        ? Math.min(5, Math.max(1, nextPeriods))
-        : Math.min(3, Math.max(1, nextPeriods));
-
-    onChange({
-      mode,
-      periods: bounded,
+      periods: nextMode === "none" ? periods || 1 : 1,
       customStart,
       customEnd,
     });
@@ -96,7 +65,7 @@ export function ComparisonSelector({
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className={cn("gap-2 focus-visible:ring-0", className)}>
           <Percent className="size-3.5" />
-          <span>{getTriggerLabel(mode, periods)}</span>
+          <span>{getTriggerLabel(mode)}</span>
         </Button>
       </PopoverTrigger>
 
@@ -128,36 +97,6 @@ export function ComparisonSelector({
               )}
             />
             <span className="flex-1">Previous Period</span>
-
-            <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-background px-1 py-0.5 text-xs">
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (mode !== "previous") setMode("previous");
-                  updatePeriods((mode === "previous" ? periods : 1) - 1);
-                }}
-                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
-                disabled={(mode === "previous" ? periods : 1) <= 1}
-                aria-label="Decrease previous periods"
-              >
-                <ChevronLeft className="size-3" />
-              </button>
-              <span className="w-4 text-center">{mode === "previous" ? periods : 1}</span>
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (mode !== "previous") setMode("previous");
-                  updatePeriods((mode === "previous" ? periods : 1) + 1);
-                }}
-                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
-                disabled={(mode === "previous" ? periods : 1) >= 5}
-                aria-label="Increase previous periods"
-              >
-                <ChevronRight className="size-3" />
-              </button>
-            </span>
           </button>
 
           <button
@@ -172,38 +111,6 @@ export function ComparisonSelector({
               )}
             />
             <span className="flex-1">Same Period Last Year</span>
-
-            <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-background px-1 py-0.5 text-xs">
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (mode !== "same-period-last-year") setMode("same-period-last-year");
-                  updatePeriods((mode === "same-period-last-year" ? periods : 1) - 1);
-                }}
-                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
-                disabled={(mode === "same-period-last-year" ? periods : 1) <= 1}
-                aria-label="Decrease years"
-              >
-                <ChevronLeft className="size-3" />
-              </button>
-              <span className="w-4 text-center">
-                {mode === "same-period-last-year" ? periods : 1}
-              </span>
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (mode !== "same-period-last-year") setMode("same-period-last-year");
-                  updatePeriods((mode === "same-period-last-year" ? periods : 1) + 1);
-                }}
-                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
-                disabled={(mode === "same-period-last-year" ? periods : 1) >= 3}
-                aria-label="Increase years"
-              >
-                <ChevronRight className="size-3" />
-              </button>
-            </span>
           </button>
 
           <div className="my-1 h-px bg-border" />

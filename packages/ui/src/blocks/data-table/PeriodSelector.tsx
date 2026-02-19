@@ -120,6 +120,7 @@ function getRangeForGranularity(
   granularity: Exclude<PeriodGranularity, "custom">,
   anchor: Date,
   fiscalYearEndMonth: number,
+  today: Date,
 ): PeriodRange {
   if (granularity === "month") {
     return { start: startOfMonth(anchor), end: endOfMonth(anchor) };
@@ -134,13 +135,13 @@ function getRangeForGranularity(
   }
 
   if (granularity === "ltm") {
-    const end = endOfMonth(anchor);
+    const end = endOfMonth(today);
     const start = startOfMonth(addMonths(end, -11));
     return { start, end };
   }
 
-  const fy = getFiscalYearRange(anchor, fiscalYearEndMonth);
-  const boundedEnd = anchor > fy.end ? fy.end : anchor;
+  const fy = getFiscalYearRange(today, fiscalYearEndMonth);
+  const boundedEnd = today > fy.end ? fy.end : today;
   return { start: fy.start, end: boundedEnd };
 }
 
@@ -210,11 +211,11 @@ export function PeriodSelector({
     for (const row of GRANULARITY_ROWS) {
       map.set(
         row.key,
-        getRangeForGranularity(row.key, anchorDate, fiscalMonth),
+        getRangeForGranularity(row.key, anchorDate, fiscalMonth, now),
       );
     }
     return map;
-  }, [anchorDate, fiscalMonth]);
+  }, [anchorDate, fiscalMonth, now]);
 
   const activeLabel = formatRangeLabel(granularity, selectedStart, selectedEnd);
 
@@ -278,6 +279,7 @@ export function PeriodSelector({
             if (!range) return null;
 
             const isActive = granularity === row.key;
+            const showNav = row.key === "month" || row.key === "quarter" || row.key === "year";
 
             return (
               <div
@@ -303,37 +305,41 @@ export function PeriodSelector({
 
                 <span className="text-sm font-medium">{row.label}</span>
 
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 focus-visible:ring-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(row.key, -1);
-                  }}
-                  aria-label={`Previous ${row.label}`}
-                >
-                  <ChevronLeft className="size-4" />
-                </Button>
+                {showNav ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-7 focus-visible:ring-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(row.key, -1);
+                    }}
+                    aria-label={`Previous ${row.label}`}
+                  >
+                    <ChevronLeft className="size-4" />
+                  </Button>
+                ) : <span className="size-7" />}
 
                 <span className="min-w-0 truncate text-center text-sm text-muted-foreground">
                   {formatRangeLabel(row.key, range.start, range.end)}
                 </span>
 
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 focus-visible:ring-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(row.key, 1);
-                  }}
-                  aria-label={`Next ${row.label}`}
-                >
-                  <ChevronRight className="size-4" />
-                </Button>
+                {showNav ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-7 focus-visible:ring-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(row.key, 1);
+                    }}
+                    aria-label={`Next ${row.label}`}
+                  >
+                    <ChevronRight className="size-4" />
+                  </Button>
+                ) : <span className="size-7" />}
               </div>
             );
           })}
