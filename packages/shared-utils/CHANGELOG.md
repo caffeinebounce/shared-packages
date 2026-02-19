@@ -1,5 +1,11 @@
 # @caffeinebounce/shared-utils
 
+## 0.7.8
+
+### Patch Changes
+
+- 7a22a9c: Add .ts.net (Tailscale MagicDNS) to preview environment detection
+
 ## 0.7.3
 
 ### Patch Changes
