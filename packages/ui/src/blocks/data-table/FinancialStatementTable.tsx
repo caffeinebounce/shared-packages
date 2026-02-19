@@ -32,7 +32,7 @@ function RecCheck({ computed, raw }: { computed: number; raw: number }) {
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="absolute -left-5 inset-y-0 flex items-center opacity-0 group-hover/rec:opacity-100 transition-opacity">
+          <span className="absolute -left-5 inset-y-0 z-10 flex items-center opacity-0 group-hover/rec:opacity-100 transition-opacity">
             {matches ? (
               <CheckCircle2 className="size-3.5 text-white fill-emerald-500" />
             ) : (
