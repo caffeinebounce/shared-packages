@@ -1,5 +1,13 @@
 # @caffeinebounce/ai-assistant
 
+## 0.5.3
+
+### Patch Changes
+
+- 0beaab8: Update internal dependency ranges to current versions
+- Updated dependencies [0beaab8]
+  - @caffeinebounce/ui@0.48.58
+
 ## 0.2.7
 
 ### Patch Changes

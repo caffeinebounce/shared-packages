@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.48.58
+
+### Patch Changes
+
+- 0beaab8: Update internal dependency ranges to current versions
+
 ## 0.48.57
 
 ### Patch Changes

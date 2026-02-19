@@ -1,5 +1,13 @@
 # @caffeinebounce/identity
 
+## 0.10.28
+
+### Patch Changes
+
+- 0beaab8: Update internal dependency ranges to current versions
+- Updated dependencies [0beaab8]
+  - @caffeinebounce/ui@0.48.58
+
 ## 0.10.24
 
 ### Patch Changes
