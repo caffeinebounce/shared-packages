@@ -1,8 +1,13 @@
 "use client";
 
-import { ChevronUp, LogOut, User as UserIcon } from "lucide-react";
+import { ChevronDown, ChevronUp, LogOut, User as UserIcon } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../../components/ui/collapsible";
 import {
   Avatar,
   AvatarFallback,
@@ -65,6 +70,10 @@ export interface NavSection {
   items: NavItem[];
   /** Whether section is visible (for conditional rendering) */
   visible?: boolean;
+  /** Whether section is collapsible (click header to expand/collapse) */
+  collapsible?: boolean;
+  /** Whether section starts open (default: true) */
+  defaultOpen?: boolean;
 }
 
 /** Simple visual divider */
@@ -386,20 +395,49 @@ export function AppSidebar({
             // Skip hidden sections
             if (section.visible === false) return null;
 
+            const sectionContent = (
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {section.items.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      {renderNavItem(item)}
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            );
+
+            if (section.collapsible) {
+              return (
+                <Collapsible
+                  key={`section-${section.label}`}
+                  defaultOpen={section.defaultOpen !== false}
+                  className="group/collapsible"
+                >
+                  <SidebarGroup>
+                    <SidebarGroupLabel
+                      asChild
+                      className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                    >
+                      <CollapsibleTrigger className="flex w-full items-center justify-between">
+                        {section.label}
+                        <ChevronDown className="ml-auto size-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                      </CollapsibleTrigger>
+                    </SidebarGroupLabel>
+                    <CollapsibleContent>
+                      {sectionContent}
+                    </CollapsibleContent>
+                  </SidebarGroup>
+                </Collapsible>
+              );
+            }
+
             return (
               <SidebarGroup key={`section-${section.label}`}>
                 <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   {section.label}
                 </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {section.items.map((item) => (
-                      <SidebarMenuItem key={item.href}>
-                        {renderNavItem(item)}
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
+                {sectionContent}
               </SidebarGroup>
             );
           }
