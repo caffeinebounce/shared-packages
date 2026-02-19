@@ -424,11 +424,15 @@ function filterZeroRows(rows: StatementRow[]): StatementRow[] {
       return acc;
     }
 
-    // Any row with children — always keep, just filter children
+    // Any row with children — keep if children survive or row itself has amounts
     if (row.children.length > 0) {
       const filteredChildren = filterZeroRows(row.children);
-      if (row._type === "subtotal-group" && filteredChildren.length === 0) {
-        // Empty subtotal group after filtering — drop it
+      if (filteredChildren.length === 0) {
+        // All children were zero — check if the parent itself has non-zero amounts
+        const parentIsZero = row.total === 0 && Object.values(row.periodAmounts).every(v => v === 0);
+        if (parentIsZero) return acc; // Drop empty group with zero amounts
+        // Parent has its own amounts — keep as leaf
+        acc.push({ ...row, children: [] });
         return acc;
       }
       if (row._type === "subtotal-group") {
