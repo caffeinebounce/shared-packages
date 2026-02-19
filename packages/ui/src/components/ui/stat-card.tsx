@@ -465,7 +465,9 @@ export function StatCard({
             </p>
           )}
           {trend?.label && (
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">{trend.label}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+              {trend.label}
+            </p>
           )}
         </CardContent>
       </Card>

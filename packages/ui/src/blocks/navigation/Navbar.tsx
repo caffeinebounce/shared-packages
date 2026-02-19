@@ -142,7 +142,12 @@ export function Navbar({
         transform: shouldHide ? "translateY(-100%)" : "translateY(0)",
       }}
     >
-      <div className={cn("container mx-auto flex h-14 items-center justify-between gap-4 px-4 md:px-8", containerClassName)}>
+      <div
+        className={cn(
+          "container mx-auto flex h-14 items-center justify-between gap-4 px-4 md:px-8",
+          containerClassName,
+        )}
+      >
         {/* Logo/Brand */}
         {logo}
 

@@ -13,12 +13,12 @@ export {
   HeroSectionWithRipple,
   type HeroSectionWithRippleProps,
 } from "./HeroSectionWithRipple";
+export { ImpactSection, type ImpactSectionProps } from "./ImpactSection";
 export {
   LampHero,
   type LampHeroProps,
   type LampHeroSocialLink,
 } from "./LampHero";
-export { ImpactSection, type ImpactSectionProps } from "./ImpactSection";
 export {
   MissionSection,
   type MissionSectionProps,

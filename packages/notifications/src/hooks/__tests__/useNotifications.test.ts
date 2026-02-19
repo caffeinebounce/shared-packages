@@ -64,7 +64,9 @@ describe("useNotifications", () => {
     });
 
     it("handles network errors", async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("Network error"));
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+        new Error("Network error"),
+      );
 
       const { result } = renderHook(() => useNotifications());
 
@@ -120,7 +122,9 @@ describe("useNotifications", () => {
         await result.current.fetchNotifications();
       });
 
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: true });
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+      });
 
       await act(async () => {
         await result.current.markAsRead("1");
@@ -157,7 +161,9 @@ describe("useNotifications", () => {
         await result.current.fetchNotifications();
       });
 
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: false });
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: false,
+      });
 
       await act(async () => {
         await result.current.markAsRead("1");
@@ -196,14 +202,17 @@ describe("useNotifications", () => {
         await result.current.fetchNotifications();
       });
 
-      const fetchCallCount = (global.fetch as ReturnType<typeof vi.fn>).mock.calls.length;
+      const fetchCallCount = (global.fetch as ReturnType<typeof vi.fn>).mock
+        .calls.length;
 
       await act(async () => {
         await result.current.markAsRead("1");
       });
 
       // Should not make additional API call for already read notification
-      expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBe(fetchCallCount);
+      expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBe(
+        fetchCallCount,
+      );
     });
 
     it("uses custom mark read endpoint", async () => {
@@ -236,7 +245,9 @@ describe("useNotifications", () => {
         await result.current.fetchNotifications();
       });
 
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: true });
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+      });
 
       await act(async () => {
         await result.current.markAsRead("1");
@@ -283,7 +294,9 @@ describe("useNotifications", () => {
         await result.current.fetchNotifications();
       });
 
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: true });
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+      });
 
       await act(async () => {
         await result.current.markAllAsRead();
@@ -319,7 +332,9 @@ describe("useNotifications", () => {
         await result.current.fetchNotifications();
       });
 
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: false });
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: false,
+      });
 
       await act(async () => {
         await result.current.markAllAsRead();
@@ -361,7 +376,9 @@ describe("useNotifications", () => {
         await result.current.fetchNotifications();
       });
 
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: true });
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+      });
 
       await act(async () => {
         await result.current.markAllAsRead();

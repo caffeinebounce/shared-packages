@@ -205,7 +205,9 @@ export function Combobox({
           )}
         >
           <span className="flex min-w-0 items-center gap-2">
-            {icon ? <span className="shrink-0 text-current">{icon}</span> : null}
+            {icon ? (
+              <span className="shrink-0 text-current">{icon}</span>
+            ) : null}
             {loading ? (
               <span className="text-muted-foreground">Loading...</span>
             ) : selectedOption ? (
@@ -260,7 +262,14 @@ export function Combobox({
                     )}
                   />
                   <div className="flex flex-col">
-                    <span className={cn(option.value === "__unspecified__" && "font-normal text-muted-foreground")}>{option.label}</span>
+                    <span
+                      className={cn(
+                        option.value === "__unspecified__" &&
+                          "font-normal text-muted-foreground",
+                      )}
+                    >
+                      {option.label}
+                    </span>
                     {option.description && (
                       <span className="text-xs text-muted-foreground">
                         {option.description}

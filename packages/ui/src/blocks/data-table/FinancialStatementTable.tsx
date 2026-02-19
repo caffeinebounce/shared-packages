@@ -10,15 +10,29 @@ import {
   getExpandedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { AlertTriangle, BookOpen, Calendar, CheckCircle2, DollarSign, TrendingUp } from "lucide-react";
+import {
+  AlertTriangle,
+  BookOpen,
+  Calendar,
+  CheckCircle2,
+  DollarSign,
+  TrendingUp,
+} from "lucide-react";
 import * as React from "react";
-
-import { DataTable } from "./DataTable";
-import { DataTableColumnHeader } from "./DataTableColumnHeader";
-import type { DataTableColumnMeta } from "./DataTableColumnHeader";
-import { DataTableCurrencyCell, formatCurrencyValue, useFinanceDisplay, getUnitDivisor } from "./DataTableCurrencyCell";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
 import { cn } from "../../utils";
+import { DataTable } from "./DataTable";
+import type { DataTableColumnMeta } from "./DataTableColumnHeader";
+import { DataTableColumnHeader } from "./DataTableColumnHeader";
+import {
+  DataTableCurrencyCell,
+  formatCurrencyValue,
+} from "./DataTableCurrencyCell";
 
 // ── Reconciliation check indicator ────────────────────────────────────────────
 
@@ -42,24 +56,37 @@ function RecCheck({ computed, raw }: { computed: number; raw: number }) {
         </TooltipTrigger>
         <TooltipContent side="left" className="text-[11px] max-w-none p-2">
           {matches ? (
-            <span className="text-emerald-400">✓ Balanced — computed total matches source data</span>
+            <span className="text-emerald-400">
+              ✓ Balanced — computed total matches source data
+            </span>
           ) : (
             <div className="space-y-1">
-              <div className="text-amber-400 font-medium">⚠ Variance detected</div>
+              <div className="text-amber-400 font-medium">
+                ⚠ Variance detected
+              </div>
               <table className="text-[11px]">
                 <tbody>
                   <tr>
                     <td className="pr-3 text-muted-foreground">Computed:</td>
-                    <td className="font-mono tabular-nums text-right">{formatCurrencyValue(computed, { decimals: 2 }).text}</td>
+                    <td className="font-mono tabular-nums text-right">
+                      {formatCurrencyValue(computed, { decimals: 2 }).text}
+                    </td>
                   </tr>
                   <tr>
                     <td className="pr-3 text-muted-foreground">Source:</td>
-                    <td className="font-mono tabular-nums text-right">{formatCurrencyValue(raw, { decimals: 2 }).text}</td>
+                    <td className="font-mono tabular-nums text-right">
+                      {formatCurrencyValue(raw, { decimals: 2 }).text}
+                    </td>
                   </tr>
                   <tr className="border-t border-border/40">
-                    <td className="pr-3 text-muted-foreground pt-0.5">Variance:</td>
+                    <td className="pr-3 text-muted-foreground pt-0.5">
+                      Variance:
+                    </td>
                     <td className="font-mono tabular-nums text-right pt-0.5 text-amber-400">
-                      {formatCurrencyValue(computed - raw, { decimals: 2 }).text}
+                      {
+                        formatCurrencyValue(computed - raw, { decimals: 2 })
+                          .text
+                      }
                     </td>
                   </tr>
                 </tbody>
@@ -162,7 +189,11 @@ export interface FinancialStatementTableProps {
   /** Toolbar content rendered above the table (right-aligned) */
   toolbar?: React.ReactNode;
   /** Custom cell renderer for currency amounts — receives row data, period key (null for total), and value */
-  renderAmountCell?: (row: StatementRow, periodKey: string | null, value: number) => React.ReactNode;
+  renderAmountCell?: (
+    row: StatementRow,
+    periodKey: string | null,
+    value: number,
+  ) => React.ReactNode;
   /** Show section header + total rows even when no data exists for that section */
   preserveEmptySections?: boolean;
   /** Show rightmost Total column */
@@ -177,7 +208,14 @@ export interface FinancialStatementTableProps {
 
 // ── Internal row type ─────────────────────────────────────────────────────────
 
-type RowType = "section-header" | "account-group" | "account" | "section-total" | "grand-total" | "subtotal-group" | "subtotal-total";
+type RowType =
+  | "section-header"
+  | "account-group"
+  | "account"
+  | "section-total"
+  | "grand-total"
+  | "subtotal-group"
+  | "subtotal-total";
 
 export interface StatementRow {
   _type: RowType;
@@ -216,7 +254,10 @@ function toPeriodLabel(key: string, unit: TimeUnit): string {
 }
 
 /** Sum period amounts from children into a parent record */
-function sumChildPeriods(children: StatementRow[]): { periodAmounts: Record<string, number>; total: number } {
+function sumChildPeriods(children: StatementRow[]): {
+  periodAmounts: Record<string, number>;
+  total: number;
+} {
   const periodAmounts: Record<string, number> = {};
   let total = 0;
   for (const child of children) {
@@ -268,7 +309,12 @@ function buildAccountTree(
   // First pass: collect all missing parents
   const synthetics: AccountAgg[] = [];
   for (const a of accounts) {
-    if (a.isSubAccount && a.parentNumber && a.parentNumber !== a.number && !byNumber.has(a.parentNumber)) {
+    if (
+      a.isSubAccount &&
+      a.parentNumber &&
+      a.parentNumber !== a.number &&
+      !byNumber.has(a.parentNumber)
+    ) {
       const parentName = a.parentName ?? a.name;
       const synthetic: AccountAgg = {
         id: `synthetic-${a.parentNumber}`,
@@ -313,7 +359,12 @@ function buildAccountTree(
   const childrenOf = new Map<string, AccountAgg[]>();
 
   for (const a of accounts) {
-    if (a.isSubAccount && a.parentNumber && a.parentNumber !== a.number && byNumber.has(a.parentNumber)) {
+    if (
+      a.isSubAccount &&
+      a.parentNumber &&
+      a.parentNumber !== a.number &&
+      byNumber.has(a.parentNumber)
+    ) {
       const existing = childrenOf.get(a.parentNumber) || [];
       existing.push(a);
       childrenOf.set(a.parentNumber, existing);
@@ -331,15 +382,19 @@ function buildAccountTree(
 
     // If this account has children, its amounts are the sum of itself + children
     // (the data may already include the parent's own amounts, or they may be 0)
-    let periodAmounts: Record<string, number> = {};
+    const periodAmounts: Record<string, number> = {};
     let total = 0;
 
     if (childRows.length > 0) {
       // Parent row = its own amounts + children amounts
       const childSums = sumChildPeriods(childRows);
       total = acct.total * sign + childSums.total;
-      for (const pk of Object.keys({ ...acct.periods, ...childSums.periodAmounts })) {
-        periodAmounts[pk] = (acct.periods[pk] || 0) * sign + (childSums.periodAmounts[pk] || 0);
+      for (const pk of Object.keys({
+        ...acct.periods,
+        ...childSums.periodAmounts,
+      })) {
+        periodAmounts[pk] =
+          (acct.periods[pk] || 0) * sign + (childSums.periodAmounts[pk] || 0);
       }
     } else {
       // Leaf account — just apply sign
@@ -352,7 +407,9 @@ function buildAccountTree(
     return {
       _type: childRows.length > 0 ? "account-group" : "account",
       id: acct.id,
-      name: acct.name.includes(":") ? acct.name.substring(acct.name.lastIndexOf(":") + 1) : acct.name,
+      name: acct.name.includes(":")
+        ? acct.name.substring(acct.name.lastIndexOf(":") + 1)
+        : acct.name,
       accountNumber: acct.number,
       periodAmounts,
       total,
@@ -474,7 +531,11 @@ function applySubtotalRules(
 function filterZeroRows(rows: StatementRow[]): StatementRow[] {
   return rows.reduce<StatementRow[]>((acc, row) => {
     // Structural rows — always keep
-    if (row._type === "section-header" || row._type === "section-total" || row._type === "grand-total") {
+    if (
+      row._type === "section-header" ||
+      row._type === "section-total" ||
+      row._type === "grand-total"
+    ) {
       if (row.children.length > 0) {
         acc.push({ ...row, children: filterZeroRows(row.children) });
       } else {
@@ -488,7 +549,9 @@ function filterZeroRows(rows: StatementRow[]): StatementRow[] {
       const filteredChildren = filterZeroRows(row.children);
       if (filteredChildren.length === 0) {
         // All children were zero — check if the parent itself has non-zero amounts
-        const parentIsZero = row.total === 0 && Object.values(row.periodAmounts).every(v => v === 0);
+        const parentIsZero =
+          row.total === 0 &&
+          Object.values(row.periodAmounts).every((v) => v === 0);
         if (parentIsZero) return acc; // Drop empty group with zero amounts
         // Parent has its own amounts — keep as leaf
         acc.push({ ...row, children: [] });
@@ -496,7 +559,12 @@ function filterZeroRows(rows: StatementRow[]): StatementRow[] {
       }
       if (row._type === "subtotal-group") {
         const sums = sumChildPeriods(filteredChildren);
-        acc.push({ ...row, children: filteredChildren, periodAmounts: sums.periodAmounts, total: sums.total });
+        acc.push({
+          ...row,
+          children: filteredChildren,
+          periodAmounts: sums.periodAmounts,
+          total: sums.total,
+        });
       } else {
         acc.push({ ...row, children: filteredChildren });
       }
@@ -504,7 +572,8 @@ function filterZeroRows(rows: StatementRow[]): StatementRow[] {
     }
 
     // Leaf accounts only — skip if all zeros
-    const isZero = row.total === 0 && Object.values(row.periodAmounts).every(v => v === 0);
+    const isZero =
+      row.total === 0 && Object.values(row.periodAmounts).every((v) => v === 0);
     if (!isZero) {
       acc.push(row);
     }
@@ -526,9 +595,15 @@ export function buildFinancialStatementData(
   }
   const periods = [...periodSet].sort();
 
-  const sectionTotals = new Map<string, { periodAmounts: Record<string, number>; total: number }>();
+  const sectionTotals = new Map<
+    string,
+    { periodAmounts: Record<string, number>; total: number }
+  >();
   // Independent raw sums — computed directly from source data, no tree involved
-  const sectionRawTotals = new Map<string, { periodAmounts: Record<string, number>; total: number }>();
+  const sectionRawTotals = new Map<
+    string,
+    { periodAmounts: Record<string, number>; total: number }
+  >();
   const rows: StatementRow[] = [];
 
   for (const section of config.sections) {
@@ -571,7 +646,10 @@ export function buildFinancialStatementData(
       rawPeriods[pk] = (rawPeriods[pk] || 0) + val;
       rawTotal += val;
     }
-    sectionRawTotals.set(section.id, { periodAmounts: rawPeriods, total: rawTotal });
+    sectionRawTotals.set(section.id, {
+      periodAmounts: rawPeriods,
+      total: rawTotal,
+    });
 
     // Build tree from accounts
     const accountList = [...accountMap.values()];
@@ -580,7 +658,8 @@ export function buildFinancialStatementData(
     if (accountTree.length === 0 && !options?.preserveEmptySections) continue;
 
     // Apply subtotal rules if enabled — wraps account tree in subtotal-group rows
-    const useSubtotals = subtotalRules?.enabled && subtotalRules.rules.length > 0;
+    const useSubtotals =
+      subtotalRules?.enabled && subtotalRules.rules.length > 0;
     const sectionChildren = useSubtotals
       ? applySubtotalRules(accountTree, subtotalRules!.rules, section.id)
       : accountTree;
@@ -637,8 +716,10 @@ export function buildFinancialStatementData(
       totalAmount += sums.total * mult;
       rawTotalAmount += (rawSums?.total ?? 0) * mult;
       for (const pk of periods) {
-        totalPeriods[pk] = (totalPeriods[pk] || 0) + (sums.periodAmounts[pk] || 0) * mult;
-        rawTotalPeriods[pk] = (rawTotalPeriods[pk] || 0) + (rawSums?.periodAmounts[pk] || 0) * mult;
+        totalPeriods[pk] =
+          (totalPeriods[pk] || 0) + (sums.periodAmounts[pk] || 0) * mult;
+        rawTotalPeriods[pk] =
+          (rawTotalPeriods[pk] || 0) + (rawSums?.periodAmounts[pk] || 0) * mult;
       }
     }
 
@@ -665,7 +746,11 @@ function buildColumns(
   periods: string[],
   unit: TimeUnit,
   showAccountNumbers: boolean,
-  renderAmountCell?: (row: StatementRow, periodKey: string | null, value: number) => React.ReactNode,
+  renderAmountCell?: (
+    row: StatementRow,
+    periodKey: string | null,
+    value: number,
+  ) => React.ReactNode,
   showRowTotals = true,
   showVariance?: boolean,
   currentPeriodCount?: number,
@@ -748,31 +833,62 @@ function buildColumns(
         const r = row.original;
         const val = r.periodAmounts[pk] ?? 0;
         if (r._type === "section-header") return null;
-        const isTotalRow = r._type === "section-total" || r._type === "grand-total";
+        const isTotalRow =
+          r._type === "section-total" || r._type === "grand-total";
         const bold =
           r._type === "grand-total"
             ? "font-bold"
-            : r._type === "section-total" || r._type === "subtotal-total" || r._type === "account-group" || r._type === "subtotal-group"
+            : r._type === "section-total" ||
+                r._type === "subtotal-total" ||
+                r._type === "account-group" ||
+                r._type === "subtotal-group"
               ? "font-semibold"
               : "";
         // Use custom renderer for leaf accounts and account-groups
-        if (renderAmountCell && (r._type === "account" || r._type === "account-group") && val !== 0) {
+        if (
+          renderAmountCell &&
+          (r._type === "account" || r._type === "account-group") &&
+          val !== 0
+        ) {
           return <span className={bold}>{renderAmountCell(r, pk, val)}</span>;
         }
         const rawVal = isTotalRow ? r._rawPeriodAmounts?.[pk] : undefined;
         if (isTotalRow && rawVal !== undefined) {
           return (
-            <span className={cn(bold, "flex items-center justify-end gap-1.5 group/rec w-full h-full")}>
+            <span
+              className={cn(
+                bold,
+                "flex items-center justify-end gap-1.5 group/rec w-full h-full",
+              )}
+            >
               <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0 leading-[0]">
                 <RecCheck computed={val} raw={rawVal} />
               </span>
-              <span className="leading-none"><DataTableCurrencyCell value={val} dashZero isSummaryRow={r._type === "section-total" || r._type === "grand-total" || r._type === "subtotal-total"} /></span>
+              <span className="leading-none">
+                <DataTableCurrencyCell
+                  value={val}
+                  dashZero
+                  isSummaryRow={
+                    r._type === "section-total" ||
+                    r._type === "grand-total" ||
+                    r._type === "subtotal-total"
+                  }
+                />
+              </span>
             </span>
           );
         }
         return (
           <span className={bold}>
-            <DataTableCurrencyCell value={val} dashZero isSummaryRow={r._type === "section-total" || r._type === "grand-total" || r._type === "subtotal-total"} />
+            <DataTableCurrencyCell
+              value={val}
+              dashZero
+              isSummaryRow={
+                r._type === "section-total" ||
+                r._type === "grand-total" ||
+                r._type === "subtotal-total"
+              }
+            />
           </span>
         );
       },
@@ -797,29 +913,62 @@ function buildColumns(
       cell: ({ row }) => {
         const r = row.original;
         if (r._type === "section-header") return null;
-        const isTotalRow = r._type === "section-total" || r._type === "grand-total";
+        const isTotalRow =
+          r._type === "section-total" || r._type === "grand-total";
         const bold =
           r._type === "grand-total"
             ? "font-bold"
-            : r._type === "section-total" || r._type === "subtotal-total" || r._type === "account-group" || r._type === "subtotal-group"
+            : r._type === "section-total" ||
+                r._type === "subtotal-total" ||
+                r._type === "account-group" ||
+                r._type === "subtotal-group"
               ? "font-semibold"
               : "";
-        if (renderAmountCell && (r._type === "account" || r._type === "account-group") && r.total !== 0) {
-          return <span className={bold}>{renderAmountCell(r, null, r.total)}</span>;
+        if (
+          renderAmountCell &&
+          (r._type === "account" || r._type === "account-group") &&
+          r.total !== 0
+        ) {
+          return (
+            <span className={bold}>{renderAmountCell(r, null, r.total)}</span>
+          );
         }
         if (isTotalRow && r._rawTotal !== undefined) {
           return (
-            <span className={cn(bold, "flex items-center justify-end gap-1.5 group/rec w-full h-full")}>
+            <span
+              className={cn(
+                bold,
+                "flex items-center justify-end gap-1.5 group/rec w-full h-full",
+              )}
+            >
               <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0 leading-[0]">
                 <RecCheck computed={r.total} raw={r._rawTotal} />
               </span>
-              <span className="leading-none"><DataTableCurrencyCell value={r.total} dashZero isSummaryRow={r._type === "section-total" || r._type === "grand-total" || r._type === "subtotal-total"} /></span>
+              <span className="leading-none">
+                <DataTableCurrencyCell
+                  value={r.total}
+                  dashZero
+                  isSummaryRow={
+                    r._type === "section-total" ||
+                    r._type === "grand-total" ||
+                    r._type === "subtotal-total"
+                  }
+                />
+              </span>
             </span>
           );
         }
         return (
           <span className={bold}>
-            <DataTableCurrencyCell value={r.total} dashZero isSummaryRow={r._type === "section-total" || r._type === "grand-total" || r._type === "subtotal-total"} />
+            <DataTableCurrencyCell
+              value={r.total}
+              dashZero
+              isSummaryRow={
+                r._type === "section-total" ||
+                r._type === "grand-total" ||
+                r._type === "subtotal-total"
+              }
+            />
           </span>
         );
       },
@@ -837,8 +986,14 @@ function buildColumns(
     cols.push({
       id: "variance",
       accessorFn: (row) => {
-        const currentSum = currentPeriods.reduce((s, pk) => s + (row.periodAmounts[pk] ?? 0), 0);
-        const priorSum = priorPeriods.reduce((s, pk) => s + (row.periodAmounts[pk] ?? 0), 0);
+        const currentSum = currentPeriods.reduce(
+          (s, pk) => s + (row.periodAmounts[pk] ?? 0),
+          0,
+        );
+        const priorSum = priorPeriods.reduce(
+          (s, pk) => s + (row.periodAmounts[pk] ?? 0),
+          0,
+        );
         if (priorSum === 0) return currentSum === 0 ? 0 : Infinity;
         return ((currentSum - priorSum) / Math.abs(priorSum)) * 100;
       },
@@ -853,26 +1008,39 @@ function buildColumns(
       cell: ({ row }) => {
         const r = row.original;
         if (r._type === "section-header") return null;
-        const currentSum = currentPeriods.reduce((s, pk) => s + (r.periodAmounts[pk] ?? 0), 0);
-        const priorSum = priorPeriods.reduce((s, pk) => s + (r.periodAmounts[pk] ?? 0), 0);
-        if (priorSum === 0 && currentSum === 0) return <span className="text-muted-foreground">–</span>;
-        if (priorSum === 0) return <span className="text-muted-foreground">n/a</span>;
+        const currentSum = currentPeriods.reduce(
+          (s, pk) => s + (r.periodAmounts[pk] ?? 0),
+          0,
+        );
+        const priorSum = priorPeriods.reduce(
+          (s, pk) => s + (r.periodAmounts[pk] ?? 0),
+          0,
+        );
+        if (priorSum === 0 && currentSum === 0)
+          return <span className="text-muted-foreground">–</span>;
+        if (priorSum === 0)
+          return <span className="text-muted-foreground">n/a</span>;
         const pct = ((currentSum - priorSum) / Math.abs(priorSum)) * 100;
         const isPositive = pct > 0;
         const isNegative = pct < 0;
         const bold =
-          r._type === "grand-total" ? "font-bold"
-            : r._type === "section-total" || r._type === "subtotal-total" ? "font-semibold"
-            : "";
+          r._type === "grand-total"
+            ? "font-bold"
+            : r._type === "section-total" || r._type === "subtotal-total"
+              ? "font-semibold"
+              : "";
         return (
-          <span className={cn(
-            bold,
-            "tabular-nums text-xs",
-            isPositive && "text-emerald-500",
-            isNegative && "text-red-500",
-            !isPositive && !isNegative && "text-muted-foreground",
-          )}>
-            {isPositive ? "+" : ""}{pct.toFixed(1)}%
+          <span
+            className={cn(
+              bold,
+              "tabular-nums text-xs",
+              isPositive && "text-emerald-500",
+              isNegative && "text-red-500",
+              !isPositive && !isNegative && "text-muted-foreground",
+            )}
+          >
+            {isPositive ? "+" : ""}
+            {pct.toFixed(1)}%
           </span>
         );
       },
@@ -938,7 +1106,10 @@ export function FinancialStatementTable({
     React.useState<VisibilityState>({});
 
   const { rows: rawRows, periods } = React.useMemo(
-    () => buildFinancialStatementData(data, config, timeUnit, subtotalRules, { preserveEmptySections }),
+    () =>
+      buildFinancialStatementData(data, config, timeUnit, subtotalRules, {
+        preserveEmptySections,
+      }),
     [data, config, timeUnit, subtotalRules, preserveEmptySections],
   );
 
@@ -948,8 +1119,25 @@ export function FinancialStatementTable({
   );
 
   const columns = React.useMemo(
-    () => buildColumns(periods, timeUnit, showAccountNumbers, renderAmountCell, showRowTotals, showVariance, currentPeriodCount),
-    [periods, timeUnit, showAccountNumbers, renderAmountCell, showRowTotals, showVariance, currentPeriodCount],
+    () =>
+      buildColumns(
+        periods,
+        timeUnit,
+        showAccountNumbers,
+        renderAmountCell,
+        showRowTotals,
+        showVariance,
+        currentPeriodCount,
+      ),
+    [
+      periods,
+      timeUnit,
+      showAccountNumbers,
+      renderAmountCell,
+      showRowTotals,
+      showVariance,
+      currentPeriodCount,
+    ],
   );
 
   // Auto-expand: section headers expanded, account groups expanded 1 level
@@ -961,7 +1149,10 @@ export function FinancialStatementTable({
         toExpand[row.id] = true;
         // Also expand top-level children (account groups or subtotal groups)
         for (const child of row.children) {
-          if (child._type === "account-group" || child._type === "subtotal-group") {
+          if (
+            child._type === "account-group" ||
+            child._type === "subtotal-group"
+          ) {
             toExpand[child.id] = true;
             // If subtotal group, also expand account groups within it
             if (child._type === "subtotal-group") {
@@ -983,8 +1174,7 @@ export function FinancialStatementTable({
     columns,
     getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
-    getSubRows: (row) =>
-      row.children.length > 0 ? row.children : undefined,
+    getSubRows: (row) => (row.children.length > 0 ? row.children : undefined),
     getExpandedRowModel: getExpandedRowModel(),
     state: { expanded, columnVisibility },
     onExpandedChange: setExpanded,
@@ -1034,7 +1224,12 @@ export function flattenStatementForExport(
   subtotalRules?: SubtotalRulesConfig,
   hideZeroRows?: boolean,
 ): { rows: FlatExportRow[]; periodKeys: string[] } {
-  let { rows: tree, periods } = buildFinancialStatementData(data, config, timeUnit, subtotalRules);
+  let { rows: tree, periods } = buildFinancialStatementData(
+    data,
+    config,
+    timeUnit,
+    subtotalRules,
+  );
   if (hideZeroRows) tree = filterZeroRows(tree);
 
   const flat: FlatExportRow[] = [];

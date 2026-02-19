@@ -141,7 +141,9 @@ function TreeExpandCycleButton<TData>({
         if (row.subRows?.length) walk(row.subRows);
       }
     };
-    walk(table.getPreExpandedRowModel?.()?.rows ?? table.getCoreRowModel().rows);
+    walk(
+      table.getPreExpandedRowModel?.()?.rows ?? table.getCoreRowModel().rows,
+    );
     return max;
   }, [table]);
 
@@ -157,10 +159,8 @@ function TreeExpandCycleButton<TData>({
 
     // Expand all rows up to nextDepth
     const newExpanded: Record<string, boolean> = {};
-    const allRows = (
-      table.getPreExpandedRowModel?.()?.rows ??
-      table.getCoreRowModel().rows
-    );
+    const allRows =
+      table.getPreExpandedRowModel?.()?.rows ?? table.getCoreRowModel().rows;
 
     const walk = (rows: Row<TData>[]) => {
       for (const row of rows) {
@@ -189,11 +189,7 @@ function TreeExpandCycleButton<TData>({
         "inline-flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground rounded hover:bg-accent transition-colors",
         density === "compact" ? "size-5 ml-0.5" : "size-6 ml-1",
       )}
-      aria-label={
-        isAllExpanded
-          ? "Collapse all rows"
-          : "Expand next level"
-      }
+      aria-label={isAllExpanded ? "Collapse all rows" : "Expand next level"}
       title={
         isAllExpanded
           ? "Collapse all"
@@ -314,11 +310,7 @@ export function DataTable<TData, TValue>({
   const defaultColumnOrder = React.useMemo(
     () =>
       columns.map((col) =>
-        col.id
-          ? col.id
-          : "accessorKey" in col
-            ? String(col.accessorKey)
-            : "",
+        col.id ? col.id : "accessorKey" in col ? String(col.accessorKey) : "",
       ),
     [columns],
   );
@@ -798,10 +790,7 @@ export function DataTable<TData, TValue>({
                                 )}
                                 {isSimpleHeader ? (
                                   <span
-                                    className={cn(
-                                      "font-medium",
-                                      fontSizeClass,
-                                    )}
+                                    className={cn("font-medium", fontSizeClass)}
                                   >
                                     {headerDef}
                                   </span>
@@ -1033,8 +1022,9 @@ export function DataTable<TData, TValue>({
                             const isWrapped = columnWrapping[cell.column.id];
 
                             // Column alignment from meta
-                            const colMeta = cell.column.columnDef
-                              .meta as Record<string, unknown> | undefined;
+                            const colMeta = cell.column.columnDef.meta as
+                              | Record<string, unknown>
+                              | undefined;
                             const colAlign =
                               (colMeta?.align as string) ?? "left";
                             const alignClass =
@@ -1051,8 +1041,7 @@ export function DataTable<TData, TValue>({
                             const treeIndent = showTreeUI
                               ? row.depth * treeIndentPx
                               : 0;
-                            const canExpand =
-                              showTreeUI && row.getCanExpand();
+                            const canExpand = showTreeUI && row.getCanExpand();
 
                             return (
                               <TableCell

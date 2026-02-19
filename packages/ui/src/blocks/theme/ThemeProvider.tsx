@@ -1,4 +1,4 @@
 "use client";
 
-export { ThemeProvider } from "next-themes";
 export type { ThemeProviderProps } from "next-themes";
+export { ThemeProvider } from "next-themes";

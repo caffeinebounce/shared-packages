@@ -42,7 +42,9 @@ describe("Sidebar - Overflow Control", () => {
     );
 
     // Find the sidebar container div (has data-sidebar attribute)
-    const sidebarContainer = container.querySelector('[data-sidebar="sidebar"]');
+    const sidebarContainer = container.querySelector(
+      '[data-sidebar="sidebar"]',
+    );
     expect(sidebarContainer).toBeInTheDocument();
 
     // Verify overflow-x-hidden class is present
@@ -54,13 +56,17 @@ describe("Sidebar - Overflow Control", () => {
       <SidebarProvider>
         <Sidebar collapsible="icon">
           <SidebarContent>
-            <div style={{ width: "500px" }}>Wide content that would overflow</div>
+            <div style={{ width: "500px" }}>
+              Wide content that would overflow
+            </div>
           </SidebarContent>
         </Sidebar>
       </SidebarProvider>,
     );
 
-    const sidebarContainer = container.querySelector('[data-sidebar="sidebar"]');
+    const sidebarContainer = container.querySelector(
+      '[data-sidebar="sidebar"]',
+    );
     expect(sidebarContainer).toBeInTheDocument();
 
     // Verify overflow-x is hidden
@@ -82,8 +88,10 @@ describe("Sidebar - Overflow Control", () => {
         </SidebarProvider>,
       );
 
-      const sidebarContainer = container.querySelector('[data-sidebar="sidebar"]');
-      
+      const sidebarContainer = container.querySelector(
+        '[data-sidebar="sidebar"]',
+      );
+
       // For icon and offcanvas modes on desktop
       expect(sidebarContainer).toBeInTheDocument();
       expect(sidebarContainer?.className).toContain("overflow-x-hidden");
@@ -101,9 +109,11 @@ describe("Sidebar - Overflow Control", () => {
       </SidebarProvider>,
     );
 
-    const sidebarContainer = container.querySelector('[data-sidebar="sidebar"]');
+    const sidebarContainer = container.querySelector(
+      '[data-sidebar="sidebar"]',
+    );
     expect(sidebarContainer).toBeInTheDocument();
-    
+
     // Should have both overflow-x-hidden and floating variant classes
     expect(sidebarContainer?.className).toContain("overflow-x-hidden");
     expect(sidebarContainer?.className).toContain("rounded-lg"); // floating variant
@@ -120,9 +130,11 @@ describe("Sidebar - Overflow Control", () => {
       </SidebarProvider>,
     );
 
-    const sidebarContainer = container.querySelector('[data-sidebar="sidebar"]');
+    const sidebarContainer = container.querySelector(
+      '[data-sidebar="sidebar"]',
+    );
     expect(sidebarContainer).toBeInTheDocument();
-    
+
     // Should have overflow-x-hidden
     expect(sidebarContainer?.className).toContain("overflow-x-hidden");
   });
@@ -141,9 +153,11 @@ describe("Sidebar - Overflow Control", () => {
       </SidebarProvider>,
     );
 
-    const sidebarContainer = container.querySelector('[data-sidebar="sidebar"]');
+    const sidebarContainer = container.querySelector(
+      '[data-sidebar="sidebar"]',
+    );
     expect(sidebarContainer).toBeInTheDocument();
-    
+
     // Should have overflow-x-hidden but allow vertical scroll (via SidebarContent)
     expect(sidebarContainer?.className).toContain("overflow-x-hidden");
     expect(sidebarContainer?.className).toContain("flex-col"); // vertical layout

@@ -114,7 +114,6 @@ export function FeedbackButton({
   const toggleInProgressRef = useRef(false);
 
   // Handle keyboard shortcut
-  // biome-ignore lint/correctness/useExhaustiveDependencies: toggleInProgressRef is a stable ref, .current should not be a dependency
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       // Don't trigger if any modifier keys are pressed (avoid conflicts with Ctrl+F, etc.)

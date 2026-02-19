@@ -38,7 +38,12 @@ export function Footer({
 }: FooterProps) {
   return (
     <footer className={cn("bg-muted/50 border-t", className)}>
-      <div className={cn("container mx-auto px-4 md:px-8 py-12 md:py-16", containerClassName)}>
+      <div
+        className={cn(
+          "container mx-auto px-4 md:px-8 py-12 md:py-16",
+          containerClassName,
+        )}
+      >
         <div className="flex flex-col md:flex-row justify-between gap-8">
           {/* Brand Section */}
           {logo && (

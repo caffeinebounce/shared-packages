@@ -87,27 +87,36 @@ export function useFinanceDisplay(): FinanceDisplayContextValue {
 /** Get the divisor for display units */
 export function getUnitDivisor(units: DisplayUnits): number {
   switch (units) {
-    case "thousands": return 1000;
-    case "millions": return 1000000;
-    default: return 1;
+    case "thousands":
+      return 1000;
+    case "millions":
+      return 1000000;
+    default:
+      return 1;
   }
 }
 
 /** Get the unit suffix label */
 export function getUnitLabel(units: DisplayUnits): string | null {
   switch (units) {
-    case "thousands": return "in thousands";
-    case "millions": return "in millions";
-    default: return null;
+    case "thousands":
+      return "in thousands";
+    case "millions":
+      return "in millions";
+    default:
+      return null;
   }
 }
 
 /** Get the short unit suffix */
 export function getUnitSuffix(units: DisplayUnits): string | null {
   switch (units) {
-    case "thousands": return "(000s)";
-    case "millions": return "(M)";
-    default: return null;
+    case "thousands":
+      return "(000s)";
+    case "millions":
+      return "(M)";
+    default:
+      return null;
   }
 }
 
@@ -155,7 +164,11 @@ export interface DataTableCurrencyCellProps {
 
 const formatterCache = new Map<string, Intl.NumberFormat>();
 
-function getFormatter(locale: string, currencyCode: string, decimals: number): Intl.NumberFormat {
+function getFormatter(
+  locale: string,
+  currencyCode: string,
+  decimals: number,
+): Intl.NumberFormat {
   const key = `${locale}:${currencyCode}:${decimals}`;
   let fmt = formatterCache.get(key);
   if (!fmt) {

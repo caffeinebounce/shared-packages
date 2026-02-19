@@ -1,27 +1,38 @@
 "use client";
 
+import { BarChart3, ChevronDown, ChevronUp } from "lucide-react";
 import * as React from "react";
-import { useFinanceDisplay as _useFinanceDisplay, getUnitDivisor as _getUnitDivisor } from "./DataTableCurrencyCell";
 import {
   Area,
   AreaChart,
   Bar,
-  BarChart,
   CartesianGrid,
-  Legend,
   Line,
-  LineChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import { ChevronDown, ChevronUp, BarChart3 } from "lucide-react";
+import {
+  Tooltip as RadixTooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
 import { cn } from "../../utils/cn";
-import { Tooltip as RadixTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip";
-import { ChartTooltipShell, ChartTooltipTitle, ChartTooltipRow } from "./ChartTooltip";
-import type { FinancialStatementEntry, TimeUnit } from "./FinancialStatementTable";
+import {
+  ChartTooltipRow,
+  ChartTooltipShell,
+  ChartTooltipTitle,
+} from "./ChartTooltip";
+import {
+  getUnitDivisor as _getUnitDivisor,
+  useFinanceDisplay as _useFinanceDisplay,
+} from "./DataTableCurrencyCell";
+import type {
+  FinancialStatementEntry,
+  TimeUnit,
+} from "./FinancialStatementTable";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -170,14 +181,17 @@ function formatCurrency(value: number, divisor = 1): string {
   if (v === 0) return "$0";
   const abs = Math.abs(v);
   const neg = v < 0;
-  if (abs >= 1_000_000) return `${neg ? "(" : ""}$${(abs / 1_000_000).toFixed(1)}M${neg ? ")" : ""}`;
-  if (abs >= 1_000) return `${neg ? "(" : ""}$${(abs / 1_000).toFixed(0)}K${neg ? ")" : ""}`;
+  if (abs >= 1_000_000)
+    return `${neg ? "(" : ""}$${(abs / 1_000_000).toFixed(1)}M${neg ? ")" : ""}`;
+  if (abs >= 1_000)
+    return `${neg ? "(" : ""}$${(abs / 1_000).toFixed(0)}K${neg ? ")" : ""}`;
   return `${neg ? "(" : ""}$${abs.toFixed(0)}${neg ? ")" : ""}`;
 }
 
 function formatTooltipCurrency(value: number, divisor = 1): string {
   const v = divisor === 1 ? value : value / divisor;
-  if (v < 0) return `($${Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })})`;
+  if (v < 0)
+    return `($${Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })})`;
   return `$${v.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
@@ -188,7 +202,17 @@ function buildChartData(
   config: FinancialSummaryChartConfig,
   timeUnit: TimeUnit,
   priorTotals?: Record<string, number>,
-): { chartData: Record<string, unknown>[]; summaryCards: { key: string; label: string; value: number; color: string; trend?: number; priorValue?: number }[] } {
+): {
+  chartData: Record<string, unknown>[];
+  summaryCards: {
+    key: string;
+    label: string;
+    value: number;
+    color: string;
+    trend?: number;
+    priorValue?: number;
+  }[];
+} {
   // Aggregate by period + metric
   const periodMetrics = new Map<string, Record<string, number>>();
   const periodSet = new Set<string>();
@@ -236,8 +260,16 @@ function buildChartData(
 
   // Summary cards: latest period values + trend vs prior
   const allMetrics = [
-    ...config.metrics.map((m) => ({ key: m.key, label: m.label, color: m.color })),
-    ...(config.computedMetrics ?? []).map((m) => ({ key: m.key, label: m.label, color: m.color })),
+    ...config.metrics.map((m) => ({
+      key: m.key,
+      label: m.label,
+      color: m.color,
+    })),
+    ...(config.computedMetrics ?? []).map((m) => ({
+      key: m.key,
+      label: m.label,
+      color: m.color,
+    })),
   ];
 
   // Build sign map from metrics config so prior totals get the same treatment
@@ -259,9 +291,10 @@ function buildChartData(
     const priorTotal = rawPrior != null ? rawPrior * sign : undefined;
     const absTotal = Math.abs(total);
     const absPrior = rawPrior != null ? Math.abs(rawPrior) : undefined;
-    const trend = absPrior != null && absPrior !== 0
-      ? ((absTotal - absPrior) / absPrior) * 100
-      : 0;
+    const trend =
+      absPrior != null && absPrior !== 0
+        ? ((absTotal - absPrior) / absPrior) * 100
+        : 0;
     return { key, label, value: total, color, trend, priorValue: priorTotal };
   });
 
@@ -272,13 +305,24 @@ function buildChartData(
 
 interface CustomTooltipProps {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; color: string; dataKey: string }>;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+    dataKey: string;
+  }>;
   label?: string;
   metrics: { key: string; label: string; color: string }[];
   divisor?: number;
 }
 
-function CustomTooltip({ active, payload, label, metrics, divisor = 1 }: CustomTooltipProps) {
+function CustomTooltip({
+  active,
+  payload,
+  label,
+  metrics,
+  divisor = 1,
+}: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
 
   return (
@@ -321,7 +365,12 @@ export interface FinancialSummaryChartProps {
 
 // ── Sparkline card ─────────────────────────────────────────────────────────────
 
-function SparklineTooltip({ active, payload, color, divisor = 1 }: {
+function SparklineTooltip({
+  active,
+  payload,
+  color,
+  divisor = 1,
+}: {
   active?: boolean;
   payload?: Array<{ value: number; payload: Record<string, unknown> }>;
   color: string;
@@ -333,9 +382,17 @@ function SparklineTooltip({ active, payload, color, divisor = 1 }: {
   return (
     <ChartTooltipShell className="px-2 py-1">
       <div className="flex items-center gap-2 text-xs">
-        <div className="size-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+        <div
+          className="size-1.5 rounded-full shrink-0"
+          style={{ backgroundColor: color }}
+        />
         <span className="text-muted-foreground">{label}</span>
-        <span className={cn("font-mono font-medium ml-auto", entry.value < 0 && "text-destructive")}>
+        <span
+          className={cn(
+            "font-mono font-medium ml-auto",
+            entry.value < 0 && "text-destructive",
+          )}
+        >
           {formatTooltipCurrency(entry.value, divisor)}
         </span>
       </div>
@@ -343,11 +400,24 @@ function SparklineTooltip({ active, payload, color, divisor = 1 }: {
   );
 }
 
-function CardSparkline({ data, dataKey, color, divisor = 1 }: { data: Record<string, unknown>[]; dataKey: string; color: string; divisor?: number }) {
+function CardSparkline({
+  data,
+  dataKey,
+  color,
+  divisor = 1,
+}: {
+  data: Record<string, unknown>[];
+  dataKey: string;
+  color: string;
+  divisor?: number;
+}) {
   return (
     <div className="h-10 w-full mt-1">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 4, right: 6, bottom: 2, left: 6 }}>
+        <AreaChart
+          data={data}
+          margin={{ top: 4, right: 6, bottom: 2, left: 6 }}
+        >
           <defs>
             <linearGradient id={`spark-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={color} stopOpacity={0.3} />
@@ -365,7 +435,12 @@ function CardSparkline({ data, dataKey, color, divisor = 1 }: { data: Record<str
             strokeWidth={1.5}
             fill={`url(#spark-${dataKey})`}
             dot={false}
-            activeDot={{ r: 3, strokeWidth: 1.5, fill: "var(--background, #fff)", stroke: color }}
+            activeDot={{
+              r: 3,
+              strokeWidth: 1.5,
+              fill: "var(--background, #fff)",
+              stroke: color,
+            }}
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -383,9 +458,13 @@ export function FinancialSummaryChart({
   periodLabel: periodLabelProp,
   className,
 }: FinancialSummaryChartProps) {
-  const [expanded, setExpanded] = React.useState(config.defaultExpanded ?? true);
+  const [expanded, setExpanded] = React.useState(
+    config.defaultExpanded ?? true,
+  );
   const [activeMetric, setActiveMetric] = React.useState<string | null>(null);
-  const [flippedCards, setFlippedCards] = React.useState<Set<string>>(new Set());
+  const [flippedCards, setFlippedCards] = React.useState<Set<string>>(
+    new Set(),
+  );
 
   const { displayUnits } = _useFinanceDisplay();
   const divisor = _getUnitDivisor(displayUnits);
@@ -397,8 +476,20 @@ export function FinancialSummaryChart({
 
   const allMetrics = React.useMemo(
     () => [
-      ...config.metrics.map((m) => ({ key: m.key, label: m.label, color: m.color, chartType: config.chartType ?? "area", dashed: false })),
-      ...(config.computedMetrics ?? []).map((m) => ({ key: m.key, label: m.label, color: m.color, chartType: m.chartType ?? config.chartType ?? "area", dashed: m.dashed ?? false })),
+      ...config.metrics.map((m) => ({
+        key: m.key,
+        label: m.label,
+        color: m.color,
+        chartType: config.chartType ?? "area",
+        dashed: false,
+      })),
+      ...(config.computedMetrics ?? []).map((m) => ({
+        key: m.key,
+        label: m.label,
+        color: m.color,
+        chartType: m.chartType ?? config.chartType ?? "area",
+        dashed: m.dashed ?? false,
+      })),
     ],
     [config],
   );
@@ -436,19 +527,30 @@ export function FinancialSummaryChart({
       >
         <div className="flex items-center gap-2">
           <BarChart3 className="size-4 text-muted-foreground" />
-          <span className="text-sm font-medium">{config.title ?? "Summary"}</span>
+          <span className="text-sm font-medium">
+            {config.title ?? "Summary"}
+          </span>
         </div>
         <div className="flex items-center gap-3">
           {/* Mini summary pills when collapsed */}
-          {!expanded && summaryCards.map((card) => (
-            <div key={card.key} className="flex items-center gap-1.5 text-xs">
-              <div className="size-1.5 rounded-full" style={{ backgroundColor: card.color }} />
-              <span className="text-muted-foreground">{card.label}:</span>
-              <span className={cn("font-mono font-medium", card.value < 0 && "text-destructive")}>
-                {formatCurrency(card.value, divisor)}
-              </span>
-            </div>
-          ))}
+          {!expanded &&
+            summaryCards.map((card) => (
+              <div key={card.key} className="flex items-center gap-1.5 text-xs">
+                <div
+                  className="size-1.5 rounded-full"
+                  style={{ backgroundColor: card.color }}
+                />
+                <span className="text-muted-foreground">{card.label}:</span>
+                <span
+                  className={cn(
+                    "font-mono font-medium",
+                    card.value < 0 && "text-destructive",
+                  )}
+                >
+                  {formatCurrency(card.value, divisor)}
+                </span>
+              </div>
+            ))}
           {expanded ? (
             <ChevronUp className="size-4 text-muted-foreground" />
           ) : (
@@ -461,90 +563,154 @@ export function FinancialSummaryChart({
       <div
         className={cn(
           "grid transition-all duration-300 ease-in-out",
-          expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+          expanded
+            ? "grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0",
         )}
       >
         <div className="overflow-hidden">
           <div className="px-4 pb-4">
             {/* Summary cards */}
-            <div className="mb-4 grid gap-3" style={{ gridTemplateColumns: `repeat(${summaryCards.length}, minmax(0, 1fr))` }}>
+            <div
+              className="mb-4 grid gap-3"
+              style={{
+                gridTemplateColumns: `repeat(${summaryCards.length}, minmax(0, 1fr))`,
+              }}
+            >
               {summaryCards.map((card) => {
-                const isPositiveTrend = card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
+                const isPositiveTrend =
+                  card.key === "expenses"
+                    ? (card.trend ?? 0) < 0
+                    : (card.trend ?? 0) > 0;
                 const isActive = activeMetric === card.key;
                 const isFlipped = flippedCards.has(card.key);
                 return (
-                  <RadixTooltip key={card.key} delayDuration={200} open={isFlipped ? false : undefined}>
-                    <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => handleCardClick(card.key)}
-                    className={cn(
-                      "relative rounded-lg border bg-gradient-to-br from-background to-muted/20 p-3 text-left transition-all cursor-pointer",
-                      isActive && "border-transparent",
-                      !isActive && activeMetric && "opacity-50",
-                    )}
-                    style={isActive ? { borderColor: card.color, boxShadow: `0 0 0 2px ${card.color}40` } : undefined}
+                  <RadixTooltip
+                    key={card.key}
+                    delayDuration={200}
+                    open={isFlipped ? false : undefined}
                   >
-                    {/* Accent bar */}
-                    <div
-                      className="absolute inset-y-0 left-0 w-1 rounded-l-lg"
-                      style={{ backgroundColor: card.color }}
-                    />
-                    <div className="pl-3">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                        {card.label}
-                        {periodLabelProp && (
-                          <span className="ml-1.5 font-normal text-muted-foreground/60">{periodLabelProp}</span>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={() => handleCardClick(card.key)}
+                        className={cn(
+                          "relative rounded-lg border bg-gradient-to-br from-background to-muted/20 p-3 text-left transition-all cursor-pointer",
+                          isActive && "border-transparent",
+                          !isActive && activeMetric && "opacity-50",
                         )}
-                      </p>
-                      {!isFlipped ? (
-                        <>
-                          <p className={cn(
-                            "mt-0.5 text-lg font-semibold tabular-nums tracking-tight",
-                            card.value < 0 && "text-destructive",
-                          )}>
-                            {formatTooltipCurrency(card.value, divisor)}
+                        style={
+                          isActive
+                            ? {
+                                borderColor: card.color,
+                                boxShadow: `0 0 0 2px ${card.color}40`,
+                              }
+                            : undefined
+                        }
+                      >
+                        {/* Accent bar */}
+                        <div
+                          className="absolute inset-y-0 left-0 w-1 rounded-l-lg"
+                          style={{ backgroundColor: card.color }}
+                        />
+                        <div className="pl-3">
+                          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                            {card.label}
+                            {periodLabelProp && (
+                              <span className="ml-1.5 font-normal text-muted-foreground/60">
+                                {periodLabelProp}
+                              </span>
+                            )}
                           </p>
-                          {card.trend !== undefined && card.trend !== 0 && (
-                            <p className={cn(
-                              "mt-0.5 text-[11px] font-medium",
-                              isPositiveTrend ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400",
-                            )}>
-                              {card.trend > 0 ? "↑" : "↓"} {Math.abs(card.trend).toFixed(1)}% vs prior
-                            </p>
+                          {!isFlipped ? (
+                            <>
+                              <p
+                                className={cn(
+                                  "mt-0.5 text-lg font-semibold tabular-nums tracking-tight",
+                                  card.value < 0 && "text-destructive",
+                                )}
+                              >
+                                {formatTooltipCurrency(card.value, divisor)}
+                              </p>
+                              {card.trend !== undefined && card.trend !== 0 && (
+                                <p
+                                  className={cn(
+                                    "mt-0.5 text-[11px] font-medium",
+                                    isPositiveTrend
+                                      ? "text-emerald-600 dark:text-emerald-400"
+                                      : "text-red-500 dark:text-red-400",
+                                  )}
+                                >
+                                  {card.trend > 0 ? "↑" : "↓"}{" "}
+                                  {Math.abs(card.trend).toFixed(1)}% vs prior
+                                </p>
+                              )}
+                            </>
+                          ) : (
+                            <CardSparkline
+                              data={chartData}
+                              dataKey={card.key}
+                              color={card.color}
+                              divisor={divisor}
+                            />
                           )}
-                        </>
-                      ) : (
-                        <CardSparkline data={chartData} dataKey={card.key} color={card.color} divisor={divisor} />
-                      )}
-                      {/* Dot indicators */}
-                      <div className="flex justify-center gap-1.5 mt-1.5">
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          onClick={(e) => { if (isFlipped) handleFlip(e, card.key); }}
-                          onKeyDown={(e) => { if (e.key === "Enter" && isFlipped) handleFlip(e as unknown as React.MouseEvent, card.key); }}
-                          className={cn(
-                            "size-1.5 rounded-full transition-colors",
-                            !isFlipped ? "bg-foreground/60" : "bg-foreground/20 hover:bg-foreground/40",
-                          )}
-                        />
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          onClick={(e) => { if (!isFlipped) handleFlip(e, card.key); }}
-                          onKeyDown={(e) => { if (e.key === "Enter" && !isFlipped) handleFlip(e as unknown as React.MouseEvent, card.key); }}
-                          className={cn(
-                            "size-1.5 rounded-full transition-colors",
-                            isFlipped ? "bg-foreground/60" : "bg-foreground/20 hover:bg-foreground/40",
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </button>
+                          {/* Dot indicators */}
+                          <div className="flex justify-center gap-1.5 mt-1.5">
+                            {/* biome-ignore lint/a11y/useSemanticElements: dot indicator */}
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => {
+                                if (isFlipped) handleFlip(e, card.key);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && isFlipped)
+                                  handleFlip(
+                                    e as unknown as React.MouseEvent,
+                                    card.key,
+                                  );
+                              }}
+                              className={cn(
+                                "size-1.5 rounded-full transition-colors",
+                                !isFlipped
+                                  ? "bg-foreground/60"
+                                  : "bg-foreground/20 hover:bg-foreground/40",
+                              )}
+                            />
+                            {/* biome-ignore lint/a11y/useSemanticElements: dot indicator */}
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => {
+                                if (!isFlipped) handleFlip(e, card.key);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && !isFlipped)
+                                  handleFlip(
+                                    e as unknown as React.MouseEvent,
+                                    card.key,
+                                  );
+                              }}
+                              className={cn(
+                                "size-1.5 rounded-full transition-colors",
+                                isFlipped
+                                  ? "bg-foreground/60"
+                                  : "bg-foreground/20 hover:bg-foreground/40",
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" align="center" sideOffset={8} className="max-w-none rounded-lg border bg-popover px-3 py-2 text-popover-foreground shadow-md">
-                      <ChartTooltipTitle>{card.label} — vs Prior Period</ChartTooltipTitle>
+                    <TooltipContent
+                      side="bottom"
+                      align="center"
+                      sideOffset={8}
+                      className="max-w-none rounded-lg border bg-popover px-3 py-2 text-popover-foreground shadow-md"
+                    >
+                      <ChartTooltipTitle>
+                        {card.label} — vs Prior Period
+                      </ChartTooltipTitle>
                       <div className="space-y-1">
                         <ChartTooltipRow
                           color={card.color}
@@ -556,18 +722,32 @@ export function FinancialSummaryChart({
                           <ChartTooltipRow
                             color="var(--muted-foreground, #9ca3af)"
                             label="Prior"
-                            value={formatTooltipCurrency(card.priorValue, divisor)}
+                            value={formatTooltipCurrency(
+                              card.priorValue,
+                              divisor,
+                            )}
                             isNegative={card.priorValue < 0}
                           />
                         )}
                         {card.trend !== undefined && card.trend !== 0 && (
                           <div className="border-t border-border/40 pt-1 mt-1 text-xs flex justify-between gap-4">
-                            <span className="text-muted-foreground">Change</span>
-                            <span className={cn(
-                              "font-mono font-medium",
-                              (card.key === "expenses" ? card.trend < 0 : card.trend > 0) ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400",
-                            )}>
-                              {card.trend > 0 ? "↑" : "↓"} {Math.abs(card.trend).toFixed(1)}%
+                            <span className="text-muted-foreground">
+                              Change
+                            </span>
+                            <span
+                              className={cn(
+                                "font-mono font-medium",
+                                (
+                                  card.key === "expenses"
+                                    ? card.trend < 0
+                                    : card.trend > 0
+                                )
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : "text-red-500 dark:text-red-400",
+                              )}
+                            >
+                              {card.trend > 0 ? "↑" : "↓"}{" "}
+                              {Math.abs(card.trend).toFixed(1)}%
                             </span>
                           </div>
                         )}
@@ -587,9 +767,30 @@ export function FinancialSummaryChart({
                 >
                   <defs>
                     {allMetrics.map((m) => (
-                      <linearGradient key={m.key} id={`gradient-${m.key}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={m.color} stopOpacity={activeMetric ? (m.key === activeMetric ? 0.3 : 0.02) : 0.2} />
-                        <stop offset="95%" stopColor={m.color} stopOpacity={0} />
+                      <linearGradient
+                        key={m.key}
+                        id={`gradient-${m.key}`}
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor={m.color}
+                          stopOpacity={
+                            activeMetric
+                              ? m.key === activeMetric
+                                ? 0.3
+                                : 0.02
+                              : 0.2
+                          }
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor={m.color}
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     ))}
                   </defs>
@@ -601,13 +802,19 @@ export function FinancialSummaryChart({
                   />
                   <XAxis
                     dataKey="periodLabel"
-                    tick={{ fontSize: 11, fill: "var(--muted-foreground, #9ca3af)" }}
+                    tick={{
+                      fontSize: 11,
+                      fill: "var(--muted-foreground, #9ca3af)",
+                    }}
                     tickLine={false}
                     axisLine={false}
                     dy={8}
                   />
                   <YAxis
-                    tick={{ fontSize: 11, fill: "var(--muted-foreground, #9ca3af)" }}
+                    tick={{
+                      fontSize: 11,
+                      fill: "var(--muted-foreground, #9ca3af)",
+                    }}
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(v) => formatCurrency(v as number, divisor)}
@@ -621,8 +828,13 @@ export function FinancialSummaryChart({
                     />
                   )}
                   <Tooltip
-                    content={<CustomTooltip metrics={allMetrics} divisor={divisor} />}
-                    cursor={{ stroke: "var(--border, #e5e7eb)", strokeDasharray: "3 3" }}
+                    content={
+                      <CustomTooltip metrics={allMetrics} divisor={divisor} />
+                    }
+                    cursor={{
+                      stroke: "var(--border, #e5e7eb)",
+                      strokeDasharray: "3 3",
+                    }}
                   />
                   {allMetrics.map((m) => {
                     const opacity = getMetricOpacity(m.key);
@@ -636,7 +848,11 @@ export function FinancialSummaryChart({
                         strokeDasharray={m.dashed ? "6 3" : undefined}
                         strokeOpacity={opacity}
                         dot={false}
-                        activeDot={{ r: 4, strokeWidth: 2, fill: "var(--background, #fff)" }}
+                        activeDot={{
+                          r: 4,
+                          strokeWidth: 2,
+                          fill: "var(--background, #fff)",
+                        }}
                       />
                     ) : m.chartType === "bar" ? (
                       <Bar
@@ -657,7 +873,11 @@ export function FinancialSummaryChart({
                         fill={`url(#gradient-${m.key})`}
                         fillOpacity={opacity}
                         dot={false}
-                        activeDot={{ r: 4, strokeWidth: 2, fill: "var(--background, #fff)" }}
+                        activeDot={{
+                          r: 4,
+                          strokeWidth: 2,
+                          fill: "var(--background, #fff)",
+                        }}
                       />
                     );
                   })}

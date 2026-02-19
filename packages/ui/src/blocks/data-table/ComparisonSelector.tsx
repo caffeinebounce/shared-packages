@@ -82,13 +82,24 @@ export function ComparisonSelector({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className={cn("h-8 min-w-[140px] justify-between gap-2 focus-visible:ring-0", className)}>
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn(
+            "h-8 min-w-[140px] justify-between gap-2 focus-visible:ring-0",
+            className,
+          )}
+        >
           <Percent className="size-4" />
           <span>{getTriggerLabel(mode)}</span>
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-[380px] p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <PopoverContent
+        align="start"
+        className="w-[380px] p-2"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <div className="space-y-1">
           <button
             type="button"
@@ -122,23 +133,35 @@ export function ComparisonSelector({
                 type="button"
                 onClick={(event) => {
                   event.stopPropagation();
-                  updatePreviousPeriods((mode === "previous" ? periods : defaultPreviousPeriods) - 1);
+                  updatePreviousPeriods(
+                    (mode === "previous" ? periods : defaultPreviousPeriods) -
+                      1,
+                  );
                 }}
                 className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
-                disabled={(mode === "previous" ? periods : defaultPreviousPeriods) <= 1}
+                disabled={
+                  (mode === "previous" ? periods : defaultPreviousPeriods) <= 1
+                }
                 aria-label="Decrease previous periods"
               >
                 <Minus className="size-3" />
               </button>
-              <span className="w-6 text-center">{mode === "previous" ? periods : defaultPreviousPeriods}</span>
+              <span className="w-6 text-center">
+                {mode === "previous" ? periods : defaultPreviousPeriods}
+              </span>
               <button
                 type="button"
                 onClick={(event) => {
                   event.stopPropagation();
-                  updatePreviousPeriods((mode === "previous" ? periods : defaultPreviousPeriods) + 1);
+                  updatePreviousPeriods(
+                    (mode === "previous" ? periods : defaultPreviousPeriods) +
+                      1,
+                  );
                 }}
                 className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
-                disabled={(mode === "previous" ? periods : defaultPreviousPeriods) >= 24}
+                disabled={
+                  (mode === "previous" ? periods : defaultPreviousPeriods) >= 24
+                }
                 aria-label="Increase previous periods"
               >
                 <Plus className="size-3" />
@@ -179,13 +202,22 @@ export function ComparisonSelector({
           {mode === "custom" ? (
             <div className="px-2 pt-1">
               <DateRangePicker
-                value={{ from: customStart ? new Date(customStart) : undefined, to: customEnd ? new Date(customEnd) : undefined }}
+                value={{
+                  from: customStart ? new Date(customStart) : undefined,
+                  to: customEnd ? new Date(customEnd) : undefined,
+                }}
                 onChange={(range) =>
                   onChange({
                     mode: "custom",
                     periods,
-                    customStart: range?.from ? range.from.toISOString().slice(0, 10) : undefined,
-                    customEnd: range?.to ? range.to.toISOString().slice(0, 10) : (range?.from ? range.from.toISOString().slice(0, 10) : undefined),
+                    customStart: range?.from
+                      ? range.from.toISOString().slice(0, 10)
+                      : undefined,
+                    customEnd: range?.to
+                      ? range.to.toISOString().slice(0, 10)
+                      : range?.from
+                        ? range.from.toISOString().slice(0, 10)
+                        : undefined,
                   })
                 }
                 className="h-8 text-xs focus-visible:ring-0"

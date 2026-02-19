@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "motion/react";
 import type { LucideIcon } from "lucide-react";
+import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
 import { LampContainer } from "../../components/ui/lamp";
@@ -78,7 +78,10 @@ export function LampHero({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: socialAnimationDelay }}
-            className={cn("mt-12 flex items-center gap-4", socialLinksClassName)}
+            className={cn(
+              "mt-12 flex items-center gap-4",
+              socialLinksClassName,
+            )}
           >
             {socialLinks.map((social) => (
               <a

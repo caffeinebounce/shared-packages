@@ -266,23 +266,34 @@ export function PeriodSelector({
           type="button"
           variant="outline"
           size="sm"
-          className={cn("h-8 min-w-[128px] justify-between gap-2 focus-visible:ring-0 focus-visible:outline-none", className)}
+          className={cn(
+            "h-8 min-w-[128px] justify-between gap-2 focus-visible:ring-0 focus-visible:outline-none",
+            className,
+          )}
         >
           <CalendarDays className="size-4" />
           <span className="truncate text-sm font-medium">{activeLabel}</span>
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-[380px] p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
+      <PopoverContent
+        align="start"
+        className="w-[380px] p-2"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <div className="space-y-1">
           {GRANULARITY_ROWS.map((row) => {
             const range = ranges.get(row.key);
             if (!range) return null;
 
             const isActive = granularity === row.key;
-            const showNav = row.key === "month" || row.key === "quarter" || row.key === "year";
+            const showNav =
+              row.key === "month" ||
+              row.key === "quarter" ||
+              row.key === "year";
 
             return (
+              // biome-ignore lint/a11y/useSemanticElements: interactive div with keyboard handlers
               <div
                 key={row.key}
                 role="button"
@@ -320,7 +331,9 @@ export function PeriodSelector({
                   >
                     <ChevronLeft className="size-4" />
                   </Button>
-                ) : <span className="size-7" />}
+                ) : (
+                  <span className="size-7" />
+                )}
 
                 <span className="min-w-0 truncate text-center text-sm text-muted-foreground">
                   {formatRangeLabel(row.key, range.start, range.end)}
@@ -340,7 +353,9 @@ export function PeriodSelector({
                   >
                     <ChevronRight className="size-4" />
                   </Button>
-                ) : <span className="size-7" />}
+                ) : (
+                  <span className="size-7" />
+                )}
               </div>
             );
           })}
