@@ -107,6 +107,44 @@ export const INCOME_STATEMENT_CHART_CONFIG: FinancialSummaryChartConfig = {
   ],
 };
 
+export const CASH_FLOW_CHART_CONFIG: FinancialSummaryChartConfig = {
+  title: "Cash Flow Overview",
+  chartType: "bar",
+  height: 240,
+  showZeroLine: true,
+  defaultExpanded: false,
+  metrics: [
+    {
+      key: "operating",
+      label: "Operating",
+      accountClasses: ["Operating"],
+      color: "var(--chart-2, #22c55e)",
+    },
+    {
+      key: "investing",
+      label: "Investing",
+      accountClasses: ["Investing"],
+      color: "var(--chart-4, #f59e0b)",
+    },
+    {
+      key: "financing",
+      label: "Financing",
+      accountClasses: ["Financing"],
+      color: "var(--chart-5, #8b5cf6)",
+    },
+  ],
+  computedMetrics: [
+    {
+      key: "netCash",
+      label: "Net Change",
+      formula: ["operating", "investing", "financing"],
+      color: "var(--chart-3, #3b82f6)",
+      chartType: "line",
+      dashed: true,
+    },
+  ],
+};
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function toPeriodKey(date: string, unit: TimeUnit): string {

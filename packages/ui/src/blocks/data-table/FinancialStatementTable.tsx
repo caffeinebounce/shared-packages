@@ -163,6 +163,8 @@ export interface FinancialStatementTableProps {
   toolbar?: React.ReactNode;
   /** Custom cell renderer for currency amounts — receives row data, period key (null for total), and value */
   renderAmountCell?: (row: StatementRow, periodKey: string | null, value: number) => React.ReactNode;
+  /** Show section header + total rows even when no data exists for that section */
+  preserveEmptySections?: boolean;
   /** Additional class name */
   className?: string;
 }
@@ -509,6 +511,7 @@ export function buildFinancialStatementData(
   config: FinancialStatementConfig,
   timeUnit: TimeUnit,
   subtotalRules?: SubtotalRulesConfig,
+  options?: { preserveEmptySections?: boolean },
 ): { rows: StatementRow[]; periods: string[] } {
   // Collect all period keys
   const periodSet = new Set<string>();
@@ -568,7 +571,7 @@ export function buildFinancialStatementData(
     const accountList = [...accountMap.values()];
     const accountTree = buildAccountTree(accountList, sign);
 
-    if (accountTree.length === 0) continue;
+    if (accountTree.length === 0 && !options?.preserveEmptySections) continue;
 
     // Apply subtotal rules if enabled — wraps account tree in subtotal-group rows
     const useSubtotals = subtotalRules?.enabled && subtotalRules.rules.length > 0;
@@ -840,6 +843,7 @@ export function FinancialStatementTable({
   treeIndentPx = 20,
   subtotalRules,
   hideZeroRows = false,
+  preserveEmptySections = false,
   toolbar,
   renderAmountCell,
   className,
@@ -849,8 +853,8 @@ export function FinancialStatementTable({
     React.useState<VisibilityState>({});
 
   const { rows: rawRows, periods } = React.useMemo(
-    () => buildFinancialStatementData(data, config, timeUnit, subtotalRules),
-    [data, config, timeUnit, subtotalRules],
+    () => buildFinancialStatementData(data, config, timeUnit, subtotalRules, { preserveEmptySections }),
+    [data, config, timeUnit, subtotalRules, preserveEmptySections],
   );
 
   const rows = React.useMemo(

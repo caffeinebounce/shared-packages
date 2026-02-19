@@ -129,6 +129,7 @@ export {
   type FinancialSummaryChartConfig,
   type FinancialSummaryChartProps,
   INCOME_STATEMENT_CHART_CONFIG,
+  CASH_FLOW_CHART_CONFIG,
 } from "./FinancialSummaryChart";
 export {
   ChartTooltipShell,
