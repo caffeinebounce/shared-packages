@@ -6,11 +6,14 @@ import {
   facebookUrlSchema,
   getClientOrigin,
   getServerOrigin,
+  getSupabaseRedirectUrls,
   instagramHandleSchema,
+  isDevLikeHost,
   isPreviewEnvironment,
   isRenderPreviewDomain,
   linkedinUrlSchema,
   pinterestUrlSchema,
+  resolveAdminRedirectTarget,
   tiktokHandleSchema,
   tiktokUrlSchema,
   websiteUrlSchema,
@@ -507,6 +510,46 @@ describe("Environment Detection", () => {
     });
   });
 
+  describe("isDevLikeHost", () => {
+    it("returns true for all dev-like host variants", () => {
+      const devLikeHosts = [
+        "localhost",
+        "localhost:3000",
+        "127.0.0.1",
+        "127.0.0.1:54321",
+        "::1",
+        "[::1]:3000",
+        "myapp.local",
+        "dev.myapp.local",
+        "doogteams-mac-mini.tail535a4.ts.net",
+        "doogteams-mac-mini",
+        "100.107.35.36",
+        "100.107.35.36:3000",
+      ];
+
+      for (const host of devLikeHosts) {
+        expect(isDevLikeHost(host), `expected ${host} to be dev-like`).toBe(
+          true,
+        );
+      }
+    });
+
+    it("returns false for production-style hostnames", () => {
+      const productionHosts = [
+        "thecapitalcompass.ai",
+        "app.thecapitalcompass.ai",
+        "admin.thecapitalcompass.ai",
+        "example.com",
+      ];
+
+      for (const host of productionHosts) {
+        expect(isDevLikeHost(host), `expected ${host} to not be dev-like`).toBe(
+          false,
+        );
+      }
+    });
+  });
+
   describe("isPreviewEnvironment", () => {
     it("identifies localhost variants", () => {
       expect(isPreviewEnvironment("localhost")).toBe(true);
@@ -520,6 +563,15 @@ describe("Environment Detection", () => {
     it("identifies .local domains", () => {
       expect(isPreviewEnvironment("myapp.local")).toBe(true);
       expect(isPreviewEnvironment("dev.myapp.local")).toBe(true);
+    });
+
+    it("identifies tailscale, short hostnames, and IPv4 hosts", () => {
+      expect(isPreviewEnvironment("doogteams-mac-mini.tail535a4.ts.net")).toBe(
+        true,
+      );
+      expect(isPreviewEnvironment("doogteams-mac-mini")).toBe(true);
+      expect(isPreviewEnvironment("100.107.35.36")).toBe(true);
+      expect(isPreviewEnvironment("100.107.35.36:3000")).toBe(true);
     });
 
     it("identifies Render preview domains", () => {
@@ -625,6 +677,28 @@ describe("Environment Detection", () => {
       expect(getClientOrigin()).toBe("http://localhost:3000");
     });
 
+    it("returns request origin for dev-like hosts even when env var is set", () => {
+      process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai";
+
+      const cases = [
+        {
+          origin: "http://doogteams-mac-mini:3000",
+          hostname: "doogteams-mac-mini",
+        },
+        {
+          origin: "https://doogteams-mac-mini.tail535a4.ts.net",
+          hostname: "doogteams-mac-mini.tail535a4.ts.net",
+        },
+        { origin: "http://100.107.35.36:3000", hostname: "100.107.35.36" },
+      ];
+
+      for (const testCase of cases) {
+        // @ts-expect-error - mocking window
+        globalThis.window = { location: testCase };
+        expect(getClientOrigin()).toBe(testCase.origin);
+      }
+    });
+
     it("returns env var in production when env var is set", () => {
       process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai/";
       // @ts-expect-error - mocking window
@@ -663,6 +737,54 @@ describe("Environment Detection", () => {
       expect(getClientOrigin("CUSTOM_APP_URL")).toBe(
         "https://custom.example.com",
       );
+    });
+  });
+
+  describe("resolveAdminRedirectTarget", () => {
+    it("uses path-based admin routing for dev-like hosts", () => {
+      expect(
+        resolveAdminRedirectTarget({
+          host: "doogteams-mac-mini:3000",
+          protocol: "http",
+          appOrigin: "http://doogteams-mac-mini:3000",
+        }),
+      ).toBe("http://doogteams-mac-mini:3000/admin/dashboard");
+
+      expect(
+        resolveAdminRedirectTarget({
+          host: "100.107.35.36:3000",
+          protocol: "http",
+          appOrigin: "http://100.107.35.36:3000",
+        }),
+      ).toBe("http://100.107.35.36:3000/admin/dashboard");
+
+      expect(
+        resolveAdminRedirectTarget({
+          host: "doogteams-mac-mini.tail535a4.ts.net",
+          protocol: "https",
+          appOrigin: "https://doogteams-mac-mini.tail535a4.ts.net",
+        }),
+      ).toBe("https://doogteams-mac-mini.tail535a4.ts.net/admin/dashboard");
+    });
+
+    it("uses subdomain admin routing for production hosts", () => {
+      expect(
+        resolveAdminRedirectTarget({
+          host: "app.thecapitalcompass.ai",
+          protocol: "https",
+        }),
+      ).toBe("https://admin.app.thecapitalcompass.ai/dashboard");
+    });
+  });
+
+  describe("getSupabaseRedirectUrls", () => {
+    it("returns canonical redirect variants", () => {
+      expect(getSupabaseRedirectUrls("http://100.107.35.36:3000")).toEqual([
+        "http://100.107.35.36:3000",
+        "http://100.107.35.36:3000/callback",
+        "http://100.107.35.36:3000/callback?next=/dashboard",
+        "http://100.107.35.36:3000/**",
+      ]);
     });
   });
 
@@ -707,6 +829,20 @@ describe("Environment Detection", () => {
       // Localhost is also a preview environment
       expect(getServerOrigin("localhost:3000", "http")).toBe(
         "http://localhost:3000",
+      );
+    });
+
+    it("returns request origin for dev-like hosts even when env var is set", () => {
+      process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai";
+
+      expect(getServerOrigin("doogteams-mac-mini:3000", "http")).toBe(
+        "http://doogteams-mac-mini:3000",
+      );
+      expect(
+        getServerOrigin("doogteams-mac-mini.tail535a4.ts.net", "https"),
+      ).toBe("https://doogteams-mac-mini.tail535a4.ts.net");
+      expect(getServerOrigin("100.107.35.36:3000", "http")).toBe(
+        "http://100.107.35.36:3000",
       );
     });
 
