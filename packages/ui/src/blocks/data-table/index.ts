@@ -93,7 +93,8 @@ export {
 export {
   DataTableCurrencyCell,
   type DataTableCurrencyCellProps,
-  type DisplayUnits,
+  type CurrencySignDisplay,
+type DisplayUnits,
   formatCurrencyValue,
   FinanceDecimalsProvider,
   FinanceDisplayProvider,

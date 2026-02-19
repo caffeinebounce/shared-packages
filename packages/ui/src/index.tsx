@@ -112,6 +112,12 @@ export {
   getUnitLabel,
   getUnitSuffix,
   type DisplayUnits,
+  type CurrencySignDisplay,
+  CASH_FLOW_CHART_CONFIG,
+  ComparisonSelector,
+  exportToCsv,
+  exportToExcel,
+  PeriodSelector,
 } from "./blocks/data-table";
 export type {
   StudioBlock,

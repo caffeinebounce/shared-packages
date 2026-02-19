@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Percent } from "lucide-react";
+import { Check, Minus, Percent, Plus } from "lucide-react";
 
 import { Button } from "../../components/ui/button";
 import { DateRangePicker } from "../../components/ui/date-picker";
@@ -22,6 +22,8 @@ export interface ComparisonSelectorProps {
   mode: ComparisonMode;
   /** Number of comparison periods (for previous/same-period modes) */
   periods: number;
+  /** Suggested default count for Previous Period (e.g. LTM => 12) */
+  defaultPreviousPeriods?: number;
   /** Custom comparison date range (when mode = "custom") */
   customStart?: string;
   customEnd?: string;
@@ -46,15 +48,32 @@ function getTriggerLabel(mode: ComparisonMode) {
 export function ComparisonSelector({
   mode,
   periods,
+  defaultPreviousPeriods = 1,
   customStart,
   customEnd,
   onChange,
   className,
 }: ComparisonSelectorProps) {
   const setMode = (nextMode: ComparisonMode) => {
+    const nextPeriods =
+      nextMode === "previous"
+        ? Math.max(1, mode === "previous" ? periods : defaultPreviousPeriods)
+        : nextMode === "same-period-last-year"
+          ? 1
+          : periods || 1;
     onChange({
       mode: nextMode,
-      periods: nextMode === "none" ? periods || 1 : 1,
+      periods: nextPeriods,
+      customStart,
+      customEnd,
+    });
+  };
+
+  const updatePreviousPeriods = (nextPeriods: number) => {
+    const bounded = Math.min(24, Math.max(1, nextPeriods));
+    onChange({
+      mode: "previous",
+      periods: bounded,
       customStart,
       customEnd,
     });
@@ -63,8 +82,8 @@ export function ComparisonSelector({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className={cn("h-8 w-[190px] justify-between gap-2 focus-visible:ring-0", className)}>
-          <Percent className="size-3.5" />
+        <Button variant="outline" size="sm" className={cn("h-8 min-w-[140px] justify-between gap-2 focus-visible:ring-0", className)}>
+          <Percent className="size-4" />
           <span>{getTriggerLabel(mode)}</span>
         </Button>
       </PopoverTrigger>
@@ -97,6 +116,34 @@ export function ComparisonSelector({
               )}
             />
             <span className="flex-1">Previous Period</span>
+
+            <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-background px-1 py-0.5 text-xs">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  updatePreviousPeriods((mode === "previous" ? periods : defaultPreviousPeriods) - 1);
+                }}
+                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
+                disabled={(mode === "previous" ? periods : defaultPreviousPeriods) <= 1}
+                aria-label="Decrease previous periods"
+              >
+                <Minus className="size-3" />
+              </button>
+              <span className="w-6 text-center">{mode === "previous" ? periods : defaultPreviousPeriods}</span>
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  updatePreviousPeriods((mode === "previous" ? periods : defaultPreviousPeriods) + 1);
+                }}
+                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
+                disabled={(mode === "previous" ? periods : defaultPreviousPeriods) >= 24}
+                aria-label="Increase previous periods"
+              >
+                <Plus className="size-3" />
+              </button>
+            </span>
           </button>
 
           <button

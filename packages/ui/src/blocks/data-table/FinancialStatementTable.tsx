@@ -766,13 +766,13 @@ function buildColumns(
               <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0 leading-[0]">
                 <RecCheck computed={val} raw={rawVal} />
               </span>
-              <span className="leading-none"><DataTableCurrencyCell value={val} dashZero /></span>
+              <span className="leading-none"><DataTableCurrencyCell value={val} dashZero isSummaryRow={r._type === "section-total" || r._type === "grand-total" || r._type === "subtotal-total"} /></span>
             </span>
           );
         }
         return (
           <span className={bold}>
-            <DataTableCurrencyCell value={val} dashZero />
+            <DataTableCurrencyCell value={val} dashZero isSummaryRow={r._type === "section-total" || r._type === "grand-total" || r._type === "subtotal-total"} />
           </span>
         );
       },
@@ -813,13 +813,13 @@ function buildColumns(
               <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0 leading-[0]">
                 <RecCheck computed={r.total} raw={r._rawTotal} />
               </span>
-              <span className="leading-none"><DataTableCurrencyCell value={r.total} dashZero /></span>
+              <span className="leading-none"><DataTableCurrencyCell value={r.total} dashZero isSummaryRow={r._type === "section-total" || r._type === "grand-total" || r._type === "subtotal-total"} /></span>
             </span>
           );
         }
         return (
           <span className={bold}>
-            <DataTableCurrencyCell value={r.total} dashZero />
+            <DataTableCurrencyCell value={r.total} dashZero isSummaryRow={r._type === "section-total" || r._type === "grand-total" || r._type === "subtotal-total"} />
           </span>
         );
       },

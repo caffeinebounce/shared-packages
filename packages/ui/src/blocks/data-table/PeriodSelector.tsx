@@ -209,13 +209,14 @@ export function PeriodSelector({
   const ranges = React.useMemo(() => {
     const map = new Map<Exclude<PeriodGranularity, "custom">, PeriodRange>();
     for (const row of GRANULARITY_ROWS) {
+      const rowAnchor = row.key === granularity ? anchorDate : now;
       map.set(
         row.key,
-        getRangeForGranularity(row.key, anchorDate, fiscalMonth, now),
+        getRangeForGranularity(row.key, rowAnchor, fiscalMonth, now),
       );
     }
     return map;
-  }, [anchorDate, fiscalMonth, now]);
+  }, [anchorDate, fiscalMonth, granularity, now]);
 
   const activeLabel = formatRangeLabel(granularity, selectedStart, selectedEnd);
 
@@ -265,10 +266,10 @@ export function PeriodSelector({
           type="button"
           variant="outline"
           size="sm"
-          className={cn("h-8 w-[190px] justify-between gap-2 focus-visible:ring-0 focus-visible:outline-none", className)}
+          className={cn("h-8 min-w-[128px] justify-between gap-2 focus-visible:ring-0 focus-visible:outline-none", className)}
         >
           <CalendarDays className="size-4" />
-          <span className="truncate text-xs font-medium">{activeLabel}</span>
+          <span className="truncate text-sm font-medium">{activeLabel}</span>
         </Button>
       </PopoverTrigger>
 

@@ -6,15 +6,18 @@ import { cn } from "../../utils";
 // ── Finance display context ───────────────────────────────────────────────────
 
 export type DisplayUnits = "actuals" | "thousands" | "millions";
+export type CurrencySignDisplay = "none" | "summary" | "all";
 
 interface FinanceDisplayContextValue {
   decimals: number;
   displayUnits: DisplayUnits;
+  currencySignDisplay: CurrencySignDisplay;
 }
 
 const FinanceDisplayContext = React.createContext<FinanceDisplayContextValue>({
   decimals: 0,
   displayUnits: "actuals",
+  currencySignDisplay: "all",
 });
 
 // Back-compat: decimals-only context (still used by old FinanceDecimalsProvider)
@@ -33,15 +36,17 @@ const FinanceDecimalsContext = React.createContext<number>(0);
 export function FinanceDisplayProvider({
   decimals,
   displayUnits = "actuals",
+  currencySignDisplay = "all",
   children,
 }: {
   decimals: number;
   displayUnits?: DisplayUnits;
+  currencySignDisplay?: CurrencySignDisplay;
   children: React.ReactNode;
 }) {
   const value = React.useMemo(
-    () => ({ decimals, displayUnits }),
-    [decimals, displayUnits],
+    () => ({ decimals, displayUnits, currencySignDisplay }),
+    [decimals, displayUnits, currencySignDisplay],
   );
   return (
     <FinanceDisplayContext.Provider value={value}>
@@ -180,6 +185,7 @@ export function formatCurrencyValue(
     dashZero?: boolean;
     decimals?: number;
     displayUnits?: DisplayUnits;
+    showCurrencySign?: boolean;
   },
 ): { text: string; isNegative: boolean; isZero: boolean } {
   const raw = value ?? 0;
@@ -191,19 +197,30 @@ export function formatCurrencyValue(
   const locale = options?.locale ?? "en-US";
   const dashZero = options?.dashZero ?? false;
   const decimals = options?.decimals ?? 2;
+  const showSign = options?.showCurrencySign ?? true;
 
   if (isZero && dashZero) {
     return { text: "—", isNegative: false, isZero: true };
   }
 
-  const fmt = getFormatter(locale, curr, decimals);
+  const absV = Math.abs(v);
+  let formatted: string;
+
+  if (showSign) {
+    const fmt = getFormatter(locale, curr, decimals);
+    formatted = fmt.format(absV);
+  } else {
+    formatted = absV.toLocaleString(locale, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  }
+
   if (isNegative) {
-    // Accounting format: ($1,234.56)
-    const formatted = fmt.format(Math.abs(v));
     return { text: `(${formatted})`, isNegative: true, isZero: false };
   }
 
-  return { text: fmt.format(v), isNegative: false, isZero };
+  return { text: formatted, isNegative: false, isZero };
 }
 
 /**
@@ -220,10 +237,16 @@ export function DataTableCurrencyCell({
   dashZero = false,
   decimals,
   className,
-}: DataTableCurrencyCellProps) {
+  /** Whether this cell is in a summary/total row */
+  isSummaryRow,
+}: DataTableCurrencyCellProps & { isSummaryRow?: boolean }) {
   // Use context decimals + units if not explicitly provided
   const ctx = useFinanceDisplay();
   const resolvedDecimals = decimals ?? ctx.decimals;
+
+  const showCurrencySign =
+    ctx.currencySignDisplay === "all" ||
+    (ctx.currencySignDisplay === "summary" && isSummaryRow);
 
   const { text, isNegative, isZero } = formatCurrencyValue(value, {
     currency: currencyCode,
@@ -231,6 +254,7 @@ export function DataTableCurrencyCell({
     dashZero,
     decimals: resolvedDecimals,
     displayUnits: ctx.displayUnits,
+    showCurrencySign,
   });
 
   return (

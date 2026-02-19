@@ -3,6 +3,7 @@
 import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import {
   type KeyboardEvent,
+  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -43,6 +44,8 @@ export interface ComboboxProps {
   onValueChange?: (value: string) => void;
   /** Placeholder text when no selection */
   placeholder?: string;
+  /** Whether placeholder should use muted styling */
+  mutedPlaceholder?: boolean;
   /** Placeholder for the search input */
   searchPlaceholder?: string;
   /** Text to show when no options match the search */
@@ -65,6 +68,8 @@ export interface ComboboxProps {
   align?: "start" | "center" | "end";
   /** Error state */
   error?: boolean;
+  /** Optional leading icon in the trigger */
+  icon?: ReactNode;
   /** ARIA label for accessibility */
   "aria-label"?: string;
 }
@@ -92,6 +97,7 @@ export function Combobox({
   value,
   onValueChange,
   placeholder = "Select...",
+  mutedPlaceholder = true,
   searchPlaceholder = "Search...",
   emptyText = "No results found.",
   disabled = false,
@@ -103,6 +109,7 @@ export function Combobox({
   size = "default",
   align = "start",
   error = false,
+  icon,
   "aria-label": ariaLabel,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
@@ -192,19 +199,22 @@ export function Combobox({
             "w-full justify-between font-normal",
             size === "sm" && "h-8 text-sm",
             size === "default" && "h-9",
-            !value && "text-muted-foreground",
+            !value && mutedPlaceholder && "text-muted-foreground",
             error && "border-destructive focus-visible:ring-destructive/20",
             className,
           )}
         >
-          {loading ? (
-            <span className="text-muted-foreground">Loading...</span>
-          ) : selectedOption ? (
-            <span className="truncate">{selectedOption.label}</span>
-          ) : (
-            <span>{placeholder}</span>
-          )}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <span className="flex min-w-0 items-center gap-2">
+            {icon ? <span className="shrink-0 text-current">{icon}</span> : null}
+            {loading ? (
+              <span className="text-muted-foreground">Loading...</span>
+            ) : selectedOption ? (
+              <span className="truncate">{selectedOption.label}</span>
+            ) : (
+              <span>{placeholder}</span>
+            )}
+          </span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-current opacity-80" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -250,7 +260,7 @@ export function Combobox({
                     )}
                   />
                   <div className="flex flex-col">
-                    <span>{option.label}</span>
+                    <span className={cn(option.value === "__unspecified__" && "font-normal text-muted-foreground")}>{option.label}</span>
                     {option.description && (
                       <span className="text-xs text-muted-foreground">
                         {option.description}
