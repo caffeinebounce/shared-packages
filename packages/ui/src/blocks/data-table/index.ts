@@ -147,3 +147,13 @@ export {
   type SummaryChartSeries,
   type SummaryChartType,
 } from "./SummaryPanel";
+export {
+  ComparisonSelector,
+  type ComparisonMode,
+  type ComparisonSelectorProps,
+} from "./ComparisonSelector";
+export {
+  PeriodSelector,
+  type PeriodGranularity,
+  type PeriodSelectorProps,
+} from "./PeriodSelector";
