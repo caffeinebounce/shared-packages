@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.48.57
+
+### Patch Changes
+
+- d45e112: Fix cash flow bar chart overlapping Y-axis by adding XAxis padding and adjusting left margin
+
 ## 0.48.0
 
 ### Minor Changes
