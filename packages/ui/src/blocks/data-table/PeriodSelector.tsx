@@ -14,6 +14,7 @@ import { CalendarDays, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "../../components/ui/button";
+import { DateRangePicker } from "../../components/ui/date-picker";
 import {
   Popover,
   PopoverContent,
@@ -58,8 +59,8 @@ const GRANULARITY_ROWS: Array<{
   { key: "month", label: "Month" },
   { key: "quarter", label: "Quarter" },
   { key: "year", label: "Year" },
-  { key: "ltm", label: "Last 12 Months" },
-  { key: "ytd", label: "Year to Date" },
+  { key: "ltm", label: "LTM" },
+  { key: "ytd", label: "YTD" },
 ];
 
 function toIso(date: Date): string {
@@ -263,14 +264,14 @@ export function PeriodSelector({
           type="button"
           variant="outline"
           size="sm"
-          className={cn("h-8 gap-2", className)}
+          className={cn("h-8 gap-2 focus-visible:ring-0 focus-visible:outline-none", className)}
         >
           <CalendarDays className="size-4" />
           <span className="text-xs font-medium">{activeLabel}</span>
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-[360px] p-2">
+      <PopoverContent align="start" className="w-[380px] p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
         <div className="space-y-1">
           {GRANULARITY_ROWS.map((row) => {
             const range = ranges.get(row.key);
@@ -281,9 +282,18 @@ export function PeriodSelector({
             return (
               <div
                 key={row.key}
+                role="button"
+                tabIndex={0}
+                onClick={() => selectGranularity(row.key)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    selectGranularity(row.key);
+                  }
+                }}
                 className={cn(
-                  "grid grid-cols-[16px_1fr_auto_1fr_auto] items-center gap-2 rounded-md px-1 py-1",
-                  "hover:bg-accent/60",
+                  "grid w-full cursor-pointer grid-cols-[16px_84px_28px_minmax(0,1fr)_28px] items-center gap-2 rounded-md px-1 py-1 text-left",
+                  "hover:bg-accent/60 focus:outline-none",
                   isActive && "bg-accent/60",
                 )}
               >
@@ -291,26 +301,23 @@ export function PeriodSelector({
                   {isActive ? <Check className="size-3.5" /> : null}
                 </span>
 
-                <button
-                  type="button"
-                  onClick={() => selectGranularity(row.key)}
-                  className="justify-self-start text-left text-sm font-medium hover:underline"
-                >
-                  {row.label}
-                </button>
+                <span className="text-sm font-medium">{row.label}</span>
 
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="size-7"
-                  onClick={() => navigate(row.key, -1)}
+                  className="size-7 focus-visible:ring-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(row.key, -1);
+                  }}
                   aria-label={`Previous ${row.label}`}
                 >
                   <ChevronLeft className="size-4" />
                 </Button>
 
-                <span className="min-w-0 truncate text-sm text-muted-foreground">
+                <span className="min-w-0 truncate text-center text-sm text-muted-foreground">
                   {formatRangeLabel(row.key, range.start, range.end)}
                 </span>
 
@@ -318,8 +325,11 @@ export function PeriodSelector({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="size-7"
-                  onClick={() => navigate(row.key, 1)}
+                  className="size-7 focus-visible:ring-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(row.key, 1);
+                  }}
                   aria-label={`Next ${row.label}`}
                 >
                   <ChevronRight className="size-4" />
@@ -333,7 +343,7 @@ export function PeriodSelector({
           <button
             type="button"
             className={cn(
-              "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-medium hover:bg-accent/60",
+              "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-medium hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-0",
               granularity === "custom" && "bg-accent/60",
             )}
             onClick={() =>
@@ -346,48 +356,23 @@ export function PeriodSelector({
             <span className="flex size-4 items-center justify-center text-primary">
               {granularity === "custom" ? <Check className="size-3.5" /> : null}
             </span>
-            Custom Dates
+            Custom
           </button>
 
           {granularity === "custom" ? (
-            <div className="grid grid-cols-2 gap-2 px-2 pb-1 pt-1">
-              <label className="space-y-1 text-xs text-muted-foreground">
-                <span>Start</span>
-                <input
-                  type="date"
-                  value={toIso(selectedStart)}
-                  className="h-8 w-full rounded-md border border-input bg-background px-2 text-foreground"
-                  onChange={(event) => {
-                    const nextStart = safeParseDate(
-                      event.target.value,
-                      selectedStart,
-                    );
-                    applyRange("custom", {
-                      start: nextStart,
-                      end: selectedEnd,
-                    });
-                  }}
-                />
-              </label>
-
-              <label className="space-y-1 text-xs text-muted-foreground">
-                <span>End</span>
-                <input
-                  type="date"
-                  value={toIso(selectedEnd)}
-                  className="h-8 w-full rounded-md border border-input bg-background px-2 text-foreground"
-                  onChange={(event) => {
-                    const nextEnd = safeParseDate(
-                      event.target.value,
-                      selectedEnd,
-                    );
-                    applyRange("custom", {
-                      start: selectedStart,
-                      end: nextEnd,
-                    });
-                  }}
-                />
-              </label>
+            <div className="px-2 pb-1 pt-1">
+              <DateRangePicker
+                value={{ from: selectedStart, to: selectedEnd }}
+                onChange={(range) => {
+                  if (!range?.from) return;
+                  applyRange("custom", {
+                    start: range.from,
+                    end: range.to ?? range.from,
+                  });
+                }}
+                className="h-8 text-xs focus-visible:ring-0"
+                numberOfMonths={2}
+              />
             </div>
           ) : null}
         </div>

@@ -3,6 +3,7 @@
 import { Check, ChevronLeft, ChevronRight, Percent } from "lucide-react";
 
 import { Button } from "../../components/ui/button";
+import { DateRangePicker } from "../../components/ui/date-picker";
 import {
   Popover,
   PopoverContent,
@@ -93,18 +94,18 @@ export function ComparisonSelector({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className={cn("gap-2", className)}>
+        <Button variant="outline" size="sm" className={cn("gap-2 focus-visible:ring-0", className)}>
           <Percent className="size-3.5" />
           <span>{getTriggerLabel(mode, periods)}</span>
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-[320px] p-2">
+      <PopoverContent align="start" className="w-[320px] p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
         <div className="space-y-1">
           <button
             type="button"
             onClick={() => setMode("none")}
-            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent"
+            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent focus-visible:outline-none focus-visible:ring-0"
           >
             <Check
               className={cn(
@@ -118,7 +119,7 @@ export function ComparisonSelector({
           <button
             type="button"
             onClick={() => setMode("previous")}
-            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent"
+            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent focus-visible:outline-none focus-visible:ring-0"
           >
             <Check
               className={cn(
@@ -136,7 +137,7 @@ export function ComparisonSelector({
                   if (mode !== "previous") setMode("previous");
                   updatePeriods((mode === "previous" ? periods : 1) - 1);
                 }}
-                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
+                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
                 disabled={(mode === "previous" ? periods : 1) <= 1}
                 aria-label="Decrease previous periods"
               >
@@ -150,7 +151,7 @@ export function ComparisonSelector({
                   if (mode !== "previous") setMode("previous");
                   updatePeriods((mode === "previous" ? periods : 1) + 1);
                 }}
-                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
+                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
                 disabled={(mode === "previous" ? periods : 1) >= 5}
                 aria-label="Increase previous periods"
               >
@@ -162,7 +163,7 @@ export function ComparisonSelector({
           <button
             type="button"
             onClick={() => setMode("same-period-last-year")}
-            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent"
+            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent focus-visible:outline-none focus-visible:ring-0"
           >
             <Check
               className={cn(
@@ -180,7 +181,7 @@ export function ComparisonSelector({
                   if (mode !== "same-period-last-year") setMode("same-period-last-year");
                   updatePeriods((mode === "same-period-last-year" ? periods : 1) - 1);
                 }}
-                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
+                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
                 disabled={(mode === "same-period-last-year" ? periods : 1) <= 1}
                 aria-label="Decrease years"
               >
@@ -196,7 +197,7 @@ export function ComparisonSelector({
                   if (mode !== "same-period-last-year") setMode("same-period-last-year");
                   updatePeriods((mode === "same-period-last-year" ? periods : 1) + 1);
                 }}
-                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
+                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40 focus-visible:outline-none focus-visible:ring-0"
                 disabled={(mode === "same-period-last-year" ? periods : 1) >= 3}
                 aria-label="Increase years"
               >
@@ -210,7 +211,7 @@ export function ComparisonSelector({
           <button
             type="button"
             onClick={() => setMode("custom")}
-            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent"
+            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent focus-visible:outline-none focus-visible:ring-0"
           >
             <Check
               className={cn(
@@ -218,43 +219,24 @@ export function ComparisonSelector({
                 mode === "custom" ? "opacity-100" : "opacity-0",
               )}
             />
-            <span>Custom Dates</span>
+            <span>Custom</span>
           </button>
 
           {mode === "custom" ? (
-            <div className="grid grid-cols-2 gap-2 px-2 pt-1">
-              <label className="flex min-w-0 flex-col gap-1 text-[11px] text-muted-foreground">
-                Start
-                <input
-                  type="date"
-                  value={customStart ?? ""}
-                  onChange={(event) =>
-                    onChange({
-                      mode: "custom",
-                      periods,
-                      customStart: event.target.value || undefined,
-                      customEnd,
-                    })
-                  }
-                  className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground outline-none focus:border-primary"
-                />
-              </label>
-              <label className="flex min-w-0 flex-col gap-1 text-[11px] text-muted-foreground">
-                End
-                <input
-                  type="date"
-                  value={customEnd ?? ""}
-                  onChange={(event) =>
-                    onChange({
-                      mode: "custom",
-                      periods,
-                      customStart,
-                      customEnd: event.target.value || undefined,
-                    })
-                  }
-                  className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground outline-none focus:border-primary"
-                />
-              </label>
+            <div className="px-2 pt-1">
+              <DateRangePicker
+                value={{ from: customStart ? new Date(customStart) : undefined, to: customEnd ? new Date(customEnd) : undefined }}
+                onChange={(range) =>
+                  onChange({
+                    mode: "custom",
+                    periods,
+                    customStart: range?.from ? range.from.toISOString().slice(0, 10) : undefined,
+                    customEnd: range?.to ? range.to.toISOString().slice(0, 10) : (range?.from ? range.from.toISOString().slice(0, 10) : undefined),
+                  })
+                }
+                className="h-8 text-xs focus-visible:ring-0"
+                numberOfMonths={2}
+              />
             </div>
           ) : null}
         </div>
