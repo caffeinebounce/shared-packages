@@ -92,7 +92,7 @@ export function useLastSignIn(options: UseLastSignInOptions = {}) {
           data.email &&
           data.email.includes("@") &&
           data.timestamp &&
-          !isNaN(Date.parse(data.timestamp))
+          !Number.isNaN(Date.parse(data.timestamp))
         ) {
           setLastSignIn(data);
         }

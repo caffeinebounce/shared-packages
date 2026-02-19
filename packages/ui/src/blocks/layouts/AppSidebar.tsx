@@ -4,15 +4,15 @@ import { ChevronDown, ChevronUp, LogOut, User as UserIcon } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../../components/ui/collapsible";
-import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "../../components/ui/avatar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../../components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -395,18 +395,6 @@ export function AppSidebar({
             // Skip hidden sections
             if (section.visible === false) return null;
 
-            const sectionContent = (
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {section.items.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                      {renderNavItem(item)}
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            );
-
             if (section.collapsible) {
               return (
                 <Collapsible
@@ -425,7 +413,15 @@ export function AppSidebar({
                       </CollapsibleTrigger>
                     </SidebarGroupLabel>
                     <CollapsibleContent>
-                      {sectionContent}
+                      <SidebarGroupContent>
+                        <SidebarMenu>
+                          {section.items.map((item) => (
+                            <SidebarMenuItem key={item.href}>
+                              {renderNavItem(item)}
+                            </SidebarMenuItem>
+                          ))}
+                        </SidebarMenu>
+                      </SidebarGroupContent>
                     </CollapsibleContent>
                   </SidebarGroup>
                 </Collapsible>
@@ -437,7 +433,15 @@ export function AppSidebar({
                 <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   {section.label}
                 </SidebarGroupLabel>
-                {sectionContent}
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {section.items.map((item) => (
+                      <SidebarMenuItem key={item.href}>
+                        {renderNavItem(item)}
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
               </SidebarGroup>
             );
           }
