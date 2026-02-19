@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.49.2
+
+### Patch Changes
+
+- a66d1cd: Fix chevron rotation CSS using direct data-state selector
+
 ## 0.49.1
 
 ### Patch Changes
