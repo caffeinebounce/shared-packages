@@ -478,28 +478,47 @@ export function isPreviewEnvironment(hostname: string): boolean {
   const normalized = hostname.toLowerCase();
   const hostWithoutPort = stripPort(normalized);
 
-  // Local development
-  if (
-    hostWithoutPort === "localhost" ||
-    hostWithoutPort === "127.0.0.1" ||
-    hostWithoutPort === "::1" ||
-    hostWithoutPort.endsWith(".local")
-  ) {
-    return true;
-  }
-
-  // Raw IP addresses are dev/preview environments (production uses domain names)
-  // Matches IPv4 addresses like 192.168.1.1, 100.107.35.36 (Tailscale), etc.
-  const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
-  if (ipv4Pattern.test(hostWithoutPort)) {
-    return true;
-  }
-
-  // Check against known preview domains
+  // Check against known preview domains first
   for (const domain of PREVIEW_DOMAINS) {
     if (hostWithoutPort.endsWith(`.${domain}`)) {
       return true;
     }
+  }
+
+  return isDevLikeHost(hostWithoutPort);
+}
+
+/**
+ * Returns true when a host should be treated as local/dev-style for routing/cookies.
+ *
+ * Includes:
+ * - localhost / loopback
+ * - .local domains
+ * - tailscale MagicDNS (.ts.net)
+ * - raw IPv4 hosts
+ * - short hostnames without dots (e.g., doogteams-mac-mini)
+ */
+export function isDevLikeHost(hostname: string): boolean {
+  const normalized = stripPort(hostname.toLowerCase());
+
+  if (
+    normalized === "localhost" ||
+    normalized === "127.0.0.1" ||
+    normalized === "::1" ||
+    normalized.endsWith(".local") ||
+    normalized.endsWith(".ts.net")
+  ) {
+    return true;
+  }
+
+  const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+  if (ipv4Pattern.test(normalized)) {
+    return true;
+  }
+
+  const isBareHostname = normalized.length > 0 && !normalized.includes(".");
+  if (isBareHostname) {
+    return true;
   }
 
   return false;
@@ -594,7 +613,7 @@ export function getServerOrigin(
   protocol = "https",
   envVarName?: string,
 ): string {
-  // For preview environments, always use actual request origin
+  // For preview/dev-like environments, always use actual request origin
   if (isPreviewEnvironment(host)) {
     return `${protocol}://${host}`;
   }
@@ -610,4 +629,42 @@ export function getServerOrigin(
 
   // Fallback to request origin
   return `${protocol}://${host}`;
+}
+
+/**
+ * Resolve admin redirect target for a given origin/host.
+ *
+ * Dev-like and preview hosts use path-based routing (`/admin/dashboard`).
+ * Production hostnames can use subdomain routing (`admin.<host>/dashboard`).
+ */
+export function resolveAdminRedirectTarget(params: {
+  host: string;
+  protocol?: string;
+  appOrigin?: string;
+  allowSubdomainRouting?: boolean;
+}): string {
+  const { host, protocol = "https", appOrigin, allowSubdomainRouting = true } =
+    params;
+
+  const hostWithoutPort = stripPort(host);
+  const origin = appOrigin || `${protocol}://${host}`;
+
+  if (!allowSubdomainRouting || isPreviewEnvironment(hostWithoutPort)) {
+    return `${origin.replace(/\/$/, "")}/admin/dashboard`;
+  }
+
+  return `${protocol}://admin.${hostWithoutPort}/dashboard`;
+}
+
+/**
+ * Generate canonical Supabase redirect URL variants for a base app origin.
+ */
+export function getSupabaseRedirectUrls(baseOrigin: string): string[] {
+  const origin = baseOrigin.replace(/\/$/, "");
+  return [
+    `${origin}`,
+    `${origin}/callback`,
+    `${origin}/callback?next=/dashboard`,
+    `${origin}/**`,
+  ];
 }

@@ -65,10 +65,13 @@ export {
   // Environment detection
   getClientOrigin,
   getServerOrigin,
+  getSupabaseRedirectUrls,
   // Pre-built handle validators
   instagramHandleSchema,
+  isDevLikeHost,
   isPreviewEnvironment,
   isRenderPreviewDomain,
+  resolveAdminRedirectTarget,
   linkedinUrlSchema,
   pinterestUrlSchema,
   // Types
