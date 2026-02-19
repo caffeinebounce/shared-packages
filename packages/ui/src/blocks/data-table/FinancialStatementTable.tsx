@@ -32,7 +32,7 @@ function RecCheck({ computed, raw }: { computed: number; raw: number }) {
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="absolute -left-5 inset-y-0 z-10 flex items-center opacity-0 group-hover/rec:opacity-100 transition-opacity">
+          <span className="inline-flex items-center">
             {matches ? (
               <CheckCircle2 className="size-3.5 text-white fill-emerald-500" />
             ) : (
@@ -751,10 +751,19 @@ function buildColumns(
           return <span className={bold}>{renderAmountCell(r, pk, val)}</span>;
         }
         const rawVal = isTotalRow ? r._rawPeriodAmounts?.[pk] : undefined;
+        if (isTotalRow && rawVal !== undefined) {
+          return (
+            <span className={cn(bold, "flex items-center justify-end gap-1 group/rec w-full")}>
+              <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0">
+                <RecCheck computed={val} raw={rawVal} />
+              </span>
+              <DataTableCurrencyCell value={val} dashZero />
+            </span>
+          );
+        }
         return (
-          <span className={cn(bold, isTotalRow && "relative group/rec")}>
+          <span className={bold}>
             <DataTableCurrencyCell value={val} dashZero />
-            {isTotalRow && rawVal !== undefined && <RecCheck computed={val} raw={rawVal} />}
           </span>
         );
       },
@@ -788,10 +797,19 @@ function buildColumns(
       if (renderAmountCell && (r._type === "account" || r._type === "account-group") && r.total !== 0) {
         return <span className={bold}>{renderAmountCell(r, null, r.total)}</span>;
       }
+      if (isTotalRow && r._rawTotal !== undefined) {
+        return (
+          <span className={cn(bold, "flex items-center justify-end gap-1 group/rec w-full")}>
+            <span className="opacity-0 group-hover/rec:opacity-100 transition-opacity flex-shrink-0">
+              <RecCheck computed={r.total} raw={r._rawTotal} />
+            </span>
+            <DataTableCurrencyCell value={r.total} dashZero />
+          </span>
+        );
+      }
       return (
-        <span className={cn(bold, isTotalRow && "relative group/rec")}>
+        <span className={bold}>
           <DataTableCurrencyCell value={r.total} dashZero />
-          {isTotalRow && r._rawTotal !== undefined && <RecCheck computed={r.total} raw={r._rawTotal} />}
         </span>
       );
     },
