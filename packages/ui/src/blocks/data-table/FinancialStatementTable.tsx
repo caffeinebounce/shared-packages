@@ -249,6 +249,57 @@ function buildAccountTree(
     if (a.number) byNumber.set(a.number, a);
   }
 
+  // Create synthetic parents for referenced-but-missing parent accounts
+  // (QuickBooks often omits zero-amount parent accounts from the P&L)
+  // Build a name→number index for parent resolution via colon-delimited QB paths
+  const nameToNumber = new Map<string, string>();
+  for (const a of accounts) {
+    if (a.number && a.name) nameToNumber.set(a.name, a.number);
+  }
+
+  // First pass: collect all missing parents
+  const synthetics: AccountAgg[] = [];
+  for (const a of accounts) {
+    if (a.isSubAccount && a.parentNumber && a.parentNumber !== a.number && !byNumber.has(a.parentNumber)) {
+      const parentName = a.parentName ?? a.name;
+      const synthetic: AccountAgg = {
+        id: `synthetic-${a.parentNumber}`,
+        name: parentName,
+        number: a.parentNumber,
+        type: a.type,
+        subType: a.subType,
+        isSubAccount: false,
+        parentNumber: null,
+        parentName: null,
+        periods: {},
+        total: 0,
+      };
+      byNumber.set(a.parentNumber, synthetic);
+      nameToNumber.set(parentName, a.parentNumber);
+      synthetics.push(synthetic);
+    }
+  }
+
+  // Second pass: resolve parent linkage for synthetics using QBO colon-delimited paths
+  // e.g. "Grants & Program-Related Expenses:Program Delivery" → grandparent is "Grants & Program-Related Expenses"
+  for (const s of synthetics) {
+    const lastColon = s.name.lastIndexOf(":");
+    if (lastColon > 0) {
+      const grandparentPath = s.name.substring(0, lastColon);
+      const gpNumber = nameToNumber.get(grandparentPath);
+      if (gpNumber && gpNumber !== s.number) {
+        s.isSubAccount = true;
+        s.parentNumber = gpNumber;
+        s.parentName = grandparentPath;
+      }
+    }
+  }
+
+  // Add synthetics to accounts array
+  for (const s of synthetics) {
+    accounts.push(s);
+  }
+
   // Separate root accounts from sub-accounts
   const roots: AccountAgg[] = [];
   const childrenOf = new Map<string, AccountAgg[]>();
@@ -293,7 +344,7 @@ function buildAccountTree(
     return {
       _type: childRows.length > 0 ? "account-group" : "account",
       id: acct.id,
-      name: acct.name,
+      name: acct.name.includes(":") ? acct.name.substring(acct.name.lastIndexOf(":") + 1) : acct.name,
       accountNumber: acct.number,
       periodAmounts,
       total,

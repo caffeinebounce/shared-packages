@@ -79,7 +79,7 @@ export const INCOME_STATEMENT_CHART_CONFIG: FinancialSummaryChartConfig = {
   chartType: "area",
   height: 240,
   showZeroLine: true,
-  defaultExpanded: true,
+  defaultExpanded: false,
   metrics: [
     {
       key: "revenue",
