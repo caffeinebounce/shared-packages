@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.49.0
+
+### Minor Changes
+
+- 5ea4c57: Add collapsible sections to AppSidebar - NavSection now supports collapsible and defaultOpen props
+
 ## 0.48.58
 
 ### Patch Changes

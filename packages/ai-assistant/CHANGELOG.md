@@ -1,5 +1,12 @@
 # @caffeinebounce/ai-assistant
 
+## 0.5.4
+
+### Patch Changes
+
+- Updated dependencies [5ea4c57]
+  - @caffeinebounce/ui@0.49.0
+
 ## 0.5.3
 
 ### Patch Changes
