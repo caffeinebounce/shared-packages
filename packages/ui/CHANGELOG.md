@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.49.1
+
+### Patch Changes
+
+- 62cdd13: Fix chevron rotation on collapsible sidebar sections
+
 ## 0.49.0
 
 ### Minor Changes
