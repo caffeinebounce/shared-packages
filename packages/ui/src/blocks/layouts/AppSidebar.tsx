@@ -302,20 +302,26 @@ export function AppSidebar({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [enableKeyboardShortcuts, allNavItems, onNavigate]);
 
+  const activeHref = useMemo(() => {
+    if (!pathname || allNavItems.length === 0) return null;
+
+    const matches = allNavItems
+      .filter((item) => {
+        if (item.href === "/" || item.href === "/dashboard" || item.href === "/finance") {
+          return pathname === item.href;
+        }
+        return pathname === item.href || pathname.startsWith(`${item.href}/`);
+      })
+      .sort((a, b) => b.href.length - a.href.length);
+
+    return matches[0]?.href ?? null;
+  }, [pathname, allNavItems]);
+
   // Determine active state for nav items
   const getIsActive = (item: NavItem) => {
     if (item.isActive !== undefined) return item.isActive;
     if (!pathname) return false;
-    // Exact match for root dashboards, prefix match for child paths only.
-    // Prevent "/finance" dashboard from appearing active on all finance subroutes.
-    if (
-      item.href === "/" ||
-      item.href === "/dashboard" ||
-      item.href === "/finance"
-    ) {
-      return pathname === item.href;
-    }
-    return pathname === item.href || pathname.startsWith(`${item.href}/`);
+    return activeHref === item.href;
   };
 
   // Get icon animation class - returns complete Tailwind classes for purging
