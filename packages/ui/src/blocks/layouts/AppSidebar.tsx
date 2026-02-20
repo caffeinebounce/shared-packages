@@ -478,9 +478,10 @@ export function AppSidebar({
                                 <SidebarMenuButton
                                   tooltip={section.label}
                                   className={cn(
-                                    "!hover:bg-transparent hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0",
-                                    collapsedSectionMenu === section.label &&
-                                      "bg-sidebar-accent text-sidebar-accent-foreground",
+                                    "!hover:bg-transparent !active:bg-transparent focus-visible:ring-0",
+                                    collapsedSectionMenu === section.label
+                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                      : "bg-transparent text-sidebar-foreground",
                                   )}
                                 >
                                   <SectionIcon className="shrink-0" />
