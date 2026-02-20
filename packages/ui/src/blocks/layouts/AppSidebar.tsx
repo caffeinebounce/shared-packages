@@ -215,9 +215,6 @@ export function AppSidebar({
   const [collapsedSectionMenu, setCollapsedSectionMenu] = useState<string | null>(
     null,
   );
-  const [suppressCollapsedHover, setSuppressCollapsedHover] = useState<string | null>(
-    null,
-  );
 
   // Check if current path is the profile page
   const isOnProfilePage =
@@ -472,31 +469,18 @@ export function AppSidebar({
                             <DropdownMenu
                               onOpenChange={(open) => {
                                 setCollapsedSectionMenu(open ? section.label : null);
-                                if (open) {
-                                  setSuppressCollapsedHover(null);
-                                } else {
-                                  setSuppressCollapsedHover(section.label);
-                                  if (document.activeElement instanceof HTMLElement) {
-                                    document.activeElement.blur();
-                                  }
+                                if (!open && document.activeElement instanceof HTMLElement) {
+                                  document.activeElement.blur();
                                 }
                               }}
                             >
                               <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
                                   tooltip={section.label}
-                                  onMouseLeave={() => {
-                                    setSuppressCollapsedHover((prev) =>
-                                      prev === section.label ? null : prev,
-                                    );
-                                  }}
                                   className={cn(
-                                    "!active:bg-transparent focus-visible:ring-0",
-                                    suppressCollapsedHover === section.label &&
-                                      "!hover:bg-transparent",
-                                    collapsedSectionMenu === section.label
-                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                      : "bg-transparent text-sidebar-foreground",
+                                    "!bg-transparent !text-sidebar-foreground !hover:bg-transparent !hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0",
+                                    collapsedSectionMenu === section.label &&
+                                      "!bg-sidebar-accent !text-sidebar-accent-foreground",
                                   )}
                                 >
                                   <SectionIcon className="shrink-0" />
