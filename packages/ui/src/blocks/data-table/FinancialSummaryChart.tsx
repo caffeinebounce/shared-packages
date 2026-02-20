@@ -930,7 +930,7 @@ export function FinancialSummaryChart({
                 className={cn("mb-4 grid gap-3", {
                   "grid-cols-1": summaryCards.length === 1,
                   "grid-cols-2": summaryCards.length === 2,
-                  "grid-cols-2 lg:grid-cols-3": summaryCards.length === 3,
+                  "grid-cols-3": summaryCards.length === 3,
                   "grid-cols-2 lg:grid-cols-4": summaryCards.length >= 4,
                 })}
               >
