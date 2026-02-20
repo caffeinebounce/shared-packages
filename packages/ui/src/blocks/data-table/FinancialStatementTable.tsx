@@ -206,6 +206,8 @@ export interface FinancialStatementTableProps {
   isMobile?: boolean;
   /** Whether compare mode is enabled in mobile mode */
   mobileCompareEnabled?: boolean;
+  /** Optional explicit period order (first to last) for displayed columns */
+  periodOrder?: string[];
   /** Additional class name */
   className?: string;
 }
@@ -1111,6 +1113,7 @@ export function FinancialStatementTable({
   renderAmountCell,
   isMobile = false,
   mobileCompareEnabled = false,
+  periodOrder,
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -1130,10 +1133,22 @@ export function FinancialStatementTable({
     [rawRows, hideZeroRows],
   );
 
+  const orderedPeriods = React.useMemo(() => {
+    if (!periodOrder || periodOrder.length === 0) return periods;
+
+    const normalizedOrder = periodOrder.map((pk) => toPeriodKey(pk, timeUnit));
+    const periodSet = new Set(periods);
+    const prioritized = Array.from(new Set(normalizedOrder)).filter((pk) =>
+      periodSet.has(pk),
+    );
+    const remainder = periods.filter((pk) => !prioritized.includes(pk));
+    return [...prioritized, ...remainder];
+  }, [periods, periodOrder, timeUnit]);
+
   const columns = React.useMemo(
     () =>
       buildColumns(
-        periods,
+        orderedPeriods,
         timeUnit,
         showAccountNumbers,
         renderAmountCell,
@@ -1144,7 +1159,7 @@ export function FinancialStatementTable({
         mobileCompareEnabled,
       ),
     [
-      periods,
+      orderedPeriods,
       timeUnit,
       showAccountNumbers,
       renderAmountCell,
