@@ -903,8 +903,8 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: isMobile && mobileCompareEnabled ? 140 : 110,
-      minSize: isMobile && mobileCompareEnabled ? 120 : 80,
+      size: isMobile && mobileCompareEnabled ? 132 : 110,
+      minSize: isMobile && mobileCompareEnabled ? 108 : 80,
     });
   }
 

@@ -380,6 +380,22 @@ export function DataTable<TData, TValue>({
     return lefts;
   }, [stickyLeafColumns]);
 
+  // Width should reflect only currently rendered columns (after visibility/order)
+  // so hidden compare columns do not leave phantom horizontal space.
+  const renderedTableWidth = React.useMemo(() => {
+    return renderedLeafColumns.reduce((total, column) => {
+      const resizedWidth = columnSizing[column.id];
+      const baseWidth = resizedWidth ?? column.getSize();
+      const minWidth = column.columnDef.minSize ?? 0;
+      const maxWidth = column.columnDef.maxSize;
+      const clamped = Math.max(
+        minWidth,
+        maxWidth !== undefined ? Math.min(baseWidth, maxWidth) : baseWidth,
+      );
+      return total + clamped;
+    }, 0);
+  }, [renderedLeafColumns, columnSizing]);
+
   // Internal column wrapping state (used if not controlled externally)
   const [internalColumnWrapping, setInternalColumnWrapping] = React.useState<
     Record<string, boolean>
@@ -653,7 +669,7 @@ export function DataTable<TData, TValue>({
                 "caption-bottom border-separate border-spacing-0",
                 fontSizeClass,
               )}
-              style={{ width: table.getTotalSize(), tableLayout: "fixed" }}
+              style={{ width: renderedTableWidth, tableLayout: "fixed" }}
             >
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => {
@@ -868,7 +884,7 @@ export function DataTable<TData, TValue>({
                               columnWrapping[header.id] && "whitespace-normal",
                               isFirstColumn && "border-l border-border",
                               !isStickyColumn && "border-r border-border",
-                              isFirstNonStickyAfterSticky && "border-l-0",
+                              isFirstNonStickyAfterSticky && "border-l border-border",
                               isDragOverLeft && "border-l-2 border-l-primary",
                               isDragOverRight && "border-r-2 border-r-primary",
                             )}
@@ -1190,7 +1206,7 @@ export function DataTable<TData, TValue>({
                                     !isStickyCell &&
                                     "border-r border-border",
                                   isFirstColumn && "border-l border-border",
-                                  isFirstNonStickyAfterSticky && "border-l-0",
+                                  isFirstNonStickyAfterSticky && "border-l border-border",
                                   isLastColumn && "border-r border-border",
                                   isActionsColumn && "whitespace-nowrap",
                                   // All rows get bottom border except last row without summary
