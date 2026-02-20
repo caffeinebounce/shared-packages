@@ -1282,7 +1282,7 @@ export function DataTable<TData, TValue>({
                                 }}
                               >
                                 {isStickyCell && (
-                                  <div className="pointer-events-none absolute inset-0 z-0 bg-background" />
+                                  <div className="pointer-events-none absolute inset-0 z-0 border-b border-border bg-background" />
                                 )}
                                 {showTreeUI ? (
                                   <div
