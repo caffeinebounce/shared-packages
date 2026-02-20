@@ -881,7 +881,7 @@ export function DataTable<TData, TValue>({
                             className={cn(
                               isSimpleHeader ? "px-2" : "p-0", // Add padding for simple headers, let component headers handle their own
                               headerHeight,
-                              !isStickyColumn && "relative",
+                              "relative",
                               "overflow-hidden text-ellipsis border-b border-border",
                               !columnWrapping[header.id] && "whitespace-nowrap",
                               columnWrapping[header.id] && "whitespace-normal",
@@ -922,9 +922,13 @@ export function DataTable<TData, TValue>({
                                 : {}),
                             }}
                           >
+                            {isStickyColumn && (
+                              <div className="pointer-events-none absolute inset-0 z-0 bg-background" />
+                            )}
                             {header.isPlaceholder ? null : (
                               <div
                                 className={cn(
+                                  "relative z-10",
                                   enableTreeView &&
                                     headerIndex === 0 &&
                                     "flex items-center",
@@ -1213,6 +1217,7 @@ export function DataTable<TData, TValue>({
                                 }
                                 className={cn(
                                   cellPadding,
+                                  isStickyCell && "relative",
                                   !isWrapped &&
                                     "overflow-hidden text-ellipsis whitespace-nowrap",
                                   isWrapped && "whitespace-normal break-words",
@@ -1270,9 +1275,12 @@ export function DataTable<TData, TValue>({
                                     : {}),
                                 }}
                               >
+                                {isStickyCell && (
+                                  <div className="pointer-events-none absolute inset-0 z-0 bg-background" />
+                                )}
                                 {showTreeUI ? (
                                   <div
-                                    className="flex items-center gap-1"
+                                    className="relative z-10 flex items-center gap-1"
                                     style={{ paddingLeft: `${treeIndent}px` }}
                                   >
                                     {canExpand ? (
@@ -1318,6 +1326,7 @@ export function DataTable<TData, TValue>({
                                 ) : (
                                   <div
                                     className={cn(
+                                      "relative z-10",
                                       !isWrapped && !allowHorizontalScroll && "truncate",
                                       allowHorizontalScroll &&
                                         "overflow-x-auto whitespace-nowrap",
