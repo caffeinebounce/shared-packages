@@ -466,6 +466,7 @@ export function FinancialSummaryChart({
     new Set(),
   );
   const [mobileCardIndex, setMobileCardIndex] = React.useState(0);
+  const [useSwipeCards, setUseSwipeCards] = React.useState(false);
   const touchStartRef = React.useRef<{ x: number; y: number } | null>(null);
   const touchDeltaRef = React.useRef({ x: 0, y: 0 });
 
@@ -502,6 +503,30 @@ export function FinancialSummaryChart({
       Math.min(Math.max(prev, 0), Math.max(summaryCards.length - 1, 0)),
     );
   }, [summaryCards.length]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const coarsePointerQuery = window.matchMedia(
+      "(hover: none) and (pointer: coarse)",
+    );
+    const desktopWidthQuery = window.matchMedia("(min-width: 1024px)");
+
+    const syncSwipeMode = () => {
+      setUseSwipeCards(
+        coarsePointerQuery.matches && !desktopWidthQuery.matches,
+      );
+    };
+
+    syncSwipeMode();
+    coarsePointerQuery.addEventListener("change", syncSwipeMode);
+    desktopWidthQuery.addEventListener("change", syncSwipeMode);
+
+    return () => {
+      coarsePointerQuery.removeEventListener("change", syncSwipeMode);
+      desktopWidthQuery.removeEventListener("change", syncSwipeMode);
+    };
+  }, []);
 
   const handleCardClick = React.useCallback((key: string) => {
     setActiveMetric((prev) => (prev === key ? null : key));
@@ -658,7 +683,12 @@ export function FinancialSummaryChart({
                     divisor={divisor}
                   />
                 )}
-                <div className="mt-1.5 hidden justify-center gap-1 sm:flex">
+                <div
+                  className={cn(
+                    "mt-1.5 hidden justify-center gap-1",
+                    !useSwipeCards && "sm:flex",
+                  )}
+                >
                   {/* biome-ignore lint/a11y/useSemanticElements: nested inside button trigger */}
                   <span
                     role="button"
@@ -772,6 +802,7 @@ export function FinancialSummaryChart({
       handleCardClick,
       handleFlip,
       periodLabelProp,
+      useSwipeCards,
     ],
   );
 
@@ -832,61 +863,63 @@ export function FinancialSummaryChart({
         <div className="overflow-hidden">
           <div className="px-4 pb-4">
             {/* Summary cards */}
-            <div className="mb-4 sm:hidden">
-              <div
-                className="relative overflow-hidden touch-pan-y pb-10"
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              >
+            {useSwipeCards ? (
+              <div className="mb-4">
                 <div
-                  className="flex transition-transform duration-300 ease-out"
-                  style={{
-                    transform: `translateX(-${mobileCardIndex * 100}%)`,
-                  }}
+                  className="relative overflow-hidden touch-pan-y pb-10"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                 >
-                  {summaryCards.map((card) => (
-                    <div key={card.key} className="w-full shrink-0">
-                      {renderSummaryCard(card)}
-                    </div>
-                  ))}
-                </div>
-
-                {summaryCards.length > 1 && (
-                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-0.5">
-                    {summaryCards.map((card, index) => (
-                      <button
-                        key={card.key}
-                        type="button"
-                        aria-label={`Go to ${card.label} card`}
-                        onClick={() => goToMobileCard(index)}
-                        className="inline-flex size-10 items-center justify-center rounded-full"
-                      >
-                        <span
-                          className={cn(
-                            "size-1.5 rounded-full transition-colors",
-                            index === mobileCardIndex
-                              ? "bg-foreground/70"
-                              : "bg-foreground/20",
-                          )}
-                        />
-                      </button>
+                  <div
+                    className="flex transition-transform duration-300 ease-out"
+                    style={{
+                      transform: `translateX(-${mobileCardIndex * 100}%)`,
+                    }}
+                  >
+                    {summaryCards.map((card) => (
+                      <div key={card.key} className="w-full shrink-0">
+                        {renderSummaryCard(card)}
+                      </div>
                     ))}
                   </div>
-                )}
-              </div>
-            </div>
 
-            <div
-              className={cn("mb-4 hidden gap-3 sm:grid", {
-                "grid-cols-1": summaryCards.length === 1,
-                "grid-cols-2": summaryCards.length === 2,
-                "grid-cols-2 lg:grid-cols-3": summaryCards.length === 3,
-                "grid-cols-2 lg:grid-cols-4": summaryCards.length >= 4,
-              })}
-            >
-              {summaryCards.map((card) => renderSummaryCard(card))}
-            </div>
+                  {summaryCards.length > 1 && (
+                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-0.5">
+                      {summaryCards.map((card, index) => (
+                        <button
+                          key={card.key}
+                          type="button"
+                          aria-label={`Go to ${card.label} card`}
+                          onClick={() => goToMobileCard(index)}
+                          className="inline-flex size-10 items-center justify-center rounded-full"
+                        >
+                          <span
+                            className={cn(
+                              "size-1.5 rounded-full transition-colors",
+                              index === mobileCardIndex
+                                ? "bg-foreground/70"
+                                : "bg-foreground/20",
+                            )}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div
+                className={cn("mb-4 grid gap-3", {
+                  "grid-cols-1": summaryCards.length === 1,
+                  "grid-cols-2": summaryCards.length === 2,
+                  "grid-cols-2 lg:grid-cols-3": summaryCards.length === 3,
+                  "grid-cols-2 lg:grid-cols-4": summaryCards.length >= 4,
+                })}
+              >
+                {summaryCards.map((card) => renderSummaryCard(card))}
+              </div>
+            )}
 
             {/* Chart */}
             <div style={{ height: config.height ?? 240 }}>
