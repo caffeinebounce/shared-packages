@@ -309,11 +309,25 @@ export function DataTable<TData, TValue>({
   // Hover state for Notion-style row selection
   const [hoveredRowId, setHoveredRowId] = React.useState<string | null>(null);
 
-  const stickyColumnIds = React.useMemo(() => {
-    if (!stickyColumns || stickyColumns <= 0) return new Set<string>();
-    const leaf = table.getVisibleLeafColumns().slice(0, stickyColumns);
-    return new Set(leaf.map((c) => c.id));
+  const stickyLeafColumns = React.useMemo(() => {
+    if (!stickyColumns || stickyColumns <= 0) return [];
+    return table.getVisibleLeafColumns().slice(0, stickyColumns);
   }, [table, stickyColumns]);
+
+  const stickyColumnIds = React.useMemo(
+    () => new Set(stickyLeafColumns.map((c) => c.id)),
+    [stickyLeafColumns],
+  );
+
+  const stickyColumnLefts = React.useMemo(() => {
+    const lefts = new Map<string, number>();
+    let runningLeft = 0;
+    for (const column of stickyLeafColumns) {
+      lefts.set(column.id, runningLeft);
+      runningLeft += column.getSize();
+    }
+    return lefts;
+  }, [stickyLeafColumns]);
 
   // Internal column order state (used if not controlled externally)
   const defaultColumnOrder = React.useMemo(
@@ -717,7 +731,11 @@ export function DataTable<TData, TValue>({
                         const isFirstColumn = headerIndex === 0 && !hasGutter;
 
                         // Sticky column support (use column id, not row index, so grouped headers stay frozen)
-                        const isStickyColumn = stickyColumnIds.has(header.column.id);
+                        const isStickyColumn = stickyColumnIds.has(
+                          header.column.id,
+                        );
+                        const stickyLeft =
+                          stickyColumnLefts.get(header.column.id) ?? 0;
 
                         // Determine if header is a simple string (not a function/component)
                         const headerDef = header.column.columnDef.header;
@@ -754,7 +772,9 @@ export function DataTable<TData, TValue>({
                         return (
                           <TableHead
                             key={header.id}
-                            data-sticky-column={isStickyColumn ? "true" : undefined}
+                            data-sticky-column={
+                              isStickyColumn ? "true" : undefined
+                            }
                             colSpan={header.colSpan}
                             onDragOver={
                               canDragColumn
@@ -794,9 +814,11 @@ export function DataTable<TData, TValue>({
                               ...(isStickyColumn
                                 ? {
                                     position: "sticky" as const,
-                                    left: 0,
-                                    zIndex: 30,
-                                    backgroundColor: "var(--background, hsl(var(--background)))",
+                                    left: stickyLeft,
+                                    zIndex: 40,
+                                    backgroundColor:
+                                      "var(--background, hsl(var(--background)))",
+                                    backgroundClip: "padding-box",
                                     boxShadow: "2px 0 4px -2px rgba(0,0,0,0.1)",
                                   }
                                 : {}),
@@ -1025,7 +1047,11 @@ export function DataTable<TData, TValue>({
                             const isFirstColumn = cellIndex === 0 && !hasGutter;
 
                             // Sticky column support (match by column id)
-                            const isStickyCell = stickyColumnIds.has(cell.column.id);
+                            const isStickyCell = stickyColumnIds.has(
+                              cell.column.id,
+                            );
+                            const stickyLeft =
+                              stickyColumnLefts.get(cell.column.id) ?? 0;
 
                             // Check if this is a fixed-width column
                             const colDef = cell.column.columnDef;
@@ -1072,7 +1098,9 @@ export function DataTable<TData, TValue>({
                             return (
                               <TableCell
                                 key={cell.id}
-                                data-sticky-column={isStickyCell ? "true" : undefined}
+                                data-sticky-column={
+                                  isStickyCell ? "true" : undefined
+                                }
                                 className={cn(
                                   cellPadding,
                                   !isWrapped &&
@@ -1107,10 +1135,13 @@ export function DataTable<TData, TValue>({
                                   ...(isStickyCell
                                     ? {
                                         position: "sticky" as const,
-                                        left: 0,
-                                        zIndex: 20,
-                                        backgroundColor: "var(--background, hsl(var(--background)))",
-                                        boxShadow: "2px 0 4px -2px rgba(0,0,0,0.1)",
+                                        left: stickyLeft,
+                                        zIndex: 30,
+                                        backgroundColor:
+                                          "var(--background, hsl(var(--background)))",
+                                        backgroundClip: "padding-box",
+                                        boxShadow:
+                                          "2px 0 4px -2px rgba(0,0,0,0.1)",
                                       }
                                     : {}),
                                 }}
