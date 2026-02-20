@@ -211,6 +211,9 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const Link = LinkComponent;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [suppressSectionTooltip, setSuppressSectionTooltip] = useState<string | null>(
+    null,
+  );
 
   // Check if current path is the profile page
   const isOnProfilePage =
@@ -464,6 +467,9 @@ export function AppSidebar({
                           <SidebarMenuItem>
                             <DropdownMenu
                               onOpenChange={(open) => {
+                                // Suppress tooltip through the open/close cycle to avoid sticky bubble
+                                // while pointer remains over the trigger.
+                                setSuppressSectionTooltip(section.label);
                                 if (!open && document.activeElement instanceof HTMLElement) {
                                   document.activeElement.blur();
                                 }
@@ -472,6 +478,16 @@ export function AppSidebar({
                               <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
                                   aria-label={section.label}
+                                  tooltip={
+                                    suppressSectionTooltip === section.label
+                                      ? undefined
+                                      : section.label
+                                  }
+                                  onMouseLeave={() => {
+                                    setSuppressSectionTooltip((prev) =>
+                                      prev === section.label ? null : prev,
+                                    );
+                                  }}
                                   className="!bg-transparent !text-sidebar-foreground !hover:bg-transparent !hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0"
                                 >
                                   <SectionIcon className="shrink-0" />
