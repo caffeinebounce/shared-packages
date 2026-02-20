@@ -887,6 +887,7 @@ export function DataTable<TData, TValue>({
                               columnWrapping[header.id] && "whitespace-normal",
                               isFirstColumn && "border-l border-border",
                               !isStickyColumn && "border-r border-border",
+                              isStickyColumn && "border-r border-border",
                               isFirstNonStickyAfterSticky && "border-l border-border",
                               isDragOverLeft && "border-l-2 border-l-primary",
                               isDragOverRight && "border-r-2 border-r-primary",
@@ -909,7 +910,7 @@ export function DataTable<TData, TValue>({
                                     opacity: 1,
                                     backgroundClip: "padding-box",
                                     boxShadow:
-                                      "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border))",
+                                      "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border)), inset 0 -1px 0 hsl(var(--border))",
                                     isolation: "isolate" as const,
                                     contain: "paint" as const,
                                     backfaceVisibility: "hidden" as const,
@@ -1224,6 +1225,7 @@ export function DataTable<TData, TValue>({
                                   !isLastColumn &&
                                     !isStickyCell &&
                                     "border-r border-border",
+                                  isStickyCell && "border-r border-border",
                                   isFirstColumn && "border-l border-border",
                                   isFirstNonStickyAfterSticky && "border-l border-border",
                                   isLastColumn && "border-r border-border",
@@ -1262,7 +1264,7 @@ export function DataTable<TData, TValue>({
                                         opacity: 1,
                                         backgroundClip: "padding-box",
                                         boxShadow:
-                                          "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border))",
+                                          "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border)), inset 0 -1px 0 hsl(var(--border))",
                                         isolation: "isolate" as const,
                                         contain: "paint" as const,
                                         backfaceVisibility: "hidden" as const,
