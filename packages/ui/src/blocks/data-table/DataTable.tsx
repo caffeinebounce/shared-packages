@@ -117,6 +117,8 @@ export interface DataTableProps<TData, TValue>
   treeIndentPx?: number;
   /** Optional callback to add extra CSS class(es) to a specific row */
   getRowClassName?: (row: Row<TData>) => string | undefined;
+  /** Number of leading columns to freeze (sticky left). Default: 0 */
+  stickyColumns?: number;
 }
 
 // ── Tree expand cycle button ──────────────────────────────────────────────────
@@ -253,6 +255,7 @@ export function DataTable<TData, TValue>({
   enableTreeView = false,
   treeIndentPx = 20,
   getRowClassName,
+  stickyColumns = 0,
   className,
   children,
   ...props
@@ -305,6 +308,12 @@ export function DataTable<TData, TValue>({
 
   // Hover state for Notion-style row selection
   const [hoveredRowId, setHoveredRowId] = React.useState<string | null>(null);
+
+  const stickyColumnIds = React.useMemo(() => {
+    if (!stickyColumns || stickyColumns <= 0) return new Set<string>();
+    const leaf = table.getVisibleLeafColumns().slice(0, stickyColumns);
+    return new Set(leaf.map((c) => c.id));
+  }, [table, stickyColumns]);
 
   // Internal column order state (used if not controlled externally)
   const defaultColumnOrder = React.useMemo(
@@ -707,6 +716,9 @@ export function DataTable<TData, TValue>({
                           rowSelectionStyle === "hover" || enableRowDrag;
                         const isFirstColumn = headerIndex === 0 && !hasGutter;
 
+                        // Sticky column support (use column id, not row index, so grouped headers stay frozen)
+                        const isStickyColumn = stickyColumnIds.has(header.column.id);
+
                         // Determine if header is a simple string (not a function/component)
                         const headerDef = header.column.columnDef.header;
                         const isSimpleHeader = typeof headerDef === "string";
@@ -742,6 +754,7 @@ export function DataTable<TData, TValue>({
                         return (
                           <TableHead
                             key={header.id}
+                            data-sticky-column={isStickyColumn ? "true" : undefined}
                             colSpan={header.colSpan}
                             onDragOver={
                               canDragColumn
@@ -763,7 +776,8 @@ export function DataTable<TData, TValue>({
                               enableTreeView &&
                                 headerIndex === 0 &&
                                 "flex items-center",
-                              "relative overflow-hidden text-ellipsis border-b border-border",
+                              !isStickyColumn && "relative",
+                              "overflow-hidden text-ellipsis border-b border-border",
                               !columnWrapping[header.id] && "whitespace-nowrap",
                               columnWrapping[header.id] && "whitespace-normal",
                               isFirstColumn && "border-l border-border",
@@ -771,13 +785,22 @@ export function DataTable<TData, TValue>({
                               isDragOverLeft && "border-l-2 border-l-primary",
                               isDragOverRight && "border-r-2 border-r-primary",
                             )}
-                            style={
-                              isFixedWidth || isActionsColumn
+                            style={{
+                              ...(isFixedWidth || isActionsColumn
                                 ? { width: "1%" }
                                 : resizedWidth
                                   ? { width: resizedWidth }
-                                  : undefined
-                            }
+                                  : {}),
+                              ...(isStickyColumn
+                                ? {
+                                    position: "sticky" as const,
+                                    left: 0,
+                                    zIndex: 30,
+                                    backgroundColor: "var(--background, hsl(var(--background)))",
+                                    boxShadow: "2px 0 4px -2px rgba(0,0,0,0.1)",
+                                  }
+                                : {}),
+                            }}
                           >
                             {header.isPlaceholder ? null : (
                               <>
@@ -1001,6 +1024,9 @@ export function DataTable<TData, TValue>({
                               rowSelectionStyle === "hover" || enableRowDrag;
                             const isFirstColumn = cellIndex === 0 && !hasGutter;
 
+                            // Sticky column support (match by column id)
+                            const isStickyCell = stickyColumnIds.has(cell.column.id);
+
                             // Check if this is a fixed-width column
                             const colDef = cell.column.columnDef;
                             const isFixedWidth =
@@ -1046,6 +1072,7 @@ export function DataTable<TData, TValue>({
                             return (
                               <TableCell
                                 key={cell.id}
+                                data-sticky-column={isStickyCell ? "true" : undefined}
                                 className={cn(
                                   cellPadding,
                                   !isWrapped &&
@@ -1077,6 +1104,15 @@ export function DataTable<TData, TValue>({
                                 )}
                                 style={{
                                   width: resizedWidth || cell.column.getSize(),
+                                  ...(isStickyCell
+                                    ? {
+                                        position: "sticky" as const,
+                                        left: 0,
+                                        zIndex: 20,
+                                        backgroundColor: "var(--background, hsl(var(--background)))",
+                                        boxShadow: "2px 0 4px -2px rgba(0,0,0,0.1)",
+                                      }
+                                    : {}),
                                 }}
                               >
                                 {showTreeUI ? (

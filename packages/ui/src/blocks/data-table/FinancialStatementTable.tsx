@@ -202,6 +202,10 @@ export interface FinancialStatementTableProps {
   showVariance?: boolean;
   /** Number of current period columns (to split current vs comparison in variance calc) */
   currentPeriodCount?: number;
+  /** Whether table is rendered in a mobile viewport */
+  isMobile?: boolean;
+  /** Whether compare mode is enabled in mobile mode */
+  mobileCompareEnabled?: boolean;
   /** Additional class name */
   className?: string;
 }
@@ -754,6 +758,8 @@ function buildColumns(
   showRowTotals = true,
   showVariance?: boolean,
   currentPeriodCount?: number,
+  isMobile = false,
+  mobileCompareEnabled = false,
 ): ColumnDef<StatementRow>[] {
   const cols: ColumnDef<StatementRow>[] = [
     {
@@ -809,10 +815,15 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      // Flex to fill: period cols are ~110px each + 120px total
-      // Give account col all remaining space
-      size: Math.max(300, 900 - periods.length * 110),
-      minSize: 200,
+      // Mobile compare mode: prioritize legibility of both value columns by shrinking account column.
+      // Desktop behavior remains unchanged.
+      size: isMobile
+        ? mobileCompareEnabled
+          ? 190
+          : 260
+        : Math.max(300, 900 - periods.length * 110),
+      minSize: isMobile ? (mobileCompareEnabled ? 160 : 200) : 200,
+      maxSize: isMobile ? (mobileCompareEnabled ? 220 : 320) : undefined,
     },
   ];
 
@@ -893,8 +904,8 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: 110,
-      minSize: 80,
+      size: isMobile && mobileCompareEnabled ? 120 : 110,
+      minSize: isMobile && mobileCompareEnabled ? 95 : 80,
     });
   }
 
@@ -1099,6 +1110,8 @@ export function FinancialStatementTable({
   currentPeriodCount,
   toolbar,
   renderAmountCell,
+  isMobile = false,
+  mobileCompareEnabled = false,
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -1128,6 +1141,8 @@ export function FinancialStatementTable({
         showRowTotals,
         showVariance,
         currentPeriodCount,
+        isMobile,
+        mobileCompareEnabled,
       ),
     [
       periods,
@@ -1137,6 +1152,8 @@ export function FinancialStatementTable({
       showRowTotals,
       showVariance,
       currentPeriodCount,
+      isMobile,
+      mobileCompareEnabled,
     ],
   );
 
@@ -1199,6 +1216,7 @@ export function FinancialStatementTable({
         rowSelectionStyle="none"
         density="compact"
         fontSize="sm"
+        stickyColumns={1}
       />
     </div>
   );
