@@ -306,8 +306,13 @@ export function AppSidebar({
   const getIsActive = (item: NavItem) => {
     if (item.isActive !== undefined) return item.isActive;
     if (!pathname) return false;
-    // Exact match for home/dashboard, prefix match for child paths only
-    if (item.href === "/" || item.href === "/dashboard") {
+    // Exact match for root dashboards, prefix match for child paths only.
+    // Prevent "/finance" dashboard from appearing active on all finance subroutes.
+    if (
+      item.href === "/" ||
+      item.href === "/dashboard" ||
+      item.href === "/finance"
+    ) {
       return pathname === item.href;
     }
     return pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -399,7 +404,7 @@ export function AppSidebar({
               return (
                 <Collapsible
                   key={`section-${section.label}`}
-                  defaultOpen={section.defaultOpen !== false}
+                  defaultOpen={section.defaultOpen === true}
                   className="group/collapsible"
                 >
                   <SidebarGroup>
