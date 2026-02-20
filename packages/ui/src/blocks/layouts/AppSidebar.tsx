@@ -317,6 +317,28 @@ export function AppSidebar({
     return matches[0]?.href ?? null;
   }, [pathname, allNavItems]);
 
+  const [sectionOpenState, setSectionOpenState] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    setSectionOpenState((prev) => {
+      const nextState: Record<string, boolean> = {};
+      for (const group of processedNavGroups) {
+        if (group.type === "section" && group.section.collapsible) {
+          nextState[group.section.label] =
+            prev[group.section.label] ?? group.section.defaultOpen === true;
+        }
+      }
+
+      const nextKeys = Object.keys(nextState);
+      const prevKeys = Object.keys(prev);
+      const hasChanged =
+        nextKeys.length !== prevKeys.length ||
+        nextKeys.some((key) => prev[key] !== nextState[key]);
+
+      return hasChanged ? nextState : prev;
+    });
+  }, [processedNavGroups]);
+
   // Determine active state for nav items
   const getIsActive = (item: NavItem) => {
     if (item.isActive !== undefined) return item.isActive;
@@ -410,7 +432,13 @@ export function AppSidebar({
               return (
                 <Collapsible
                   key={`section-${section.label}`}
-                  defaultOpen={section.defaultOpen === true}
+                  open={sectionOpenState[section.label] ?? section.defaultOpen === true}
+                  onOpenChange={(open) =>
+                    setSectionOpenState((prev) => ({
+                      ...prev,
+                      [section.label]: open,
+                    }))
+                  }
                   className="group/collapsible"
                 >
                   <SidebarGroup>
