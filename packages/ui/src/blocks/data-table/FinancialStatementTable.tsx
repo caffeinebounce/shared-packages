@@ -1146,6 +1146,9 @@ export function FinancialStatementTable({
     return [...prioritized, ...remainder];
   }, [periods, periodOrder, timeUnit]);
 
+  const effectiveShowRowTotals =
+    isMobile && mobileCompareEnabled ? false : showRowTotals;
+
   const columns = React.useMemo(
     () =>
       buildColumns(
@@ -1153,7 +1156,7 @@ export function FinancialStatementTable({
         timeUnit,
         showAccountNumbers,
         renderAmountCell,
-        showRowTotals,
+        effectiveShowRowTotals,
         showVariance,
         currentPeriodCount,
         isMobile,
@@ -1164,7 +1167,7 @@ export function FinancialStatementTable({
       timeUnit,
       showAccountNumbers,
       renderAmountCell,
-      showRowTotals,
+      effectiveShowRowTotals,
       showVariance,
       currentPeriodCount,
       isMobile,
