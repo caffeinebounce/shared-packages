@@ -312,10 +312,21 @@ export function FinancialStatementControls({
         <div
           className={
             useCompactFilters
-              ? "flex w-full items-center justify-end gap-2.5"
+              ? "flex w-full items-center justify-between gap-2.5"
               : "flex md:hidden items-center gap-2.5 flex-wrap"
           }
         >
+          {useCompactFilters && (
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
+                {periodChipLabel}
+              </span>
+              <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
+                {comparisonChipLabel}
+              </span>
+            </div>
+          )}
+
           <MobileStatementFilters
             open={mobileFiltersOpen}
             onOpenChange={onMobileFiltersOpenChange}
