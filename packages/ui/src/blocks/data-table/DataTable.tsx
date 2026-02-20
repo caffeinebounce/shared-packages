@@ -312,33 +312,6 @@ export function DataTable<TData, TValue>({
   // Hover state for Notion-style row selection
   const [hoveredRowId, setHoveredRowId] = React.useState<string | null>(null);
 
-  const stickyLeafColumns = React.useMemo(() => {
-    const visibleLeafColumns = table.getVisibleLeafColumns();
-
-    if (explicitStickyColumnIds && explicitStickyColumnIds.length > 0) {
-      const stickyIdSet = new Set(explicitStickyColumnIds);
-      return visibleLeafColumns.filter((column) => stickyIdSet.has(column.id));
-    }
-
-    if (!stickyColumns || stickyColumns <= 0) return [];
-    return visibleLeafColumns.slice(0, stickyColumns);
-  }, [table, stickyColumns, explicitStickyColumnIds]);
-
-  const stickyColumnIds = React.useMemo(
-    () => new Set(stickyLeafColumns.map((c) => c.id)),
-    [stickyLeafColumns],
-  );
-
-  const stickyColumnLefts = React.useMemo(() => {
-    const lefts = new Map<string, number>();
-    let runningLeft = 0;
-    for (const column of stickyLeafColumns) {
-      lefts.set(column.id, runningLeft);
-      runningLeft += column.getSize();
-    }
-    return lefts;
-  }, [stickyLeafColumns]);
-
   // Internal column order state (used if not controlled externally)
   const defaultColumnOrder = React.useMemo(
     () =>
@@ -351,6 +324,61 @@ export function DataTable<TData, TValue>({
     React.useState<string[]>(defaultColumnOrder);
   const columnOrder = externalColumnOrder ?? internalColumnOrder;
   const setColumnOrder = onColumnOrderChange ?? setInternalColumnOrder;
+
+  const renderedLeafColumns = React.useMemo(() => {
+    let leafColumns = table.getVisibleLeafColumns();
+
+    if (rowSelectionStyle === "hover" || enableRowDrag) {
+      leafColumns = leafColumns.filter((column) => column.id !== "select");
+    }
+
+    if (enableColumnDrag) {
+      leafColumns = [...leafColumns].sort((a, b) => {
+        const aIndex = columnOrder.indexOf(a.id);
+        const bIndex = columnOrder.indexOf(b.id);
+        if (aIndex === -1) return 1;
+        if (bIndex === -1) return -1;
+        return aIndex - bIndex;
+      });
+    }
+
+    return leafColumns;
+  }, [table, rowSelectionStyle, enableRowDrag, enableColumnDrag, columnOrder]);
+
+  const renderedLeafIndexById = React.useMemo(() => {
+    const indexById = new Map<string, number>();
+    renderedLeafColumns.forEach((column, index) => {
+      indexById.set(column.id, index);
+    });
+    return indexById;
+  }, [renderedLeafColumns]);
+
+  const stickyLeafColumns = React.useMemo(() => {
+    if (explicitStickyColumnIds && explicitStickyColumnIds.length > 0) {
+      const stickyIdSet = new Set(explicitStickyColumnIds);
+      return renderedLeafColumns.filter((column) => stickyIdSet.has(column.id));
+    }
+
+    if (!stickyColumns || stickyColumns <= 0) return [];
+    return renderedLeafColumns.slice(0, stickyColumns);
+  }, [renderedLeafColumns, stickyColumns, explicitStickyColumnIds]);
+
+  const stickyColumnIds = React.useMemo(
+    () => new Set(stickyLeafColumns.map((column) => column.id)),
+    [stickyLeafColumns],
+  );
+
+  const stickyColumnLefts = React.useMemo(() => {
+    const lefts = new Map<string, number>();
+    let runningLeft = 0;
+
+    for (const column of stickyLeafColumns) {
+      lefts.set(column.id, runningLeft);
+      runningLeft += column.getSize();
+    }
+
+    return lefts;
+  }, [stickyLeafColumns]);
 
   // Internal column wrapping state (used if not controlled externally)
   const [internalColumnWrapping, setInternalColumnWrapping] = React.useState<
@@ -740,16 +768,28 @@ export function DataTable<TData, TValue>({
                           rowSelectionStyle === "hover" || enableRowDrag;
                         const isFirstColumn = headerIndex === 0 && !hasGutter;
 
-                        // Sticky column support for headers must resolve through leaf columns,
-                        // because grouped/placeholder headers can have synthetic ids.
-                        const leafHeaders = header.getLeafHeaders();
-                        const stickyLeafHeader = leafHeaders.find(
-                          (leafHeader) =>
-                            stickyColumnIds.has(leafHeader.column.id),
+                        // Sticky header alignment must be based on rendered leaf columns,
+                        // not synthetic/group header ids.
+                        const headerLeafColumnIds = header
+                          .getLeafHeaders()
+                          .map((leafHeader) => leafHeader.column.id)
+                          .filter((columnId) =>
+                            renderedLeafIndexById.has(columnId),
+                          );
+                        const stickyHeaderLeafIds = headerLeafColumnIds.filter(
+                          (columnId) => stickyColumnIds.has(columnId),
                         );
-                        const stickyHeaderColumnId =
-                          stickyLeafHeader?.column.id;
-                        const isStickyColumn = Boolean(stickyHeaderColumnId);
+                        const isStickyColumn =
+                          headerLeafColumnIds.length > 0 &&
+                          stickyHeaderLeafIds.length ===
+                            headerLeafColumnIds.length;
+                        const stickyHeaderColumnId = isStickyColumn
+                          ? stickyHeaderLeafIds.sort(
+                              (a, b) =>
+                                (renderedLeafIndexById.get(a) ?? 0) -
+                                (renderedLeafIndexById.get(b) ?? 0),
+                            )[0]
+                          : undefined;
                         const stickyLeft = stickyHeaderColumnId
                           ? (stickyColumnLefts.get(stickyHeaderColumnId) ?? 0)
                           : 0;
