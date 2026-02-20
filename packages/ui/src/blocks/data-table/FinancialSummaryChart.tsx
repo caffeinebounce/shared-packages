@@ -465,6 +465,9 @@ export function FinancialSummaryChart({
   const [flippedCards, setFlippedCards] = React.useState<Set<string>>(
     new Set(),
   );
+  const [mobileCardIndex, setMobileCardIndex] = React.useState(0);
+  const touchStartRef = React.useRef<{ x: number; y: number } | null>(null);
+  const touchDeltaRef = React.useRef({ x: 0, y: 0 });
 
   const { displayUnits } = _useFinanceDisplay();
   const divisor = _getUnitDivisor(displayUnits);
@@ -494,19 +497,74 @@ export function FinancialSummaryChart({
     [config],
   );
 
+  React.useEffect(() => {
+    setMobileCardIndex((prev) =>
+      Math.min(Math.max(prev, 0), Math.max(summaryCards.length - 1, 0)),
+    );
+  }, [summaryCards.length]);
+
   const handleCardClick = React.useCallback((key: string) => {
     setActiveMetric((prev) => (prev === key ? null : key));
   }, []);
 
-  const handleFlip = React.useCallback((e: React.MouseEvent, key: string) => {
-    e.stopPropagation();
-    setFlippedCards((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  }, []);
+  const handleFlip = React.useCallback(
+    (e: React.MouseEvent<HTMLElement>, key: string) => {
+      e.stopPropagation();
+      setFlippedCards((prev) => {
+        const next = new Set(prev);
+        if (next.has(key)) next.delete(key);
+        else next.add(key);
+        return next;
+      });
+    },
+    [],
+  );
+
+  const goToMobileCard = React.useCallback(
+    (nextIndex: number) => {
+      setMobileCardIndex(
+        Math.min(Math.max(nextIndex, 0), Math.max(summaryCards.length - 1, 0)),
+      );
+    },
+    [summaryCards.length],
+  );
+
+  const handleTouchStart = React.useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      if (summaryCards.length <= 1) return;
+      const touch = e.touches[0];
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+      touchDeltaRef.current = { x: 0, y: 0 };
+    },
+    [summaryCards.length],
+  );
+
+  const handleTouchMove = React.useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      if (!touchStartRef.current || summaryCards.length <= 1) return;
+      const touch = e.touches[0];
+      touchDeltaRef.current = {
+        x: touch.clientX - touchStartRef.current.x,
+        y: touch.clientY - touchStartRef.current.y,
+      };
+    },
+    [summaryCards.length],
+  );
+
+  const handleTouchEnd = React.useCallback(() => {
+    if (!touchStartRef.current || summaryCards.length <= 1) return;
+
+    const { x, y } = touchDeltaRef.current;
+    const swipeThreshold = 40;
+    const isHorizontalSwipe = Math.abs(x) > Math.abs(y);
+
+    if (isHorizontalSwipe && Math.abs(x) >= swipeThreshold) {
+      goToMobileCard(mobileCardIndex + (x < 0 ? 1 : -1));
+    }
+
+    touchStartRef.current = null;
+    touchDeltaRef.current = { x: 0, y: 0 };
+  }, [goToMobileCard, mobileCardIndex, summaryCards.length]);
 
   // Compute opacity for each metric based on activeMetric
   const getMetricOpacity = React.useCallback(
@@ -515,6 +573,206 @@ export function FinancialSummaryChart({
       return key === activeMetric ? 1 : 0.15;
     },
     [activeMetric],
+  );
+
+  const renderSummaryCard = React.useCallback(
+    (card: {
+      key: string;
+      label: string;
+      value: number;
+      color: string;
+      trend?: number;
+      priorValue?: number;
+    }) => {
+      const isPositiveTrend =
+        card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
+      const isActive = activeMetric === card.key;
+      const isFlipped = flippedCards.has(card.key);
+
+      return (
+        <RadixTooltip
+          key={card.key}
+          delayDuration={200}
+          open={isFlipped ? false : undefined}
+        >
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              onClick={() => handleCardClick(card.key)}
+              className={cn(
+                "relative w-full rounded-lg border bg-gradient-to-br from-background to-muted/20 p-3 text-left transition-all cursor-pointer",
+                isActive && "border-transparent",
+                !isActive && activeMetric && "opacity-50",
+              )}
+              style={
+                isActive
+                  ? {
+                      borderColor: card.color,
+                      boxShadow: `0 0 0 2px ${card.color}40`,
+                    }
+                  : undefined
+              }
+            >
+              <div
+                className="absolute inset-y-0 left-0 w-1 rounded-l-lg"
+                style={{ backgroundColor: card.color }}
+              />
+              <div className="pl-3">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {card.label}
+                  {periodLabelProp && (
+                    <span className="ml-1.5 font-normal text-muted-foreground/60">
+                      {periodLabelProp}
+                    </span>
+                  )}
+                </p>
+                {!isFlipped ? (
+                  <>
+                    <p
+                      className={cn(
+                        "mt-0.5 text-lg font-semibold tabular-nums tracking-tight",
+                        card.value < 0 && "text-destructive",
+                      )}
+                    >
+                      {formatTooltipCurrency(card.value, divisor)}
+                    </p>
+                    {card.trend !== undefined && card.trend !== 0 && (
+                      <p
+                        className={cn(
+                          "mt-0.5 text-[11px] font-medium",
+                          isPositiveTrend
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-red-500 dark:text-red-400",
+                        )}
+                      >
+                        {card.trend > 0 ? "↑" : "↓"}{" "}
+                        {Math.abs(card.trend).toFixed(1)}% vs prior
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <CardSparkline
+                    data={chartData}
+                    dataKey={card.key}
+                    color={card.color}
+                    divisor={divisor}
+                  />
+                )}
+                <div className="mt-1.5 flex justify-center gap-1">
+                  {/* biome-ignore lint/a11y/useSemanticElements: nested inside button trigger */}
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Show ${card.label} value`}
+                    onClick={(e) => {
+                      if (isFlipped) handleFlip(e, card.key);
+                    }}
+                    onKeyDown={(e) => {
+                      if ((e.key === "Enter" || e.key === " ") && isFlipped)
+                        handleFlip(
+                          e as unknown as React.MouseEvent<HTMLElement>,
+                          card.key,
+                        );
+                    }}
+                    className="inline-flex size-10 items-center justify-center rounded-full"
+                  >
+                    <span
+                      className={cn(
+                        "size-1.5 rounded-full transition-colors",
+                        !isFlipped
+                          ? "bg-foreground/60"
+                          : "bg-foreground/20 hover:bg-foreground/40",
+                      )}
+                    />
+                  </span>
+                  {/* biome-ignore lint/a11y/useSemanticElements: nested inside button trigger */}
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Show ${card.label} trend sparkline`}
+                    onClick={(e) => {
+                      if (!isFlipped) handleFlip(e, card.key);
+                    }}
+                    onKeyDown={(e) => {
+                      if ((e.key === "Enter" || e.key === " ") && !isFlipped)
+                        handleFlip(
+                          e as unknown as React.MouseEvent<HTMLElement>,
+                          card.key,
+                        );
+                    }}
+                    className="inline-flex size-10 items-center justify-center rounded-full"
+                  >
+                    <span
+                      className={cn(
+                        "size-1.5 rounded-full transition-colors",
+                        isFlipped
+                          ? "bg-foreground/60"
+                          : "bg-foreground/20 hover:bg-foreground/40",
+                      )}
+                    />
+                  </span>
+                </div>
+              </div>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent
+            side="bottom"
+            align="center"
+            sideOffset={8}
+            className="max-w-none rounded-lg border bg-popover px-3 py-2 text-popover-foreground shadow-md"
+          >
+            <ChartTooltipTitle>
+              {card.label} — vs Prior Period
+            </ChartTooltipTitle>
+            <div className="space-y-1">
+              <ChartTooltipRow
+                color={card.color}
+                label="Current"
+                value={formatTooltipCurrency(card.value, divisor)}
+                isNegative={card.value < 0}
+              />
+              {card.priorValue != null && (
+                <ChartTooltipRow
+                  color="var(--muted-foreground, #9ca3af)"
+                  label="Prior"
+                  value={formatTooltipCurrency(card.priorValue, divisor)}
+                  isNegative={card.priorValue < 0}
+                />
+              )}
+              {card.trend !== undefined && card.trend !== 0 && (
+                <div className="border-t border-border/40 pt-1 mt-1 text-xs flex justify-between gap-4">
+                  <span className="text-muted-foreground">Change</span>
+                  <span
+                    className={cn(
+                      "font-mono font-medium",
+                      (
+                        card.key === "expenses"
+                          ? card.trend < 0
+                          : card.trend > 0
+                      )
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-red-500 dark:text-red-400",
+                    )}
+                  >
+                    {card.trend > 0 ? "↑" : "↓"}{" "}
+                    {Math.abs(card.trend).toFixed(1)}%
+                  </span>
+                </div>
+              )}
+            </div>
+          </TooltipContent>
+        </RadixTooltip>
+      );
+    },
+    [
+      activeMetric,
+      chartData,
+      divisor,
+      flippedCards,
+      handleCardClick,
+      handleFlip,
+      periodLabelProp,
+    ],
   );
 
   return (
@@ -574,195 +832,60 @@ export function FinancialSummaryChart({
         <div className="overflow-hidden">
           <div className="px-4 pb-4">
             {/* Summary cards */}
+            <div className="mb-4 sm:hidden">
+              <div
+                className="overflow-hidden touch-pan-y"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <div
+                  className="flex transition-transform duration-300 ease-out"
+                  style={{
+                    transform: `translateX(-${mobileCardIndex * 100}%)`,
+                  }}
+                >
+                  {summaryCards.map((card) => (
+                    <div key={card.key} className="w-full shrink-0">
+                      {renderSummaryCard(card)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {summaryCards.length > 1 && (
+                <div className="mt-2 flex items-center justify-center gap-1">
+                  {summaryCards.map((card, index) => (
+                    <button
+                      key={card.key}
+                      type="button"
+                      aria-label={`Go to ${card.label} card`}
+                      onClick={() => goToMobileCard(index)}
+                      className="inline-flex size-11 items-center justify-center rounded-full"
+                    >
+                      <span
+                        className={cn(
+                          "size-1.5 rounded-full transition-colors",
+                          index === mobileCardIndex
+                            ? "bg-foreground/70"
+                            : "bg-foreground/20",
+                        )}
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div
-              className={cn("mb-4 grid gap-3", {
+              className={cn("mb-4 hidden gap-3 sm:grid", {
                 "grid-cols-1": summaryCards.length === 1,
-                "grid-cols-1 sm:grid-cols-2": summaryCards.length === 2,
-                "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3":
-                  summaryCards.length === 3,
-                "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4":
-                  summaryCards.length >= 4,
+                "grid-cols-2": summaryCards.length === 2,
+                "grid-cols-2 lg:grid-cols-3": summaryCards.length === 3,
+                "grid-cols-2 lg:grid-cols-4": summaryCards.length >= 4,
               })}
             >
-              {summaryCards.map((card) => {
-                const isPositiveTrend =
-                  card.key === "expenses"
-                    ? (card.trend ?? 0) < 0
-                    : (card.trend ?? 0) > 0;
-                const isActive = activeMetric === card.key;
-                const isFlipped = flippedCards.has(card.key);
-                return (
-                  <RadixTooltip
-                    key={card.key}
-                    delayDuration={200}
-                    open={isFlipped ? false : undefined}
-                  >
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={() => handleCardClick(card.key)}
-                        className={cn(
-                          "relative rounded-lg border bg-gradient-to-br from-background to-muted/20 p-3 text-left transition-all cursor-pointer",
-                          isActive && "border-transparent",
-                          !isActive && activeMetric && "opacity-50",
-                        )}
-                        style={
-                          isActive
-                            ? {
-                                borderColor: card.color,
-                                boxShadow: `0 0 0 2px ${card.color}40`,
-                              }
-                            : undefined
-                        }
-                      >
-                        {/* Accent bar */}
-                        <div
-                          className="absolute inset-y-0 left-0 w-1 rounded-l-lg"
-                          style={{ backgroundColor: card.color }}
-                        />
-                        <div className="pl-3">
-                          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                            {card.label}
-                            {periodLabelProp && (
-                              <span className="ml-1.5 font-normal text-muted-foreground/60">
-                                {periodLabelProp}
-                              </span>
-                            )}
-                          </p>
-                          {!isFlipped ? (
-                            <>
-                              <p
-                                className={cn(
-                                  "mt-0.5 text-lg font-semibold tabular-nums tracking-tight",
-                                  card.value < 0 && "text-destructive",
-                                )}
-                              >
-                                {formatTooltipCurrency(card.value, divisor)}
-                              </p>
-                              {card.trend !== undefined && card.trend !== 0 && (
-                                <p
-                                  className={cn(
-                                    "mt-0.5 text-[11px] font-medium",
-                                    isPositiveTrend
-                                      ? "text-emerald-600 dark:text-emerald-400"
-                                      : "text-red-500 dark:text-red-400",
-                                  )}
-                                >
-                                  {card.trend > 0 ? "↑" : "↓"}{" "}
-                                  {Math.abs(card.trend).toFixed(1)}% vs prior
-                                </p>
-                              )}
-                            </>
-                          ) : (
-                            <CardSparkline
-                              data={chartData}
-                              dataKey={card.key}
-                              color={card.color}
-                              divisor={divisor}
-                            />
-                          )}
-                          {/* Dot indicators */}
-                          <div className="flex justify-center gap-1.5 mt-1.5">
-                            {/* biome-ignore lint/a11y/useSemanticElements: dot indicator */}
-                            <span
-                              role="button"
-                              tabIndex={0}
-                              onClick={(e) => {
-                                if (isFlipped) handleFlip(e, card.key);
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" && isFlipped)
-                                  handleFlip(
-                                    e as unknown as React.MouseEvent,
-                                    card.key,
-                                  );
-                              }}
-                              className={cn(
-                                "size-1.5 rounded-full transition-colors",
-                                !isFlipped
-                                  ? "bg-foreground/60"
-                                  : "bg-foreground/20 hover:bg-foreground/40",
-                              )}
-                            />
-                            {/* biome-ignore lint/a11y/useSemanticElements: dot indicator */}
-                            <span
-                              role="button"
-                              tabIndex={0}
-                              onClick={(e) => {
-                                if (!isFlipped) handleFlip(e, card.key);
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" && !isFlipped)
-                                  handleFlip(
-                                    e as unknown as React.MouseEvent,
-                                    card.key,
-                                  );
-                              }}
-                              className={cn(
-                                "size-1.5 rounded-full transition-colors",
-                                isFlipped
-                                  ? "bg-foreground/60"
-                                  : "bg-foreground/20 hover:bg-foreground/40",
-                              )}
-                            />
-                          </div>
-                        </div>
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="bottom"
-                      align="center"
-                      sideOffset={8}
-                      className="max-w-none rounded-lg border bg-popover px-3 py-2 text-popover-foreground shadow-md"
-                    >
-                      <ChartTooltipTitle>
-                        {card.label} — vs Prior Period
-                      </ChartTooltipTitle>
-                      <div className="space-y-1">
-                        <ChartTooltipRow
-                          color={card.color}
-                          label="Current"
-                          value={formatTooltipCurrency(card.value, divisor)}
-                          isNegative={card.value < 0}
-                        />
-                        {card.priorValue != null && (
-                          <ChartTooltipRow
-                            color="var(--muted-foreground, #9ca3af)"
-                            label="Prior"
-                            value={formatTooltipCurrency(
-                              card.priorValue,
-                              divisor,
-                            )}
-                            isNegative={card.priorValue < 0}
-                          />
-                        )}
-                        {card.trend !== undefined && card.trend !== 0 && (
-                          <div className="border-t border-border/40 pt-1 mt-1 text-xs flex justify-between gap-4">
-                            <span className="text-muted-foreground">
-                              Change
-                            </span>
-                            <span
-                              className={cn(
-                                "font-mono font-medium",
-                                (
-                                  card.key === "expenses"
-                                    ? card.trend < 0
-                                    : card.trend > 0
-                                )
-                                  ? "text-emerald-600 dark:text-emerald-400"
-                                  : "text-red-500 dark:text-red-400",
-                              )}
-                            >
-                              {card.trend > 0 ? "↑" : "↓"}{" "}
-                              {Math.abs(card.trend).toFixed(1)}%
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </TooltipContent>
-                  </RadixTooltip>
-                );
-              })}
+              {summaryCards.map((card) => renderSummaryCard(card))}
             </div>
 
             {/* Chart */}
