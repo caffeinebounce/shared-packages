@@ -904,8 +904,8 @@ export function DataTable<TData, TValue>({
                                     position: "sticky" as const,
                                     left: stickyLeft,
                                     zIndex: 60,
-                                    background: "hsl(var(--background))",
-                                    backgroundColor: "hsl(var(--background))",
+                                    background: "hsl(var(--background) / 1)",
+                                    backgroundColor: "hsl(var(--background) / 1)",
                                     opacity: 1,
                                     backgroundClip: "padding-box",
                                     boxShadow:
@@ -913,6 +913,9 @@ export function DataTable<TData, TValue>({
                                     isolation: "isolate" as const,
                                     contain: "paint" as const,
                                     backfaceVisibility: "hidden" as const,
+                                    mixBlendMode: "normal" as const,
+                                    backdropFilter: "none",
+                                    WebkitBackdropFilter: "none",
                                     transform: "translateZ(0)",
                                     WebkitTransform: "translateZ(0)",
                                   }
@@ -1249,8 +1252,8 @@ export function DataTable<TData, TValue>({
                                         position: "sticky" as const,
                                         left: stickyLeft,
                                         zIndex: 50,
-                                        background: "hsl(var(--background))",
-                                        backgroundColor: "hsl(var(--background))",
+                                        background: "hsl(var(--background) / 1)",
+                                        backgroundColor: "hsl(var(--background) / 1)",
                                         opacity: 1,
                                         backgroundClip: "padding-box",
                                         boxShadow:
@@ -1258,6 +1261,9 @@ export function DataTable<TData, TValue>({
                                         isolation: "isolate" as const,
                                         contain: "paint" as const,
                                         backfaceVisibility: "hidden" as const,
+                                        mixBlendMode: "normal" as const,
+                                        backdropFilter: "none",
+                                        WebkitBackdropFilter: "none",
                                         transform: "translateZ(0)",
                                         WebkitTransform: "translateZ(0)",
                                       }
