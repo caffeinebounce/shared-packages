@@ -39,6 +39,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../../components/ui/tooltip";
+import { cn } from "../../utils";
 import { getAvatarGradient } from "../../utils/avatar-gradient";
 import { KeyboardShortcut } from "../keyboard/KeyboardShortcut";
 import {
