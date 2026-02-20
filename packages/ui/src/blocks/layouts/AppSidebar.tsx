@@ -471,7 +471,7 @@ export function AppSidebar({
                             >
                               <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
-                                  tooltip={section.label}
+                                  aria-label={section.label}
                                   className="!bg-transparent !text-sidebar-foreground !hover:bg-transparent !hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0"
                                 >
                                   <SectionIcon className="shrink-0" />
