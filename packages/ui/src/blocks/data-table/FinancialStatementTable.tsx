@@ -1122,6 +1122,9 @@ export function FinancialStatementTable({
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+  const [viewportLayout, setViewportLayout] = React.useState<
+    "portrait" | "landscape" | "unknown"
+  >("unknown");
 
   const { rows: rawRows, periods } = React.useMemo(
     () =>
@@ -1177,6 +1180,25 @@ export function FinancialStatementTable({
     ],
   );
 
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const updateViewportLayout = () => {
+      setViewportLayout(
+        window.innerWidth > window.innerHeight ? "landscape" : "portrait",
+      );
+    };
+
+    updateViewportLayout();
+    window.addEventListener("resize", updateViewportLayout);
+    window.addEventListener("orientationchange", updateViewportLayout);
+
+    return () => {
+      window.removeEventListener("resize", updateViewportLayout);
+      window.removeEventListener("orientationchange", updateViewportLayout);
+    };
+  }, []);
+
   // Auto-expand: section headers expanded, account groups expanded 1 level
   React.useEffect(() => {
     if (rows.length === 0) return;
@@ -1226,6 +1248,7 @@ export function FinancialStatementTable({
         </div>
       )}
       <DataTable
+        key={`fs-${isMobile ? "m" : "d"}-${mobileCompareEnabled ? "cmp" : "std"}-${viewportLayout}`}
         table={table}
         columns={columns}
         enableTreeView
