@@ -819,11 +819,11 @@ function buildColumns(
       // Desktop behavior remains unchanged.
       size: isMobile
         ? mobileCompareEnabled
-          ? 148
+          ? 132
           : 260
         : Math.max(300, 900 - periods.length * 110),
-      minSize: isMobile ? (mobileCompareEnabled ? 116 : 200) : 200,
-      maxSize: isMobile ? (mobileCompareEnabled ? 170 : 320) : undefined,
+      minSize: isMobile ? (mobileCompareEnabled ? 100 : 200) : 200,
+      maxSize: isMobile ? (mobileCompareEnabled ? 150 : 320) : undefined,
     },
   ];
 

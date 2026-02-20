@@ -873,7 +873,7 @@ export function DataTable<TData, TValue>({
                                       "var(--background, hsl(var(--background)))",
                                     backgroundClip: "padding-box",
                                     boxShadow:
-                                      "inset -1px 0 0 hsl(var(--border)), 2px 0 4px -2px rgba(0,0,0,0.08)",
+                                      "inset -1px 0 0 hsl(var(--border))",
                                   }
                                 : {}),
                             }}
