@@ -147,9 +147,9 @@ export function FinancialStatementControls({
       window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
       navigator.maxTouchPoints > 0;
 
-    // Compact controls on constrained widths, or true mobile/tablet landscape.
+    // Compact controls only on truly constrained widths, or true mobile/tablet landscape.
     const isLandscapeMobile = isTouchDevice && width > height && shortestSide < 900;
-    return width < 1200 || isLandscapeMobile;
+    return width < 900 || isLandscapeMobile;
   };
 
   const [useCompactFilters, setUseCompactFilters] = useState(
