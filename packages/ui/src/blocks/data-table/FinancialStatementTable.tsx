@@ -817,13 +817,13 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      // Mobile compare mode: reserve fixed room for data columns, let Account absorb remaining width.
+      // Mobile compare mode: keep Account as the flexible column.
       size: isMobile
         ? mobileCompareEnabled
-          ? 120
+          ? 180
           : 260
         : Math.max(300, 900 - periods.length * 110),
-      minSize: isMobile ? (mobileCompareEnabled ? 110 : 200) : 200,
+      minSize: isMobile ? (mobileCompareEnabled ? 120 : 200) : 200,
       maxSize: isMobile ? (mobileCompareEnabled ? undefined : 320) : undefined,
     },
   ];
@@ -905,9 +905,10 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: isMobile && mobileCompareEnabled ? 116 : 110,
-      minSize: isMobile && mobileCompareEnabled ? 116 : 80,
-      maxSize: isMobile && mobileCompareEnabled ? 116 : undefined,
+      // Mobile compare mode: data columns stay readable but can shrink/grow dynamically.
+      size: isMobile && mobileCompareEnabled ? 96 : 110,
+      minSize: isMobile && mobileCompareEnabled ? 82 : 80,
+      maxSize: isMobile && mobileCompareEnabled ? 112 : undefined,
     });
   }
 
