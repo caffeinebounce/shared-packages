@@ -910,7 +910,9 @@ export function DataTable<TData, TValue>({
                                     opacity: 1,
                                     backgroundClip: "padding-box",
                                     boxShadow:
-                                      "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border)), inset 0 -1px 0 hsl(var(--border))",
+                                      "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border))",
+                                    borderBottom:
+                                      "1px solid hsl(var(--border))",
                                     isolation: "isolate" as const,
                                     contain: "paint" as const,
                                     backfaceVisibility: "hidden" as const,
@@ -1264,7 +1266,9 @@ export function DataTable<TData, TValue>({
                                         opacity: 1,
                                         backgroundClip: "padding-box",
                                         boxShadow:
-                                          "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border)), inset 0 -1px 0 hsl(var(--border))",
+                                          "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border))",
+                                        borderBottom:
+                                          "1px solid hsl(var(--border))",
                                         isolation: "isolate" as const,
                                         contain: "paint" as const,
                                         backfaceVisibility: "hidden" as const,
