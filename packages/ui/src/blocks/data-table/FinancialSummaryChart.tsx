@@ -450,6 +450,19 @@ function CardSparkline({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+function isHorizontalMobileViewport() {
+  if (typeof window === "undefined") return false;
+  const isTouchDevice = window.matchMedia(
+    "(hover: none) and (pointer: coarse)",
+  ).matches;
+  return isTouchDevice && window.innerWidth > window.innerHeight;
+}
+
+function resolveDefaultExpanded(defaultExpanded?: boolean) {
+  if (defaultExpanded !== undefined) return defaultExpanded;
+  return !isHorizontalMobileViewport();
+}
+
 export function FinancialSummaryChart({
   data,
   timeUnit,
@@ -458,8 +471,8 @@ export function FinancialSummaryChart({
   periodLabel: periodLabelProp,
   className,
 }: FinancialSummaryChartProps) {
-  const [expanded, setExpanded] = React.useState(
-    config.defaultExpanded ?? true,
+  const [expanded, setExpanded] = React.useState(() =>
+    resolveDefaultExpanded(config.defaultExpanded),
   );
   const [activeMetric, setActiveMetric] = React.useState<string | null>(null);
   const [flippedCards, setFlippedCards] = React.useState<Set<string>>(
@@ -477,6 +490,10 @@ export function FinancialSummaryChart({
     () => buildChartData(data, config, timeUnit, priorTotalsProp),
     [data, config, timeUnit, priorTotalsProp],
   );
+
+  React.useEffect(() => {
+    setExpanded(resolveDefaultExpanded(config.defaultExpanded));
+  }, [config.defaultExpanded]);
 
   const allMetrics = React.useMemo(
     () => [
