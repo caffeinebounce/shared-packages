@@ -834,7 +834,7 @@ export function FinancialSummaryChart({
             {/* Summary cards */}
             <div className="mb-4 sm:hidden">
               <div
-                className="overflow-hidden touch-pan-y"
+                className="relative overflow-hidden touch-pan-y pb-10"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -851,30 +851,30 @@ export function FinancialSummaryChart({
                     </div>
                   ))}
                 </div>
-              </div>
 
-              {summaryCards.length > 1 && (
-                <div className="mt-2 flex items-center justify-center gap-1">
-                  {summaryCards.map((card, index) => (
-                    <button
-                      key={card.key}
-                      type="button"
-                      aria-label={`Go to ${card.label} card`}
-                      onClick={() => goToMobileCard(index)}
-                      className="inline-flex size-11 items-center justify-center rounded-full"
-                    >
-                      <span
-                        className={cn(
-                          "size-1.5 rounded-full transition-colors",
-                          index === mobileCardIndex
-                            ? "bg-foreground/70"
-                            : "bg-foreground/20",
-                        )}
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
+                {summaryCards.length > 1 && (
+                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-0.5">
+                    {summaryCards.map((card, index) => (
+                      <button
+                        key={card.key}
+                        type="button"
+                        aria-label={`Go to ${card.label} card`}
+                        onClick={() => goToMobileCard(index)}
+                        className="inline-flex size-10 items-center justify-center rounded-full"
+                      >
+                        <span
+                          className={cn(
+                            "size-1.5 rounded-full transition-colors",
+                            index === mobileCardIndex
+                              ? "bg-foreground/70"
+                              : "bg-foreground/20",
+                          )}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div
