@@ -531,11 +531,14 @@ export function FinancialSummaryChart({
             {config.title ?? "Summary"}
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2">
           {/* Mini summary pills when collapsed */}
           {!expanded &&
             summaryCards.map((card) => (
-              <div key={card.key} className="flex items-center gap-1.5 text-xs">
+              <div
+                key={card.key}
+                className="hidden items-center gap-1.5 text-xs md:flex"
+              >
                 <div
                   className="size-1.5 rounded-full"
                   style={{ backgroundColor: card.color }}
@@ -552,9 +555,9 @@ export function FinancialSummaryChart({
               </div>
             ))}
           {expanded ? (
-            <ChevronUp className="size-4 text-muted-foreground" />
+            <ChevronUp className="size-4 shrink-0 text-muted-foreground" />
           ) : (
-            <ChevronDown className="size-4 text-muted-foreground" />
+            <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
           )}
         </div>
       </button>
@@ -572,10 +575,14 @@ export function FinancialSummaryChart({
           <div className="px-4 pb-4">
             {/* Summary cards */}
             <div
-              className="mb-4 grid gap-3"
-              style={{
-                gridTemplateColumns: `repeat(${summaryCards.length}, minmax(0, 1fr))`,
-              }}
+              className={cn("mb-4 grid gap-3", {
+                "grid-cols-1": summaryCards.length === 1,
+                "grid-cols-1 sm:grid-cols-2": summaryCards.length === 2,
+                "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3":
+                  summaryCards.length === 3,
+                "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4":
+                  summaryCards.length >= 4,
+              })}
             >
               {summaryCards.map((card) => {
                 const isPositiveTrend =
