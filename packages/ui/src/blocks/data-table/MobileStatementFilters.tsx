@@ -20,6 +20,7 @@ export interface MobileStatementFiltersProps {
   children: ReactNode;
   onReset: () => void;
   onApply: () => void;
+  showSummaryChips?: boolean;
 }
 
 export function MobileStatementFilters({
@@ -31,20 +32,25 @@ export function MobileStatementFilters({
   children,
   onReset,
   onApply,
+  showSummaryChips = true,
 }: MobileStatementFiltersProps) {
   return (
     <>
       <div className="flex items-center gap-2.5 flex-wrap">
-        <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
-          {periodLabel}
-        </span>
-        <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
-          {comparisonLabel}
-        </span>
+        {showSummaryChips && (
+          <>
+            <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
+              {periodLabel}
+            </span>
+            <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
+              {comparisonLabel}
+            </span>
+          </>
+        )}
         <button
           type="button"
           onClick={() => onOpenChange(true)}
-          className="ml-auto inline-flex h-8 items-center gap-1 rounded-md border px-2.5 text-xs font-medium"
+          className={`${showSummaryChips ? "ml-auto " : ""}inline-flex h-8 items-center gap-1 rounded-md border px-2.5 text-xs font-medium`}
         >
           <Filter className="size-3.5" />
           Filters

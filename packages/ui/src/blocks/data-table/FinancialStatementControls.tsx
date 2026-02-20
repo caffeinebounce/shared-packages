@@ -312,7 +312,7 @@ export function FinancialStatementControls({
         <div
           className={
             useCompactFilters
-              ? "flex items-center gap-2.5 flex-wrap"
+              ? "flex w-full items-center justify-end gap-2.5"
               : "flex md:hidden items-center gap-2.5 flex-wrap"
           }
         >
@@ -322,6 +322,7 @@ export function FinancialStatementControls({
             periodLabel={periodChipLabel}
             comparisonLabel={comparisonChipLabel}
             filterCount={activeFilterCount}
+            showSummaryChips={!useCompactFilters}
             onReset={onResetFilters}
             onApply={onApplyFilters}
           >
