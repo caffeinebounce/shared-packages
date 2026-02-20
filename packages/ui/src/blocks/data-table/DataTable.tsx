@@ -904,8 +904,7 @@ export function DataTable<TData, TValue>({
                                     position: "sticky" as const,
                                     left: stickyLeft,
                                     zIndex: 40,
-                                    backgroundColor:
-                                      "var(--background, hsl(var(--background)))",
+                                    backgroundColor: "hsl(var(--background))",
                                     backgroundClip: "padding-box",
                                     boxShadow:
                                       "inset -1px 0 0 hsl(var(--border))",
@@ -1243,8 +1242,7 @@ export function DataTable<TData, TValue>({
                                         position: "sticky" as const,
                                         left: stickyLeft,
                                         zIndex: 30,
-                                        backgroundColor:
-                                          "var(--background, hsl(var(--background)))",
+                                        backgroundColor: "hsl(var(--background))",
                                         backgroundClip: "padding-box",
                                         boxShadow:
                                           "inset -1px 0 0 hsl(var(--border))",
