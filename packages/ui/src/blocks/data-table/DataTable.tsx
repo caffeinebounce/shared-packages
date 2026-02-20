@@ -740,12 +740,19 @@ export function DataTable<TData, TValue>({
                           rowSelectionStyle === "hover" || enableRowDrag;
                         const isFirstColumn = headerIndex === 0 && !hasGutter;
 
-                        // Sticky column support (use column id, not row index, so grouped headers stay frozen)
-                        const isStickyColumn = stickyColumnIds.has(
-                          header.column.id,
+                        // Sticky column support for headers must resolve through leaf columns,
+                        // because grouped/placeholder headers can have synthetic ids.
+                        const leafHeaders = header.getLeafHeaders();
+                        const stickyLeafHeader = leafHeaders.find(
+                          (leafHeader) =>
+                            stickyColumnIds.has(leafHeader.column.id),
                         );
-                        const stickyLeft =
-                          stickyColumnLefts.get(header.column.id) ?? 0;
+                        const stickyHeaderColumnId =
+                          stickyLeafHeader?.column.id;
+                        const isStickyColumn = Boolean(stickyHeaderColumnId);
+                        const stickyLeft = stickyHeaderColumnId
+                          ? (stickyColumnLefts.get(stickyHeaderColumnId) ?? 0)
+                          : 0;
 
                         // Determine if header is a simple string (not a function/component)
                         const headerDef = header.column.columnDef.header;
