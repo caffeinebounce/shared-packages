@@ -137,31 +137,30 @@ export function FinancialStatementControls({
   csvIcon,
   excelIcon,
 }: FinancialStatementControlsProps) {
-  const [useCompactFilters, setUseCompactFilters] = useState(() => {
+  const shouldUseCompactFilters = () => {
     if (typeof window === "undefined") return true;
 
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const shortestSide = Math.min(width, height);
     const isTouchDevice =
       window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
       navigator.maxTouchPoints > 0;
-    const isHorizontalMobile =
-      isTouchDevice && window.innerWidth > window.innerHeight;
 
-    return window.innerWidth < 1200 || isHorizontalMobile;
-  });
+    // Compact controls on constrained widths, or true mobile/tablet landscape.
+    const isLandscapeMobile = isTouchDevice && width > height && shortestSide < 900;
+    return width < 1200 || isLandscapeMobile;
+  };
+
+  const [useCompactFilters, setUseCompactFilters] = useState(
+    shouldUseCompactFilters,
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const updateCompactFilters = () => {
-      const isTouchDevice =
-        window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
-        navigator.maxTouchPoints > 0;
-      const isHorizontalMobile =
-        isTouchDevice && window.innerWidth > window.innerHeight;
-
-      // Use compact/mobile filter controls whenever space is constrained
-      // to prevent wrapped desktop controls.
-      setUseCompactFilters(window.innerWidth < 1200 || isHorizontalMobile);
+      setUseCompactFilters(shouldUseCompactFilters());
     };
 
     updateCompactFilters();
