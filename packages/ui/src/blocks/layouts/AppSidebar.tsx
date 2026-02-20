@@ -27,6 +27,12 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "../../components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 import { Spinner } from "../../components/ui/spinner";
 import {
   Tooltip,
@@ -399,7 +405,12 @@ export function AppSidebar({
 
     // Normal item
     return (
-      <SidebarMenuButton asChild isActive={isActive} className="group">
+      <SidebarMenuButton
+        asChild
+        isActive={isActive}
+        className="group"
+        tooltip={item.label}
+      >
         <Link href={item.href}>
           <Icon className={`shrink-0 ${iconAnimationClass}`} />
           <span>{item.label}</span>
@@ -451,12 +462,27 @@ export function AppSidebar({
                       <SidebarGroupContent className="hidden group-data-[collapsible=icon]:block">
                         <SidebarMenu>
                           <SidebarMenuItem>
-                            <SidebarMenuButton asChild tooltip={section.label}>
-                              <Link href={sectionHref}>
-                                <SectionIcon className="shrink-0" />
-                                <span>{section.label}</span>
-                              </Link>
-                            </SidebarMenuButton>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <SidebarMenuButton tooltip={section.label}>
+                                  <SectionIcon className="shrink-0" />
+                                  <span>{section.label}</span>
+                                </SidebarMenuButton>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent side="right" align="start" className="w-64">
+                                {section.items.map((item) => {
+                                  const ItemIcon = item.icon;
+                                  return (
+                                    <DropdownMenuItem key={item.href} asChild>
+                                      <Link href={item.href} className="flex items-center gap-2">
+                                        <ItemIcon className="size-4" />
+                                        <span>{item.label}</span>
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  );
+                                })}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </SidebarMenuItem>
                         </SidebarMenu>
                       </SidebarGroupContent>
