@@ -910,6 +910,11 @@ export function DataTable<TData, TValue>({
                                     backgroundClip: "padding-box",
                                     boxShadow:
                                       "inset -1px 0 0 hsl(var(--border))",
+                                    isolation: "isolate" as const,
+                                    contain: "paint" as const,
+                                    backfaceVisibility: "hidden" as const,
+                                    transform: "translateZ(0)",
+                                    WebkitTransform: "translateZ(0)",
                                   }
                                 : {}),
                             }}
@@ -1250,6 +1255,11 @@ export function DataTable<TData, TValue>({
                                         backgroundClip: "padding-box",
                                         boxShadow:
                                           "inset -1px 0 0 hsl(var(--border))",
+                                        isolation: "isolate" as const,
+                                        contain: "paint" as const,
+                                        backfaceVisibility: "hidden" as const,
+                                        transform: "translateZ(0)",
+                                        WebkitTransform: "translateZ(0)",
                                       }
                                     : {}),
                                 }}
