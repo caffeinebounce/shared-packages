@@ -658,7 +658,7 @@ export function FinancialSummaryChart({
                     divisor={divisor}
                   />
                 )}
-                <div className="mt-1.5 flex justify-center gap-1">
+                <div className="mt-1.5 hidden justify-center gap-1 sm:flex">
                   {/* biome-ignore lint/a11y/useSemanticElements: nested inside button trigger */}
                   <span
                     role="button"
