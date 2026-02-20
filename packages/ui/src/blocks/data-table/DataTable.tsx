@@ -892,7 +892,7 @@ export function DataTable<TData, TValue>({
                               isDragOverRight && "border-r-2 border-r-primary",
                             )}
                             style={{
-                              ...(isFixedWidth || isActionsColumn
+                              ...(isActionsColumn
                                 ? { width: "1%" }
                                 : {
                                     width: resizedWidth ?? header.getSize(),
