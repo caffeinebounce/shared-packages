@@ -669,7 +669,10 @@ export function DataTable<TData, TValue>({
                 "caption-bottom border-separate border-spacing-0",
                 fontSizeClass,
               )}
-              style={{ width: renderedTableWidth, tableLayout: "fixed" }}
+              style={{
+                width: `max(100%, ${renderedTableWidth}px)`,
+                tableLayout: "fixed",
+              }}
             >
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => {

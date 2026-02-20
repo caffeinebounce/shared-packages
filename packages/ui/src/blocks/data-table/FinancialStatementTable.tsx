@@ -817,14 +817,14 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      // Mobile compare mode: keep period columns readable, but prioritize account visibility.
+      // Mobile compare mode: reserve fixed room for data columns, let Account absorb remaining width.
       size: isMobile
         ? mobileCompareEnabled
-          ? 150
+          ? 120
           : 260
         : Math.max(300, 900 - periods.length * 110),
-      minSize: isMobile ? (mobileCompareEnabled ? 130 : 200) : 200,
-      maxSize: isMobile ? (mobileCompareEnabled ? 190 : 320) : undefined,
+      minSize: isMobile ? (mobileCompareEnabled ? 110 : 200) : 200,
+      maxSize: isMobile ? (mobileCompareEnabled ? undefined : 320) : undefined,
     },
   ];
 
@@ -905,8 +905,9 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: isMobile && mobileCompareEnabled ? 104 : 110,
-      minSize: isMobile && mobileCompareEnabled ? 84 : 80,
+      size: isMobile && mobileCompareEnabled ? 116 : 110,
+      minSize: isMobile && mobileCompareEnabled ? 116 : 80,
+      maxSize: isMobile && mobileCompareEnabled ? 116 : undefined,
     });
   }
 
