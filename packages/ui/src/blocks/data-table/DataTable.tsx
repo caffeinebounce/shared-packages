@@ -849,10 +849,6 @@ export function DataTable<TData, TValue>({
                             className={cn(
                               isSimpleHeader ? "px-2" : "p-0", // Add padding for simple headers, let component headers handle their own
                               headerHeight,
-                              // Tree view first column: flex layout for expand-all button + header
-                              enableTreeView &&
-                                headerIndex === 0 &&
-                                "flex items-center",
                               !isStickyColumn && "relative",
                               "overflow-hidden text-ellipsis border-b border-border",
                               !columnWrapping[header.id] && "whitespace-nowrap",
@@ -882,7 +878,12 @@ export function DataTable<TData, TValue>({
                             }}
                           >
                             {header.isPlaceholder ? null : (
-                              <>
+                              <div
+                                className={cn(
+                                  enableTreeView && headerIndex === 0 &&
+                                    "flex items-center",
+                                )}
+                              >
                                 {/* Tree view: cycle expand depth on first column header */}
                                 {enableTreeView && headerIndex === 0 && (
                                   <TreeExpandCycleButton
@@ -902,7 +903,7 @@ export function DataTable<TData, TValue>({
                                     header.getContext(),
                                   )
                                 )}
-                              </>
+                              </div>
                             )}
                             {/* Resize handle - not shown for fixed-width or last column */}
                             {enableColumnResizing &&
