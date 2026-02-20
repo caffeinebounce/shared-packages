@@ -8,7 +8,7 @@ import {
   MapPin,
   Settings2,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Combobox } from "../../components/ui/combobox";
 import {
   Popover,
@@ -137,10 +137,34 @@ export function FinancialStatementControls({
   csvIcon,
   excelIcon,
 }: FinancialStatementControlsProps) {
+  const [isHorizontalMobile, setIsHorizontalMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const updateHorizontalMobile = () => {
+      const isTouchDevice =
+        window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+        navigator.maxTouchPoints > 0;
+      setIsHorizontalMobile(isTouchDevice && window.innerWidth > window.innerHeight);
+    };
+
+    updateHorizontalMobile();
+    window.addEventListener("resize", updateHorizontalMobile);
+    window.addEventListener("orientationchange", updateHorizontalMobile);
+
+    return () => {
+      window.removeEventListener("resize", updateHorizontalMobile);
+      window.removeEventListener("orientationchange", updateHorizontalMobile);
+    };
+  }, []);
+
   return (
     <>
       <div className="space-y-2">
-        <div className="hidden md:flex items-center gap-2 flex-wrap">
+        <div
+          className={isHorizontalMobile ? "hidden" : "hidden md:flex items-center gap-2 flex-wrap"}
+        >
           <PeriodSelector
             granularity={granularity}
             periodStart={periodStart}
@@ -278,7 +302,13 @@ export function FinancialStatementControls({
           </Popover>
         </div>
 
-        <div className="flex md:hidden items-center gap-2.5 flex-wrap">
+        <div
+          className={
+            isHorizontalMobile
+              ? "flex items-center gap-2.5 flex-wrap"
+              : "flex md:hidden items-center gap-2.5 flex-wrap"
+          }
+        >
           <MobileStatementFilters
             open={mobileFiltersOpen}
             onOpenChange={onMobileFiltersOpenChange}
