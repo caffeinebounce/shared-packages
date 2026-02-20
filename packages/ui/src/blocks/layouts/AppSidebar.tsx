@@ -66,6 +66,8 @@ export interface NavSection {
   type: "section";
   /** Section label (displayed as uppercase header) */
   label: string;
+  /** Optional icon used when sidebar is collapsed */
+  icon?: ComponentType<{ className?: string }>;
   /** Items within this section */
   items: NavItem[];
   /** Whether section is visible (for conditional rendering) */
@@ -429,6 +431,9 @@ export function AppSidebar({
             if (section.visible === false) return null;
 
             if (section.collapsible) {
+              const SectionIcon = section.icon ?? section.items[0]?.icon;
+              const sectionHref = section.items[0]?.href;
+
               return (
                 <Collapsible
                   key={`section-${section.label}`}
@@ -442,26 +447,43 @@ export function AppSidebar({
                   className="group/collapsible"
                 >
                   <SidebarGroup>
-                    <SidebarGroupLabel
-                      asChild
-                      className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                    >
-                      <CollapsibleTrigger className="flex w-full items-center justify-between [&[data-state=open]>svg]:rotate-180">
-                        {section.label}
-                        <ChevronDown className="ml-auto size-4 transition-transform duration-200" />
-                      </CollapsibleTrigger>
-                    </SidebarGroupLabel>
-                    <CollapsibleContent>
-                      <SidebarGroupContent>
+                    {SectionIcon && sectionHref && (
+                      <SidebarGroupContent className="hidden group-data-[collapsible=icon]:block">
                         <SidebarMenu>
-                          {section.items.map((item) => (
-                            <SidebarMenuItem key={item.href}>
-                              {renderNavItem(item)}
-                            </SidebarMenuItem>
-                          ))}
+                          <SidebarMenuItem>
+                            <SidebarMenuButton asChild tooltip={section.label}>
+                              <Link href={sectionHref}>
+                                <SectionIcon className="shrink-0" />
+                                <span>{section.label}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
                         </SidebarMenu>
                       </SidebarGroupContent>
-                    </CollapsibleContent>
+                    )}
+
+                    <div className="group-data-[collapsible=icon]:hidden">
+                      <SidebarGroupLabel
+                        asChild
+                        className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                      >
+                        <CollapsibleTrigger className="flex w-full items-center justify-between [&[data-state=open]>svg]:rotate-180">
+                          {section.label}
+                          <ChevronDown className="ml-auto size-4 transition-transform duration-200" />
+                        </CollapsibleTrigger>
+                      </SidebarGroupLabel>
+                      <CollapsibleContent>
+                        <SidebarGroupContent>
+                          <SidebarMenu>
+                            {section.items.map((item) => (
+                              <SidebarMenuItem key={item.href}>
+                                {renderNavItem(item)}
+                              </SidebarMenuItem>
+                            ))}
+                          </SidebarMenu>
+                        </SidebarGroupContent>
+                      </CollapsibleContent>
+                    </div>
                   </SidebarGroup>
                 </Collapsible>
               );
