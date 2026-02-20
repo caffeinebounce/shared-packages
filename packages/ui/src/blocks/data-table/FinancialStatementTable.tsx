@@ -817,14 +817,14 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      // Mobile compare mode: hard-force account column narrow so period values are visibly wider.
+      // Mobile compare mode: keep period columns readable, but prioritize account visibility.
       size: isMobile
         ? mobileCompareEnabled
-          ? 120
+          ? 150
           : 260
         : Math.max(300, 900 - periods.length * 110),
-      minSize: isMobile ? (mobileCompareEnabled ? 100 : 200) : 200,
-      maxSize: isMobile ? (mobileCompareEnabled ? 130 : 320) : undefined,
+      minSize: isMobile ? (mobileCompareEnabled ? 130 : 200) : 200,
+      maxSize: isMobile ? (mobileCompareEnabled ? 190 : 320) : undefined,
     },
   ];
 
@@ -905,8 +905,8 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: isMobile && mobileCompareEnabled ? 132 : 110,
-      minSize: isMobile && mobileCompareEnabled ? 108 : 80,
+      size: isMobile && mobileCompareEnabled ? 104 : 110,
+      minSize: isMobile && mobileCompareEnabled ? 84 : 80,
     });
   }
 
