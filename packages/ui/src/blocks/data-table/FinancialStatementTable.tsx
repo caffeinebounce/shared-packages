@@ -819,11 +819,11 @@ function buildColumns(
       // Desktop behavior remains unchanged.
       size: isMobile
         ? mobileCompareEnabled
-          ? 170
+          ? 148
           : 260
         : Math.max(300, 900 - periods.length * 110),
-      minSize: isMobile ? (mobileCompareEnabled ? 140 : 200) : 200,
-      maxSize: isMobile ? (mobileCompareEnabled ? 200 : 320) : undefined,
+      minSize: isMobile ? (mobileCompareEnabled ? 116 : 200) : 200,
+      maxSize: isMobile ? (mobileCompareEnabled ? 170 : 320) : undefined,
     },
   ];
 
@@ -904,8 +904,8 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: isMobile && mobileCompareEnabled ? 120 : 110,
-      minSize: isMobile && mobileCompareEnabled ? 95 : 80,
+      size: isMobile && mobileCompareEnabled ? 128 : 110,
+      minSize: isMobile && mobileCompareEnabled ? 104 : 80,
     });
   }
 

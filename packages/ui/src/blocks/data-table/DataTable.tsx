@@ -854,7 +854,7 @@ export function DataTable<TData, TValue>({
                               !columnWrapping[header.id] && "whitespace-nowrap",
                               columnWrapping[header.id] && "whitespace-normal",
                               isFirstColumn && "border-l border-border",
-                              "border-r border-border",
+                              !isStickyColumn && "border-r border-border",
                               isDragOverLeft && "border-l-2 border-l-primary",
                               isDragOverRight && "border-r-2 border-r-primary",
                             )}
@@ -872,7 +872,8 @@ export function DataTable<TData, TValue>({
                                     backgroundColor:
                                       "var(--background, hsl(var(--background)))",
                                     backgroundClip: "padding-box",
-                                    boxShadow: "2px 0 4px -2px rgba(0,0,0,0.1)",
+                                    boxShadow:
+                                      "inset -1px 0 0 hsl(var(--border)), 2px 0 4px -2px rgba(0,0,0,0.08)",
                                   }
                                 : {}),
                             }}
@@ -880,7 +881,8 @@ export function DataTable<TData, TValue>({
                             {header.isPlaceholder ? null : (
                               <div
                                 className={cn(
-                                  enableTreeView && headerIndex === 0 &&
+                                  enableTreeView &&
+                                    headerIndex === 0 &&
                                     "flex items-center",
                                 )}
                               >
@@ -1164,7 +1166,9 @@ export function DataTable<TData, TValue>({
                                   !isWrapped &&
                                     "overflow-hidden text-ellipsis whitespace-nowrap",
                                   isWrapped && "whitespace-normal break-words",
-                                  !isLastColumn && "border-r border-border",
+                                  !isLastColumn &&
+                                    !isStickyCell &&
+                                    "border-r border-border",
                                   isFirstColumn && "border-l border-border",
                                   isLastColumn && "border-r border-border",
                                   isActionsColumn && "whitespace-nowrap",
@@ -1199,7 +1203,7 @@ export function DataTable<TData, TValue>({
                                           "var(--background, hsl(var(--background)))",
                                         backgroundClip: "padding-box",
                                         boxShadow:
-                                          "2px 0 4px -2px rgba(0,0,0,0.1)",
+                                          "inset -1px 0 0 hsl(var(--border)), 2px 0 4px -2px rgba(0,0,0,0.08)",
                                       }
                                     : {}),
                                 }}
