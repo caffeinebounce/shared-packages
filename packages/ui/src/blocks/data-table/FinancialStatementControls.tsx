@@ -325,21 +325,25 @@ export function FinancialStatementControls({
             onReset={onResetFilters}
             onApply={onApplyFilters}
           >
-            <PeriodSelector
-              granularity={granularity}
-              periodStart={periodStart}
-              periodEnd={periodEnd}
-              fiscalYearEndMonth={fiscalYearEndMonth}
-              onChange={onPeriodChange}
-            />
-            <ComparisonSelector
-              mode={granularity === "ltm" ? "previous" : comparisonMode}
-              periods={granularity === "ltm" ? 11 : comparisonPeriods}
-              defaultPreviousPeriods={granularity === "ltm" ? 11 : 1}
-              customStart={comparisonCustomStart}
-              customEnd={comparisonCustomEnd}
-              onChange={onComparisonChange}
-            />
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <PeriodSelector
+                granularity={granularity}
+                periodStart={periodStart}
+                periodEnd={periodEnd}
+                fiscalYearEndMonth={fiscalYearEndMonth}
+                onChange={onPeriodChange}
+                className="w-full justify-start"
+              />
+              <ComparisonSelector
+                mode={granularity === "ltm" ? "previous" : comparisonMode}
+                periods={granularity === "ltm" ? 11 : comparisonPeriods}
+                defaultPreviousPeriods={granularity === "ltm" ? 11 : 1}
+                customStart={comparisonCustomStart}
+                customEnd={comparisonCustomEnd}
+                onChange={onComparisonChange}
+                className="w-full justify-start"
+              />
+            </div>
             <Combobox
               size="sm"
               icon={classIcon ?? <Building2 className="h-4 w-4" />}
