@@ -211,6 +211,9 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const Link = LinkComponent;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [collapsedSectionMenu, setCollapsedSectionMenu] = useState<string | null>(
+    null,
+  );
 
   // Check if current path is the profile page
   const isOnProfilePage =
@@ -462,11 +465,22 @@ export function AppSidebar({
                       <SidebarGroupContent className="hidden group-data-[collapsible=icon]:block">
                         <SidebarMenu>
                           <SidebarMenuItem>
-                            <DropdownMenu>
+                            <DropdownMenu
+                              onOpenChange={(open) => {
+                                setCollapsedSectionMenu(open ? section.label : null);
+                                if (!open && document.activeElement instanceof HTMLElement) {
+                                  document.activeElement.blur();
+                                }
+                              }}
+                            >
                               <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
                                   tooltip={section.label}
-                                  className="!hover:bg-transparent hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                                  className={cn(
+                                    "!hover:bg-transparent hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0",
+                                    collapsedSectionMenu === section.label &&
+                                      "bg-sidebar-accent text-sidebar-accent-foreground",
+                                  )}
                                 >
                                   <SectionIcon className="shrink-0" />
                                   <span>{section.label}</span>
