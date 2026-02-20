@@ -137,7 +137,17 @@ export function FinancialStatementControls({
   csvIcon,
   excelIcon,
 }: FinancialStatementControlsProps) {
-  const [useCompactFilters, setUseCompactFilters] = useState(false);
+  const [useCompactFilters, setUseCompactFilters] = useState(() => {
+    if (typeof window === "undefined") return true;
+
+    const isTouchDevice =
+      window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      navigator.maxTouchPoints > 0;
+    const isHorizontalMobile =
+      isTouchDevice && window.innerWidth > window.innerHeight;
+
+    return window.innerWidth < 1200 || isHorizontalMobile;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
