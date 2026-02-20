@@ -466,7 +466,7 @@ export function AppSidebar({
                               <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
                                   tooltip={section.label}
-                                  className="hover:bg-transparent hover:text-sidebar-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                                  className="!hover:bg-transparent hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                                 >
                                   <SectionIcon className="shrink-0" />
                                   <span>{section.label}</span>
