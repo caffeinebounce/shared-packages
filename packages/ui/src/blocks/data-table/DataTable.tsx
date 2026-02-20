@@ -119,6 +119,8 @@ export interface DataTableProps<TData, TValue>
   getRowClassName?: (row: Row<TData>) => string | undefined;
   /** Number of leading columns to freeze (sticky left). Default: 0 */
   stickyColumns?: number;
+  /** Specific column IDs to freeze (sticky left). Takes precedence over stickyColumns when provided. */
+  stickyColumnIds?: string[];
 }
 
 // ── Tree expand cycle button ──────────────────────────────────────────────────
@@ -256,6 +258,7 @@ export function DataTable<TData, TValue>({
   treeIndentPx = 20,
   getRowClassName,
   stickyColumns = 0,
+  stickyColumnIds: explicitStickyColumnIds,
   className,
   children,
   ...props
@@ -310,9 +313,16 @@ export function DataTable<TData, TValue>({
   const [hoveredRowId, setHoveredRowId] = React.useState<string | null>(null);
 
   const stickyLeafColumns = React.useMemo(() => {
+    const visibleLeafColumns = table.getVisibleLeafColumns();
+
+    if (explicitStickyColumnIds && explicitStickyColumnIds.length > 0) {
+      const stickyIdSet = new Set(explicitStickyColumnIds);
+      return visibleLeafColumns.filter((column) => stickyIdSet.has(column.id));
+    }
+
     if (!stickyColumns || stickyColumns <= 0) return [];
-    return table.getVisibleLeafColumns().slice(0, stickyColumns);
-  }, [table, stickyColumns]);
+    return visibleLeafColumns.slice(0, stickyColumns);
+  }, [table, stickyColumns, explicitStickyColumnIds]);
 
   const stickyColumnIds = React.useMemo(
     () => new Set(stickyLeafColumns.map((c) => c.id)),

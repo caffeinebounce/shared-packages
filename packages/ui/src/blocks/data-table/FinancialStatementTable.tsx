@@ -819,11 +819,11 @@ function buildColumns(
       // Desktop behavior remains unchanged.
       size: isMobile
         ? mobileCompareEnabled
-          ? 190
+          ? 170
           : 260
         : Math.max(300, 900 - periods.length * 110),
-      minSize: isMobile ? (mobileCompareEnabled ? 160 : 200) : 200,
-      maxSize: isMobile ? (mobileCompareEnabled ? 220 : 320) : undefined,
+      minSize: isMobile ? (mobileCompareEnabled ? 140 : 200) : 200,
+      maxSize: isMobile ? (mobileCompareEnabled ? 200 : 320) : undefined,
     },
   ];
 
@@ -1216,7 +1216,7 @@ export function FinancialStatementTable({
         rowSelectionStyle="none"
         density="compact"
         fontSize="sm"
-        stickyColumns={1}
+        stickyColumnIds={["account"]}
       />
     </div>
   );
