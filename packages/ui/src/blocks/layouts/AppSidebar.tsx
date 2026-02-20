@@ -39,7 +39,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../../components/ui/tooltip";
-import { cn } from "../../utils";
 import { getAvatarGradient } from "../../utils/avatar-gradient";
 import { KeyboardShortcut } from "../keyboard/KeyboardShortcut";
 import {
@@ -212,9 +211,6 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const Link = LinkComponent;
   const [menuOpen, setMenuOpen] = useState(false);
-  const [collapsedSectionMenu, setCollapsedSectionMenu] = useState<string | null>(
-    null,
-  );
 
   // Check if current path is the profile page
   const isOnProfilePage =
@@ -468,7 +464,6 @@ export function AppSidebar({
                           <SidebarMenuItem>
                             <DropdownMenu
                               onOpenChange={(open) => {
-                                setCollapsedSectionMenu(open ? section.label : null);
                                 if (!open && document.activeElement instanceof HTMLElement) {
                                   document.activeElement.blur();
                                 }
@@ -477,11 +472,7 @@ export function AppSidebar({
                               <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
                                   tooltip={section.label}
-                                  className={cn(
-                                    "!bg-transparent !text-sidebar-foreground !hover:bg-transparent !hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0",
-                                    collapsedSectionMenu === section.label &&
-                                      "!bg-sidebar-accent !text-sidebar-accent-foreground",
-                                  )}
+                                  className="!bg-transparent !text-sidebar-foreground !hover:bg-transparent !hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0"
                                 >
                                   <SectionIcon className="shrink-0" />
                                   <span>{section.label}</span>
