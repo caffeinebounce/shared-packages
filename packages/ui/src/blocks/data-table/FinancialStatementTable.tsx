@@ -773,7 +773,8 @@ function buildColumns(
       meta: {
         displayName: "Account",
         icon: BookOpen,
-      } satisfies DataTableColumnMeta,
+        allowHorizontalScroll: isMobile && mobileCompareEnabled,
+      } satisfies DataTableColumnMeta & { allowHorizontalScroll?: boolean },
       cell: ({ row }) => {
         const r = row.original;
         if (r._type === "section-header") {

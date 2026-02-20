@@ -1178,6 +1178,8 @@ export function DataTable<TData, TValue>({
                               | undefined;
                             const colAlign =
                               (colMeta?.align as string) ?? "left";
+                            const allowHorizontalScroll =
+                              colMeta?.allowHorizontalScroll === true;
                             const alignClass =
                               colAlign === "right"
                                 ? "text-right"
@@ -1284,7 +1286,9 @@ export function DataTable<TData, TValue>({
                                     <div
                                       className={cn(
                                         "min-w-0",
-                                        !isWrapped && "truncate",
+                                        !isWrapped && !allowHorizontalScroll && "truncate",
+                                        allowHorizontalScroll &&
+                                          "overflow-x-auto whitespace-nowrap",
                                       )}
                                     >
                                       {flexRender(
@@ -1296,7 +1300,9 @@ export function DataTable<TData, TValue>({
                                 ) : (
                                   <div
                                     className={cn(
-                                      !isWrapped && "truncate",
+                                      !isWrapped && !allowHorizontalScroll && "truncate",
+                                      allowHorizontalScroll &&
+                                        "overflow-x-auto whitespace-nowrap",
                                       alignClass,
                                     )}
                                   >
