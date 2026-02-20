@@ -59,7 +59,7 @@ export function MobilePeriodStepper({
 
       <div className="mt-2 flex items-center justify-between gap-2">
         <div className="text-xs font-medium text-muted-foreground">
-          Compare period
+          Compare period{compareEnabled && compareLabel ? ` vs ${compareLabel}` : ""}
         </div>
         <Switch
           checked={compareEnabled}
@@ -68,11 +68,6 @@ export function MobilePeriodStepper({
           aria-label="Toggle compare period"
         />
       </div>
-      {compareEnabled && compareLabel && (
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          vs {compareLabel}
-        </p>
-      )}
     </div>
   );
 }
