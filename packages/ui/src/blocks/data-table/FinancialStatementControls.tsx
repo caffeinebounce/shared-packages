@@ -137,25 +137,30 @@ export function FinancialStatementControls({
   csvIcon,
   excelIcon,
 }: FinancialStatementControlsProps) {
-  const [isHorizontalMobile, setIsHorizontalMobile] = useState(false);
+  const [useCompactFilters, setUseCompactFilters] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const updateHorizontalMobile = () => {
+    const updateCompactFilters = () => {
       const isTouchDevice =
         window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
         navigator.maxTouchPoints > 0;
-      setIsHorizontalMobile(isTouchDevice && window.innerWidth > window.innerHeight);
+      const isHorizontalMobile =
+        isTouchDevice && window.innerWidth > window.innerHeight;
+
+      // Use compact/mobile filter controls whenever space is constrained
+      // to prevent wrapped desktop controls.
+      setUseCompactFilters(window.innerWidth < 1200 || isHorizontalMobile);
     };
 
-    updateHorizontalMobile();
-    window.addEventListener("resize", updateHorizontalMobile);
-    window.addEventListener("orientationchange", updateHorizontalMobile);
+    updateCompactFilters();
+    window.addEventListener("resize", updateCompactFilters);
+    window.addEventListener("orientationchange", updateCompactFilters);
 
     return () => {
-      window.removeEventListener("resize", updateHorizontalMobile);
-      window.removeEventListener("orientationchange", updateHorizontalMobile);
+      window.removeEventListener("resize", updateCompactFilters);
+      window.removeEventListener("orientationchange", updateCompactFilters);
     };
   }, []);
 
@@ -163,7 +168,9 @@ export function FinancialStatementControls({
     <>
       <div className="space-y-2">
         <div
-          className={isHorizontalMobile ? "hidden" : "hidden md:flex items-center gap-2 flex-wrap"}
+          className={
+            useCompactFilters ? "hidden" : "hidden md:flex items-center gap-2 flex-wrap"
+          }
         >
           <PeriodSelector
             granularity={granularity}
@@ -304,7 +311,7 @@ export function FinancialStatementControls({
 
         <div
           className={
-            isHorizontalMobile
+            useCompactFilters
               ? "flex items-center gap-2.5 flex-wrap"
               : "flex md:hidden items-center gap-2.5 flex-wrap"
           }

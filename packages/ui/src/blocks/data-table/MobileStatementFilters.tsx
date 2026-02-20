@@ -34,7 +34,7 @@ export function MobileStatementFilters({
 }: MobileStatementFiltersProps) {
   return (
     <>
-      <div className="flex md:hidden items-center gap-2.5 flex-wrap">
+      <div className="flex items-center gap-2.5 flex-wrap">
         <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
           {periodLabel}
         </span>
@@ -44,7 +44,7 @@ export function MobileStatementFilters({
         <button
           type="button"
           onClick={() => onOpenChange(true)}
-          className="ml-auto inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-medium"
+          className="ml-auto inline-flex h-8 items-center gap-1 rounded-md border px-2.5 text-xs font-medium"
         >
           <Filter className="size-3.5" />
           Filters
