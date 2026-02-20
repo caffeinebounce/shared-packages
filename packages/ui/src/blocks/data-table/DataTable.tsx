@@ -650,9 +650,10 @@ export function DataTable<TData, TValue>({
           >
             <table
               className={cn(
-                "w-full caption-bottom border-separate border-spacing-0",
+                "caption-bottom border-separate border-spacing-0",
                 fontSizeClass,
               )}
+              style={{ width: table.getTotalSize(), tableLayout: "fixed" }}
             >
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => {
@@ -826,6 +827,18 @@ export function DataTable<TData, TValue>({
                           dragOverColumnId === header.id &&
                           dragOverColumnPosition === "right";
 
+                        const firstLeafIndex = Math.min(
+                          ...headerLeafColumnIds.map(
+                            (columnId) => renderedLeafIndexById.get(columnId) ?? 0,
+                          ),
+                        );
+                        const isFirstNonStickyAfterSticky =
+                          !isStickyColumn &&
+                          firstLeafIndex > 0 &&
+                          stickyColumnIds.has(
+                            renderedLeafColumns[firstLeafIndex - 1]?.id ?? "",
+                          );
+
                         return (
                           <TableHead
                             key={header.id}
@@ -855,15 +868,18 @@ export function DataTable<TData, TValue>({
                               columnWrapping[header.id] && "whitespace-normal",
                               isFirstColumn && "border-l border-border",
                               !isStickyColumn && "border-r border-border",
+                              isFirstNonStickyAfterSticky && "border-l-0",
                               isDragOverLeft && "border-l-2 border-l-primary",
                               isDragOverRight && "border-r-2 border-r-primary",
                             )}
                             style={{
                               ...(isFixedWidth || isActionsColumn
                                 ? { width: "1%" }
-                                : resizedWidth
-                                  ? { width: resizedWidth }
-                                  : {}),
+                                : {
+                                    width: resizedWidth ?? header.getSize(),
+                                    minWidth: header.column.columnDef.minSize,
+                                    maxWidth: header.column.columnDef.maxSize,
+                                  }),
                               ...(isStickyColumn
                                 ? {
                                     position: "sticky" as const,
@@ -1112,6 +1128,10 @@ export function DataTable<TData, TValue>({
                             );
                             const stickyLeft =
                               stickyColumnLefts.get(cell.column.id) ?? 0;
+                            const isFirstNonStickyAfterSticky =
+                              !isStickyCell &&
+                              cellIndex > 0 &&
+                              stickyColumnIds.has(sortedCells[cellIndex - 1]?.column.id ?? "");
 
                             // Check if this is a fixed-width column
                             const colDef = cell.column.columnDef;
@@ -1170,6 +1190,7 @@ export function DataTable<TData, TValue>({
                                     !isStickyCell &&
                                     "border-r border-border",
                                   isFirstColumn && "border-l border-border",
+                                  isFirstNonStickyAfterSticky && "border-l-0",
                                   isLastColumn && "border-r border-border",
                                   isActionsColumn && "whitespace-nowrap",
                                   // All rows get bottom border except last row without summary
@@ -1194,6 +1215,8 @@ export function DataTable<TData, TValue>({
                                 )}
                                 style={{
                                   width: resizedWidth || cell.column.getSize(),
+                                  minWidth: cell.column.columnDef.minSize,
+                                  maxWidth: cell.column.columnDef.maxSize,
                                   ...(isStickyCell
                                     ? {
                                         position: "sticky" as const,
@@ -1203,7 +1226,7 @@ export function DataTable<TData, TValue>({
                                           "var(--background, hsl(var(--background)))",
                                         backgroundClip: "padding-box",
                                         boxShadow:
-                                          "inset -1px 0 0 hsl(var(--border)), 2px 0 4px -2px rgba(0,0,0,0.08)",
+                                          "inset -1px 0 0 hsl(var(--border))",
                                       }
                                     : {}),
                                 }}
