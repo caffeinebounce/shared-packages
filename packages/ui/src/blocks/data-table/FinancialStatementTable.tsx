@@ -3,9 +3,12 @@
 import type {
   ColumnDef,
   ExpandedState,
+  Row,
+  Table as TanStackTable,
   VisibilityState,
 } from "@tanstack/react-table";
 import {
+  flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   useReactTable,
@@ -15,6 +18,9 @@ import {
   BookOpen,
   Calendar,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  ChevronsUpDown,
   DollarSign,
   TrendingUp,
 } from "lucide-react";
@@ -1084,6 +1090,234 @@ function getRowClassName(row: { original: StatementRow }): string | undefined {
   }
 }
 
+function MobileFinancialSplitTable({
+  table,
+  columns,
+  treeIndentPx,
+}: {
+  table: TanStackTable<StatementRow>;
+  columns: ColumnDef<StatementRow>[];
+  treeIndentPx: number;
+}) {
+  const accountColumn = table.getColumn("account");
+  const rowModel = table.getRowModel().rows;
+  const rightColumns = table
+    .getVisibleLeafColumns()
+    .filter((column) => column.id !== "account");
+
+  const maxDepth = React.useMemo(() => {
+    let max = 0;
+    const walk = (rows: Row<StatementRow>[]) => {
+      for (const row of rows) {
+        if (row.depth > max) max = row.depth;
+        if (row.subRows?.length) walk(row.subRows);
+      }
+    };
+    walk(table.getPreExpandedRowModel()?.rows ?? table.getCoreRowModel().rows);
+    return max;
+  }, [table]);
+
+  const depthRef = React.useRef(-1);
+  const onCycleExpand = React.useCallback(() => {
+    const nextDepth = depthRef.current + 1;
+    if (nextDepth > maxDepth) {
+      table.toggleAllRowsExpanded(false);
+      depthRef.current = -1;
+      return;
+    }
+
+    const newExpanded: Record<string, boolean> = {};
+    const allRows =
+      table.getPreExpandedRowModel()?.rows ?? table.getCoreRowModel().rows;
+    const walk = (rows: Row<StatementRow>[]) => {
+      for (const row of rows) {
+        if (row.depth <= nextDepth && row.getCanExpand()) {
+          newExpanded[row.id] = true;
+        }
+        if (row.subRows?.length) walk(row.subRows);
+      }
+    };
+    walk(allRows);
+    table.setExpanded(newExpanded);
+    depthRef.current = nextDepth;
+  }, [table, maxDepth]);
+
+  if (!accountColumn) {
+    return <DataTable table={table} columns={columns} enableTreeView />;
+  }
+
+  return (
+    <div className="mx-1 text-xs">
+      <div className="rounded-md border border-border overflow-hidden">
+        <div className="grid grid-cols-[minmax(150px,44vw)_1fr]">
+          <div className="border-r border-border bg-background">
+            <div className="h-7 px-1.5 border-b border-border flex items-center gap-1 bg-background">
+              <button
+                type="button"
+                onClick={onCycleExpand}
+                className="inline-flex items-center justify-center size-5 rounded text-muted-foreground hover:text-foreground hover:bg-accent"
+                aria-label="Expand/collapse rows"
+              >
+                <ChevronsUpDown className="size-3.5" />
+              </button>
+              <div className="truncate font-medium">Account</div>
+            </div>
+
+            {rowModel.length ? (
+              rowModel.map((row, rowIndex) => {
+                const rowClassName = getRowClassName({
+                  original: row.original,
+                });
+                const accountCell = row
+                  .getVisibleCells()
+                  .find((cell) => cell.column.id === "account");
+                const canExpand = row.getCanExpand();
+                const treeIndent = row.depth * treeIndentPx;
+
+                return (
+                  <div
+                    key={`left-${row.id}`}
+                    className={cn(
+                      "h-7 px-1.5 border-b border-border flex items-center",
+                      rowIndex === rowModel.length - 1 && "border-b-0",
+                      rowClassName,
+                    )}
+                  >
+                    <div
+                      className="flex min-w-0 items-center gap-1"
+                      style={{ paddingLeft: `${treeIndent}px` }}
+                    >
+                      {canExpand ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            row.toggleExpanded();
+                          }}
+                          className="shrink-0 text-muted-foreground hover:text-foreground"
+                          aria-label={
+                            row.getIsExpanded() ? "Collapse" : "Expand"
+                          }
+                        >
+                          {row.getIsExpanded() ? (
+                            <ChevronDown className="size-4" />
+                          ) : (
+                            <ChevronRight className="size-4" />
+                          )}
+                        </button>
+                      ) : (
+                        <span
+                          className="inline-block shrink-0 size-4"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <div className="truncate min-w-0">
+                        {accountCell
+                          ? flexRender(
+                              accountCell.column.columnDef.cell,
+                              accountCell.getContext(),
+                            )
+                          : null}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="h-24 px-2 text-muted-foreground flex items-center">
+                No results.
+              </div>
+            )}
+          </div>
+
+          <div className="overflow-x-auto bg-background">
+            <div className="min-w-max">
+              <div className="h-7 border-b border-border bg-background flex">
+                {rightColumns.map((column, index) => {
+                  const header = table
+                    .getHeaderGroups()[0]
+                    ?.headers.find((h) => h.column.id === column.id);
+                  return (
+                    <div
+                      key={`header-${column.id}`}
+                      className={cn(
+                        "h-7 px-1.5 flex items-center justify-end whitespace-nowrap border-r border-border",
+                        index === rightColumns.length - 1 && "border-r-0",
+                      )}
+                      style={{
+                        width: column.getSize(),
+                        minWidth: column.getSize(),
+                      }}
+                    >
+                      {header
+                        ? flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )
+                        : null}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {rowModel.map((row, rowIndex) => {
+                const rowClassName = getRowClassName({
+                  original: row.original,
+                });
+                return (
+                  <div
+                    key={`right-${row.id}`}
+                    className={cn(
+                      "h-7 border-b border-border flex",
+                      rowIndex === rowModel.length - 1 && "border-b-0",
+                      rowClassName,
+                    )}
+                  >
+                    {rightColumns.map((column, index) => {
+                      const cell = row
+                        .getVisibleCells()
+                        .find(
+                          (visibleCell) => visibleCell.column.id === column.id,
+                        );
+                      return (
+                        <div
+                          key={`${row.id}-${column.id}`}
+                          className={cn(
+                            "px-1.5 flex items-center justify-end whitespace-nowrap border-r border-border",
+                            index === rightColumns.length - 1 && "border-r-0",
+                          )}
+                          style={{
+                            width: column.getSize(),
+                            minWidth: column.getSize(),
+                          }}
+                        >
+                          <div className="truncate w-full text-right">
+                            {cell
+                              ? flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext(),
+                                )
+                              : null}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+      {rowModel.length === 0 && (
+        <div className="sr-only">
+          {columns.length > 0 ? "No results." : "No columns configured."}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 /**
@@ -1205,19 +1439,27 @@ export function FinancialStatementTable({
           {toolbar}
         </div>
       )}
-      <DataTable
-        table={table}
-        columns={columns}
-        enableTreeView
-        treeIndentPx={treeIndentPx}
-        getRowClassName={getRowClassName as never}
-        enableColumnResizing
-        enableRowDrag={false}
-        rowSelectionStyle="none"
-        density="compact"
-        fontSize="sm"
-        stickyColumnIds={["account"]}
-      />
+      {isMobile ? (
+        <MobileFinancialSplitTable
+          table={table}
+          columns={columns}
+          treeIndentPx={treeIndentPx}
+        />
+      ) : (
+        <DataTable
+          table={table}
+          columns={columns}
+          enableTreeView
+          treeIndentPx={treeIndentPx}
+          getRowClassName={getRowClassName as never}
+          enableColumnResizing
+          enableRowDrag={false}
+          rowSelectionStyle="none"
+          density="compact"
+          fontSize="sm"
+          stickyColumnIds={["account"]}
+        />
+      )}
     </div>
   );
 }
