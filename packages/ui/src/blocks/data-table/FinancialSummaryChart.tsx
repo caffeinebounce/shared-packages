@@ -319,6 +319,8 @@ function buildChartData(
     signMap.set(m.key, m.sign ?? 1);
   }
 
+  const latestPeriod = periods.at(-1);
+
   const summaryCards = allMetrics.map(({ key, label, color }) => {
     const total =
       config.statValueMode === "latest"
