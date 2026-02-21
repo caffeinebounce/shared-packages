@@ -162,20 +162,7 @@ export function FinancialStatementControls({
       const shouldCompactNow =
         isSmallViewport || isLandscapeMobile || desktopWrapByWidth;
 
-      setUseCompactFilters((prev) => {
-        if (!desktopToolbar) return shouldCompactNow;
-        if (isSmallViewport || isLandscapeMobile) return true;
-
-        const required = desktopToolbar.scrollWidth;
-        const available = desktopToolbar.clientWidth;
-
-        // Add hysteresis band to prevent rapid toggle in narrow threshold zones.
-        const enterCompact = required > available - 8;
-        const exitCompact = required < available - 32;
-
-        if (!prev) return enterCompact;
-        return !exitCompact;
-      });
+      setUseCompactFilters(shouldCompactNow);
     };
 
     updateCompactFilters();
