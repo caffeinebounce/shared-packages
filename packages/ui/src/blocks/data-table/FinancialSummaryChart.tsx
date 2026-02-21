@@ -787,10 +787,20 @@ export function FinancialSummaryChart({
       const showZeroHint = card.value === 0 && !showTrend && !showNoChange;
       const isActive = activeMetric === card.key;
       const isFlipped = flippedCards.has(card.key);
+      const latestPeriodRaw = chartData.at(-1)?.period;
+      const latestPeriodKey =
+        typeof latestPeriodRaw === "string" ? latestPeriodRaw : undefined;
+      const compactAsOf = latestPeriodKey
+        ? (() => {
+            const [year, month] = latestPeriodKey.split("-");
+            const yy = year?.slice(-2);
+            return month && yy ? `${month}/${yy}` : undefined;
+          })()
+        : undefined;
       const cardPeriodText =
         config.statPeriodMode === "asOfLatest"
-          ? chartData.at(-1)?.periodLabel
-            ? `As of ${chartData.at(-1)?.periodLabel}`
+          ? compactAsOf
+            ? `As of ${compactAsOf}`
             : undefined
           : periodLabelProp;
 
