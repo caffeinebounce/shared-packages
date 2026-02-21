@@ -107,7 +107,14 @@ function MetricEquationTooltip({
   title: string;
   formula: string;
 }) {
-  const [lhs, rhs] = formula.split("=").map((part) => part.trim());
+  const lines = formula
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const equationLine = lines[0] ?? formula;
+  const detailLines = lines.slice(1);
+
+  const [lhs, rhs] = equationLine.split("=").map((part) => part.trim());
 
   if (!rhs) {
     return <p className="text-xs leading-relaxed">{formula}</p>;
@@ -115,14 +122,29 @@ function MetricEquationTooltip({
 
   return (
     <div className="space-y-1.5">
-      <p className="text-[11px] font-medium text-muted-foreground/90">{title}</p>
+      <p className="text-[11px] font-medium text-muted-foreground/90">
+        {title}
+      </p>
       <div className="rounded-md border border-slate-500/15 bg-gradient-to-r from-slate-500/[0.05] via-sky-500/[0.04] to-emerald-500/[0.05] px-2.5 py-1.5">
         <p className="text-xs font-mono tracking-tight leading-relaxed text-foreground/85">
-          <span className="font-semibold text-sky-700/85 dark:text-sky-200/85">{lhs}</span>
+          <span className="font-semibold text-sky-700/85 dark:text-sky-200/85">
+            {lhs}
+          </span>
           <span className="px-1 text-muted-foreground/80">=</span>
-          <span className="text-emerald-700/85 dark:text-emerald-200/85">{rhs}</span>
+          <span className="text-emerald-700/85 dark:text-emerald-200/85">
+            {rhs}
+          </span>
         </p>
       </div>
+      {detailLines.length > 0 && (
+        <div className="space-y-0.5 rounded-md border border-border/50 bg-muted/30 px-2.5 py-1.5">
+          {detailLines.map((line) => (
+            <p key={line} className="text-[11px] text-muted-foreground/90">
+              {line}
+            </p>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
