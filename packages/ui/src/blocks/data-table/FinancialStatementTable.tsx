@@ -138,6 +138,8 @@ export interface FinancialStatementSection {
   accountClasses: string[];
   /** Sign multiplier for totals (1 for revenue, -1 if you want to flip expenses) */
   sign?: number;
+  /** Render entries directly (no section header or section total row) */
+  standalone?: boolean;
 }
 
 export interface FinancialStatementTotal {
@@ -784,6 +786,18 @@ export function buildFinancialStatementData(
     // Calculate section totals from root-level tree rows (use original accountTree, not grouped)
     const sectionSums = sumChildPeriods(accountTree);
     sectionTotals.set(section.id, sectionSums);
+
+    if (section.standalone) {
+      const normalizeDepth = (items: StatementRow[]): StatementRow[] =>
+        items.map((item) => ({
+          ...item,
+          depth: Math.max(0, item.depth - 1),
+          children: normalizeDepth(item.children),
+        }));
+
+      rows.push(...normalizeDepth(sectionChildren));
+      continue;
+    }
 
     // Section header row
     const sectionHeader: StatementRow = {
