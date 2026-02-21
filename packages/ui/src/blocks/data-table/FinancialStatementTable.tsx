@@ -16,6 +16,7 @@ import {
   Calendar,
   CheckCircle2,
   DollarSign,
+  Info,
   TrendingUp,
 } from "lucide-react";
 import * as React from "react";
@@ -232,6 +233,8 @@ export interface StatementRow {
   id: string;
   name: string;
   accountNumber: string | null;
+  accountType?: string;
+  accountSubType?: string | null;
   periodAmounts: Record<string, number>;
   total: number;
   children: StatementRow[];
@@ -522,6 +525,8 @@ function buildAccountTree(
         ? acct.name.substring(acct.name.lastIndexOf(":") + 1)
         : acct.name,
       accountNumber: acct.number,
+      accountType: acct.type,
+      accountSubType: acct.subType,
       periodAmounts,
       total,
       children: childRows,
@@ -922,13 +927,33 @@ function buildColumns(
         }
         // Regular account
         return (
-          <span>
-            {showAccountNumbers && r.accountNumber && (
-              <span className="font-mono text-muted-foreground mr-1.5 text-xs">
-                {r.accountNumber}
-              </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span>
+              {showAccountNumbers && r.accountNumber && (
+                <span className="font-mono text-muted-foreground mr-1.5 text-xs">
+                  {r.accountNumber}
+                </span>
+              )}
+              {r.name}
+            </span>
+            {r.accountType === "metric" && r.accountSubType && (
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-muted-foreground/70 hover:text-foreground transition-colors"
+                      aria-label={`${r.name} metric details`}
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[260px] text-xs">
+                    {r.accountSubType}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
-            {r.name}
           </span>
         );
       },
