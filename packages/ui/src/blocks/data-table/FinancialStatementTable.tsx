@@ -116,11 +116,11 @@ function MetricEquationTooltip({
   return (
     <div className="space-y-1.5">
       <p className="text-[11px] font-medium text-muted-foreground/90">{title}</p>
-      <div className="rounded-md border border-slate-500/20 bg-gradient-to-r from-slate-500/[0.07] via-sky-500/[0.06] to-emerald-500/[0.07] px-2.5 py-1.5">
-        <p className="text-xs font-mono tracking-tight leading-relaxed text-foreground/90">
-          <span className="font-semibold text-sky-700 dark:text-sky-200">{lhs}</span>
-          <span className="px-1 text-muted-foreground">=</span>
-          <span className="text-emerald-700 dark:text-emerald-200">{rhs}</span>
+      <div className="rounded-md border border-slate-500/15 bg-gradient-to-r from-slate-500/[0.05] via-sky-500/[0.04] to-emerald-500/[0.05] px-2.5 py-1.5">
+        <p className="text-xs font-mono tracking-tight leading-relaxed text-foreground/85">
+          <span className="font-semibold text-sky-700/85 dark:text-sky-200/85">{lhs}</span>
+          <span className="px-1 text-muted-foreground/80">=</span>
+          <span className="text-emerald-700/85 dark:text-emerald-200/85">{rhs}</span>
         </p>
       </div>
     </div>
