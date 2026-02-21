@@ -338,11 +338,23 @@ function buildChartData(
     const priorTotal = rawPrior != null ? rawPrior * sign : undefined;
     const absTotal = Math.abs(total);
     const absPrior = rawPrior != null ? Math.abs(rawPrior) : undefined;
+    const hasPrior = absPrior != null;
+    const noChange = hasPrior && absTotal === absPrior;
     const trend =
-      absPrior != null && absPrior !== 0
+      hasPrior && absPrior !== 0
         ? ((absTotal - absPrior) / absPrior) * 100
-        : 0;
-    return { key, label, value: total, color, trend, priorValue: priorTotal };
+        : undefined;
+
+    return {
+      key,
+      label,
+      value: total,
+      color,
+      trend,
+      priorValue: priorTotal,
+      hasPrior,
+      noChange,
+    };
   });
 
   return { chartData, summaryCards };
@@ -764,9 +776,15 @@ export function FinancialSummaryChart({
       color: string;
       trend?: number;
       priorValue?: number;
+      hasPrior?: boolean;
+      noChange?: boolean;
     }) => {
       const isPositiveTrend =
         card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
+      const showNoChange = card.hasPrior && card.noChange;
+      const showTrend =
+        card.trend !== undefined && card.trend !== 0 && !showNoChange;
+      const showZeroHint = card.value === 0 && !showTrend && !showNoChange;
       const isActive = activeMetric === card.key;
       const isFlipped = flippedCards.has(card.key);
       const cardPeriodText =
@@ -824,7 +842,12 @@ export function FinancialSummaryChart({
                       >
                         {formatTooltipCurrency(card.value, divisor)}
                       </p>
-                      {card.trend !== undefined && card.trend !== 0 && (
+                      {showNoChange && (
+                        <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">
+                          No change vs prior
+                        </p>
+                      )}
+                      {showTrend && (
                         <p
                           className={cn(
                             "mt-0.5 text-[11px] font-medium",
@@ -833,8 +856,13 @@ export function FinancialSummaryChart({
                               : "text-red-500 dark:text-red-400",
                           )}
                         >
-                          {card.trend > 0 ? "↑" : "↓"}{" "}
-                          {Math.abs(card.trend).toFixed(1)}% vs prior
+                          {card.trend && card.trend > 0 ? "↑" : "↓"}{" "}
+                          {Math.abs(card.trend ?? 0).toFixed(1)}% vs prior
+                        </p>
+                      )}
+                      {showZeroHint && (
+                        <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">
+                          No activity
                         </p>
                       )}
                     </>
@@ -925,7 +953,15 @@ export function FinancialSummaryChart({
                   isNegative={card.priorValue < 0}
                 />
               )}
-              {card.trend !== undefined && card.trend !== 0 && (
+              {showNoChange && (
+                <div className="border-t border-border/40 pt-1 mt-1 text-xs flex justify-between gap-4">
+                  <span className="text-muted-foreground">Change</span>
+                  <span className="font-mono font-medium text-muted-foreground">
+                    No change
+                  </span>
+                </div>
+              )}
+              {showTrend && (
                 <div className="border-t border-border/40 pt-1 mt-1 text-xs flex justify-between gap-4">
                   <span className="text-muted-foreground">Change</span>
                   <span
@@ -933,15 +969,15 @@ export function FinancialSummaryChart({
                       "font-mono font-medium",
                       (
                         card.key === "expenses"
-                          ? card.trend < 0
-                          : card.trend > 0
+                          ? (card.trend ?? 0) < 0
+                          : (card.trend ?? 0) > 0
                       )
                         ? "text-emerald-600 dark:text-emerald-400"
                         : "text-red-500 dark:text-red-400",
                     )}
                   >
-                    {card.trend > 0 ? "↑" : "↓"}{" "}
-                    {Math.abs(card.trend).toFixed(1)}%
+                    {(card.trend ?? 0) > 0 ? "↑" : "↓"}{" "}
+                    {Math.abs(card.trend ?? 0).toFixed(1)}%
                   </span>
                 </div>
               )}
