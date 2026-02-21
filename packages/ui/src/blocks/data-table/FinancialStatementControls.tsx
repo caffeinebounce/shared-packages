@@ -203,7 +203,7 @@ export function FinancialStatementControls({
             className="w-[190px]"
             icon={classIcon ?? <Building2 className="h-4 w-4" />}
             value={selectedClass}
-            disabled={isLoading}
+            disabled={false}
             onValueChange={(value) => onClassChange(value || "")}
             options={[
               { value: "__unspecified__", label: "Unspecified" },
@@ -223,7 +223,7 @@ export function FinancialStatementControls({
             className="w-[190px]"
             icon={departmentIcon ?? <MapPin className="h-4 w-4" />}
             value={selectedDepartment}
-            disabled={isLoading}
+            disabled={false}
             onValueChange={(value) => onDepartmentChange(value || "")}
             options={[
               { value: "__unspecified__", label: "Unspecified" },
@@ -369,7 +369,7 @@ export function FinancialStatementControls({
               size="sm"
               icon={classIcon ?? <Building2 className="h-4 w-4" />}
               value={selectedClass}
-              disabled={isLoading}
+              disabled={false}
               onValueChange={(value) => onClassChange(value || "")}
               options={[
                 { value: "__unspecified__", label: "Unspecified" },
@@ -387,7 +387,7 @@ export function FinancialStatementControls({
               size="sm"
               icon={departmentIcon ?? <MapPin className="h-4 w-4" />}
               value={selectedDepartment}
-              disabled={isLoading}
+              disabled={false}
               onValueChange={(value) => onDepartmentChange(value || "")}
               options={[
                 { value: "__unspecified__", label: "Unspecified" },
