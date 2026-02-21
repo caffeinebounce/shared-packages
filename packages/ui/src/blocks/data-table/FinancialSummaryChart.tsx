@@ -798,11 +798,7 @@ export function FinancialSummaryChart({
           })()
         : undefined;
       const cardPeriodText =
-        config.statPeriodMode === "asOfLatest"
-          ? compactAsOf
-            ? `As of ${compactAsOf}`
-            : undefined
-          : periodLabelProp;
+        config.statPeriodMode === "asOfLatest" ? compactAsOf : periodLabelProp;
 
       return (
         <RadixTooltip
@@ -833,7 +829,7 @@ export function FinancialSummaryChart({
                 style={{ backgroundColor: card.color }}
               />
               <div className="relative min-h-[92px] pl-3 pb-3">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                <p className="min-h-[32px] text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   {card.label}
                   {cardPeriodText && (
                     <span className="ml-1.5 font-normal text-muted-foreground/60">
@@ -841,7 +837,7 @@ export function FinancialSummaryChart({
                     </span>
                   )}
                 </p>
-                <div className="mt-0.5 min-h-[42px]">
+                <div className="mt-0.5 grid min-h-[44px] grid-rows-[auto_18px]">
                   {!isFlipped ? (
                     <>
                       <p
@@ -852,29 +848,31 @@ export function FinancialSummaryChart({
                       >
                         {formatTooltipCurrency(card.value, divisor)}
                       </p>
-                      {showNoChange && (
-                        <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">
-                          No change vs prior
-                        </p>
-                      )}
-                      {showTrend && (
-                        <p
-                          className={cn(
-                            "mt-0.5 text-[11px] font-medium",
-                            isPositiveTrend
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : "text-red-500 dark:text-red-400",
-                          )}
-                        >
-                          {card.trend && card.trend > 0 ? "↑" : "↓"}{" "}
-                          {Math.abs(card.trend ?? 0).toFixed(1)}% vs prior
-                        </p>
-                      )}
-                      {showZeroHint && (
-                        <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">
-                          No activity
-                        </p>
-                      )}
+                      <div>
+                        {showNoChange && (
+                          <p className="text-[11px] font-medium text-muted-foreground">
+                            No change vs prior
+                          </p>
+                        )}
+                        {showTrend && (
+                          <p
+                            className={cn(
+                              "text-[11px] font-medium",
+                              isPositiveTrend
+                                ? "text-emerald-600 dark:text-emerald-400"
+                                : "text-red-500 dark:text-red-400",
+                            )}
+                          >
+                            {card.trend && card.trend > 0 ? "↑" : "↓"}{" "}
+                            {Math.abs(card.trend ?? 0).toFixed(1)}% vs prior
+                          </p>
+                        )}
+                        {showZeroHint && (
+                          <p className="text-[11px] font-medium text-muted-foreground">
+                            No activity
+                          </p>
+                        )}
+                      </div>
                     </>
                   ) : (
                     <CardSparkline
