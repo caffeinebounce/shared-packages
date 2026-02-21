@@ -1063,7 +1063,16 @@ function buildColumns(
               : "";
         // Use custom renderer when provided (caller can enforce metric/non-currency semantics).
         if (renderAmountCell) {
-          return <span className={bold}>{renderAmountCell(r, pk, val)}</span>;
+          return (
+            <span
+              className={cn(
+                bold,
+                "inline-flex cursor-help border-b border-dotted border-muted-foreground/35 leading-none hover:border-muted-foreground/60",
+              )}
+            >
+              {renderAmountCell(r, pk, val)}
+            </span>
+          );
         }
         const rawVal = isTotalRow ? r._rawPeriodAmounts?.[pk] : undefined;
         if (isTotalRow && rawVal !== undefined) {
@@ -1149,7 +1158,14 @@ function buildColumns(
               : "";
         if (renderAmountCell) {
           return (
-            <span className={bold}>{renderAmountCell(r, null, r.total)}</span>
+            <span
+              className={cn(
+                bold,
+                "inline-flex cursor-help border-b border-dotted border-muted-foreground/35 leading-none hover:border-muted-foreground/60",
+              )}
+            >
+              {renderAmountCell(r, null, r.total)}
+            </span>
           );
         }
         if (isTotalRow && r._rawTotal !== undefined) {
