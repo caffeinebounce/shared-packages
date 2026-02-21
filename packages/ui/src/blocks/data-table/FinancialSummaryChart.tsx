@@ -249,7 +249,9 @@ function formatMetricDisplayValue(
   options: MetricValueDisplayOptions | undefined,
   divisor = 1,
 ): string {
-  if (!Number.isFinite(value) || value === 0) return "—";
+  if (Number.isNaN(value) || value === 0) return "—";
+  if (value === Number.POSITIVE_INFINITY) return "∞";
+  if (value === Number.NEGATIVE_INFINITY) return "(∞)";
 
   const format = options?.format ?? "currency";
   const decimalPlaces =
@@ -399,10 +401,13 @@ function buildChartData(
     const priorTotal = rawPrior != null ? rawPrior * sign : undefined;
     const absTotal = Math.abs(total);
     const absPrior = rawPrior != null ? Math.abs(rawPrior) : undefined;
-    const hasPrior = absPrior != null;
-    const noChange = hasPrior && absTotal === absPrior;
+    const hasFiniteTotal = Number.isFinite(absTotal);
+    const hasFinitePrior =
+      absPrior != null && Number.isFinite(absPrior) && absPrior !== Infinity;
+    const hasPrior = hasFinitePrior;
+    const noChange = hasFiniteTotal && hasFinitePrior && absTotal === absPrior;
     const trend =
-      hasPrior && absPrior !== 0
+      hasFiniteTotal && hasFinitePrior && absPrior !== 0
         ? ((absTotal - absPrior) / absPrior) * 100
         : undefined;
 
