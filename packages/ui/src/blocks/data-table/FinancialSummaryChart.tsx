@@ -108,6 +108,8 @@ export interface FinancialSummaryChartConfig {
   statValueMode?: "sum" | "latest";
   /** How period chip is shown on cards */
   statPeriodMode?: "label" | "asOfLatest";
+  /** Optional prior-period label (e.g. 01/25) shown in summary card hover title */
+  priorPeriodLabel?: string;
 }
 
 // ── Presets ────────────────────────────────────────────────────────────────────
@@ -945,6 +947,7 @@ export function FinancialSummaryChart({
           >
             <ChartTooltipTitle>
               {card.label} — vs Prior Period
+              {config.priorPeriodLabel ? ` (${config.priorPeriodLabel})` : ""}
             </ChartTooltipTitle>
             <div className="space-y-1">
               <ChartTooltipRow
@@ -1004,6 +1007,7 @@ export function FinancialSummaryChart({
       periodLabelProp,
       useSwipeCards,
       config.statPeriodMode,
+      config.priorPeriodLabel,
     ],
   );
 
