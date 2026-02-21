@@ -224,7 +224,7 @@ export function FinancialStatementControls({
 
           <Combobox
             size="sm"
-            className="w-[190px]"
+            className="w-auto min-w-[140px]"
             icon={classIcon ?? <Building2 className="h-4 w-4" />}
             value={selectedClass}
             disabled={false}
@@ -244,7 +244,7 @@ export function FinancialStatementControls({
 
           <Combobox
             size="sm"
-            className="w-[190px]"
+            className="w-auto min-w-[140px]"
             icon={departmentIcon ?? <MapPin className="h-4 w-4" />}
             value={selectedDepartment}
             disabled={false}
