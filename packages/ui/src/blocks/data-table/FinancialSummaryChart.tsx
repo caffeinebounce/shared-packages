@@ -40,6 +40,11 @@ import type {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+export type MetricValueDisplayFormat =
+  | "currency"
+  | "number-1dp"
+  | "multiple-1dp";
+
 export interface FinancialMetric {
   /** Unique key */
   key: string;
@@ -51,6 +56,8 @@ export interface FinancialMetric {
   color: string;
   /** Sign multiplier (default 1) — use -1 to flip sign (e.g. expenses shown positive) */
   sign?: number;
+  /** Display format for stat card values */
+  valueDisplayFormat?: MetricValueDisplayFormat;
 }
 
 export interface ComputedMetric {
@@ -66,6 +73,8 @@ export interface ComputedMetric {
   chartType?: "line" | "bar" | "area";
   /** Whether to show as dashed line */
   dashed?: boolean;
+  /** Display format for stat card values */
+  valueDisplayFormat?: MetricValueDisplayFormat;
 }
 
 export type ChartVariant = "area" | "bar" | "line" | "pie";
@@ -224,6 +233,28 @@ function formatTooltipCurrency(value: number, divisor = 1): string {
   return `$${v.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
+function formatMetricDisplayValue(
+  value: number,
+  format: MetricValueDisplayFormat,
+  divisor = 1,
+): string {
+  if (format === "number-1dp") {
+    return value.toLocaleString("en-US", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+  }
+
+  if (format === "multiple-1dp") {
+    return `${value.toLocaleString("en-US", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    })}x`;
+  }
+
+  return formatTooltipCurrency(value, divisor);
+}
+
 const CHART_TYPE_ICONS: Record<ChartVariant, React.ReactNode> = {
   area: <BarChart3 className="size-3.5" />,
   line: <BarChart3 className="size-3.5" />,
@@ -307,11 +338,13 @@ function buildChartData(
       key: m.key,
       label: m.label,
       color: m.color,
+      valueDisplayFormat: m.valueDisplayFormat ?? "currency",
     })),
     ...(config.computedMetrics ?? []).map((m) => ({
       key: m.key,
       label: m.label,
       color: m.color,
+      valueDisplayFormat: m.valueDisplayFormat ?? "currency",
     })),
   ];
 
@@ -323,7 +356,8 @@ function buildChartData(
 
   const latestPeriod = periods.at(-1);
 
-  const summaryCards = allMetrics.map(({ key, label, color }) => {
+  const summaryCards = allMetrics.map(
+    ({ key, label, color, valueDisplayFormat }) => {
     const total =
       config.statValueMode === "latest"
         ? latestPeriod
@@ -347,17 +381,19 @@ function buildChartData(
         ? ((absTotal - absPrior) / absPrior) * 100
         : undefined;
 
-    return {
-      key,
-      label,
-      value: total,
-      color,
-      trend,
-      priorValue: priorTotal,
-      hasPrior,
-      noChange,
-    };
-  });
+      return {
+        key,
+        label,
+        value: total,
+        color,
+        valueDisplayFormat,
+        trend,
+        priorValue: priorTotal,
+        hasPrior,
+        noChange,
+      };
+    },
+  );
 
   return { chartData, summaryCards };
 }
@@ -776,6 +812,7 @@ export function FinancialSummaryChart({
       label: string;
       value: number;
       color: string;
+      valueDisplayFormat: MetricValueDisplayFormat;
       trend?: number;
       priorValue?: number;
       hasPrior?: boolean;
@@ -848,7 +885,11 @@ export function FinancialSummaryChart({
                           card.value < 0 && "text-destructive",
                         )}
                       >
-                        {formatTooltipCurrency(card.value, divisor)}
+                        {formatMetricDisplayValue(
+                          card.value,
+                          card.valueDisplayFormat,
+                          divisor,
+                        )}
                       </p>
                       <div>
                         {showNoChange && (
@@ -953,14 +994,22 @@ export function FinancialSummaryChart({
               <ChartTooltipRow
                 color={card.color}
                 label="Current"
-                value={formatTooltipCurrency(card.value, divisor)}
+                value={formatMetricDisplayValue(
+                  card.value,
+                  card.valueDisplayFormat,
+                  divisor,
+                )}
                 isNegative={card.value < 0}
               />
               {card.priorValue != null && (
                 <ChartTooltipRow
                   color="var(--muted-foreground, #9ca3af)"
                   label="Prior"
-                  value={formatTooltipCurrency(card.priorValue, divisor)}
+                  value={formatMetricDisplayValue(
+                    card.priorValue,
+                    card.valueDisplayFormat,
+                    divisor,
+                  )}
                   isNegative={card.priorValue < 0}
                 />
               )}
@@ -1044,7 +1093,11 @@ export function FinancialSummaryChart({
                     card.value < 0 && "text-destructive",
                   )}
                 >
-                  {formatCurrency(card.value, divisor)}
+                  {formatMetricDisplayValue(
+                    card.value,
+                    card.valueDisplayFormat,
+                    divisor,
+                  )}
                 </span>
               </div>
             ))}
