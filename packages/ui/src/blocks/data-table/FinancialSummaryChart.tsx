@@ -830,7 +830,7 @@ export function FinancialSummaryChart({
                 )}
                 <div
                   className={cn(
-                    "mt-0 hidden justify-center gap-0",
+                    "-mb-1 mt-0 hidden justify-center gap-0",
                     !useSwipeCards && "sm:flex",
                   )}
                 >
@@ -849,16 +849,12 @@ export function FinancialSummaryChart({
                           card.key,
                         );
                     }}
-                    className="inline-flex size-5 items-center justify-center rounded-full"
+                    className={cn(
+                      "-m-1 block h-2.5 rounded-full p-2 transition-all duration-300",
+                      !isFlipped ? "w-8 bg-primary" : "w-2.5 bg-foreground/30",
+                    )}
                   >
-                    <span
-                      className={cn(
-                        "size-1 rounded-full transition-colors",
-                        !isFlipped
-                          ? "bg-foreground/60"
-                          : "bg-foreground/20 hover:bg-foreground/40",
-                      )}
-                    />
+                    <span aria-hidden="true" />
                   </span>
                   {/* biome-ignore lint/a11y/useSemanticElements: nested inside button trigger */}
                   <span
@@ -875,16 +871,12 @@ export function FinancialSummaryChart({
                           card.key,
                         );
                     }}
-                    className="inline-flex size-5 items-center justify-center rounded-full"
+                    className={cn(
+                      "-m-1 block h-2.5 rounded-full p-2 transition-all duration-300",
+                      isFlipped ? "w-8 bg-primary" : "w-2.5 bg-foreground/30",
+                    )}
                   >
-                    <span
-                      className={cn(
-                        "size-1 rounded-full transition-colors",
-                        isFlipped
-                          ? "bg-foreground/60"
-                          : "bg-foreground/20 hover:bg-foreground/40",
-                      )}
-                    />
+                    <span aria-hidden="true" />
                   </span>
                 </div>
               </div>
@@ -1037,16 +1029,14 @@ export function FinancialSummaryChart({
                           type="button"
                           aria-label={`Go to ${card.label} card`}
                           onClick={() => goToMobileCard(index)}
-                          className="inline-flex size-5 items-center justify-center rounded-full"
+                          className={cn(
+                            "-m-1 block h-2.5 rounded-full p-2 transition-all duration-300",
+                            index === mobileCardIndex
+                              ? "w-8 bg-primary"
+                              : "w-2.5 bg-foreground/30",
+                          )}
                         >
-                          <span
-                            className={cn(
-                              "size-1 rounded-full transition-colors",
-                              index === mobileCardIndex
-                                ? "bg-foreground/70"
-                                : "bg-foreground/20",
-                            )}
-                          />
+                          <span aria-hidden="true" />
                         </button>
                       ))}
                     </div>
