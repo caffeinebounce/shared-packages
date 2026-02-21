@@ -200,6 +200,7 @@ export interface FinancialStatementTableProps {
   /** Show section header + total rows even when no data exists for that section */
   preserveEmptySections?: boolean;
   /** Show rightmost Total column */
+  showSectionTotals?: boolean;
   showRowTotals?: boolean;
   /** Show a variance % column comparing current vs prior period (only when exactly 1 comparison period) */
   showVariance?: boolean;
