@@ -830,7 +830,7 @@ export function FinancialSummaryChart({
                 )}
                 <div
                   className={cn(
-                    "mt-1.5 hidden justify-center gap-1",
+                    "mt-0.5 hidden justify-center gap-0.5",
                     !useSwipeCards && "sm:flex",
                   )}
                 >
@@ -849,7 +849,7 @@ export function FinancialSummaryChart({
                           card.key,
                         );
                     }}
-                    className="inline-flex size-10 items-center justify-center rounded-full"
+                    className="inline-flex size-6 items-center justify-center rounded-full"
                   >
                     <span
                       className={cn(
@@ -875,7 +875,7 @@ export function FinancialSummaryChart({
                           card.key,
                         );
                     }}
-                    className="inline-flex size-10 items-center justify-center rounded-full"
+                    className="inline-flex size-6 items-center justify-center rounded-full"
                   >
                     <span
                       className={cn(
@@ -1011,7 +1011,7 @@ export function FinancialSummaryChart({
             {useSwipeCards ? (
               <div className="mb-4">
                 <div
-                  className="relative overflow-hidden touch-pan-y pb-10"
+                  className="relative overflow-hidden touch-pan-y pb-6"
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
@@ -1030,14 +1030,14 @@ export function FinancialSummaryChart({
                   </div>
 
                   {summaryCards.length > 1 && (
-                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-0.5">
+                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-0">
                       {summaryCards.map((card, index) => (
                         <button
                           key={card.key}
                           type="button"
                           aria-label={`Go to ${card.label} card`}
                           onClick={() => goToMobileCard(index)}
-                          className="inline-flex size-10 items-center justify-center rounded-full"
+                          className="inline-flex size-6 items-center justify-center rounded-full"
                         >
                           <span
                             className={cn(
