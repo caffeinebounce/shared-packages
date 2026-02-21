@@ -876,6 +876,8 @@ function buildColumns(
     showVariance: Boolean(showVariance),
   });
 
+  const compactMobileAccount = isMobile && periods.length <= 1;
+
   const cols: ColumnDef<StatementRow>[] = [
     {
       id: "account",
@@ -933,16 +935,19 @@ function buildColumns(
       enableSorting: false,
       // Mobile compare mode: keep Account as the flexible column.
       size: isMobile
-        ? mobileCompareEnabled
+        ? mobileCompareEnabled || compactMobileAccount
           ? 180
           : 260
         : desktopSizing.accountSize,
       minSize: isMobile
-        ? mobileCompareEnabled
+        ? mobileCompareEnabled || compactMobileAccount
           ? 120
           : 200
         : desktopSizing.accountMinSize,
-      maxSize: isMobile ? (mobileCompareEnabled ? undefined : 320) : undefined,
+      maxSize:
+        isMobile && !(mobileCompareEnabled || compactMobileAccount)
+          ? 320
+          : undefined,
     },
   ];
 
