@@ -100,6 +100,33 @@ function RecCheck({ computed, raw }: { computed: number; raw: number }) {
   );
 }
 
+function MetricEquationTooltip({
+  title,
+  formula,
+}: {
+  title: string;
+  formula: string;
+}) {
+  const [lhs, rhs] = formula.split("=").map((part) => part.trim());
+
+  if (!rhs) {
+    return <p className="text-xs leading-relaxed">{formula}</p>;
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-[11px] font-medium text-muted-foreground">{title}</p>
+      <div className="rounded-md border border-border/60 bg-muted/40 px-2 py-1.5">
+        <p className="text-xs font-mono tracking-tight leading-relaxed">
+          <span className="font-semibold">{lhs}</span>
+          <span className="px-1 text-muted-foreground">=</span>
+          <span>{rhs}</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface FinancialStatementEntry {
@@ -963,8 +990,11 @@ function buildColumns(
                       <Info className="h-3.5 w-3.5" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[260px] text-xs">
-                    {r.accountSubType}
+                  <TooltipContent side="top" className="max-w-[340px] text-xs">
+                    <MetricEquationTooltip
+                      title={r.name}
+                      formula={r.accountSubType}
+                    />
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
