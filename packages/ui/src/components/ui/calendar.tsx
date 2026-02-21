@@ -31,7 +31,7 @@ function Calendar({
       classNames={{
         months: "flex flex-col sm:flex-row gap-2",
         month: "flex flex-col gap-4",
-        month_caption: "flex justify-center relative items-center h-7",
+        month_caption: "relative flex h-8 items-center justify-center px-10",
         caption_label: "text-sm font-medium hidden",
         dropdowns: "flex items-center justify-center gap-2 grow",
         dropdown_root: "relative",
@@ -39,14 +39,14 @@ function Calendar({
           "appearance-none bg-transparent text-sm font-medium cursor-pointer hover:text-primary focus:outline-none",
         months_dropdown: "z-10",
         years_dropdown: "z-10",
-        nav: "flex items-center justify-between absolute inset-x-0 top-0 h-7",
+        nav: "absolute inset-x-0 top-0 flex h-8 items-center justify-between",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-background p-0 opacity-70 hover:opacity-100",
+          "absolute left-1 top-1/2 h-7 w-7 -translate-y-1/2 bg-background p-0 opacity-70 hover:opacity-100",
         ),
         button_next: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-background p-0 opacity-70 hover:opacity-100",
+          "absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 bg-background p-0 opacity-70 hover:opacity-100",
         ),
         month_grid: "w-full border-collapse",
         weekdays: "flex",
