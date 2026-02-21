@@ -155,12 +155,23 @@ export function FinancialStatementControls({
       const isSmallViewport = width < 768;
 
       const desktopToolbar = desktopToolbarRef.current;
-      const desktopWrapRisk =
+      const desktopWrapByWidth =
         !!desktopToolbar &&
         desktopToolbar.scrollWidth > desktopToolbar.clientWidth;
 
+      const desktopWrapByRow = (() => {
+        if (!desktopToolbar) return false;
+        const children = Array.from(desktopToolbar.children) as HTMLElement[];
+        if (children.length <= 1) return false;
+        const firstTop = children[0]?.offsetTop ?? 0;
+        return children.some((child) => child.offsetTop > firstTop + 1);
+      })();
+
       setUseCompactFilters(
-        isSmallViewport || isLandscapeMobile || desktopWrapRisk,
+        isSmallViewport ||
+          isLandscapeMobile ||
+          desktopWrapByWidth ||
+          desktopWrapByRow,
       );
     };
 
