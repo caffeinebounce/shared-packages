@@ -1330,8 +1330,16 @@ export function DataTable<TData, TValue>({
                                           !allowHorizontalScroll &&
                                           "truncate",
                                         allowHorizontalScroll &&
-                                          "overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+                                          "overflow-x-auto whitespace-nowrap [&::-webkit-scrollbar]:hidden",
                                       )}
+                                      style={
+                                        allowHorizontalScroll
+                                          ? {
+                                              scrollbarWidth: "none",
+                                              msOverflowStyle: "none",
+                                            }
+                                          : undefined
+                                      }
                                     >
                                       {flexRender(
                                         cell.column.columnDef.cell,
@@ -1347,9 +1355,17 @@ export function DataTable<TData, TValue>({
                                         !allowHorizontalScroll &&
                                         "truncate",
                                       allowHorizontalScroll &&
-                                        "overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
+                                        "overflow-x-auto whitespace-nowrap [&::-webkit-scrollbar]:hidden",
                                       alignClass,
                                     )}
+                                    style={
+                                      allowHorizontalScroll
+                                        ? {
+                                            scrollbarWidth: "none",
+                                            msOverflowStyle: "none",
+                                          }
+                                        : undefined
+                                    }
                                   >
                                     {flexRender(
                                       cell.column.columnDef.cell,
