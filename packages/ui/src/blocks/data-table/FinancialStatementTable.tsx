@@ -1004,12 +1004,8 @@ function buildColumns(
                 r._type === "subtotal-group"
               ? "font-semibold"
               : "";
-        // Use custom renderer for leaf accounts and account-groups
-        if (
-          renderAmountCell &&
-          (r._type === "account" || r._type === "account-group") &&
-          val !== 0
-        ) {
+        // Use custom renderer when provided (caller can enforce metric/non-currency semantics).
+        if (renderAmountCell) {
           return <span className={bold}>{renderAmountCell(r, pk, val)}</span>;
         }
         const rawVal = isTotalRow ? r._rawPeriodAmounts?.[pk] : undefined;
@@ -1094,11 +1090,7 @@ function buildColumns(
                 r._type === "subtotal-group"
               ? "font-semibold"
               : "";
-        if (
-          renderAmountCell &&
-          (r._type === "account" || r._type === "account-group") &&
-          r.total !== 0
-        ) {
+        if (renderAmountCell) {
           return (
             <span className={bold}>{renderAmountCell(r, null, r.total)}</span>
           );
