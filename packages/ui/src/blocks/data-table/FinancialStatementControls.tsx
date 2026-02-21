@@ -176,6 +176,8 @@ export function FinancialStatementControls({
     };
 
     updateCompactFilters();
+    requestAnimationFrame(updateCompactFilters);
+    setTimeout(updateCompactFilters, 120);
 
     const ro = new ResizeObserver(() => updateCompactFilters());
     if (desktopToolbarRef.current) {
@@ -200,7 +202,7 @@ export function FinancialStatementControls({
           className={
             useCompactFilters
               ? "hidden"
-              : "hidden md:flex items-center gap-2 flex-nowrap"
+              : "hidden md:flex items-center gap-2 flex-nowrap [&>*]:shrink-0"
           }
         >
           <PeriodSelector
