@@ -104,6 +104,10 @@ export interface FinancialSummaryChartConfig {
     series: FinancialSummaryChartSeries[],
     height: number,
   ) => React.ReactNode;
+  /** How stat card values are computed: sum all periods (default) or latest period only */
+  statValueMode?: "sum" | "latest";
+  /** How period chip is shown on cards */
+  statPeriodMode?: "label" | "asOfLatest";
 }
 
 // ── Presets ────────────────────────────────────────────────────────────────────
@@ -316,11 +320,15 @@ function buildChartData(
   }
 
   const summaryCards = allMetrics.map(({ key, label, color }) => {
-    // Sum across all periods in the range (already has sign applied via aggregation)
-    let total = 0;
-    for (const pk of periods) {
-      total += periodMetrics.get(pk)?.[key] ?? 0;
-    }
+    const total =
+      config.statValueMode === "latest"
+        ? latestPeriod
+          ? (periodMetrics.get(latestPeriod)?.[key] ?? 0)
+          : 0
+        : periods.reduce(
+            (sum, pk) => sum + (periodMetrics.get(pk)?.[key] ?? 0),
+            0,
+          );
     // Apply same sign to prior total for display, but compute trend on
     // absolute values so direction is always intuitive (positive = magnitude grew)
     const rawPrior = priorTotals?.[key];
@@ -620,7 +628,9 @@ export function FinancialSummaryChart({
 
   const allMetrics = React.useMemo<FinancialSummaryChartSeries[]>(() => {
     const baseChartType =
-      config.chartType && config.chartType !== "pie" ? config.chartType : "area";
+      config.chartType && config.chartType !== "pie"
+        ? config.chartType
+        : "area";
 
     return [
       ...config.metrics.map((m) => ({
@@ -742,8 +752,7 @@ export function FinancialSummaryChart({
     [activeMetric],
   );
 
-  const hasChartToggle =
-    !!config.chartTypes && config.chartTypes.length > 1;
+  const hasChartToggle = !!config.chartTypes && config.chartTypes.length > 1;
 
   const renderSummaryCard = React.useCallback(
     (card: {
@@ -758,6 +767,12 @@ export function FinancialSummaryChart({
         card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
       const isActive = activeMetric === card.key;
       const isFlipped = flippedCards.has(card.key);
+      const cardPeriodText =
+        config.statPeriodMode === "asOfLatest"
+          ? chartData.at(-1)?.periodLabel
+            ? `As of ${chartData.at(-1)?.periodLabel}`
+            : undefined
+          : periodLabelProp;
 
       return (
         <RadixTooltip
@@ -790,9 +805,9 @@ export function FinancialSummaryChart({
               <div className="relative min-h-[92px] pl-3 pb-3">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   {card.label}
-                  {periodLabelProp && (
+                  {cardPeriodText && (
                     <span className="ml-1.5 font-normal text-muted-foreground/60">
-                      {periodLabelProp}
+                      {cardPeriodText}
                     </span>
                   )}
                 </p>
@@ -942,6 +957,7 @@ export function FinancialSummaryChart({
       handleFlip,
       periodLabelProp,
       useSwipeCards,
+      config.statPeriodMode,
     ],
   );
 
@@ -1083,7 +1099,9 @@ export function FinancialSummaryChart({
                     ))}
                 </div>
                 {config.chartControls && (
-                  <div className="flex items-center">{config.chartControls}</div>
+                  <div className="flex items-center">
+                    {config.chartControls}
+                  </div>
                 )}
               </div>
             )}
@@ -1167,7 +1185,9 @@ export function FinancialSummaryChart({
                       }}
                       tickLine={false}
                       axisLine={false}
-                      tickFormatter={(v) => formatCurrency(v as number, divisor)}
+                      tickFormatter={(v) =>
+                        formatCurrency(v as number, divisor)
+                      }
                       width={65}
                     />
                     {config.showZeroLine && (
