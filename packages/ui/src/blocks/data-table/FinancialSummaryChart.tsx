@@ -830,7 +830,7 @@ export function FinancialSummaryChart({
                 )}
                 <div
                   className={cn(
-                    "mt-0.5 hidden justify-center gap-0.5",
+                    "mt-0 hidden justify-center gap-0",
                     !useSwipeCards && "sm:flex",
                   )}
                 >
@@ -849,11 +849,11 @@ export function FinancialSummaryChart({
                           card.key,
                         );
                     }}
-                    className="inline-flex size-6 items-center justify-center rounded-full"
+                    className="inline-flex size-5 items-center justify-center rounded-full"
                   >
                     <span
                       className={cn(
-                        "size-1.5 rounded-full transition-colors",
+                        "size-1 rounded-full transition-colors",
                         !isFlipped
                           ? "bg-foreground/60"
                           : "bg-foreground/20 hover:bg-foreground/40",
@@ -875,11 +875,11 @@ export function FinancialSummaryChart({
                           card.key,
                         );
                     }}
-                    className="inline-flex size-6 items-center justify-center rounded-full"
+                    className="inline-flex size-5 items-center justify-center rounded-full"
                   >
                     <span
                       className={cn(
-                        "size-1.5 rounded-full transition-colors",
+                        "size-1 rounded-full transition-colors",
                         isFlipped
                           ? "bg-foreground/60"
                           : "bg-foreground/20 hover:bg-foreground/40",
@@ -1011,7 +1011,7 @@ export function FinancialSummaryChart({
             {useSwipeCards ? (
               <div className="mb-4">
                 <div
-                  className="relative overflow-hidden touch-pan-y pb-6"
+                  className="relative overflow-hidden touch-pan-y pb-4"
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
@@ -1037,11 +1037,11 @@ export function FinancialSummaryChart({
                           type="button"
                           aria-label={`Go to ${card.label} card`}
                           onClick={() => goToMobileCard(index)}
-                          className="inline-flex size-6 items-center justify-center rounded-full"
+                          className="inline-flex size-5 items-center justify-center rounded-full"
                         >
                           <span
                             className={cn(
-                              "size-1.5 rounded-full transition-colors",
+                              "size-1 rounded-full transition-colors",
                               index === mobileCardIndex
                                 ? "bg-foreground/70"
                                 : "bg-foreground/20",
