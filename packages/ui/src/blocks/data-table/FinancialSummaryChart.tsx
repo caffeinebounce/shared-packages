@@ -574,11 +574,13 @@ function SparklineTooltip({
   active,
   payload,
   color,
+  valueDisplay,
   divisor = 1,
 }: {
   active?: boolean;
   payload?: Array<{ value: number; payload: Record<string, unknown> }>;
   color: string;
+  valueDisplay: MetricValueDisplayOptions;
   divisor?: number;
 }) {
   if (!active || !payload?.length) return null;
@@ -598,7 +600,7 @@ function SparklineTooltip({
             entry.value < 0 && "text-destructive",
           )}
         >
-          {formatTooltipCurrency(entry.value, divisor)}
+          {formatMetricDisplayValue(entry.value, valueDisplay, divisor)}
         </span>
       </div>
     </ChartTooltipShell>
@@ -609,11 +611,13 @@ function CardSparkline({
   data,
   dataKey,
   color,
+  valueDisplay,
   divisor = 1,
 }: {
   data: Record<string, unknown>[];
   dataKey: string;
   color: string;
+  valueDisplay: MetricValueDisplayOptions;
   divisor?: number;
 }) {
   return (
@@ -630,7 +634,13 @@ function CardSparkline({
             </linearGradient>
           </defs>
           <Tooltip
-            content={<SparklineTooltip color={color} divisor={divisor} />}
+            content={
+              <SparklineTooltip
+                color={color}
+                valueDisplay={valueDisplay}
+                divisor={divisor}
+              />
+            }
             cursor={false}
           />
           <Area
@@ -951,6 +961,7 @@ export function FinancialSummaryChart({
                       data={chartData}
                       dataKey={card.key}
                       color={card.color}
+                      valueDisplay={card.valueDisplay}
                       divisor={divisor}
                     />
                   )}
