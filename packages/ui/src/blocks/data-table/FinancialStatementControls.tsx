@@ -162,7 +162,20 @@ export function FinancialStatementControls({
       const shouldCompactNow =
         isSmallViewport || isLandscapeMobile || desktopWrapByWidth;
 
-      setUseCompactFilters(shouldCompactNow);
+      setUseCompactFilters((prev) => {
+        if (!desktopToolbar) return shouldCompactNow;
+        if (isSmallViewport || isLandscapeMobile) return true;
+
+        const required = desktopToolbar.scrollWidth;
+        const available = desktopToolbar.clientWidth;
+
+        if (!prev) {
+          return required > available;
+        }
+
+        // Hysteresis to prevent flicker in narrow threshold zones.
+        return required > available - 12;
+      });
     };
 
     updateCompactFilters();
