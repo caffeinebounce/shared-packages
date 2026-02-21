@@ -8,7 +8,7 @@ import {
   MapPin,
   Settings2,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { Combobox } from "../../components/ui/combobox";
 import {
   Popover,
@@ -147,9 +147,11 @@ export function FinancialStatementControls({
       window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
       navigator.maxTouchPoints > 0;
 
-    // Compact controls only on truly constrained widths, or true mobile/tablet landscape.
-    const isLandscapeMobile = isTouchDevice && width > height && shortestSide < 900;
-    return width < 900 || isLandscapeMobile;
+    // Compact controls on constrained widths (to avoid toolbar wrapping),
+    // or on true mobile/tablet landscape.
+    const isLandscapeMobile =
+      isTouchDevice && width > height && shortestSide < 900;
+    return width < 1280 || isLandscapeMobile;
   };
 
   const [useCompactFilters, setUseCompactFilters] = useState(
@@ -178,7 +180,9 @@ export function FinancialStatementControls({
       <div className="space-y-2">
         <div
           className={
-            useCompactFilters ? "hidden" : "hidden md:flex items-center gap-2 flex-wrap"
+            useCompactFilters
+              ? "hidden"
+              : "hidden md:flex items-center gap-2 flex-nowrap"
           }
         >
           <PeriodSelector
