@@ -152,13 +152,16 @@ export function FinancialStatementControls({
         navigator.maxTouchPoints > 0;
       const isLandscapeMobile =
         isTouchDevice && width > height && shortestSide < 900;
+      const isSmallViewport = width < 768;
 
       const desktopToolbar = desktopToolbarRef.current;
       const desktopWrapRisk =
         !!desktopToolbar &&
         desktopToolbar.scrollWidth > desktopToolbar.clientWidth;
 
-      setUseCompactFilters(isLandscapeMobile || desktopWrapRisk);
+      setUseCompactFilters(
+        isSmallViewport || isLandscapeMobile || desktopWrapRisk,
+      );
     };
 
     updateCompactFilters();
