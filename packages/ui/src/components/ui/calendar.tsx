@@ -31,14 +31,10 @@ function Calendar({
       classNames={{
         months: "flex flex-col sm:flex-row gap-2",
         month: "flex flex-col gap-4",
-        month_caption: "relative flex h-8 items-center justify-center px-10",
-        caption_label: "text-sm font-medium hidden",
-        dropdowns: "flex items-center justify-center gap-2 grow",
+
         dropdown_root: "relative",
-        dropdown:
-          "appearance-none bg-transparent text-sm font-medium cursor-pointer hover:text-primary focus:outline-none",
-        months_dropdown: "z-10",
-        years_dropdown: "z-10",
+
+
         nav: "absolute inset-x-0 top-0 flex h-8 items-center justify-between",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
