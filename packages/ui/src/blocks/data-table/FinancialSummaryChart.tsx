@@ -528,7 +528,7 @@ function CardSparkline({
   divisor?: number;
 }) {
   return (
-    <div className="h-10 w-full mt-1">
+    <div className="h-10 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
@@ -787,7 +787,7 @@ export function FinancialSummaryChart({
                 className="absolute inset-y-0 left-0 w-1 rounded-l-lg"
                 style={{ backgroundColor: card.color }}
               />
-              <div className="pl-3">
+              <div className="relative min-h-[92px] pl-3 pb-3">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   {card.label}
                   {periodLabelProp && (
@@ -796,41 +796,43 @@ export function FinancialSummaryChart({
                     </span>
                   )}
                 </p>
-                {!isFlipped ? (
-                  <>
-                    <p
-                      className={cn(
-                        "mt-0.5 text-lg font-semibold tabular-nums tracking-tight",
-                        card.value < 0 && "text-destructive",
-                      )}
-                    >
-                      {formatTooltipCurrency(card.value, divisor)}
-                    </p>
-                    {card.trend !== undefined && card.trend !== 0 && (
+                <div className="mt-0.5 min-h-[42px]">
+                  {!isFlipped ? (
+                    <>
                       <p
                         className={cn(
-                          "mt-0.5 text-[11px] font-medium",
-                          isPositiveTrend
-                            ? "text-emerald-600 dark:text-emerald-400"
-                            : "text-red-500 dark:text-red-400",
+                          "text-lg font-semibold tabular-nums tracking-tight",
+                          card.value < 0 && "text-destructive",
                         )}
                       >
-                        {card.trend > 0 ? "↑" : "↓"}{" "}
-                        {Math.abs(card.trend).toFixed(1)}% vs prior
+                        {formatTooltipCurrency(card.value, divisor)}
                       </p>
-                    )}
-                  </>
-                ) : (
-                  <CardSparkline
-                    data={chartData}
-                    dataKey={card.key}
-                    color={card.color}
-                    divisor={divisor}
-                  />
-                )}
+                      {card.trend !== undefined && card.trend !== 0 && (
+                        <p
+                          className={cn(
+                            "mt-0.5 text-[11px] font-medium",
+                            isPositiveTrend
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-red-500 dark:text-red-400",
+                          )}
+                        >
+                          {card.trend > 0 ? "↑" : "↓"}{" "}
+                          {Math.abs(card.trend).toFixed(1)}% vs prior
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <CardSparkline
+                      data={chartData}
+                      dataKey={card.key}
+                      color={card.color}
+                      divisor={divisor}
+                    />
+                  )}
+                </div>
                 <div
                   className={cn(
-                    "mt-1 hidden justify-end gap-1 pr-1",
+                    "absolute bottom-0 right-1 hidden justify-end gap-1",
                     !useSwipeCards && "sm:flex",
                   )}
                 >
