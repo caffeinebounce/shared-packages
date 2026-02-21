@@ -54,6 +54,8 @@ export interface MetricValueDisplayOptions {
   decimalPlaces?: number;
   /** Optional post-format pipe (e.g. add unit labels like " days") */
   valuePipe?: (formatted: string, value: number) => string;
+  /** Optional rich post-format pipe for card display (e.g. muted unit suffix) */
+  valuePipeNode?: (formatted: string, value: number) => React.ReactNode;
 }
 
 export interface FinancialMetric {
@@ -281,6 +283,17 @@ function formatMetricDisplayValue(
   return options?.valuePipe
     ? options.valuePipe(withNegatives, value)
     : withNegatives;
+}
+
+function renderMetricDisplayValue(
+  value: number,
+  options: MetricValueDisplayOptions | undefined,
+  divisor = 1,
+): React.ReactNode {
+  const formatted = formatMetricDisplayValue(value, options, divisor);
+  return options?.valuePipeNode
+    ? options.valuePipeNode(formatted, value)
+    : formatted;
 }
 
 const CHART_TYPE_ICONS: Record<ChartVariant, React.ReactNode> = {
@@ -924,7 +937,7 @@ export function FinancialSummaryChart({
                           card.value < 0 && "text-destructive",
                         )}
                       >
-                        {formatMetricDisplayValue(
+                        {renderMetricDisplayValue(
                           card.value,
                           card.valueDisplay,
                           divisor,
