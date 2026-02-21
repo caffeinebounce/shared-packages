@@ -167,12 +167,22 @@ export function FinancialStatementControls({
         return children.some((child) => child.offsetTop > firstTop + 1);
       })();
 
-      setUseCompactFilters(
+      const shouldCompactNow =
         isSmallViewport ||
-          isLandscapeMobile ||
-          desktopWrapByWidth ||
-          desktopWrapByRow,
-      );
+        isLandscapeMobile ||
+        desktopWrapByWidth ||
+        desktopWrapByRow;
+
+      setUseCompactFilters((prev) => {
+        if (!desktopToolbar) return shouldCompactNow;
+
+        // Hysteresis to prevent compact/non-compact oscillation near threshold.
+        const slackPx = desktopToolbar.clientWidth - desktopToolbar.scrollWidth;
+        if (!prev && shouldCompactNow) return true;
+        if (prev && slackPx > 56 && !isSmallViewport && !isLandscapeMobile)
+          return false;
+        return prev;
+      });
     };
 
     updateCompactFilters();
