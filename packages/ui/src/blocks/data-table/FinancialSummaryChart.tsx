@@ -98,6 +98,7 @@ export interface FinancialSummaryChartSeries {
   color: string;
   chartType?: "line" | "bar" | "area";
   dashed?: boolean;
+  valueDisplay?: MetricValueDisplayOptions;
 }
 
 export interface FinancialSummaryChartConfig {
@@ -227,7 +228,7 @@ function toPeriodLabel(key: string, unit: TimeUnit): string {
   return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
 }
 
-function formatCurrency(value: number, divisor = 1): string {
+function _formatCurrency(value: number, divisor = 1): string {
   const v = divisor === 1 ? value : value / divisor;
   if (v === 0) return "$0";
   const abs = Math.abs(v);
@@ -451,7 +452,12 @@ interface CustomTooltipProps {
     dataKey: string;
   }>;
   label?: string;
-  metrics: { key: string; label: string; color: string }[];
+  metrics: {
+    key: string;
+    label: string;
+    color: string;
+    valueDisplay?: MetricValueDisplayOptions;
+  }[];
   divisor?: number;
 }
 
@@ -475,7 +481,11 @@ function CustomTooltip({
               key={entry.dataKey}
               color={entry.color}
               label={metric?.label ?? entry.name}
-              value={formatTooltipCurrency(entry.value, divisor)}
+              value={formatMetricDisplayValue(
+                entry.value,
+                metric?.valueDisplay ?? { format: "currency" },
+                divisor,
+              )}
               isNegative={entry.value < 0}
             />
           );
@@ -743,6 +753,7 @@ export function FinancialSummaryChart({
         color: m.color,
         chartType: baseChartType,
         dashed: false,
+        valueDisplay: m.valueDisplay,
       })),
       ...(config.computedMetrics ?? []).map((m) => ({
         key: m.key,
@@ -750,9 +761,28 @@ export function FinancialSummaryChart({
         color: m.color,
         chartType: m.chartType ?? baseChartType,
         dashed: m.dashed ?? false,
+        valueDisplay: m.valueDisplay,
       })),
     ];
   }, [config]);
+
+  const axisValueDisplay = React.useMemo<MetricValueDisplayOptions>(() => {
+    if (allMetrics.length === 0) return { format: "currency" };
+
+    const first = allMetrics[0]?.valueDisplay ?? { format: "currency" };
+    const firstFormat = first.format ?? "currency";
+    const firstDp = first.decimalPlaces ?? null;
+
+    const sameBase = allMetrics.every((metric) => {
+      const display = metric.valueDisplay ?? { format: "currency" };
+      return (
+        (display.format ?? "currency") === firstFormat &&
+        (display.decimalPlaces ?? null) === firstDp
+      );
+    });
+
+    return sameBase ? first : { format: "currency" };
+  }, [allMetrics]);
 
   React.useEffect(() => {
     setMobileCardIndex((prev) =>
@@ -1342,7 +1372,11 @@ export function FinancialSummaryChart({
                       tickLine={false}
                       axisLine={false}
                       tickFormatter={(v) =>
-                        formatCurrency(v as number, divisor)
+                        formatMetricDisplayValue(
+                          v as number,
+                          axisValueDisplay,
+                          divisor,
+                        )
                       }
                       width={65}
                     />
