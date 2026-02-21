@@ -171,6 +171,8 @@ export interface SubtotalRulesConfig {
   rules: SubtotalRule[];
 }
 
+export type PeriodColumnOrder = "oldest-first" | "newest-first";
+
 export interface FinancialStatementTableProps {
   /** Raw data entries */
   data: FinancialStatementEntry[];
@@ -208,6 +210,8 @@ export interface FinancialStatementTableProps {
   mobileCompareEnabled?: boolean;
   /** Optional explicit period order (first to last) for displayed columns */
   periodOrder?: string[];
+  /** Global order for period columns when periodOrder is not explicitly provided */
+  periodColumnOrder?: PeriodColumnOrder;
   /** Additional class name */
   className?: string;
 }
@@ -249,6 +253,107 @@ function toPeriodKey(date: string, unit: TimeUnit): string {
     return `${y}-Q${q}`;
   }
   return `${y}-${String(m).padStart(2, "0")}`;
+}
+
+export function resolvePeriodColumns(
+  periods: string[],
+  timeUnit: TimeUnit,
+  periodOrder?: string[],
+  periodColumnOrder: PeriodColumnOrder = "oldest-first",
+): string[] {
+  const basePeriods =
+    periodColumnOrder === "newest-first" ? [...periods].reverse() : periods;
+
+  if (!periodOrder || periodOrder.length === 0) return basePeriods;
+
+  const normalizedOrder = periodOrder.map((pk) => toPeriodKey(pk, timeUnit));
+  const periodSet = new Set(basePeriods);
+  const prioritized = Array.from(new Set(normalizedOrder)).filter((pk) =>
+    periodSet.has(pk),
+  );
+  const remainder = basePeriods.filter((pk) => !prioritized.includes(pk));
+  return [...prioritized, ...remainder];
+}
+
+interface DesktopSizingInput {
+  periods: string[];
+  rows: StatementRow[];
+  showRowTotals: boolean;
+  showVariance: boolean;
+}
+
+interface DesktopSizingResult {
+  accountSize: number;
+  accountMinSize: number;
+  dataSize: number;
+  dataMinSize: number;
+  totalSize: number;
+}
+
+export function calculateDesktopFinancialColumnSizing({
+  periods,
+  rows,
+  showRowTotals,
+  showVariance,
+}: DesktopSizingInput): DesktopSizingResult {
+  const MIN_ACCOUNT = 260;
+  const MIN_DATA = 88;
+  const MIN_TOTAL = 96;
+  const VARIANCE_COL = showVariance ? 80 : 0;
+  const TARGET_TABLE_WIDTH = 1180;
+
+  let maxNumericChars = 1;
+  for (const row of rows) {
+    for (const pk of periods) {
+      maxNumericChars = Math.max(
+        maxNumericChars,
+        Math.round(Math.abs(row.periodAmounts[pk] ?? 0)).toLocaleString()
+          .length,
+      );
+    }
+    maxNumericChars = Math.max(
+      maxNumericChars,
+      Math.round(Math.abs(row.total ?? 0)).toLocaleString().length,
+    );
+  }
+
+  let dataSize = Math.min(156, Math.max(104, maxNumericChars * 9 + 26));
+  let totalSize = Math.max(MIN_TOTAL, dataSize + 8);
+  let accountSize = Math.max(340, 620 - periods.length * 26);
+
+  let tableWidth =
+    accountSize +
+    periods.length * dataSize +
+    (showRowTotals ? totalSize : 0) +
+    VARIANCE_COL;
+
+  if (tableWidth > TARGET_TABLE_WIDTH) {
+    const reducibleAccount = accountSize - MIN_ACCOUNT;
+    const needed = tableWidth - TARGET_TABLE_WIDTH;
+    const reduceAccount = Math.min(reducibleAccount, needed);
+    accountSize -= reduceAccount;
+    tableWidth -= reduceAccount;
+  }
+
+  if (tableWidth > TARGET_TABLE_WIDTH && periods.length > 0) {
+    const reducibleDataPerCol = Math.max(0, dataSize - MIN_DATA);
+    const totalReducible = reducibleDataPerCol * periods.length;
+    const needed = tableWidth - TARGET_TABLE_WIDTH;
+    const reduceTotal = Math.min(totalReducible, needed);
+    const perCol = Math.floor(reduceTotal / periods.length);
+    dataSize = Math.max(MIN_DATA, dataSize - perCol);
+    if (showRowTotals) {
+      totalSize = Math.max(MIN_TOTAL, totalSize - Math.ceil(perCol * 0.9));
+    }
+  }
+
+  return {
+    accountSize,
+    accountMinSize: MIN_ACCOUNT,
+    dataSize,
+    dataMinSize: MIN_DATA,
+    totalSize,
+  };
 }
 
 function toPeriodLabel(key: string, unit: TimeUnit): string {
@@ -751,6 +856,7 @@ export function buildFinancialStatementData(
 function buildColumns(
   periods: string[],
   unit: TimeUnit,
+  rows: StatementRow[],
   showAccountNumbers: boolean,
   renderAmountCell?: (
     row: StatementRow,
@@ -763,6 +869,13 @@ function buildColumns(
   isMobile = false,
   mobileCompareEnabled = false,
 ): ColumnDef<StatementRow>[] {
+  const desktopSizing = calculateDesktopFinancialColumnSizing({
+    periods,
+    rows,
+    showRowTotals,
+    showVariance: Boolean(showVariance),
+  });
+
   const cols: ColumnDef<StatementRow>[] = [
     {
       id: "account",
@@ -823,8 +936,12 @@ function buildColumns(
         ? mobileCompareEnabled
           ? 180
           : 260
-        : Math.max(300, 900 - periods.length * 110),
-      minSize: isMobile ? (mobileCompareEnabled ? 120 : 200) : 200,
+        : desktopSizing.accountSize,
+      minSize: isMobile
+        ? mobileCompareEnabled
+          ? 120
+          : 200
+        : desktopSizing.accountMinSize,
       maxSize: isMobile ? (mobileCompareEnabled ? undefined : 320) : undefined,
     },
   ];
@@ -907,8 +1024,16 @@ function buildColumns(
       },
       enableSorting: false,
       // Mobile compare mode: data columns stay readable but can shrink/grow dynamically.
-      size: isMobile && mobileCompareEnabled ? 96 : 110,
-      minSize: isMobile && mobileCompareEnabled ? 82 : 80,
+      size: isMobile
+        ? mobileCompareEnabled
+          ? 96
+          : 110
+        : desktopSizing.dataSize,
+      minSize: isMobile
+        ? mobileCompareEnabled
+          ? 82
+          : 80
+        : desktopSizing.dataMinSize,
       maxSize: isMobile && mobileCompareEnabled ? 112 : undefined,
     });
   }
@@ -988,8 +1113,8 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: 130,
-      minSize: 100,
+      size: isMobile ? 130 : desktopSizing.totalSize,
+      minSize: isMobile ? 100 : 96,
     });
   }
 
@@ -1117,6 +1242,7 @@ export function FinancialStatementTable({
   isMobile = false,
   mobileCompareEnabled = false,
   periodOrder,
+  periodColumnOrder = "oldest-first",
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -1139,17 +1265,11 @@ export function FinancialStatementTable({
     [rawRows, hideZeroRows],
   );
 
-  const orderedPeriods = React.useMemo(() => {
-    if (!periodOrder || periodOrder.length === 0) return periods;
-
-    const normalizedOrder = periodOrder.map((pk) => toPeriodKey(pk, timeUnit));
-    const periodSet = new Set(periods);
-    const prioritized = Array.from(new Set(normalizedOrder)).filter((pk) =>
-      periodSet.has(pk),
-    );
-    const remainder = periods.filter((pk) => !prioritized.includes(pk));
-    return [...prioritized, ...remainder];
-  }, [periods, periodOrder, timeUnit]);
+  const orderedPeriods = React.useMemo(
+    () =>
+      resolvePeriodColumns(periods, timeUnit, periodOrder, periodColumnOrder),
+    [periods, timeUnit, periodOrder, periodColumnOrder],
+  );
 
   const effectiveShowRowTotals =
     isMobile && mobileCompareEnabled ? false : showRowTotals;
@@ -1159,6 +1279,7 @@ export function FinancialStatementTable({
       buildColumns(
         orderedPeriods,
         timeUnit,
+        rows,
         showAccountNumbers,
         renderAmountCell,
         effectiveShowRowTotals,
@@ -1170,6 +1291,7 @@ export function FinancialStatementTable({
     [
       orderedPeriods,
       timeUnit,
+      rows,
       showAccountNumbers,
       renderAmountCell,
       effectiveShowRowTotals,

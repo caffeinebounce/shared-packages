@@ -122,6 +122,7 @@ export {
 export {
   BALANCE_SHEET_CONFIG,
   buildFinancialStatementData,
+  calculateDesktopFinancialColumnSizing,
   type FinancialStatementConfig,
   type FinancialStatementEntry,
   type FinancialStatementSection,
@@ -131,6 +132,8 @@ export {
   type FlatExportRow,
   flattenStatementForExport,
   INCOME_STATEMENT_CONFIG,
+  type PeriodColumnOrder,
+  resolvePeriodColumns,
   type StatementRow,
   type SubtotalRule,
   type SubtotalRulesConfig,
@@ -141,10 +144,10 @@ export {
   type ChartVariant,
   type ComputedMetric,
   type FinancialMetric,
-  type FinancialSummaryChartSeries,
   FinancialSummaryChart,
   type FinancialSummaryChartConfig,
   type FinancialSummaryChartProps,
+  type FinancialSummaryChartSeries,
   INCOME_STATEMENT_CHART_CONFIG,
 } from "./FinancialSummaryChart";
 export {
