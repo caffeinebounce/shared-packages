@@ -830,7 +830,7 @@ export function FinancialSummaryChart({
                 )}
                 <div
                   className={cn(
-                    "-mb-1 mt-0 hidden justify-center gap-0",
+                    "mt-1 hidden justify-end gap-1 pr-1",
                     !useSwipeCards && "sm:flex",
                   )}
                 >
@@ -850,8 +850,8 @@ export function FinancialSummaryChart({
                         );
                     }}
                     className={cn(
-                      "-m-1 block h-2.5 rounded-full p-2 transition-all duration-300",
-                      !isFlipped ? "w-8 bg-primary" : "w-2.5 bg-foreground/30",
+                      "block h-2 rounded-full transition-all duration-200",
+                      !isFlipped ? "w-5 bg-primary" : "w-2 bg-foreground/35",
                     )}
                   >
                     <span aria-hidden="true" />
@@ -872,8 +872,8 @@ export function FinancialSummaryChart({
                         );
                     }}
                     className={cn(
-                      "-m-1 block h-2.5 rounded-full p-2 transition-all duration-300",
-                      isFlipped ? "w-8 bg-primary" : "w-2.5 bg-foreground/30",
+                      "block h-2 rounded-full transition-all duration-200",
+                      isFlipped ? "w-5 bg-primary" : "w-2 bg-foreground/35",
                     )}
                   >
                     <span aria-hidden="true" />
@@ -1003,7 +1003,7 @@ export function FinancialSummaryChart({
             {useSwipeCards ? (
               <div className="mb-4">
                 <div
-                  className="relative overflow-hidden touch-pan-y pb-4"
+                  className="relative overflow-hidden touch-pan-y pb-3"
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
@@ -1022,7 +1022,7 @@ export function FinancialSummaryChart({
                   </div>
 
                   {summaryCards.length > 1 && (
-                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-0">
+                    <div className="absolute bottom-0 right-1 flex items-center justify-end gap-1">
                       {summaryCards.map((card, index) => (
                         <button
                           key={card.key}
@@ -1030,10 +1030,10 @@ export function FinancialSummaryChart({
                           aria-label={`Go to ${card.label} card`}
                           onClick={() => goToMobileCard(index)}
                           className={cn(
-                            "-m-1 block h-2.5 rounded-full p-2 transition-all duration-300",
+                            "block h-2 rounded-full transition-all duration-200",
                             index === mobileCardIndex
-                              ? "w-8 bg-primary"
-                              : "w-2.5 bg-foreground/30",
+                              ? "w-5 bg-primary"
+                              : "w-2 bg-foreground/35",
                           )}
                         >
                           <span aria-hidden="true" />
