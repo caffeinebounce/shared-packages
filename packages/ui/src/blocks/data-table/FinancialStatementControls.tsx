@@ -8,7 +8,7 @@ import {
   MapPin,
   Settings2,
 } from "lucide-react";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Combobox } from "../../components/ui/combobox";
 import {
   Popover,
@@ -137,39 +137,42 @@ export function FinancialStatementControls({
   csvIcon,
   excelIcon,
 }: FinancialStatementControlsProps) {
-  const shouldUseCompactFilters = () => {
-    if (typeof window === "undefined") return true;
-
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const shortestSide = Math.min(width, height);
-    const isTouchDevice =
-      window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
-      navigator.maxTouchPoints > 0;
-
-    // Compact controls on constrained widths (to avoid toolbar wrapping),
-    // or on true mobile/tablet landscape.
-    const isLandscapeMobile =
-      isTouchDevice && width > height && shortestSide < 900;
-    return width < 1280 || isLandscapeMobile;
-  };
-
-  const [useCompactFilters, setUseCompactFilters] = useState(
-    shouldUseCompactFilters,
-  );
+  const desktopToolbarRef = useRef<HTMLDivElement>(null);
+  const [useCompactFilters, setUseCompactFilters] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const updateCompactFilters = () => {
-      setUseCompactFilters(shouldUseCompactFilters());
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const shortestSide = Math.min(width, height);
+      const isTouchDevice =
+        window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+        navigator.maxTouchPoints > 0;
+      const isLandscapeMobile =
+        isTouchDevice && width > height && shortestSide < 900;
+
+      const desktopToolbar = desktopToolbarRef.current;
+      const desktopWrapRisk =
+        !!desktopToolbar &&
+        desktopToolbar.scrollWidth > desktopToolbar.clientWidth;
+
+      setUseCompactFilters(isLandscapeMobile || desktopWrapRisk);
     };
 
     updateCompactFilters();
+
+    const ro = new ResizeObserver(() => updateCompactFilters());
+    if (desktopToolbarRef.current) {
+      ro.observe(desktopToolbarRef.current);
+    }
+
     window.addEventListener("resize", updateCompactFilters);
     window.addEventListener("orientationchange", updateCompactFilters);
 
     return () => {
+      ro.disconnect();
       window.removeEventListener("resize", updateCompactFilters);
       window.removeEventListener("orientationchange", updateCompactFilters);
     };
@@ -179,6 +182,7 @@ export function FinancialStatementControls({
     <>
       <div className="space-y-2">
         <div
+          ref={desktopToolbarRef}
           className={
             useCompactFilters
               ? "hidden"
