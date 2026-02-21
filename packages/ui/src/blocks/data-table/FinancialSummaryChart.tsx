@@ -73,6 +73,8 @@ export interface FinancialSummaryChartConfig {
   computedMetrics?: ComputedMetric[];
   /** Chart type (default: "area") */
   chartType?: ChartVariant;
+  /** Optional chart type choices shown in UI */
+  chartTypes?: ChartVariant[];
   /** Height in pixels (default: 260) */
   height?: number;
   /** Whether to show the zero reference line */
@@ -81,6 +83,8 @@ export interface FinancialSummaryChartConfig {
   defaultExpanded?: boolean;
   /** Title for the chart section */
   title?: string;
+  /** Extra controls rendered alongside chart controls */
+  chartControls?: React.ReactNode;
 }
 
 // ── Presets ────────────────────────────────────────────────────────────────────
