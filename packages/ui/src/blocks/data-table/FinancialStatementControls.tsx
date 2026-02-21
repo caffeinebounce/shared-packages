@@ -159,30 +159,10 @@ export function FinancialStatementControls({
         !!desktopToolbar &&
         desktopToolbar.scrollWidth > desktopToolbar.clientWidth;
 
-      const desktopWrapByRow = (() => {
-        if (!desktopToolbar) return false;
-        const children = Array.from(desktopToolbar.children) as HTMLElement[];
-        if (children.length <= 1) return false;
-        const firstTop = children[0]?.offsetTop ?? 0;
-        return children.some((child) => child.offsetTop > firstTop + 1);
-      })();
-
       const shouldCompactNow =
-        isSmallViewport ||
-        isLandscapeMobile ||
-        desktopWrapByWidth ||
-        desktopWrapByRow;
+        isSmallViewport || isLandscapeMobile || desktopWrapByWidth;
 
-      setUseCompactFilters((prev) => {
-        if (!desktopToolbar) return shouldCompactNow;
-
-        // Hysteresis to prevent compact/non-compact oscillation near threshold.
-        const slackPx = desktopToolbar.clientWidth - desktopToolbar.scrollWidth;
-        if (!prev && shouldCompactNow) return true;
-        if (prev && slackPx > 56 && !isSmallViewport && !isLandscapeMobile)
-          return false;
-        return prev;
-      });
+      setUseCompactFilters(shouldCompactNow);
     };
 
     updateCompactFilters();
@@ -209,7 +189,7 @@ export function FinancialStatementControls({
           ref={desktopToolbarRef}
           className={
             useCompactFilters
-              ? "invisible absolute -z-10 h-0 w-full overflow-hidden md:flex items-center gap-2 flex-nowrap [&>*]:shrink-0"
+              ? "invisible pointer-events-none absolute left-0 top-0 -z-10 w-full md:flex items-center gap-2 flex-nowrap [&>*]:shrink-0"
               : "hidden md:flex items-center gap-2 flex-nowrap [&>*]:shrink-0"
           }
         >
