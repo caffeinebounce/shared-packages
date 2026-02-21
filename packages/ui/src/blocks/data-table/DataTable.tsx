@@ -848,7 +848,8 @@ export function DataTable<TData, TValue>({
 
                         const firstLeafIndex = Math.min(
                           ...headerLeafColumnIds.map(
-                            (columnId) => renderedLeafIndexById.get(columnId) ?? 0,
+                            (columnId) =>
+                              renderedLeafIndexById.get(columnId) ?? 0,
                           ),
                         );
                         const isFirstNonStickyAfterSticky =
@@ -888,7 +889,8 @@ export function DataTable<TData, TValue>({
                               isFirstColumn && "border-l border-border",
                               !isStickyColumn && "border-r border-border",
                               isStickyColumn && "border-r border-border",
-                              isFirstNonStickyAfterSticky && "border-l border-border",
+                              isFirstNonStickyAfterSticky &&
+                                "border-l border-border",
                               isDragOverLeft && "border-l-2 border-l-primary",
                               isDragOverRight && "border-r-2 border-r-primary",
                             )}
@@ -906,7 +908,8 @@ export function DataTable<TData, TValue>({
                                     left: stickyLeft,
                                     zIndex: 60,
                                     background: "hsl(var(--background) / 1)",
-                                    backgroundColor: "hsl(var(--background) / 1)",
+                                    backgroundColor:
+                                      "hsl(var(--background) / 1)",
                                     opacity: 1,
                                     backgroundClip: "padding-box",
                                     boxShadow:
@@ -1166,7 +1169,9 @@ export function DataTable<TData, TValue>({
                             const isFirstNonStickyAfterSticky =
                               !isStickyCell &&
                               cellIndex > 0 &&
-                              stickyColumnIds.has(sortedCells[cellIndex - 1]?.column.id ?? "");
+                              stickyColumnIds.has(
+                                sortedCells[cellIndex - 1]?.column.id ?? "",
+                              );
 
                             // Check if this is a fixed-width column
                             const colDef = cell.column.columnDef;
@@ -1229,7 +1234,8 @@ export function DataTable<TData, TValue>({
                                     "border-r border-border",
                                   isStickyCell && "border-r border-border",
                                   isFirstColumn && "border-l border-border",
-                                  isFirstNonStickyAfterSticky && "border-l border-border",
+                                  isFirstNonStickyAfterSticky &&
+                                    "border-l border-border",
                                   isLastColumn && "border-r border-border",
                                   isActionsColumn && "whitespace-nowrap",
                                   // All rows get bottom border except last row without summary
@@ -1261,8 +1267,10 @@ export function DataTable<TData, TValue>({
                                         position: "sticky" as const,
                                         left: stickyLeft,
                                         zIndex: 50,
-                                        background: "hsl(var(--background) / 1)",
-                                        backgroundColor: "hsl(var(--background) / 1)",
+                                        background:
+                                          "hsl(var(--background) / 1)",
+                                        backgroundColor:
+                                          "hsl(var(--background) / 1)",
                                         opacity: 1,
                                         backgroundClip: "padding-box",
                                         boxShadow:
@@ -1318,9 +1326,11 @@ export function DataTable<TData, TValue>({
                                     <div
                                       className={cn(
                                         "min-w-0",
-                                        !isWrapped && !allowHorizontalScroll && "truncate",
+                                        !isWrapped &&
+                                          !allowHorizontalScroll &&
+                                          "truncate",
                                         allowHorizontalScroll &&
-                                          "overflow-x-auto whitespace-nowrap",
+                                          "overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
                                       )}
                                     >
                                       {flexRender(
@@ -1333,9 +1343,11 @@ export function DataTable<TData, TValue>({
                                   <div
                                     className={cn(
                                       "relative z-10",
-                                      !isWrapped && !allowHorizontalScroll && "truncate",
+                                      !isWrapped &&
+                                        !allowHorizontalScroll &&
+                                        "truncate",
                                       allowHorizontalScroll &&
-                                        "overflow-x-auto whitespace-nowrap",
+                                        "overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
                                       alignClass,
                                     )}
                                   >
