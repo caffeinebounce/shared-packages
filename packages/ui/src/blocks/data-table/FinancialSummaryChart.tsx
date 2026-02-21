@@ -42,8 +42,19 @@ import type {
 
 export type MetricValueDisplayFormat =
   | "currency"
-  | "number-1dp"
-  | "multiple-1dp";
+  | "number"
+  | "percent"
+  | "multiple"
+  | "bps";
+
+export interface MetricValueDisplayOptions {
+  /** Base format type */
+  format?: MetricValueDisplayFormat;
+  /** Decimal places override */
+  decimalPlaces?: number;
+  /** Optional post-format pipe (e.g. add unit labels like " days") */
+  valuePipe?: (formatted: string, value: number) => string;
+}
 
 export interface FinancialMetric {
   /** Unique key */
@@ -56,8 +67,8 @@ export interface FinancialMetric {
   color: string;
   /** Sign multiplier (default 1) — use -1 to flip sign (e.g. expenses shown positive) */
   sign?: number;
-  /** Display format for stat card values */
-  valueDisplayFormat?: MetricValueDisplayFormat;
+  /** Display settings for stat card values */
+  valueDisplay?: MetricValueDisplayOptions;
 }
 
 export interface ComputedMetric {
@@ -73,8 +84,8 @@ export interface ComputedMetric {
   chartType?: "line" | "bar" | "area";
   /** Whether to show as dashed line */
   dashed?: boolean;
-  /** Display format for stat card values */
-  valueDisplayFormat?: MetricValueDisplayFormat;
+  /** Display settings for stat card values */
+  valueDisplay?: MetricValueDisplayOptions;
 }
 
 export type ChartVariant = "area" | "bar" | "line" | "pie";
@@ -235,24 +246,39 @@ function formatTooltipCurrency(value: number, divisor = 1): string {
 
 function formatMetricDisplayValue(
   value: number,
-  format: MetricValueDisplayFormat,
+  options: MetricValueDisplayOptions | undefined,
   divisor = 1,
 ): string {
-  if (format === "number-1dp") {
-    return value.toLocaleString("en-US", {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    });
-  }
+  if (!Number.isFinite(value) || value === 0) return "—";
 
-  if (format === "multiple-1dp") {
-    return `${value.toLocaleString("en-US", {
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    })}x`;
-  }
+  const format = options?.format ?? "currency";
+  const decimalPlaces =
+    options?.decimalPlaces ??
+    (format === "currency" ? 0 : format === "bps" ? 0 : 1);
 
-  return formatTooltipCurrency(value, divisor);
+  const scaled = format === "currency" ? value / divisor : value;
+  const abs = Math.abs(scaled);
+
+  const baseNumber = abs.toLocaleString("en-US", {
+    minimumFractionDigits: decimalPlaces,
+    maximumFractionDigits: decimalPlaces,
+  });
+
+  const wrapped =
+    format === "currency"
+      ? `$${baseNumber}`
+      : format === "percent"
+        ? `${baseNumber}%`
+        : format === "multiple"
+          ? `${baseNumber}x`
+          : format === "bps"
+            ? `${baseNumber} bps`
+            : baseNumber;
+
+  const withNegatives = scaled < 0 ? `(${wrapped})` : wrapped;
+  return options?.valuePipe
+    ? options.valuePipe(withNegatives, value)
+    : withNegatives;
 }
 
 const CHART_TYPE_ICONS: Record<ChartVariant, React.ReactNode> = {
@@ -338,13 +364,13 @@ function buildChartData(
       key: m.key,
       label: m.label,
       color: m.color,
-      valueDisplayFormat: m.valueDisplayFormat ?? "currency",
+      valueDisplay: m.valueDisplay,
     })),
     ...(config.computedMetrics ?? []).map((m) => ({
       key: m.key,
       label: m.label,
       color: m.color,
-      valueDisplayFormat: m.valueDisplayFormat ?? "currency",
+      valueDisplay: m.valueDisplay,
     })),
   ];
 
@@ -356,8 +382,7 @@ function buildChartData(
 
   const latestPeriod = periods.at(-1);
 
-  const summaryCards = allMetrics.map(
-    ({ key, label, color, valueDisplayFormat }) => {
+  const summaryCards = allMetrics.map(({ key, label, color, valueDisplay }) => {
     const total =
       config.statValueMode === "latest"
         ? latestPeriod
@@ -381,19 +406,18 @@ function buildChartData(
         ? ((absTotal - absPrior) / absPrior) * 100
         : undefined;
 
-      return {
-        key,
-        label,
-        value: total,
-        color,
-        valueDisplayFormat,
-        trend,
-        priorValue: priorTotal,
-        hasPrior,
-        noChange,
-      };
-    },
-  );
+    return {
+      key,
+      label,
+      value: total,
+      color,
+      valueDisplay: valueDisplay ?? { format: "currency" },
+      trend,
+      priorValue: priorTotal,
+      hasPrior,
+      noChange,
+    };
+  });
 
   return { chartData, summaryCards };
 }
@@ -812,7 +836,7 @@ export function FinancialSummaryChart({
       label: string;
       value: number;
       color: string;
-      valueDisplayFormat: MetricValueDisplayFormat;
+      valueDisplay: MetricValueDisplayOptions;
       trend?: number;
       priorValue?: number;
       hasPrior?: boolean;
@@ -887,7 +911,7 @@ export function FinancialSummaryChart({
                       >
                         {formatMetricDisplayValue(
                           card.value,
-                          card.valueDisplayFormat,
+                          card.valueDisplay,
                           divisor,
                         )}
                       </p>
@@ -996,7 +1020,7 @@ export function FinancialSummaryChart({
                 label="Current"
                 value={formatMetricDisplayValue(
                   card.value,
-                  card.valueDisplayFormat,
+                  card.valueDisplay,
                   divisor,
                 )}
                 isNegative={card.value < 0}
@@ -1007,7 +1031,7 @@ export function FinancialSummaryChart({
                   label="Prior"
                   value={formatMetricDisplayValue(
                     card.priorValue,
-                    card.valueDisplayFormat,
+                    card.valueDisplay,
                     divisor,
                   )}
                   isNegative={card.priorValue < 0}
@@ -1095,7 +1119,7 @@ export function FinancialSummaryChart({
                 >
                   {formatMetricDisplayValue(
                     card.value,
-                    card.valueDisplayFormat,
+                    card.valueDisplay,
                     divisor,
                   )}
                 </span>
