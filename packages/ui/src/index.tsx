@@ -59,6 +59,7 @@ export type {
   FinancialStatementTotal,
   FinancialSummaryChartConfig,
   FinancialSummaryChartProps,
+  FinancialSummaryChartSeries,
   FlatExportRow,
   RowSelectionStyle,
   StatementRow,

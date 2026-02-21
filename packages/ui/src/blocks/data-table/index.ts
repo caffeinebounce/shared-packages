@@ -141,6 +141,7 @@ export {
   type ChartVariant,
   type ComputedMetric,
   type FinancialMetric,
+  type FinancialSummaryChartSeries,
   FinancialSummaryChart,
   type FinancialSummaryChartConfig,
   type FinancialSummaryChartProps,
