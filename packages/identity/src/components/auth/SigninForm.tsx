@@ -1,7 +1,6 @@
 "use client";
 
 import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
-import { getClientOrigin } from "@caffeinebounce/shared-utils";
 import {
   Button,
   cn,
@@ -218,16 +217,70 @@ export function SigninForm({
       // Ignore sessionStorage errors
     }
 
-    // Get the appropriate origin for this environment (handles preview vs production)
-    const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
-    const { error } = await supabase.auth.signInWithOAuth({
+    // For Azure/Microsoft, prefer a stable canonical app origin so local/dev hosts don't break callback allowlists.
+    const configuredOAuthOrigin =
+      process.env.NEXT_PUBLIC_OAUTH_REDIRECT_ORIGIN ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      "https://app.thecapitalcompass.ai";
+    const fallbackOrigin = window.location.origin;
+    const siteUrl =
+      provider === "azure"
+        ? configuredOAuthOrigin.replace(/\/$/, "")
+        : fallbackOrigin.replace(/\/$/, "");
+
+    const oauthRedirectTo = `${siteUrl}/callback?next=${encodeURIComponent(redirectTo)}`;
+    const startPayload = {
+      provider,
+      href: window.location.href,
+      origin: window.location.origin,
+      host: window.location.host,
+      siteUrl,
+      oauthOriginSource: provider === "azure" ? "configured" : "window",
+      redirectTo,
+      oauthRedirectTo,
+    };
+    console.info("[auth-debug] OAuth signin start", startPayload);
+    console.info(`[auth-debug-json] start=${JSON.stringify(startPayload)}`);
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${siteUrl}/callback?next=${encodeURIComponent(redirectTo)}`,
+        redirectTo: oauthRedirectTo,
+        skipBrowserRedirect: true,
       },
     });
 
+    if (!error && data?.url) {
+      let providerRedirectTo: string | null = null;
+      try {
+        providerRedirectTo = new URL(data.url).searchParams.get("redirect_to");
+      } catch {
+        // ignore parse errors
+      }
+
+      const successPayload = {
+        provider,
+        oauthRedirectTo,
+        providerUrl: data.url,
+        providerRedirectTo,
+      };
+      console.info("[auth-debug] OAuth signin success", successPayload);
+      console.info(
+        `[auth-debug-json] success=${JSON.stringify(successPayload)}`,
+      );
+      window.location.assign(data.url);
+      return;
+    }
+
     if (error) {
+      const errorPayload = {
+        provider,
+        oauthRedirectTo,
+        message: error.message,
+      };
+      console.error("[auth-debug] OAuth signin error", errorPayload);
+      console.error(`[auth-debug-json] error=${JSON.stringify(errorPayload)}`);
       if (oauthTimeoutRef.current) {
         clearTimeout(oauthTimeoutRef.current);
         oauthTimeoutRef.current = null;
