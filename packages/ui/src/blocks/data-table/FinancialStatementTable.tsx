@@ -145,29 +145,6 @@ function MetricEquationTooltip({
   );
 }
 
-function MetricBackupTooltip({ formula }: { formula: string }) {
-  const { detailLines } = splitMetricFormula(formula);
-  if (detailLines.length === 0) return null;
-
-  return (
-    <div className="space-y-1 text-xs">
-      {detailLines.map((line) => {
-        const opMatch = line.match(/^([+\-÷×])\s+(.*)$/);
-        const op = opMatch?.[1] ?? "=";
-        const text = opMatch?.[2] ?? line;
-        return (
-          <div key={line} className="flex items-center gap-2">
-            <span className="w-3 text-center font-mono text-[10px] text-muted-foreground/80">
-              {op}
-            </span>
-            <span className="text-muted-foreground">{text}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface FinancialStatementEntry {
@@ -1093,33 +1070,6 @@ function buildColumns(
         // Use custom renderer when provided (caller can enforce metric/non-currency semantics).
         if (renderAmountCell) {
           const cellNode = renderAmountCell(r, pk, val);
-          const metricBackup =
-            r.accountType === "metric" && r.accountSubType
-              ? splitMetricFormula(r.accountSubType).detailLines
-              : [];
-
-          if (metricBackup.length > 0) {
-            return (
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span
-                      className={cn(
-                        bold,
-                        "inline-flex cursor-help border-b border-dotted border-muted-foreground/35 leading-none hover:border-muted-foreground/60",
-                      )}
-                    >
-                      {cellNode}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[360px] text-xs">
-                    <MetricBackupTooltip formula={r.accountSubType ?? ""} />
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            );
-          }
-
           return (
             <span
               className={cn(
@@ -1215,33 +1165,6 @@ function buildColumns(
               : "";
         if (renderAmountCell) {
           const cellNode = renderAmountCell(r, null, r.total);
-          const metricBackup =
-            r.accountType === "metric" && r.accountSubType
-              ? splitMetricFormula(r.accountSubType).detailLines
-              : [];
-
-          if (metricBackup.length > 0) {
-            return (
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span
-                      className={cn(
-                        bold,
-                        "inline-flex cursor-help border-b border-dotted border-muted-foreground/35 leading-none hover:border-muted-foreground/60",
-                      )}
-                    >
-                      {cellNode}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[360px] text-xs">
-                    <MetricBackupTooltip formula={r.accountSubType ?? ""} />
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            );
-          }
-
           return (
             <span
               className={cn(
