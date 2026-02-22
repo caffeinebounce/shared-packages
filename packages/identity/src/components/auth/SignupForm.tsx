@@ -30,7 +30,11 @@ import { AuthHeader } from "../shared/AuthHeader";
 import { GoogleIcon, MicrosoftIcon } from "../shared/OAuthIcons";
 import { OrDivider } from "../shared/OrDivider";
 import { EmailVerificationPending } from "./EmailVerificationPending";
-import { clearStalePKCEState, sanitizeSignupError } from "./utils";
+import {
+  buildOAuthRedirectTo,
+  clearStalePKCEState,
+  sanitizeSignupError,
+} from "./utils";
 
 /**
  * Authentication event logging callbacks for sign-up
@@ -236,7 +240,7 @@ export function SignupForm({
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${siteUrl}/callback?next=${mergedLinks.defaultRedirect}`,
+        redirectTo: buildOAuthRedirectTo(siteUrl, mergedLinks.defaultRedirect),
       },
     });
 

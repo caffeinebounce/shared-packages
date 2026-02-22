@@ -5,6 +5,16 @@ import * as matchers from "@testing-library/jest-dom/matchers";
 // Extend vitest matchers with jest-dom
 expect.extend(matchers);
 
+if (typeof globalThis.ResizeObserver === "undefined") {
+	class ResizeObserverMock {
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	}
+	// @ts-expect-error test polyfill
+	globalThis.ResizeObserver = ResizeObserverMock;
+}
+
 // Cleanup after each test
 afterEach(() => {
 	cleanup();
