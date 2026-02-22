@@ -217,18 +217,8 @@ export function SigninForm({
       // Ignore sessionStorage errors
     }
 
-    // For Azure/Microsoft, prefer a stable canonical app origin so local/dev hosts don't break callback allowlists.
-    const configuredOAuthOrigin =
-      process.env.NEXT_PUBLIC_OAUTH_REDIRECT_ORIGIN ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "https://app.thecapitalcompass.ai";
-    const fallbackOrigin = window.location.origin;
-    const siteUrl =
-      provider === "azure"
-        ? configuredOAuthOrigin.replace(/\/$/, "")
-        : fallbackOrigin.replace(/\/$/, "");
-
+    // Always use active browser origin so dev/preview/Tailscale callbacks return to the same environment.
+    const siteUrl = window.location.origin.replace(/\/$/, "");
     const oauthRedirectTo = `${siteUrl}/callback?next=${encodeURIComponent(redirectTo)}`;
     const startPayload = {
       provider,
@@ -236,7 +226,7 @@ export function SigninForm({
       origin: window.location.origin,
       host: window.location.host,
       siteUrl,
-      oauthOriginSource: provider === "azure" ? "configured" : "window",
+      oauthOriginSource: "window",
       redirectTo,
       oauthRedirectTo,
     };

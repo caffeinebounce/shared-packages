@@ -205,8 +205,11 @@ export function SignupForm({
     confirmPassword.length > 0 &&
     password !== confirmPassword;
 
-  // Get the appropriate origin for this environment (handles preview vs production)
-  const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
+  // Always use active browser origin so dev/preview/Tailscale callbacks return to the same environment.
+  const siteUrl =
+    typeof window !== "undefined"
+      ? window.location.origin.replace(/\/$/, "")
+      : getClientOrigin("NEXT_PUBLIC_SITE_URL");
 
   async function handleOAuthSignIn(provider: OAuthProvider) {
     setOauthLoading(provider);
