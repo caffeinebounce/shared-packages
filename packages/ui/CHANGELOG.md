@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.5
+
+### Patch Changes
+
+- Increase Sheet overlay and content z-index to z-[100] so mobile sidebar always covers sticky table cells.
+
 ## 0.50.4
 
 ### Patch Changes
