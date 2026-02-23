@@ -1,5 +1,12 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.3
+
+### Patch Changes
+
+- Use animated Lucide icons for finance data states: spinning loader for loading and pulsing database icon for empty state.
+- Add 3-tier financial statement row importance support (`normal`, `emphasis`, `key-summary`) with shared resolver exports and table styling hooks.
+
 ## 0.50.2
 
 ### Patch Changes
