@@ -1450,7 +1450,7 @@ export function FinancialSummaryChart({
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
                     data={chartData}
-                    margin={{ top: 4, right: 8, bottom: 0, left: 12 }}
+                    margin={{ top: 4, right: 8, bottom: 0, left: 20 }}
                   >
                     <defs>
                       {allMetrics.map((m) => (
@@ -1496,7 +1496,7 @@ export function FinancialSummaryChart({
                       tickLine={false}
                       axisLine={false}
                       dy={8}
-                      padding={{ left: 20, right: 20 }}
+                      padding={{ left: 32, right: 20 }}
                     />
                     <YAxis
                       tick={{
