@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.1
+
+### Patch Changes
+
+- Refactor SidebarProvider to canonical mode state machine (`expanded|collapsed|hidden`) for deterministic viewport behavior and no hydration flicker.
+
 ## 0.50.0
 
 ### Minor Changes
