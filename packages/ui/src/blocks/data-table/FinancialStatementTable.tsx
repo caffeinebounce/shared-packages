@@ -154,6 +154,8 @@ export interface FinancialStatementEntry {
   account_id: string;
   /** Account display name */
   account_name: string;
+  /** Optional secondary label shown below account name */
+  account_secondary_label?: string | null;
   /** Account number (e.g. "4000") */
   account_number: string | null;
   /** High-level classification: "Revenue" | "Expense" | "Asset" | "Liability" | "Equity" */
@@ -286,6 +288,7 @@ export interface StatementRow {
   _type: RowType;
   id: string;
   name: string;
+  secondaryLabel?: string | null;
   accountNumber: string | null;
   accountType?: string;
   accountSubType?: string | null;
@@ -442,6 +445,7 @@ function sumChildPeriods(children: StatementRow[]): {
 interface AccountAgg {
   id: string;
   name: string;
+  secondaryLabel?: string | null;
   number: string | null;
   type: string;
   subType: string | null;
@@ -487,6 +491,7 @@ function buildAccountTree(
       const synthetic: AccountAgg = {
         id: `synthetic-${a.parentNumber}`,
         name: parentName,
+        secondaryLabel: null,
         number: a.parentNumber,
         type: a.type,
         subType: a.subType,
@@ -579,6 +584,7 @@ function buildAccountTree(
         ? acct.name.substring(acct.name.lastIndexOf(":") + 1)
         : acct.name,
       accountNumber: acct.number,
+      secondaryLabel: acct.secondaryLabel,
       accountType: acct.type,
       accountSubType: acct.subType,
       periodAmounts,
@@ -791,6 +797,7 @@ export function buildFinancialStatementData(
         accountMap.set(entry.account_id, {
           id: entry.account_id,
           name: entry.account_name,
+          secondaryLabel: entry.account_secondary_label ?? null,
           number: entry.account_number,
           type: entry.account_type ?? "",
           subType: entry.account_sub_type ?? null,
@@ -984,26 +991,40 @@ function buildColumns(
         }
         if (r._type === "account-group") {
           return (
-            <span className="font-medium">
-              {showAccountNumbers && r.accountNumber && (
-                <span className="font-mono text-muted-foreground mr-1.5 text-xs">
-                  {r.accountNumber}
+            <span className="flex flex-col leading-tight">
+              <span className="font-medium">
+                {showAccountNumbers && r.accountNumber && (
+                  <span className="font-mono text-muted-foreground mr-1.5 text-xs">
+                    {r.accountNumber}
+                  </span>
+                )}
+                {r.name}
+              </span>
+              {!isMobile && r.secondaryLabel && (
+                <span className="text-[11px] font-normal text-muted-foreground">
+                  {r.secondaryLabel}
                 </span>
               )}
-              {r.name}
             </span>
           );
         }
         // Regular account
         return (
-          <span className="inline-flex items-center gap-1.5">
-            <span>
-              {showAccountNumbers && r.accountNumber && (
-                <span className="font-mono text-muted-foreground mr-1.5 text-xs">
-                  {r.accountNumber}
+          <span className="inline-flex items-start gap-1.5">
+            <span className="flex flex-col leading-tight">
+              <span>
+                {showAccountNumbers && r.accountNumber && (
+                  <span className="font-mono text-muted-foreground mr-1.5 text-xs">
+                    {r.accountNumber}
+                  </span>
+                )}
+                {r.name}
+              </span>
+              {!isMobile && r.secondaryLabel && (
+                <span className="text-[11px] font-normal text-muted-foreground">
+                  {r.secondaryLabel}
                 </span>
               )}
-              {r.name}
             </span>
             {r.accountType === "metric" && r.accountSubType && (
               <TooltipProvider delayDuration={0}>
