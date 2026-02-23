@@ -1393,9 +1393,9 @@ export function FinancialSummaryChart({
             )}
 
             {(hasChartToggle || config.chartControls) && (
-              <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
                 {hasChartToggle ? (
-                  <div className="inline-flex items-center gap-1 rounded-md border bg-background/40 p-1">
+                  <div className="inline-flex items-center gap-1 rounded-md bg-background/30 p-0.5">
                     {config.chartTypes!.map((chartType) => {
                       const isActive = activeChartType === chartType;
                       return (
@@ -1404,7 +1404,7 @@ export function FinancialSummaryChart({
                           type="button"
                           onClick={() => setActiveChartType(chartType)}
                           className={cn(
-                            "inline-flex h-7 items-center gap-1.5 rounded px-2.5 text-xs transition-colors",
+                            "inline-flex h-6 items-center gap-1.5 rounded px-2 text-xs transition-colors",
                             isActive
                               ? "bg-primary/15 text-primary"
                               : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
@@ -1421,7 +1421,9 @@ export function FinancialSummaryChart({
                 )}
 
                 {config.chartControls && (
-                  <div className="flex items-center">{config.chartControls}</div>
+                  <div className="flex items-center rounded-md bg-primary/15 px-1 py-0.5 text-primary">
+                    {config.chartControls}
+                  </div>
                 )}
               </div>
             )}
