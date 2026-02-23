@@ -353,6 +353,7 @@ function buildChartData(
   summaryCards: {
     key: string;
     label: string;
+    shortLabel?: string;
     value: number;
     color: string;
     trend?: number;
