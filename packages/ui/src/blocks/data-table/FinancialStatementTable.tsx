@@ -1024,26 +1024,31 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      // Mobile: shrink account column when multiple periods need to fit.
+      // Mobile: shrink account column based on how many period columns need to fit.
+      // 2 periods → moderate shrink, 3+ periods → aggressive shrink
       size: isMobile
         ? mobileCompareEnabled || compactMobileAccount
           ? 180
           : periods.length >= 3
-            ? 140
-            : 260
+            ? 120
+            : periods.length >= 2
+              ? 160
+              : 260
         : desktopSizing.accountSize,
       minSize: isMobile
         ? mobileCompareEnabled || compactMobileAccount
           ? 120
-          : periods.length >= 3
-            ? 90
+          : periods.length >= 2
+            ? 80
             : 200
         : desktopSizing.accountMinSize,
       maxSize:
         isMobile && !(mobileCompareEnabled || compactMobileAccount)
           ? periods.length >= 3
-            ? 180
-            : 320
+            ? 160
+            : periods.length >= 2
+              ? 200
+              : 320
           : undefined,
     },
   ];
