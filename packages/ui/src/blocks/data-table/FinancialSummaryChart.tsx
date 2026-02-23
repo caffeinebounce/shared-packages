@@ -1,6 +1,11 @@
 "use client";
 
-import { BarChart3, ChevronDown, ChevronUp, PieChartIcon } from "lucide-react";
+import {
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
+  PieChartIcon,
+} from "lucide-react";
 import * as React from "react";
 import {
   Area,
@@ -19,6 +24,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "../../components/ui/select";
 import {
   Tooltip as RadixTooltip,
   TooltipContent,
@@ -1388,32 +1399,46 @@ export function FinancialSummaryChart({
             )}
 
             {(hasChartToggle || config.chartControls) && (
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  {hasChartToggle &&
-                    config.chartTypes!.map((chartType) => (
-                      <button
-                        key={chartType}
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveChartType(chartType);
-                        }}
-                        className={cn(
-                          "flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors",
-                          activeChartType === chartType
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                        )}
-                      >
-                        {CHART_TYPE_ICONS[chartType]}
-                        {CHART_TYPE_LABELS[chartType]}
-                      </button>
-                    ))}
-                </div>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                {hasChartToggle ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                      Format
+                    </span>
+                    <Select
+                      value={activeChartType}
+                      onValueChange={(value) =>
+                        setActiveChartType(value as ChartVariant)
+                      }
+                    >
+                      <SelectTrigger className="h-7 w-[132px] border-none bg-transparent text-xs hover:bg-muted/50 focus:ring-0 focus:ring-offset-0">
+                        <div className="flex items-center gap-1.5">
+                          {CHART_TYPE_ICONS[activeChartType]}
+                          <span>{CHART_TYPE_LABELS[activeChartType]}</span>
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {config.chartTypes!.map((chartType) => (
+                          <SelectItem key={chartType} value={chartType}>
+                            <span className="inline-flex items-center gap-2">
+                              {CHART_TYPE_ICONS[chartType]}
+                              {CHART_TYPE_LABELS[chartType]}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : (
+                  <div />
+                )}
+
                 {config.chartControls && (
-                  <div className="flex items-center">
-                    {config.chartControls}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                      Data
+                    </span>
+                    <div className="flex items-center">{config.chartControls}</div>
                   </div>
                 )}
               </div>
