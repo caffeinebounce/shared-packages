@@ -8,7 +8,6 @@ import {
   Bar,
   CartesianGrid,
   Cell,
-  Legend,
   Line,
   Pie,
   PieChart,
@@ -29,10 +28,7 @@ import {
   ChartTooltipShell,
   ChartTooltipTitle,
 } from "./ChartTooltip";
-import {
-  getUnitDivisor as _getUnitDivisor,
-  useFinanceDisplay as _useFinanceDisplay,
-} from "./DataTableCurrencyCell";
+import { type DisplayUnits, getUnitDivisor } from "./DataTableCurrencyCell";
 import type {
   FinancialStatementEntry,
   TimeUnit,
@@ -102,6 +98,14 @@ export interface FinancialSummaryChartSeries {
 }
 
 export interface FinancialSummaryChartConfig {
+  /** Chart display units independent of statement/table unit setting (default: "auto") */
+  chartDisplayUnits?: DisplayUnits | "auto";
+  /** Optional metric keys to include in pie slices (default: all summary cards) */
+  pieSliceKeys?: string[];
+  /** Optional metric keys to render as stat cards (default: all summary cards) */
+  statCardKeys?: string[];
+  /** Enable summary-card flip-to-sparkline interaction (default: true) */
+  enableCardFlip?: boolean;
   /** Metrics derived directly from account data */
   metrics: FinancialMetric[];
   /** Computed metrics (e.g. net income = revenue - expenses) */
@@ -114,7 +118,7 @@ export interface FinancialSummaryChartConfig {
   height?: number;
   /** Whether to show the zero reference line */
   showZeroLine?: boolean;
-  /** Whether chart starts expanded (default: true) */
+  /** Whether chart starts expanded (default: desktop=true, mobile=false) */
   defaultExpanded?: boolean;
   /** Title for the chart section */
   title?: string;
@@ -539,38 +543,60 @@ function PieChartView({
       value: Math.abs(card.value),
       fill: card.color,
     }));
+  const pieTotal = pieData.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <PieChart>
-        <Pie
-          data={pieData}
-          cx="50%"
-          cy="50%"
-          innerRadius="55%"
-          outerRadius="80%"
-          paddingAngle={2}
-          dataKey="value"
-          nameKey="name"
-          stroke="none"
+    <div className="flex h-full w-full" style={{ height }}>
+      <div className="relative min-w-0 flex-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={pieData}
+              cx="50%"
+              cy="50%"
+              innerRadius="55%"
+              outerRadius="80%"
+              paddingAngle={2}
+              dataKey="value"
+              nameKey="name"
+              stroke="none"
+            >
+              {pieData.map((entry) => (
+                <Cell key={entry.name} fill={entry.fill} />
+              ))}
+            </Pie>
+            <Tooltip content={<PieTooltip divisor={divisor} />} />
+          </PieChart>
+        </ResponsiveContainer>
+
+        <div
+          className="pointer-events-none absolute"
+          style={{
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "center",
+          }}
         >
-          {pieData.map((entry) => (
-            <Cell key={entry.name} fill={entry.fill} />
-          ))}
-        </Pie>
-        <Tooltip content={<PieTooltip divisor={divisor} />} />
-        <Legend
-          verticalAlign="middle"
-          align="right"
-          layout="vertical"
-          iconType="circle"
-          iconSize={8}
-          formatter={(value: string) => (
-            <span className="text-xs text-muted-foreground">{value}</span>
-          )}
-        />
-      </PieChart>
-    </ResponsiveContainer>
+          <div className="text-[11px] text-muted-foreground">Total</div>
+          <div className="text-sm font-semibold text-foreground">
+            {_formatCurrency(pieTotal, divisor)}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex w-28 shrink-0 flex-col justify-center gap-2 pl-2">
+        {pieData.map((entry) => (
+          <div key={entry.name} className="flex items-center gap-1.5 text-xs">
+            <span
+              className="inline-block size-2 rounded-full"
+              style={{ backgroundColor: entry.fill }}
+            />
+            <span className="text-muted-foreground">{entry.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -688,17 +714,18 @@ function CardSparkline({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-function isHorizontalMobileViewport() {
-  if (typeof window === "undefined") return false;
+function isMobileViewport() {
+  if (typeof window === "undefined") return true;
   const isTouchDevice = window.matchMedia(
     "(hover: none) and (pointer: coarse)",
   ).matches;
-  return isTouchDevice && window.innerWidth > window.innerHeight;
+  const desktopWidth = window.matchMedia("(min-width: 1024px)").matches;
+  return isTouchDevice && !desktopWidth;
 }
 
 function resolveDefaultExpanded(defaultExpanded?: boolean) {
   if (defaultExpanded !== undefined) return defaultExpanded;
-  return !isHorizontalMobileViewport();
+  return !isMobileViewport();
 }
 
 export function FinancialSummaryChart({
@@ -724,13 +751,24 @@ export function FinancialSummaryChart({
   const touchStartRef = React.useRef<{ x: number; y: number } | null>(null);
   const touchDeltaRef = React.useRef({ x: 0, y: 0 });
 
-  const { displayUnits } = _useFinanceDisplay();
-  const divisor = _getUnitDivisor(displayUnits);
+  const divisor =
+    config.chartDisplayUnits && config.chartDisplayUnits !== "auto"
+      ? getUnitDivisor(config.chartDisplayUnits)
+      : 1;
 
   const { chartData, summaryCards } = React.useMemo(
     () => buildChartData(data, config, timeUnit, priorTotalsProp),
     [data, config, timeUnit, priorTotalsProp],
   );
+
+  const visibleSummaryCards = React.useMemo(() => {
+    if (!config.statCardKeys?.length) return summaryCards;
+    const cardByKey = new Map(summaryCards.map((card) => [card.key, card]));
+    return config.statCardKeys
+      .map((key) => cardByKey.get(key))
+      .filter((card): card is NonNullable<typeof card> => Boolean(card));
+  }, [config.statCardKeys, summaryCards]);
+  const cardFlipEnabled = config.enableCardFlip ?? true;
 
   React.useEffect(() => {
     setExpanded(resolveDefaultExpanded(config.defaultExpanded));
@@ -786,9 +824,9 @@ export function FinancialSummaryChart({
 
   React.useEffect(() => {
     setMobileCardIndex((prev) =>
-      Math.min(Math.max(prev, 0), Math.max(summaryCards.length - 1, 0)),
+      Math.min(Math.max(prev, 0), Math.max(visibleSummaryCards.length - 1, 0)),
     );
-  }, [summaryCards.length]);
+  }, [visibleSummaryCards.length]);
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;
@@ -834,36 +872,39 @@ export function FinancialSummaryChart({
   const goToMobileCard = React.useCallback(
     (nextIndex: number) => {
       setMobileCardIndex(
-        Math.min(Math.max(nextIndex, 0), Math.max(summaryCards.length - 1, 0)),
+        Math.min(
+          Math.max(nextIndex, 0),
+          Math.max(visibleSummaryCards.length - 1, 0),
+        ),
       );
     },
-    [summaryCards.length],
+    [visibleSummaryCards.length],
   );
 
   const handleTouchStart = React.useCallback(
     (e: React.TouchEvent<HTMLDivElement>) => {
-      if (summaryCards.length <= 1) return;
+      if (visibleSummaryCards.length <= 1) return;
       const touch = e.touches[0];
       touchStartRef.current = { x: touch.clientX, y: touch.clientY };
       touchDeltaRef.current = { x: 0, y: 0 };
     },
-    [summaryCards.length],
+    [visibleSummaryCards.length],
   );
 
   const handleTouchMove = React.useCallback(
     (e: React.TouchEvent<HTMLDivElement>) => {
-      if (!touchStartRef.current || summaryCards.length <= 1) return;
+      if (!touchStartRef.current || visibleSummaryCards.length <= 1) return;
       const touch = e.touches[0];
       touchDeltaRef.current = {
         x: touch.clientX - touchStartRef.current.x,
         y: touch.clientY - touchStartRef.current.y,
       };
     },
-    [summaryCards.length],
+    [visibleSummaryCards.length],
   );
 
   const handleTouchEnd = React.useCallback(() => {
-    if (!touchStartRef.current || summaryCards.length <= 1) return;
+    if (!touchStartRef.current || visibleSummaryCards.length <= 1) return;
 
     const { x, y } = touchDeltaRef.current;
     const swipeThreshold = 40;
@@ -875,7 +916,7 @@ export function FinancialSummaryChart({
 
     touchStartRef.current = null;
     touchDeltaRef.current = { x: 0, y: 0 };
-  }, [goToMobileCard, mobileCardIndex, summaryCards.length]);
+  }, [goToMobileCard, mobileCardIndex, visibleSummaryCards.length]);
 
   // Compute opacity for each metric based on activeMetric
   const getMetricOpacity = React.useCallback(
@@ -894,12 +935,13 @@ export function FinancialSummaryChart({
       label: string;
       value: number;
       color: string;
-      valueDisplay: MetricValueDisplayOptions;
+      valueDisplay?: MetricValueDisplayOptions;
       trend?: number;
       priorValue?: number;
       hasPrior?: boolean;
       noChange?: boolean;
     }) => {
+      const cardValueDisplay = card.valueDisplay ?? axisValueDisplay;
       const isPositiveTrend =
         card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
       const showNoChange = card.hasPrior && card.noChange;
@@ -907,7 +949,7 @@ export function FinancialSummaryChart({
         card.trend !== undefined && card.trend !== 0 && !showNoChange;
       const showZeroHint = card.value === 0 && !showTrend && !showNoChange;
       const isActive = activeMetric === card.key;
-      const isFlipped = flippedCards.has(card.key);
+      const isFlipped = cardFlipEnabled && flippedCards.has(card.key);
       const latestPeriodRaw = chartData.at(-1)?.period;
       const latestPeriodKey =
         typeof latestPeriodRaw === "string" ? latestPeriodRaw : undefined;
@@ -959,7 +1001,7 @@ export function FinancialSummaryChart({
                   )}
                 </p>
                 <div className="mt-0.5 grid min-h-[44px] grid-rows-[auto_18px]">
-                  {!isFlipped ? (
+                  {!cardFlipEnabled || !isFlipped ? (
                     <>
                       <p
                         className={cn(
@@ -969,7 +1011,7 @@ export function FinancialSummaryChart({
                       >
                         {renderMetricDisplayValue(
                           card.value,
-                          card.valueDisplay,
+                          cardValueDisplay,
                           divisor,
                         )}
                       </p>
@@ -1004,62 +1046,64 @@ export function FinancialSummaryChart({
                       data={chartData}
                       dataKey={card.key}
                       color={card.color}
-                      valueDisplay={card.valueDisplay}
+                      valueDisplay={cardValueDisplay}
                       divisor={divisor}
                     />
                   )}
                 </div>
-                <div
-                  className={cn(
-                    "absolute bottom-0 right-1 hidden justify-end gap-1",
-                    !useSwipeCards && "sm:flex",
-                  )}
-                >
-                  {/* biome-ignore lint/a11y/useSemanticElements: nested inside button trigger */}
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Show ${card.label} value`}
-                    onClick={(e) => {
-                      if (isFlipped) handleFlip(e, card.key);
-                    }}
-                    onKeyDown={(e) => {
-                      if ((e.key === "Enter" || e.key === " ") && isFlipped)
-                        handleFlip(
-                          e as unknown as React.MouseEvent<HTMLElement>,
-                          card.key,
-                        );
-                    }}
+                {cardFlipEnabled && (
+                  <div
                     className={cn(
-                      "block h-2 rounded-full transition-all duration-200",
-                      !isFlipped ? "w-5 bg-primary" : "w-2 bg-foreground/35",
+                      "absolute bottom-0 right-1 hidden justify-end gap-1",
+                      !useSwipeCards && "sm:flex",
                     )}
                   >
-                    <span aria-hidden="true" />
-                  </span>
-                  {/* biome-ignore lint/a11y/useSemanticElements: nested inside button trigger */}
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Show ${card.label} trend sparkline`}
-                    onClick={(e) => {
-                      if (!isFlipped) handleFlip(e, card.key);
-                    }}
-                    onKeyDown={(e) => {
-                      if ((e.key === "Enter" || e.key === " ") && !isFlipped)
-                        handleFlip(
-                          e as unknown as React.MouseEvent<HTMLElement>,
-                          card.key,
-                        );
-                    }}
-                    className={cn(
-                      "block h-2 rounded-full transition-all duration-200",
-                      isFlipped ? "w-5 bg-primary" : "w-2 bg-foreground/35",
-                    )}
-                  >
-                    <span aria-hidden="true" />
-                  </span>
-                </div>
+                    {/* biome-ignore lint/a11y/useSemanticElements: nested inside button trigger */}
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Show ${card.label} value`}
+                      onClick={(e) => {
+                        if (isFlipped) handleFlip(e, card.key);
+                      }}
+                      onKeyDown={(e) => {
+                        if ((e.key === "Enter" || e.key === " ") && isFlipped)
+                          handleFlip(
+                            e as unknown as React.MouseEvent<HTMLElement>,
+                            card.key,
+                          );
+                      }}
+                      className={cn(
+                        "block h-2 rounded-full transition-all duration-200",
+                        !isFlipped ? "w-5 bg-primary" : "w-2 bg-foreground/35",
+                      )}
+                    >
+                      <span aria-hidden="true" />
+                    </span>
+                    {/* biome-ignore lint/a11y/useSemanticElements: nested inside button trigger */}
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Show ${card.label} trend sparkline`}
+                      onClick={(e) => {
+                        if (!isFlipped) handleFlip(e, card.key);
+                      }}
+                      onKeyDown={(e) => {
+                        if ((e.key === "Enter" || e.key === " ") && !isFlipped)
+                          handleFlip(
+                            e as unknown as React.MouseEvent<HTMLElement>,
+                            card.key,
+                          );
+                      }}
+                      className={cn(
+                        "block h-2 rounded-full transition-all duration-200",
+                        isFlipped ? "w-5 bg-primary" : "w-2 bg-foreground/35",
+                      )}
+                    >
+                      <span aria-hidden="true" />
+                    </span>
+                  </div>
+                )}
               </div>
             </button>
           </TooltipTrigger>
@@ -1079,7 +1123,7 @@ export function FinancialSummaryChart({
                 label="Current"
                 value={formatMetricDisplayValue(
                   card.value,
-                  card.valueDisplay,
+                  cardValueDisplay,
                   divisor,
                 )}
                 isNegative={card.value < 0}
@@ -1090,7 +1134,7 @@ export function FinancialSummaryChart({
                   label="Prior"
                   value={formatMetricDisplayValue(
                     card.priorValue,
-                    card.valueDisplay,
+                    cardValueDisplay,
                     divisor,
                   )}
                   isNegative={card.priorValue < 0}
@@ -1140,6 +1184,8 @@ export function FinancialSummaryChart({
       useSwipeCards,
       config.statPeriodMode,
       config.priorPeriodLabel,
+      axisValueDisplay,
+      cardFlipEnabled,
     ],
   );
 
@@ -1160,7 +1206,7 @@ export function FinancialSummaryChart({
         <div className="flex min-w-0 items-center gap-2">
           {/* Mini summary pills when collapsed */}
           {!expanded &&
-            summaryCards.map((card) => (
+            visibleSummaryCards.map((card) => (
               <div
                 key={card.key}
                 className="hidden items-center gap-1.5 text-xs md:flex"
@@ -1178,7 +1224,8 @@ export function FinancialSummaryChart({
                 >
                   {formatMetricDisplayValue(
                     card.value,
-                    card.valueDisplay,
+                    (card as { valueDisplay?: MetricValueDisplayOptions })
+                      .valueDisplay ?? axisValueDisplay,
                     divisor,
                   )}
                 </span>
@@ -1218,16 +1265,16 @@ export function FinancialSummaryChart({
                       transform: `translateX(-${mobileCardIndex * 100}%)`,
                     }}
                   >
-                    {summaryCards.map((card) => (
+                    {visibleSummaryCards.map((card) => (
                       <div key={card.key} className="w-full shrink-0">
                         {renderSummaryCard(card)}
                       </div>
                     ))}
                   </div>
 
-                  {summaryCards.length > 1 && (
+                  {visibleSummaryCards.length > 1 && (
                     <div className="absolute bottom-0 right-1 flex items-center justify-end gap-1">
-                      {summaryCards.map((card, index) => (
+                      {visibleSummaryCards.map((card, index) => (
                         <button
                           key={card.key}
                           type="button"
@@ -1250,13 +1297,13 @@ export function FinancialSummaryChart({
             ) : (
               <div
                 className={cn("mb-4 grid gap-3", {
-                  "grid-cols-1": summaryCards.length === 1,
-                  "grid-cols-2": summaryCards.length === 2,
-                  "grid-cols-3": summaryCards.length === 3,
-                  "grid-cols-2 lg:grid-cols-4": summaryCards.length >= 4,
+                  "grid-cols-1": visibleSummaryCards.length === 1,
+                  "grid-cols-2": visibleSummaryCards.length === 2,
+                  "grid-cols-3": visibleSummaryCards.length === 3,
+                  "grid-cols-2 lg:grid-cols-4": visibleSummaryCards.length >= 4,
                 })}
               >
-                {summaryCards.map((card) => renderSummaryCard(card))}
+                {visibleSummaryCards.map((card) => renderSummaryCard(card))}
               </div>
             )}
 
@@ -1308,7 +1355,13 @@ export function FinancialSummaryChart({
                 )
               ) : activeChartType === "pie" ? (
                 <PieChartView
-                  cards={summaryCards}
+                  cards={
+                    config.pieSliceKeys?.length
+                      ? summaryCards.filter((card) =>
+                          config.pieSliceKeys?.includes(card.key),
+                        )
+                      : summaryCards
+                  }
                   height={config.height ?? 240}
                   divisor={divisor}
                 />

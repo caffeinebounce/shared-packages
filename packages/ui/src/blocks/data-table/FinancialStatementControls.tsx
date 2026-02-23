@@ -8,7 +8,7 @@ import {
   MapPin,
   Settings2,
 } from "lucide-react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { Fragment, type ReactNode, useEffect, useRef, useState } from "react";
 import { Combobox } from "../../components/ui/combobox";
 import {
   Popover,
@@ -89,6 +89,11 @@ interface FinancialStatementControlsProps {
   settingsIcon?: ReactNode;
   csvIcon?: ReactNode;
   excelIcon?: ReactNode;
+  periodControl?: ReactNode;
+  mobilePeriodControl?: ReactNode;
+  showComparison?: boolean;
+  showSettings?: boolean;
+  showMobilePeriodStepper?: boolean;
 }
 
 export function FinancialStatementControls({
@@ -104,7 +109,7 @@ export function FinancialStatementControls({
   selectedDepartment,
   classes,
   departments,
-  isLoading,
+  isLoading: _isLoading,
   mobileFiltersOpen,
   periodChipLabel,
   comparisonChipLabel,
@@ -136,6 +141,11 @@ export function FinancialStatementControls({
   settingsIcon,
   csvIcon,
   excelIcon,
+  periodControl,
+  mobilePeriodControl,
+  showComparison = true,
+  showSettings = true,
+  showMobilePeriodStepper = true,
 }: FinancialStatementControlsProps) {
   const desktopToolbarRef = useRef<HTMLDivElement>(null);
   const [useCompactFilters, setUseCompactFilters] = useState(false);
@@ -206,22 +216,26 @@ export function FinancialStatementControls({
               : "hidden md:flex items-center gap-2 flex-nowrap [&>*]:shrink-0"
           }
         >
-          <PeriodSelector
-            granularity={granularity}
-            periodStart={periodStart}
-            periodEnd={periodEnd}
-            fiscalYearEndMonth={fiscalYearEndMonth}
-            onChange={onPeriodChange}
-          />
+          {periodControl ?? (
+            <PeriodSelector
+              granularity={granularity}
+              periodStart={periodStart}
+              periodEnd={periodEnd}
+              fiscalYearEndMonth={fiscalYearEndMonth}
+              onChange={onPeriodChange}
+            />
+          )}
 
-          <ComparisonSelector
-            mode={granularity === "ltm" ? "previous" : comparisonMode}
-            periods={granularity === "ltm" ? 11 : comparisonPeriods}
-            defaultPreviousPeriods={granularity === "ltm" ? 11 : 1}
-            customStart={comparisonCustomStart}
-            customEnd={comparisonCustomEnd}
-            onChange={onComparisonChange}
-          />
+          {showComparison ? (
+            <ComparisonSelector
+              mode={granularity === "ltm" ? "previous" : comparisonMode}
+              periods={granularity === "ltm" ? 11 : comparisonPeriods}
+              defaultPreviousPeriods={granularity === "ltm" ? 11 : 1}
+              customStart={comparisonCustomStart}
+              customEnd={comparisonCustomEnd}
+              onChange={onComparisonChange}
+            />
+          ) : null}
 
           <Combobox
             size="sm"
@@ -300,47 +314,49 @@ export function FinancialStatementControls({
             </PopoverContent>
           </Popover>
 
-          <Popover>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <PopoverTrigger asChild>
-                  <div className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground">
-                    {settingsIcon ?? <Settings2 size={16} />}
-                  </div>
-                </PopoverTrigger>
-              </TooltipTrigger>
-              <TooltipContent className="text-xs">Settings</TooltipContent>
-            </Tooltip>
-            <PopoverContent align="end" className="w-52 p-2">
-              <div className="space-y-1">
-                <p className="px-2 py-1 text-xs font-medium text-muted-foreground">
-                  Display Settings
-                </p>
-                <button
-                  type="button"
-                  onClick={() => onHideZeroRowsChange(!hideZeroRows)}
-                  className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-xs hover:bg-accent"
-                >
-                  <span>Hide zero rows</span>
-                  <Switch
-                    checked={hideZeroRows}
-                    onCheckedChange={onHideZeroRowsChange}
-                  />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onShowRowTotalsChange(!showRowTotals)}
-                  className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-xs hover:bg-accent"
-                >
-                  <span>Show row totals</span>
-                  <Switch
-                    checked={showRowTotals}
-                    onCheckedChange={onShowRowTotalsChange}
-                  />
-                </button>
-              </div>
-            </PopoverContent>
-          </Popover>
+          {showSettings ? (
+            <Popover>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <div className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground">
+                      {settingsIcon ?? <Settings2 size={16} />}
+                    </div>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent className="text-xs">Settings</TooltipContent>
+              </Tooltip>
+              <PopoverContent align="end" className="w-52 p-2">
+                <div className="space-y-1">
+                  <p className="px-2 py-1 text-xs font-medium text-muted-foreground">
+                    Display Settings
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => onHideZeroRowsChange(!hideZeroRows)}
+                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-xs hover:bg-accent"
+                  >
+                    <span>Hide zero rows</span>
+                    <Switch
+                      checked={hideZeroRows}
+                      onCheckedChange={onHideZeroRowsChange}
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onShowRowTotalsChange(!showRowTotals)}
+                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-xs hover:bg-accent"
+                  >
+                    <span>Show row totals</span>
+                    <Switch
+                      checked={showRowTotals}
+                      onCheckedChange={onShowRowTotalsChange}
+                    />
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          ) : null}
         </div>
 
         <div
@@ -355,9 +371,11 @@ export function FinancialStatementControls({
               <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
                 {periodChipLabel}
               </span>
-              <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
-                {comparisonChipLabel}
-              </span>
+              {showComparison ? (
+                <span className="inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium text-muted-foreground bg-muted/20">
+                  {comparisonChipLabel}
+                </span>
+              ) : null}
             </>
           )}
 
@@ -372,23 +390,29 @@ export function FinancialStatementControls({
             onApply={onApplyFilters}
           >
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <PeriodSelector
-                granularity={granularity}
-                periodStart={periodStart}
-                periodEnd={periodEnd}
-                fiscalYearEndMonth={fiscalYearEndMonth}
-                onChange={onPeriodChange}
-                className="w-full justify-start"
-              />
-              <ComparisonSelector
-                mode={granularity === "ltm" ? "previous" : comparisonMode}
-                periods={granularity === "ltm" ? 11 : comparisonPeriods}
-                defaultPreviousPeriods={granularity === "ltm" ? 11 : 1}
-                customStart={comparisonCustomStart}
-                customEnd={comparisonCustomEnd}
-                onChange={onComparisonChange}
-                className="w-full justify-start"
-              />
+              {mobilePeriodControl ?? (
+                <PeriodSelector
+                  granularity={granularity}
+                  periodStart={periodStart}
+                  periodEnd={periodEnd}
+                  fiscalYearEndMonth={fiscalYearEndMonth}
+                  onChange={onPeriodChange}
+                  className="w-full justify-start"
+                />
+              )}
+              {showComparison ? (
+                <ComparisonSelector
+                  mode={granularity === "ltm" ? "previous" : comparisonMode}
+                  periods={granularity === "ltm" ? 11 : comparisonPeriods}
+                  defaultPreviousPeriods={granularity === "ltm" ? 11 : 1}
+                  customStart={comparisonCustomStart}
+                  customEnd={comparisonCustomEnd}
+                  onChange={onComparisonChange}
+                  className="w-full justify-start"
+                />
+              ) : (
+                <Fragment />
+              )}
             </div>
             <Combobox
               size="sm"
@@ -441,35 +465,41 @@ export function FinancialStatementControls({
                 onClick: () => onExport("excel"),
               },
             ]}
-            settings={[
-              {
-                label: "Hide zero rows",
-                checked: hideZeroRows,
-                onCheckedChange: onHideZeroRowsChange,
-                ariaLabel: "Toggle hide zero rows",
-              },
-              {
-                label: "Show row totals",
-                checked: showRowTotals,
-                onCheckedChange: onShowRowTotalsChange,
-                ariaLabel: "Toggle show row totals",
-              },
-            ]}
+            settings={
+              showSettings
+                ? [
+                    {
+                      label: "Hide zero rows",
+                      checked: hideZeroRows,
+                      onCheckedChange: onHideZeroRowsChange,
+                      ariaLabel: "Toggle hide zero rows",
+                    },
+                    {
+                      label: "Show row totals",
+                      checked: showRowTotals,
+                      onCheckedChange: onShowRowTotalsChange,
+                      ariaLabel: "Toggle show row totals",
+                    },
+                  ]
+                : []
+            }
           />
         </div>
       </div>
 
-      <MobilePeriodStepper
-        periodLabel={mobilePeriodLabel}
-        onPrev={onMobilePrev}
-        onNext={onMobileNext}
-        hasPrev={hasMobilePrev}
-        hasNext={hasMobileNext}
-        compareEnabled={mobileCompareEnabled}
-        onCompareChange={onMobileCompareChange}
-        compareAvailable={hasMobileComparisonCandidate}
-        compareLabel={mobileCompareLabel}
-      />
+      {showMobilePeriodStepper ? (
+        <MobilePeriodStepper
+          periodLabel={mobilePeriodLabel}
+          onPrev={onMobilePrev}
+          onNext={onMobileNext}
+          hasPrev={hasMobilePrev}
+          hasNext={hasMobileNext}
+          compareEnabled={mobileCompareEnabled}
+          onCompareChange={onMobileCompareChange}
+          compareAvailable={hasMobileComparisonCandidate}
+          compareLabel={mobileCompareLabel}
+        />
+      ) : null}
     </>
   );
 }

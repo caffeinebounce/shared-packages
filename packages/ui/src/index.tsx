@@ -433,6 +433,7 @@ export type {
   DisplayFieldProps,
 } from "./components/ui/display-field";
 export { DisplayField, DisplayFieldGroup } from "./components/ui/display-field";
+export { DraggableStickyModal } from "./components/ui/draggable-sticky-modal";
 export {
   DropdownMenu,
   DropdownMenuCheckboxItem,

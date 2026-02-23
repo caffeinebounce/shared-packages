@@ -261,6 +261,8 @@ export interface FinancialStatementTableProps {
   periodOrder?: string[];
   /** Global order for period columns when periodOrder is not explicitly provided */
   periodColumnOrder?: PeriodColumnOrder;
+  /** Override period column header labels (key = period key, value = display label) */
+  periodLabels?: Record<string, string>;
   /** Additional class name */
   className?: string;
 }
@@ -933,6 +935,7 @@ function buildColumns(
   currentPeriodCount?: number,
   isMobile = false,
   mobileCompareEnabled = false,
+  periodLabelsOverride?: Record<string, string>,
 ): ColumnDef<StatementRow>[] {
   const desktopSizing = calculateDesktopFinancialColumnSizing({
     periods,
@@ -1021,26 +1024,32 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      // Mobile compare mode: keep Account as the flexible column.
+      // Mobile: shrink account column when multiple periods need to fit.
       size: isMobile
         ? mobileCompareEnabled || compactMobileAccount
           ? 180
-          : 260
+          : periods.length >= 3
+            ? 140
+            : 260
         : desktopSizing.accountSize,
       minSize: isMobile
         ? mobileCompareEnabled || compactMobileAccount
           ? 120
-          : 200
+          : periods.length >= 3
+            ? 90
+            : 200
         : desktopSizing.accountMinSize,
       maxSize:
         isMobile && !(mobileCompareEnabled || compactMobileAccount)
-          ? 320
+          ? periods.length >= 3
+            ? 180
+            : 320
           : undefined,
     },
   ];
 
   for (const pk of periods) {
-    const label = toPeriodLabel(pk, unit);
+    const label = periodLabelsOverride?.[pk] ?? toPeriodLabel(pk, unit);
     cols.push({
       id: `period-${pk}`,
       accessorFn: (row) => row.periodAmounts[pk] ?? 0,
@@ -1346,6 +1355,7 @@ export function FinancialStatementTable({
   mobileCompareEnabled = false,
   periodOrder,
   periodColumnOrder = "oldest-first",
+  periodLabels,
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -1390,6 +1400,7 @@ export function FinancialStatementTable({
         currentPeriodCount,
         isMobile,
         mobileCompareEnabled,
+        periodLabels,
       ),
     [
       orderedPeriods,
@@ -1402,6 +1413,7 @@ export function FinancialStatementTable({
       currentPeriodCount,
       isMobile,
       mobileCompareEnabled,
+      periodLabels,
     ],
   );
 

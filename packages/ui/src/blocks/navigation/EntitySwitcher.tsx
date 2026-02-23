@@ -25,6 +25,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "../../components/ui/sidebar";
 import { Spinner } from "../../components/ui/spinner";
 import { getAvatarGradient } from "../../utils/avatar-gradient";
@@ -156,6 +157,9 @@ export function EntitySwitcher<T extends Entity>({
   // Use custom ShortcutComponent if provided, otherwise use default
   const Shortcut = ShortcutComponent || KeyboardShortcut;
   const [open, setOpen] = useState(false);
+  const [logoHovered, setLogoHovered] = useState(false);
+  const { state: sidebarState } = useSidebar();
+  const isCollapsed = sidebarState === "collapsed";
 
   // Keyboard shortcut handler
   const handleKeyDown = useCallback(
@@ -246,9 +250,18 @@ export function EntitySwitcher<T extends Entity>({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              style={isCollapsed ? { background: "transparent" } : undefined}
+              onMouseEnter={() => isCollapsed && setLogoHovered(true)}
+              onMouseLeave={() => setLogoHovered(false)}
             >
               <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar
+                  className="h-8 w-8 rounded-lg"
+                  style={{
+                    transition: "transform 150ms ease, filter 150ms ease",
+                    transform: isCollapsed && logoHovered ? "scale(1.1)" : "scale(1)",
+                    filter: isCollapsed && logoHovered ? "brightness(1.2)" : "none",
+                  }}>
                   {activeEntity.logoUrl && (
                     <AvatarImage
                       src={activeEntity.logoUrl}

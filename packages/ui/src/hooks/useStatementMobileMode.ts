@@ -33,31 +33,37 @@ export function useStatementMobileMode<
   currentPeriodKeys,
   comparisonMode,
 }: UseStatementMobileModeParams<TEntry>): UseStatementMobileModeReturn<TEntry> {
+  const normalizedPeriodKeys = useMemo(
+    () =>
+      Array.from(new Set(currentPeriodKeys)).sort((a, b) => b.localeCompare(a)),
+    [currentPeriodKeys],
+  );
+
   const [activePeriodIndex, setActivePeriodIndex] = useState(0);
   const [compareEnabled, setCompareEnabled] = useState(false);
 
   useEffect(() => {
     setActivePeriodIndex((index) =>
-      currentPeriodKeys.length === 0
+      normalizedPeriodKeys.length === 0
         ? 0
-        : Math.min(index, currentPeriodKeys.length - 1),
+        : Math.min(index, normalizedPeriodKeys.length - 1),
     );
-  }, [currentPeriodKeys.length]);
+  }, [normalizedPeriodKeys.length]);
 
   const activePeriod =
-    currentPeriodKeys[activePeriodIndex] ?? currentPeriodKeys[0];
+    normalizedPeriodKeys[activePeriodIndex] ?? normalizedPeriodKeys[0];
 
   const comparisonPeriodKeys = useMemo(
     () =>
       Array.from(new Set(entries.map((entry) => entry.period_first_day)))
-        .filter((period) => !currentPeriodKeys.includes(period))
+        .filter((period) => !normalizedPeriodKeys.includes(period))
         .sort((a, b) => b.localeCompare(a)),
-    [entries, currentPeriodKeys],
+    [entries, normalizedPeriodKeys],
   );
 
   const hasComparisonCandidate =
     comparisonMode === "none"
-      ? currentPeriodKeys.length > 1
+      ? normalizedPeriodKeys.length > 1
       : comparisonPeriodKeys.length > 0;
 
   useEffect(() => {
@@ -67,14 +73,14 @@ export function useStatementMobileMode<
   const mobileComparisonPeriod = useMemo(() => {
     if (!compareEnabled || !activePeriod) return undefined;
     if (comparisonMode !== "none") return comparisonPeriodKeys[0];
-    const activeIndex = currentPeriodKeys.indexOf(activePeriod);
-    return activeIndex >= 0 ? currentPeriodKeys[activeIndex + 1] : undefined;
+    const activeIndex = normalizedPeriodKeys.indexOf(activePeriod);
+    return activeIndex >= 0 ? normalizedPeriodKeys[activeIndex + 1] : undefined;
   }, [
     compareEnabled,
     activePeriod,
     comparisonMode,
     comparisonPeriodKeys,
-    currentPeriodKeys,
+    normalizedPeriodKeys,
   ]);
 
   const mobileVisiblePeriods = useMemo(() => {
@@ -100,8 +106,8 @@ export function useStatementMobileMode<
     compareLabel: mobileComparisonPeriod,
     hasPrev: activePeriodIndex > 0,
     hasNext:
-      currentPeriodKeys.length > 0 &&
-      activePeriodIndex < currentPeriodKeys.length - 1,
+      normalizedPeriodKeys.length > 0 &&
+      activePeriodIndex < normalizedPeriodKeys.length - 1,
     hasComparisonCandidate,
     activePeriod,
   };

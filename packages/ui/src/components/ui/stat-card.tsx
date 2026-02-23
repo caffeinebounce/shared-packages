@@ -64,6 +64,8 @@ export interface StatCardProps {
   variant?: "default" | "muted" | "gradient" | "outline";
   /** Optional className for customization */
   className?: string;
+  /** Size variant for layout density */
+  size?: "default" | "compact";
   /**
    * How to format the numeric value
    * - "number": Locale-formatted number (1,234)
@@ -336,6 +338,7 @@ export function StatCard({
   trend,
   variant = "default",
   className,
+  size = "default",
   format,
   currencyCode,
   percentDecimals,
@@ -367,6 +370,7 @@ export function StatCard({
 
   const isInteractive = onClick || href;
   const hasChart = !!chart;
+  const isCompact = size === "compact";
 
   const handleFlip = () => {
     setActiveSide((prev) => (prev === "stat" ? "chart" : "stat"));
@@ -397,27 +401,46 @@ export function StatCard({
   };
 
   const cardBaseStyles = cn(
-    "h-full relative overflow-hidden gap-0 py-3",
+    "h-full relative overflow-hidden gap-0",
+    isCompact
+      ? "min-h-[112px] p-3 md:min-h-[120px] md:p-4"
+      : "py-3",
     variantStyles[variant],
     hasChart && "pb-6",
   );
 
   // Shared header component for both sides
   const renderHeader = (showIcon = true) => (
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-0">
+    <CardHeader
+      className={cn(
+        "flex flex-row items-center justify-between space-y-0 py-0",
+        isCompact ? "px-0" : "px-4",
+      )}
+    >
       {href ? (
         <a
           href={href}
           className="flex items-center gap-2 hover:text-primary transition-colors z-10"
           onClick={(e) => e.stopPropagation()}
         >
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <CardTitle
+            className={cn(
+              isCompact
+                ? "text-xs md:text-sm font-medium text-muted-foreground"
+                : "text-sm font-medium",
+            )}
+          >
+            {title}
+          </CardTitle>
           <ArrowUpRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
         </a>
       ) : (
         <CardTitle
           className={cn(
-            "text-sm font-medium flex items-center gap-2",
+            isCompact
+              ? "text-xs md:text-sm font-medium text-muted-foreground"
+              : "text-sm font-medium",
+            "flex items-center gap-2",
             onClick && "cursor-pointer hover:text-primary transition-colors",
           )}
           onClick={handleHeaderClick}
@@ -443,31 +466,65 @@ export function StatCard({
         onClick={onClick}
       >
         {renderHeader()}
-        <CardContent className="relative px-4 py-0">
-          <div className="relative overflow-hidden">
-            <span className="block text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10 truncate">
-              {displayValue}
-            </span>
-          </div>
-          {(description || trend) && (
-            <div className="-mt-6 flex items-center gap-2 min-w-0">
-              {trend && <TrendBadge trend={trend} />}
-              {description && (
-                <p className="text-xs text-foreground/80 truncate">
-                  {description}
+        <CardContent
+          className={cn("relative py-0", isCompact ? "px-0" : "px-4")}
+        >
+          {isCompact ? (
+            <>
+              <div className="mt-2 min-w-0">
+                <span className="block text-2xl md:text-3xl font-semibold tracking-tight tabular-nums leading-none md:leading-tight truncate">
+                  {displayValue}
+                </span>
+              </div>
+              {(description || trend) && (
+                <div className="mt-1.5 flex items-center gap-2 min-w-0">
+                  {trend && <TrendBadge trend={trend} />}
+                  {description && (
+                    <p className="text-xs text-muted-foreground truncate">
+                      {description}
+                    </p>
+                  )}
+                </div>
+              )}
+              {trend?.label && (
+                <p className="text-xs text-muted-foreground mt-1 truncate">
+                  {trend.label}
                 </p>
               )}
-            </div>
-          )}
-          {footer && (
-            <p className="text-xs text-muted-foreground mt-1 truncate">
-              {footer}
-            </p>
-          )}
-          {trend?.label && (
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">
-              {trend.label}
-            </p>
+              {footer && (
+                <p className="text-xs text-muted-foreground mt-1 truncate">
+                  {footer}
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="relative overflow-hidden">
+                <span className="block text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10 truncate">
+                  {displayValue}
+                </span>
+              </div>
+              {(description || trend) && (
+                <div className="-mt-6 flex items-center gap-2 min-w-0">
+                  {trend && <TrendBadge trend={trend} />}
+                  {description && (
+                    <p className="text-xs text-foreground/80 truncate">
+                      {description}
+                    </p>
+                  )}
+                </div>
+              )}
+              {footer && (
+                <p className="text-xs text-muted-foreground mt-1 truncate">
+                  {footer}
+                </p>
+              )}
+              {trend?.label && (
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                  {trend.label}
+                </p>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
@@ -502,31 +559,65 @@ export function StatCard({
           )}
         >
           {renderHeader()}
-          <CardContent className="relative px-4 py-0">
-            <div className="relative overflow-hidden">
-              <span className="block text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10 truncate">
-                {displayValue}
-              </span>
-            </div>
-            {(description || trend) && (
-              <div className="-mt-6 flex items-center gap-2 min-w-0">
-                {trend && <TrendBadge trend={trend} />}
-                {description && (
-                  <p className="text-xs text-foreground/80 truncate">
-                    {description}
+          <CardContent
+            className={cn("relative py-0", isCompact ? "px-0" : "px-4")}
+          >
+            {isCompact ? (
+              <>
+                <div className="mt-2 min-w-0">
+                  <span className="block text-2xl md:text-3xl font-semibold tracking-tight tabular-nums leading-none md:leading-tight truncate">
+                    {displayValue}
+                  </span>
+                </div>
+                {(description || trend) && (
+                  <div className="mt-1.5 flex items-center gap-2 min-w-0">
+                    {trend && <TrendBadge trend={trend} />}
+                    {description && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        {description}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {trend?.label && (
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                    {trend.label}
                   </p>
                 )}
-              </div>
-            )}
-            {footer && (
-              <p className="text-xs text-muted-foreground mt-1 truncate">
-                {footer}
-              </p>
-            )}
-            {trend?.label && (
-              <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                {trend.label}
-              </p>
+                {footer && (
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                    {footer}
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="relative overflow-hidden">
+                  <span className="block text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10 truncate">
+                    {displayValue}
+                  </span>
+                </div>
+                {(description || trend) && (
+                  <div className="-mt-6 flex items-center gap-2 min-w-0">
+                    {trend && <TrendBadge trend={trend} />}
+                    {description && (
+                      <p className="text-xs text-foreground/80 truncate">
+                        {description}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {footer && (
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                    {footer}
+                  </p>
+                )}
+                {trend?.label && (
+                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                    {trend.label}
+                  </p>
+                )}
+              </>
             )}
           </CardContent>
           <FlipIndicator activeSide={activeSide} />

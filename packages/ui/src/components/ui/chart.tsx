@@ -107,14 +107,7 @@ export const ChartContainer = React.forwardRef<
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        {dimensions ? (
-          <ResponsiveContainer
-            width={dimensions.width}
-            height={dimensions.height}
-          >
-            {children}
-          </ResponsiveContainer>
-        ) : null}
+        {children}
       </div>
     </ChartContext.Provider>
   );
