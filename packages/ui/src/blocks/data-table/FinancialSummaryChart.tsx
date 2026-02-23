@@ -13,6 +13,7 @@ import {
   PieChart,
   ReferenceLine,
   ResponsiveContainer,
+  Sector,
   Tooltip,
   XAxis,
   YAxis,
@@ -562,36 +563,36 @@ function PieChartView({
     return new Set([activeMetric]);
   }, [activeMetric, computedMetrics]);
 
-  // Compute midpoint angle for each slice to calculate translate direction
-  // Recharts Pie default: startAngle=0, endAngle=360, drawn counter-clockwise
-  // from 3 o'clock. With default startAngle=0 endAngle=360, first slice starts
-  // at the top (90°) going counter-clockwise in math coords.
-  // Actually Recharts uses startAngle=0 endAngle=360 meaning:
-  //   slice angles go from startAngle=90° down counter-clockwise by default
-  // The safest approach: use the Recharts convention where angle 0 = 3 o'clock,
-  // positive = counter-clockwise. Default Pie starts at 90° (12 o'clock).
-  const sliceAngles = React.useMemo(() => {
-    const total = pieData.reduce((s, d) => s + d.value, 0);
-    if (total === 0) return new Map<string, { tx: number; ty: number }>();
-    const angles = new Map<string, { tx: number; ty: number }>();
-    // Recharts default: startAngle=0, endAngle=360
-    // This means first entry starts at 90° in standard math coords (top of circle)
-    // and goes counter-clockwise
-    let currentAngle = 90; // degrees, standard math convention (top = 90°)
-    const popDistance = 8;
-    for (const d of pieData) {
-      const sliceAngle = (d.value / total) * 360;
-      // Recharts draws clockwise from top, so subtract
-      const midAngleDeg = currentAngle - sliceAngle / 2;
-      const midAngleRad = (midAngleDeg * Math.PI) / 180;
-      angles.set(d.key, {
-        tx: Math.cos(midAngleRad) * popDistance,
-        ty: -Math.sin(midAngleRad) * popDistance,
-      });
-      currentAngle -= sliceAngle;
-    }
-    return angles;
-  }, [pieData]);
+  const activeIndices = React.useMemo(() => {
+    if (activeSliceKeys.size === 0) return [] as number[];
+    return pieData
+      .map((d, i) => (activeSliceKeys.has(d.key) ? i : -1))
+      .filter((i) => i >= 0);
+  }, [pieData, activeSliceKeys]);
+
+  // Recharts activeShape callback — receives the slice's actual cx, cy,
+  // startAngle, endAngle from Recharts so the offset direction is always correct
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderActiveShape = React.useCallback((props: any) => {
+    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+    // Recharts angles: 0° = 3 o'clock, counter-clockwise positive
+    const midAngle = (startAngle + endAngle) / 2;
+    const midRad = (midAngle * Math.PI) / 180;
+    const pop = 8;
+    const dx = Math.cos(midRad) * pop;
+    const dy = -Math.sin(midRad) * pop;
+    return (
+      <Sector
+        cx={cx + dx}
+        cy={cy + dy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 4}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+    );
+  }, []);
 
   return (
     <div className="flex h-full w-full" style={{ height }}>
@@ -608,27 +609,19 @@ function PieChartView({
               dataKey="value"
               nameKey="name"
               stroke="none"
-              isAnimationActive={false}
+              {...(activeIndices.length > 0
+                ? { activeIndex: activeIndices, activeShape: renderActiveShape as never }
+                : {})}
             >
               {pieData.map((entry) => {
-                const isActive = activeSliceKeys.has(entry.key);
                 const dimmed =
-                  activeSliceKeys.size > 0 && !isActive;
-                const offset = sliceAngles.get(entry.key);
+                  activeSliceKeys.size > 0 && !activeSliceKeys.has(entry.key);
                 return (
                   <Cell
                     key={entry.name}
                     fill={entry.fill}
                     fillOpacity={dimmed ? 0.35 : 1}
-                    stroke={isActive ? entry.fill : "none"}
-                    strokeWidth={isActive ? 2 : 0}
-                    style={{
-                      transition: "fill-opacity 300ms ease-out, transform 300ms ease-out, filter 300ms ease-out",
-                      transform: isActive && offset
-                        ? `translate(${offset.tx}px, ${offset.ty}px)`
-                        : "translate(0, 0)",
-                      filter: isActive ? `drop-shadow(0 0 4px ${entry.fill}60)` : "none",
-                    }}
+                    style={{ transition: "fill-opacity 300ms ease-out" }}
                   />
                 );
               })}
