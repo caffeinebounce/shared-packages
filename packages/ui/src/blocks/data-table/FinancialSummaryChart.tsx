@@ -563,36 +563,56 @@ function PieChartView({
     return new Set([activeMetric]);
   }, [activeMetric, computedMetrics]);
 
-  const activeIndices = React.useMemo(() => {
-    if (activeSliceKeys.size === 0) return [] as number[];
-    return pieData
-      .map((d, i) => (activeSliceKeys.has(d.key) ? i : -1))
-      .filter((i) => i >= 0);
-  }, [pieData, activeSliceKeys]);
-
-  // Recharts activeShape callback — receives the slice's actual cx, cy,
-  // startAngle, endAngle from Recharts so the offset direction is always correct
+  // Custom shape renderer for every slice — active slices get offset from center
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderActiveShape = React.useCallback((props: any) => {
-    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
-    // Recharts angles: 0° = 3 o'clock, counter-clockwise positive
-    const midAngle = (startAngle + endAngle) / 2;
-    const midRad = (midAngle * Math.PI) / 180;
-    const pop = 8;
-    const dx = Math.cos(midRad) * pop;
-    const dy = -Math.sin(midRad) * pop;
-    return (
-      <Sector
-        cx={cx + dx}
-        cy={cy + dy}
-        innerRadius={innerRadius}
-        outerRadius={outerRadius + 4}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        fill={fill}
-      />
-    );
-  }, []);
+  const renderSlice = React.useCallback(
+    (props: any) => {
+      const {
+        cx,
+        cy,
+        innerRadius,
+        outerRadius,
+        startAngle,
+        endAngle,
+        fill,
+        payload,
+      } = props;
+      const isActive = activeSliceKeys.has(payload?.key);
+      const dimmed = activeSliceKeys.size > 0 && !isActive;
+
+      if (isActive) {
+        // Offset along the slice's radial midpoint
+        const midAngle = (startAngle + endAngle) / 2;
+        const midRad = (midAngle * Math.PI) / 180;
+        const pop = 10;
+        return (
+          <Sector
+            cx={cx + Math.cos(midRad) * pop}
+            cy={cy - Math.sin(midRad) * pop}
+            innerRadius={innerRadius}
+            outerRadius={outerRadius + 4}
+            startAngle={startAngle}
+            endAngle={endAngle}
+            fill={fill}
+          />
+        );
+      }
+
+      return (
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+          fillOpacity={dimmed ? 0.35 : 1}
+        />
+      );
+    },
+    [activeSliceKeys],
+  );
 
   return (
     <div className="flex h-full w-full" style={{ height }}>
@@ -609,22 +629,11 @@ function PieChartView({
               dataKey="value"
               nameKey="name"
               stroke="none"
-              {...(activeIndices.length > 0
-                ? { activeIndex: activeIndices, activeShape: renderActiveShape as never }
-                : {})}
+              shape={renderSlice as never}
             >
-              {pieData.map((entry) => {
-                const dimmed =
-                  activeSliceKeys.size > 0 && !activeSliceKeys.has(entry.key);
-                return (
-                  <Cell
-                    key={entry.name}
-                    fill={entry.fill}
-                    fillOpacity={dimmed ? 0.35 : 1}
-                    style={{ transition: "fill-opacity 300ms ease-out" }}
-                  />
-                );
-              })}
+              {pieData.map((entry) => (
+                <Cell key={entry.name} fill={entry.fill} />
+              ))}
             </Pie>
             <Tooltip content={<PieTooltip divisor={divisor} />} />
           </PieChart>
