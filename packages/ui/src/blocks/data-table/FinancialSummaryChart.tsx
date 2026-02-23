@@ -562,6 +562,28 @@ function PieChartView({
     return new Set([activeMetric]);
   }, [activeMetric, computedMetrics]);
 
+  // Compute midpoint angle for each slice to calculate translate direction
+  const sliceAngles = React.useMemo(() => {
+    const total = pieData.reduce((s, d) => s + d.value, 0);
+    if (total === 0) return new Map<string, { tx: number; ty: number }>();
+    const angles = new Map<string, { tx: number; ty: number }>();
+    let cumulative = 0;
+    for (const d of pieData) {
+      const startAngle = (cumulative / total) * 360;
+      const sliceAngle = (d.value / total) * 360;
+      const midAngleDeg = startAngle + sliceAngle / 2;
+      // Recharts pie starts at 90° (top) and goes clockwise in SVG coords
+      const midAngleRad = ((90 - midAngleDeg) * Math.PI) / 180;
+      const popDistance = 8;
+      angles.set(d.key, {
+        tx: Math.cos(midAngleRad) * popDistance,
+        ty: -Math.sin(midAngleRad) * popDistance,
+      });
+      cumulative += d.value;
+    }
+    return angles;
+  }, [pieData]);
+
   return (
     <div className="flex h-full w-full" style={{ height }}>
       <div className="relative min-w-0 flex-1">
@@ -583,18 +605,20 @@ function PieChartView({
                 const isActive = activeSliceKeys.has(entry.key);
                 const dimmed =
                   activeSliceKeys.size > 0 && !isActive;
+                const offset = sliceAngles.get(entry.key);
                 return (
                   <Cell
                     key={entry.name}
                     fill={entry.fill}
                     fillOpacity={dimmed ? 0.35 : 1}
                     stroke={isActive ? entry.fill : "none"}
-                    strokeWidth={isActive ? 3 : 0}
+                    strokeWidth={isActive ? 2 : 0}
                     style={{
-                      transition: "fill-opacity 300ms ease-out, transform 300ms ease-out",
-                      transformOrigin: "center",
-                      transform: isActive ? "scale(1.06)" : "scale(1)",
-                      filter: isActive ? `drop-shadow(0 0 6px ${entry.fill}80)` : "none",
+                      transition: "fill-opacity 300ms ease-out, transform 300ms ease-out, filter 300ms ease-out",
+                      transform: isActive && offset
+                        ? `translate(${offset.tx}px, ${offset.ty}px)`
+                        : "translate(0, 0)",
+                      filter: isActive ? `drop-shadow(0 0 4px ${entry.fill}60)` : "none",
                     }}
                   />
                 );
