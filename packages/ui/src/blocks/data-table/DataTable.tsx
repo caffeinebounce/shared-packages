@@ -929,7 +929,7 @@ export function DataTable<TData, TValue>({
                             }}
                           >
                             {isStickyColumn && (
-                              <div className="pointer-events-none absolute inset-0 z-0 bg-background" />
+                              <div className="pointer-events-none absolute inset-x-0 top-0 bottom-px z-0 bg-background" />
                             )}
                             {header.isPlaceholder ? null : (
                               <div
