@@ -533,11 +533,13 @@ function PieChartView({
   height,
   divisor = 1,
   activeMetric,
+  computedMetrics,
 }: {
   cards: Array<{ key: string; label: string; value: number; color: string }>;
   height: number;
   divisor?: number;
   activeMetric?: string | null;
+  computedMetrics?: ComputedMetric[];
 }) {
   const pieData = cards
     .filter((card) => card.value !== 0)
@@ -549,9 +551,21 @@ function PieChartView({
     }));
   const pieTotal = pieData.reduce((sum, item) => sum + item.value, 0);
 
-  const activeIndex = activeMetric
-    ? pieData.findIndex((d) => d.key === activeMetric)
-    : -1;
+  // Resolve active metric to a set of pie slice keys
+  // If it's a computed metric, expand to its formula constituents
+  const activeSliceKeys = React.useMemo(() => {
+    if (!activeMetric) return new Set<string>();
+    // Check if it's a computed metric
+    const computed = computedMetrics?.find((m) => m.key === activeMetric);
+    if (computed) {
+      return new Set(computed.formula.map((f) => f.replace(/^-/, "")));
+    }
+    return new Set([activeMetric]);
+  }, [activeMetric, computedMetrics]);
+
+  const activeIndices = pieData
+    .map((d, i) => (activeSliceKeys.has(d.key) ? i : -1))
+    .filter((i) => i >= 0);
 
   // Custom active shape that pops out and enlarges
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -593,9 +607,9 @@ function PieChartView({
               dataKey="value"
               nameKey="name"
               stroke="none"
-              {...(activeIndex >= 0
+              {...(activeIndices.length > 0
                 ? {
-                    activeIndex,
+                    activeIndex: activeIndices,
                     activeShape: renderActiveShape as never,
                   }
                 : {})}
@@ -603,7 +617,8 @@ function PieChartView({
               animationEasing="ease-out"
             >
               {pieData.map((entry) => {
-                const dimmed = activeMetric && entry.key !== activeMetric;
+                const dimmed =
+                  activeSliceKeys.size > 0 && !activeSliceKeys.has(entry.key);
                 return (
                   <Cell
                     key={entry.name}
@@ -970,9 +985,18 @@ export function FinancialSummaryChart({
   const getMetricOpacity = React.useCallback(
     (key: string) => {
       if (!activeMetric) return 1;
-      return key === activeMetric ? 1 : 0.15;
+      if (key === activeMetric) return 1;
+      // Check if activeMetric is a computed metric that includes this key
+      const computed = config.computedMetrics?.find(
+        (m) => m.key === activeMetric,
+      );
+      if (computed) {
+        const constituents = computed.formula.map((f) => f.replace(/^-/, ""));
+        if (constituents.includes(key)) return 1;
+      }
+      return 0.15;
     },
-    [activeMetric],
+    [activeMetric, config.computedMetrics],
   );
 
   const hasChartToggle = !!config.chartTypes && config.chartTypes.length > 1;
@@ -1413,6 +1437,7 @@ export function FinancialSummaryChart({
                   height={config.height ?? 240}
                   divisor={divisor}
                   activeMetric={activeMetric}
+                  computedMetrics={config.computedMetrics}
                 />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
