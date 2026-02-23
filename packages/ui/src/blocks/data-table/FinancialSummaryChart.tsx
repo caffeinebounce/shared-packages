@@ -577,17 +577,18 @@ function PieChartView({
     // Recharts default: startAngle=0, endAngle=360
     // This means first entry starts at 90° in standard math coords (top of circle)
     // and goes counter-clockwise
-    let currentAngle = 90; // degrees, standard math convention
+    let currentAngle = 90; // degrees, standard math convention (top = 90°)
     const popDistance = 8;
     for (const d of pieData) {
       const sliceAngle = (d.value / total) * 360;
-      const midAngleDeg = currentAngle + sliceAngle / 2;
+      // Recharts draws clockwise from top, so subtract
+      const midAngleDeg = currentAngle - sliceAngle / 2;
       const midAngleRad = (midAngleDeg * Math.PI) / 180;
       angles.set(d.key, {
         tx: Math.cos(midAngleRad) * popDistance,
-        ty: -Math.sin(midAngleRad) * popDistance, // SVG y is inverted
+        ty: -Math.sin(midAngleRad) * popDistance,
       });
-      currentAngle += sliceAngle;
+      currentAngle -= sliceAngle;
     }
     return angles;
   }, [pieData]);
