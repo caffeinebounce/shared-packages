@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.49.3
+
+### Patch Changes
+
+- 484cdb1: Fix: charts default to collapsed everywhere, fix stat card height shift on flip
+
 ## 0.49.2
 
 ### Patch Changes
