@@ -1,6 +1,12 @@
 "use client";
 
-import { BarChart3, ChevronDown, ChevronUp, PieChartIcon } from "lucide-react";
+import {
+  BarChart3,
+  ChartColumn,
+  ChevronDown,
+  ChevronUp,
+  PieChartIcon,
+} from "lucide-react";
 import * as React from "react";
 import {
   Area,
@@ -121,7 +127,7 @@ function tooltipFormat(value: number): string {
 const CHART_TYPE_ICONS: Record<SummaryChartType, React.ReactNode> = {
   area: <BarChart3 className="size-3.5" />,
   line: <BarChart3 className="size-3.5" />,
-  bar: <BarChart3 className="size-3.5 rotate-90" />,
+  bar: <ChartColumn className="size-3.5" />,
   pie: <PieChartIcon className="size-3.5" />,
 };
 

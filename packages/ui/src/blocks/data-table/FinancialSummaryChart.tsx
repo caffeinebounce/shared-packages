@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  ChartColumn,
   ChevronDown,
   ChevronUp,
   PieChartIcon,
@@ -11,9 +12,9 @@ import {
   Area,
   AreaChart,
   Bar,
-  ComposedChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Line,
   Pie,
   PieChart,
@@ -330,7 +331,7 @@ function renderMetricDisplayValue(
 const CHART_TYPE_ICONS: Record<ChartVariant, React.ReactNode> = {
   area: <BarChart3 className="size-3.5" />,
   line: <BarChart3 className="size-3.5" />,
-  bar: <BarChart3 className="size-3.5 rotate-90" />,
+  bar: <ChartColumn className="size-3.5" />,
   pie: <PieChartIcon className="size-3.5" />,
 };
 
@@ -431,46 +432,49 @@ function buildChartData(
 
   const latestPeriod = periods.at(-1);
 
-  const summaryCards = allMetrics.map(({ key, label, shortLabel, color, valueDisplay }) => {
-    const total =
-      config.statValueMode === "latest"
-        ? latestPeriod
-          ? (periodMetrics.get(latestPeriod)?.[key] ?? 0)
-          : 0
-        : periods.reduce(
-            (sum, pk) => sum + (periodMetrics.get(pk)?.[key] ?? 0),
-            0,
-          );
-    // Apply same sign to prior total for display, but compute trend on
-    // absolute values so direction is always intuitive (positive = magnitude grew)
-    const rawPrior = priorTotals?.[key];
-    const sign = signMap.get(key) ?? 1;
-    const priorTotal = rawPrior != null ? rawPrior * sign : undefined;
-    const absTotal = Math.abs(total);
-    const absPrior = rawPrior != null ? Math.abs(rawPrior) : undefined;
-    const hasFiniteTotal = Number.isFinite(absTotal);
-    const hasFinitePrior =
-      absPrior != null && Number.isFinite(absPrior) && absPrior !== Infinity;
-    const hasPrior = hasFinitePrior;
-    const noChange = hasFiniteTotal && hasFinitePrior && absTotal === absPrior;
-    const trend =
-      hasFiniteTotal && hasFinitePrior && absPrior !== 0
-        ? ((absTotal - absPrior) / absPrior) * 100
-        : undefined;
+  const summaryCards = allMetrics.map(
+    ({ key, label, shortLabel, color, valueDisplay }) => {
+      const total =
+        config.statValueMode === "latest"
+          ? latestPeriod
+            ? (periodMetrics.get(latestPeriod)?.[key] ?? 0)
+            : 0
+          : periods.reduce(
+              (sum, pk) => sum + (periodMetrics.get(pk)?.[key] ?? 0),
+              0,
+            );
+      // Apply same sign to prior total for display, but compute trend on
+      // absolute values so direction is always intuitive (positive = magnitude grew)
+      const rawPrior = priorTotals?.[key];
+      const sign = signMap.get(key) ?? 1;
+      const priorTotal = rawPrior != null ? rawPrior * sign : undefined;
+      const absTotal = Math.abs(total);
+      const absPrior = rawPrior != null ? Math.abs(rawPrior) : undefined;
+      const hasFiniteTotal = Number.isFinite(absTotal);
+      const hasFinitePrior =
+        absPrior != null && Number.isFinite(absPrior) && absPrior !== Infinity;
+      const hasPrior = hasFinitePrior;
+      const noChange =
+        hasFiniteTotal && hasFinitePrior && absTotal === absPrior;
+      const trend =
+        hasFiniteTotal && hasFinitePrior && absPrior !== 0
+          ? ((absTotal - absPrior) / absPrior) * 100
+          : undefined;
 
-    return {
-      key,
-      label,
-      shortLabel,
-      value: total,
-      color,
-      valueDisplay: valueDisplay ?? { format: "currency" },
-      trend,
-      priorValue: priorTotal,
-      hasPrior,
-      noChange,
-    };
-  });
+      return {
+        key,
+        label,
+        shortLabel,
+        value: total,
+        color,
+        valueDisplay: valueDisplay ?? { format: "currency" },
+        trend,
+        priorValue: priorTotal,
+        hasPrior,
+        noChange,
+      };
+    },
+  );
 
   return { chartData, summaryCards };
 }
@@ -1313,7 +1317,9 @@ export function FinancialSummaryChart({
                   className="size-1.5 rounded-full"
                   style={{ backgroundColor: card.color }}
                 />
-                <span className="text-muted-foreground">{card.shortLabel ?? card.label}:</span>
+                <span className="text-muted-foreground">
+                  {card.shortLabel ?? card.label}:
+                </span>
                 <span
                   className={cn(
                     "font-mono font-medium",
@@ -1446,7 +1452,11 @@ export function FinancialSummaryChart({
                     </SelectTrigger>
                     <SelectContent>
                       {config.dataOptions.options.map((opt) => (
-                        <SelectItem key={opt.value} className="text-xs" value={opt.value}>
+                        <SelectItem
+                          key={opt.value}
+                          className="text-xs"
+                          value={opt.value}
+                        >
                           {opt.label}
                         </SelectItem>
                       ))}
@@ -1597,7 +1607,9 @@ export function FinancialSummaryChart({
                         <Bar
                           key={m.key}
                           dataKey={m.key}
-                          stackId={config.chartType === "bar" ? "summary" : undefined}
+                          stackId={
+                            config.chartType === "bar" ? "summary" : undefined
+                          }
                           fill={m.color}
                           radius={[4, 4, 0, 0]}
                           fillOpacity={opacity * 0.8}
