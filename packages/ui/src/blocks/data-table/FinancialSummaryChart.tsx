@@ -1560,26 +1560,6 @@ export function FinancialSummaryChart({
                           fillOpacity={opacity * 0.8}
                           barSize={18}
                           maxBarSize={24}
-                          // Custom shape to keep bar center aligned with the x-axis tick/line point.
-                          // Also normalize negative bars so they render correctly.
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          shape={(props: any) => {
-                            const { x, y, width, height, fill } = props;
-                            const normalizedY = height < 0 ? y + height : y;
-                            const normalizedHeight = Math.abs(height);
-                            return (
-                              <rect
-                                x={x - width / 2}
-                                y={normalizedY}
-                                width={width}
-                                height={normalizedHeight}
-                                rx={4}
-                                ry={4}
-                                fill={fill}
-                                fillOpacity={opacity * 0.8}
-                              />
-                            );
-                          }}
                         />
                       ) : (
                         <Area
