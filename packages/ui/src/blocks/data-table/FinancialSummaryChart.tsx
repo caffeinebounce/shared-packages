@@ -1421,9 +1421,7 @@ export function FinancialSummaryChart({
                 )}
 
                 {config.chartControls && (
-                  <div className="flex items-center rounded-md bg-primary/15 px-1 py-0.5 text-primary">
-                    {config.chartControls}
-                  </div>
+                  <div className="flex items-center">{config.chartControls}</div>
                 )}
               </div>
             )}
