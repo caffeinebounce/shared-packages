@@ -13,6 +13,7 @@ import {
   PieChart,
   ReferenceLine,
   ResponsiveContainer,
+  Sector,
   Tooltip,
   XAxis,
   YAxis,
@@ -548,6 +549,35 @@ function PieChartView({
     }));
   const pieTotal = pieData.reduce((sum, item) => sum + item.value, 0);
 
+  const activeIndex = activeMetric
+    ? pieData.findIndex((d) => d.key === activeMetric)
+    : -1;
+
+  // Custom active shape that pops out and enlarges
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderActiveShape = React.useCallback((props: any) => {
+    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
+      props;
+    const midAngle = ((startAngle + endAngle) / 2) * (Math.PI / 180);
+    const offsetX = Math.cos(midAngle) * 6;
+    const offsetY = -Math.sin(midAngle) * 6;
+
+    return (
+      <g>
+        <Sector
+          cx={cx + offsetX}
+          cy={cy + offsetY}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius + 6}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+          cornerRadius={2}
+        />
+      </g>
+    );
+  }, []);
+
   return (
     <div className="flex h-full w-full" style={{ height }}>
       <div className="relative min-w-0 flex-1">
@@ -558,22 +588,27 @@ function PieChartView({
               cx="50%"
               cy="50%"
               innerRadius="55%"
-              outerRadius={activeMetric ? "85%" : "80%"}
+              outerRadius="80%"
               paddingAngle={2}
               dataKey="value"
               nameKey="name"
               stroke="none"
+              {...(activeIndex >= 0
+                ? {
+                    activeIndex,
+                    activeShape: renderActiveShape as never,
+                  }
+                : {})}
+              animationDuration={300}
+              animationEasing="ease-out"
             >
               {pieData.map((entry) => {
-                const isActive = entry.key === activeMetric;
-                const dimmed = activeMetric && !isActive;
+                const dimmed = activeMetric && entry.key !== activeMetric;
                 return (
                   <Cell
                     key={entry.name}
                     fill={entry.fill}
                     fillOpacity={dimmed ? 0.2 : 1}
-                    stroke={isActive ? entry.fill : "none"}
-                    strokeWidth={isActive ? 2 : 0}
                   />
                 );
               })}
