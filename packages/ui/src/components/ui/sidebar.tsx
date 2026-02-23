@@ -33,12 +33,18 @@ type SidebarContext = {
   toggleSidebar: () => void;
 };
 
-function getViewportDefaultOpen(width: number): boolean {
-  // >=1024 (desktop): expanded
-  // 768-1023 (tablet): collapsed (icon-only)
-  // <768 (mobile): hidden via sheet; keep desktop state collapsed
-  if (width >= 1024) return true;
-  return false;
+function getSidebarOpenForViewport(
+  width: number,
+  preference?: boolean,
+): boolean {
+  // <768: mobile sheet mode (desktop sidebar state stays collapsed)
+  if (width < 768) return false;
+
+  // 768-1023: always collapsed (icon rail)
+  if (width < 1024) return false;
+
+  // >=1024: honor explicit preference, otherwise default expanded
+  return preference ?? true;
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null);
@@ -91,41 +97,35 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
 
-    // defaultOpen from server cookie means explicit user preference exists.
-    const hasServerPreference = defaultOpen !== undefined;
-    const hasExplicitPreferenceRef = React.useRef(hasServerPreference);
+    // defaultOpen from server cookie means explicit desktop preference exists.
+    const preferenceRef = React.useRef<boolean | undefined>(defaultOpen);
 
     // Internal state for uncontrolled mode.
-    // If no server cookie exists, we intentionally render expanded first (SSR-safe)
-    // and immediately settle to viewport default after hydration.
+    // SSR defaults to expanded; we sync to correct viewport in layout effect before paint.
     const [_open, _setOpen] = React.useState(defaultOpen ?? true);
     const open = openProp ?? _open;
 
-    // Apply viewport defaults after hydration when no explicit preference exists.
+    // Keep sidebar mode in sync with viewport rules.
     React.useLayoutEffect(() => {
-      if (openProp !== undefined || hasExplicitPreferenceRef.current) return;
+      if (openProp !== undefined) return;
 
-      const applyViewportDefault = () => {
-        _setOpen(getViewportDefaultOpen(window.innerWidth));
+      const syncToViewport = () => {
+        _setOpen(
+          getSidebarOpenForViewport(window.innerWidth, preferenceRef.current),
+        );
       };
 
-      applyViewportDefault();
-
-      const handleResize = () => {
-        if (hasExplicitPreferenceRef.current) return;
-        applyViewportDefault();
-      };
-
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
+      syncToViewport();
+      window.addEventListener("resize", syncToViewport);
+      return () => window.removeEventListener("resize", syncToViewport);
     }, [openProp]);
 
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
         const openState = typeof value === "function" ? value(open) : value;
 
-        // Any explicit toggle becomes the source of truth going forward.
-        hasExplicitPreferenceRef.current = true;
+        // Persist explicit desktop preference.
+        preferenceRef.current = openState;
 
         if (setOpenProp) {
           setOpenProp(openState);
