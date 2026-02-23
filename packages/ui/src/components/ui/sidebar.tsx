@@ -23,8 +23,12 @@ const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
+type SidebarMode = "expanded" | "collapsed" | "hidden";
+type DesktopPreference = "expanded" | "collapsed";
+
 type SidebarContext = {
   state: "expanded" | "collapsed";
+  mode: SidebarMode;
   open: boolean;
   setOpen: (open: boolean) => void;
   openMobile: boolean;
@@ -34,18 +38,76 @@ type SidebarContext = {
   toggleSidebar: () => void;
 };
 
-function getSidebarOpenForViewport(
+type SidebarMachineState = {
+  viewportWidth: number;
+  desktopPref?: DesktopPreference;
+  openMobile: boolean;
+  hydrated: boolean;
+};
+
+type SidebarMachineEvent =
+  | { type: "VIEWPORT_CHANGED"; width: number }
+  | { type: "TOGGLE_DESKTOP" }
+  | { type: "OPEN_MOBILE" }
+  | { type: "CLOSE_MOBILE" }
+  | { type: "SET_DESKTOP_PREF"; pref: DesktopPreference };
+
+function resolveSidebarMode(
   width: number,
-  preference?: boolean,
-): boolean {
-  // <768: mobile sheet mode (desktop sidebar state stays collapsed)
-  if (width < 768) return false;
+  desktopPref?: DesktopPreference,
+): SidebarMode {
+  if (width < 768) return "hidden";
+  if (width < 1024) return "collapsed";
+  return desktopPref ?? "expanded";
+}
 
-  // 768-1023: always collapsed (icon rail)
-  if (width < 1024) return false;
+function toDesktopPreference(open?: boolean): DesktopPreference | undefined {
+  if (open === undefined) return undefined;
+  return open ? "expanded" : "collapsed";
+}
 
-  // >=1024: honor explicit preference, otherwise default expanded
-  return preference ?? true;
+function getEffectiveMode(state: SidebarMachineState): SidebarMode {
+  const resolved = resolveSidebarMode(state.viewportWidth, state.desktopPref);
+  if (resolved === "hidden") {
+    return state.openMobile ? "expanded" : "hidden";
+  }
+  return resolved;
+}
+
+function sidebarReducer(
+  state: SidebarMachineState,
+  event: SidebarMachineEvent,
+): SidebarMachineState {
+  switch (event.type) {
+    case "VIEWPORT_CHANGED": {
+      return {
+        ...state,
+        viewportWidth: event.width,
+        hydrated: true,
+        openMobile: event.width < 768 ? state.openMobile : false,
+      };
+    }
+    case "TOGGLE_DESKTOP": {
+      if (state.viewportWidth < 1024) return state;
+      return {
+        ...state,
+        desktopPref: state.desktopPref === "collapsed" ? "expanded" : "collapsed",
+      };
+    }
+    case "OPEN_MOBILE": {
+      if (state.viewportWidth >= 768) return state;
+      return { ...state, openMobile: true };
+    }
+    case "CLOSE_MOBILE": {
+      if (state.viewportWidth >= 768) return state;
+      return { ...state, openMobile: false };
+    }
+    case "SET_DESKTOP_PREF": {
+      return { ...state, desktopPref: event.pref };
+    }
+    default:
+      return state;
+  }
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null);
@@ -56,23 +118,6 @@ function useSidebar() {
     throw new Error("useSidebar must be used within a SidebarProvider.");
   }
   return context;
-}
-
-// Simple hook to detect mobile viewport
-function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState(false);
-
-  React.useLayoutEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  return isMobile;
 }
 
 const SidebarProvider = React.forwardRef<
@@ -95,68 +140,91 @@ const SidebarProvider = React.forwardRef<
     },
     ref,
   ) => {
-    const isMobile = useIsMobile();
-    const [openMobile, setOpenMobile] = React.useState(false);
-    const [ready, setReady] = React.useState(false);
-
-    // defaultOpen from server cookie means explicit desktop preference exists.
-    const preferenceRef = React.useRef<boolean | undefined>(defaultOpen);
-
-    // Internal state for uncontrolled mode.
-    // Initialize from actual viewport on client to avoid expanded→collapsed flash.
-    const [_open, _setOpen] = React.useState(() => {
-      if (typeof window === "undefined") return defaultOpen ?? false;
-      return getSidebarOpenForViewport(window.innerWidth, defaultOpen);
+    const [machine, dispatch] = React.useReducer(sidebarReducer, {
+      viewportWidth: typeof window === "undefined" ? 1024 : window.innerWidth,
+      desktopPref: toDesktopPreference(defaultOpen),
+      openMobile: false,
+      hydrated: typeof window === "undefined",
     });
-    const open = openProp ?? _open;
 
-    // Keep sidebar mode in sync with viewport rules.
     React.useLayoutEffect(() => {
-      if (openProp === undefined) {
-        const syncToViewport = () => {
-          _setOpen(
-            getSidebarOpenForViewport(window.innerWidth, preferenceRef.current),
-          );
-        };
+      const syncViewport = () => {
+        dispatch({ type: "VIEWPORT_CHANGED", width: window.innerWidth });
+      };
 
-        syncToViewport();
-        setReady(true);
-        window.addEventListener("resize", syncToViewport);
-        return () => window.removeEventListener("resize", syncToViewport);
+      syncViewport();
+      window.addEventListener("resize", syncViewport);
+      return () => window.removeEventListener("resize", syncViewport);
+    }, []);
+
+    const controlledDesktopPref = toDesktopPreference(openProp);
+    React.useEffect(() => {
+      if (controlledDesktopPref) {
+        dispatch({ type: "SET_DESKTOP_PREF", pref: controlledDesktopPref });
       }
+    }, [controlledDesktopPref]);
 
-      setReady(true);
-      return undefined;
-    }, [openProp]);
-
-    const setOpen = React.useCallback(
-      (value: boolean | ((value: boolean) => boolean)) => {
-        const openState = typeof value === "function" ? value(open) : value;
-
-        // Persist explicit desktop preference.
-        preferenceRef.current = openState;
-
-        if (setOpenProp) {
-          setOpenProp(openState);
-        } else {
-          _setOpen(openState);
-        }
-
-        // This sets the cookie to keep the sidebar state.
-        // biome-ignore lint/suspicious/noDocumentCookie: Required for sidebar state persistence
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
-      },
-      [setOpenProp, open],
+    const desktopPref = controlledDesktopPref ?? machine.desktopPref;
+    const effectiveMode = React.useMemo(
+      () =>
+        getEffectiveMode({
+          ...machine,
+          desktopPref,
+        }),
+      [desktopPref, machine],
     );
 
-    // Helper to toggle the sidebar.
-    const toggleSidebar = React.useCallback(() => {
-      return isMobile
-        ? setOpenMobile((open) => !open)
-        : setOpen((open) => !open);
-    }, [isMobile, setOpen]);
+    const isMobile = machine.viewportWidth < 768;
+    const openMobile = isMobile && machine.openMobile;
+    const open = resolveSidebarMode(machine.viewportWidth, desktopPref) === "expanded";
 
-    // Adds a keyboard shortcut to toggle the sidebar.
+    const setDesktopPreference = React.useCallback(
+      (pref: DesktopPreference) => {
+        if (setOpenProp) {
+          setOpenProp(pref === "expanded");
+        }
+
+        if (openProp === undefined) {
+          dispatch({ type: "SET_DESKTOP_PREF", pref });
+        }
+
+        // biome-ignore lint/suspicious/noDocumentCookie: Required for sidebar state persistence
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=${pref === "expanded"}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      },
+      [openProp, setOpenProp],
+    );
+
+    const setOpen = React.useCallback(
+      (nextOpen: boolean) => {
+        setDesktopPreference(nextOpen ? "expanded" : "collapsed");
+      },
+      [setDesktopPreference],
+    );
+
+    const setOpenMobile = React.useCallback((nextOpen: boolean) => {
+      dispatch({ type: nextOpen ? "OPEN_MOBILE" : "CLOSE_MOBILE" });
+    }, []);
+
+    const toggleSidebar = React.useCallback(() => {
+      if (isMobile) {
+        dispatch({ type: openMobile ? "CLOSE_MOBILE" : "OPEN_MOBILE" });
+        return;
+      }
+
+      const nextPref: DesktopPreference = open ? "collapsed" : "expanded";
+
+      if (setOpenProp) {
+        setOpenProp(nextPref === "expanded");
+      }
+
+      if (openProp === undefined) {
+        dispatch({ type: "TOGGLE_DESKTOP" });
+      }
+
+      // biome-ignore lint/suspicious/noDocumentCookie: Required for sidebar state persistence
+      document.cookie = `${SIDEBAR_COOKIE_NAME}=${nextPref === "expanded"}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+    }, [isMobile, open, openMobile, openProp, setOpenProp]);
+
     React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
         if (
@@ -172,13 +240,14 @@ const SidebarProvider = React.forwardRef<
       return () => window.removeEventListener("keydown", handleKeyDown);
     }, [toggleSidebar]);
 
-    // We add a state so that we can do data-state="expanded" or "collapsed".
-    // This makes it easier to style the sidebar with Tailwind classes.
-    const state = open ? "expanded" : "collapsed";
+    const mode = effectiveMode;
+    const state = mode === "expanded" ? "expanded" : "collapsed";
+    const ready = machine.hydrated;
 
     const contextValue = React.useMemo<SidebarContext>(
       () => ({
         state,
+        mode,
         open,
         setOpen,
         isMobile,
@@ -187,7 +256,7 @@ const SidebarProvider = React.forwardRef<
         ready,
         toggleSidebar,
       }),
-      [state, open, setOpen, isMobile, openMobile, ready, toggleSidebar],
+      [state, mode, open, setOpen, isMobile, openMobile, setOpenMobile, ready, toggleSidebar],
     );
 
     return (
@@ -202,8 +271,6 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              // h-full: inherit height from parent
-              // min-h-0: allow flex children to shrink below content size
               "group/sidebar-wrapper flex h-full min-h-0 w-full has-data-[variant=inset]:bg-sidebar",
               className,
             )}
@@ -284,7 +351,7 @@ const Sidebar = React.forwardRef<
         ref={ref}
         className={cn(
           "group peer hidden md:block text-sidebar-foreground",
-          !ready && "[&_*]:!transition-none [&_*]:!duration-0",
+          !ready && "md:invisible [&_*]:!transition-none [&_*]:!duration-0",
         )}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
