@@ -30,8 +30,23 @@ type SidebarContext = {
   openMobile: boolean;
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
+  ready: boolean;
   toggleSidebar: () => void;
 };
+
+function getSidebarOpenForViewport(
+  width: number,
+  preference?: boolean,
+): boolean {
+  // <768: mobile sheet mode (desktop sidebar state stays collapsed)
+  if (width < 768) return false;
+
+  // 768-1023: always collapsed (icon rail)
+  if (width < 1024) return false;
+
+  // >=1024: honor explicit preference, otherwise default expanded
+  return preference ?? true;
+}
 
 const SidebarContext = React.createContext<SidebarContext | null>(null);
 
@@ -47,7 +62,7 @@ function useSidebar() {
 function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState(false);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -70,7 +85,7 @@ const SidebarProvider = React.forwardRef<
 >(
   (
     {
-      defaultOpen = true,
+      defaultOpen,
       open: openProp,
       onOpenChange: setOpenProp,
       className,
@@ -82,47 +97,45 @@ const SidebarProvider = React.forwardRef<
   ) => {
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
+    const [ready, setReady] = React.useState(false);
 
-    // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for controlled mode.
-    // Initialize with defaultOpen to match server render and avoid hydration mismatch
-    const [_open, _setOpen] = React.useState(defaultOpen);
+    // defaultOpen from server cookie means explicit desktop preference exists.
+    const preferenceRef = React.useRef<boolean | undefined>(defaultOpen);
+
+    // Internal state for uncontrolled mode.
+    // Initialize from actual viewport on client to avoid expanded→collapsed flash.
+    const [_open, _setOpen] = React.useState(() => {
+      if (typeof window === "undefined") return defaultOpen ?? false;
+      return getSidebarOpenForViewport(window.innerWidth, defaultOpen);
+    });
     const open = openProp ?? _open;
 
-    // Adjust sidebar state based on screen size after hydration
-    // This runs only on mount to set the initial state based on actual screen width
-    React.useEffect(() => {
-      if (openProp !== undefined) return; // Don't auto-adjust in controlled mode
+    // Keep sidebar mode in sync with viewport rules.
+    React.useLayoutEffect(() => {
+      if (openProp === undefined) {
+        const syncToViewport = () => {
+          _setOpen(
+            getSidebarOpenForViewport(window.innerWidth, preferenceRef.current),
+          );
+        };
 
-      const width = window.innerWidth;
-      // On tablet-sized screens (md-lg), default to collapsed
-      if (width >= 768 && width < 1024) {
-        _setOpen(false);
+        syncToViewport();
+        setReady(true);
+        window.addEventListener("resize", syncToViewport);
+        return () => window.removeEventListener("resize", syncToViewport);
       }
-    }, [openProp]);
 
-    // Auto-collapse/expand when crossing breakpoints
-    React.useEffect(() => {
-      if (openProp !== undefined) return; // Don't auto-adjust in controlled mode
-
-      const handleResize = () => {
-        const width = window.innerWidth;
-        if (width >= 1024) {
-          // Large screen: expand
-          _setOpen(true);
-        } else if (width >= 768) {
-          // Tablet: collapse
-          _setOpen(false);
-        }
-      };
-
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
+      setReady(true);
+      return undefined;
     }, [openProp]);
 
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
         const openState = typeof value === "function" ? value(open) : value;
+
+        // Persist explicit desktop preference.
+        preferenceRef.current = openState;
+
         if (setOpenProp) {
           setOpenProp(openState);
         } else {
@@ -171,9 +184,10 @@ const SidebarProvider = React.forwardRef<
         isMobile,
         openMobile,
         setOpenMobile,
+        ready,
         toggleSidebar,
       }),
-      [state, open, setOpen, isMobile, openMobile, toggleSidebar],
+      [state, open, setOpen, isMobile, openMobile, ready, toggleSidebar],
     );
 
     return (
@@ -224,7 +238,7 @@ const Sidebar = React.forwardRef<
     },
     ref,
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+    const { isMobile, state, openMobile, setOpenMobile, ready } = useSidebar();
 
     if (collapsible === "none") {
       return (
@@ -268,7 +282,10 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
-        className="group peer hidden md:block text-sidebar-foreground"
+        className={cn(
+          "group peer hidden md:block text-sidebar-foreground",
+          !ready && "[&_*]:!transition-none [&_*]:!duration-0",
+        )}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
