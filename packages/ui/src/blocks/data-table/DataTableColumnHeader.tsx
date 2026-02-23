@@ -118,6 +118,8 @@ export interface DataTableColumnHeaderProps<TData, TValue>
   isWrapped?: boolean;
   /** Callback when wrap toggle is clicked */
   onToggleWrap?: () => void;
+  /** Extra menu items rendered at the top of the dropdown */
+  customMenuItems?: React.ReactNode;
 }
 
 /**
@@ -163,6 +165,7 @@ export function DataTableColumnHeader<TData, TValue>({
   onFilterChange,
   isWrapped: isWrappedProp,
   onToggleWrap: onToggleWrapProp,
+  customMenuItems,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   const meta = column.columnDef.meta as DataTableColumnMeta | undefined;
 
@@ -259,7 +262,7 @@ export function DataTableColumnHeader<TData, TValue>({
         <DropdownMenuTrigger asChild>
           {/* Wrapper div positions the menu but doesn't capture pointer events */}
           <div className="w-full h-full" style={{ pointerEvents: "none" }}>
-            {/* Button handles all interaction */}
+            {/* Button with before pseudo-element that covers the full <th> cell for hover */}
             <button
               type="button"
               draggable={canDrag}
@@ -269,10 +272,10 @@ export function DataTableColumnHeader<TData, TValue>({
               onClick={handleClick}
               style={{ pointerEvents: "auto" }}
               className={cn(
-                "flex items-center gap-1.5 w-full h-full px-2",
+                "relative flex items-center gap-1.5 w-full h-full px-2",
                 justifyClass || "text-left",
-                "hover:bg-accent/50 transition-colors",
-                isOpen && "bg-accent",
+                "before:absolute before:-inset-[99px] before:-z-10 before:pointer-events-none before:transition-colors hover:before:bg-accent/50",
+                isOpen && "before:bg-accent",
                 "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
                 canDrag ? "cursor-grab" : "cursor-pointer",
               )}
@@ -296,6 +299,12 @@ export function DataTableColumnHeader<TData, TValue>({
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-36">
+          {customMenuItems && (
+            <>
+              {customMenuItems}
+              <DropdownMenuSeparator />
+            </>
+          )}
           {/* Filter option as submenu (side-opening) */}
           {showFilter && (
             <>

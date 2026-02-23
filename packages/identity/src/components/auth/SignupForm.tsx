@@ -30,7 +30,11 @@ import { AuthHeader } from "../shared/AuthHeader";
 import { GoogleIcon, MicrosoftIcon } from "../shared/OAuthIcons";
 import { OrDivider } from "../shared/OrDivider";
 import { EmailVerificationPending } from "./EmailVerificationPending";
-import { clearStalePKCEState, sanitizeSignupError } from "./utils";
+import {
+  buildOAuthRedirectTo,
+  clearStalePKCEState,
+  sanitizeSignupError,
+} from "./utils";
 
 /**
  * Authentication event logging callbacks for sign-up
@@ -205,8 +209,11 @@ export function SignupForm({
     confirmPassword.length > 0 &&
     password !== confirmPassword;
 
-  // Get the appropriate origin for this environment (handles preview vs production)
-  const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
+  // Always use active browser origin so dev/preview/Tailscale callbacks return to the same environment.
+  const siteUrl =
+    typeof window !== "undefined"
+      ? window.location.origin.replace(/\/$/, "")
+      : getClientOrigin("NEXT_PUBLIC_SITE_URL");
 
   async function handleOAuthSignIn(provider: OAuthProvider) {
     setOauthLoading(provider);
@@ -233,7 +240,7 @@ export function SignupForm({
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${siteUrl}/callback?next=${mergedLinks.defaultRedirect}`,
+        redirectTo: buildOAuthRedirectTo(siteUrl, mergedLinks.defaultRedirect),
       },
     });
 

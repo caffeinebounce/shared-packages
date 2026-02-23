@@ -117,6 +117,10 @@ export interface DataTableProps<TData, TValue>
   treeIndentPx?: number;
   /** Optional callback to add extra CSS class(es) to a specific row */
   getRowClassName?: (row: Row<TData>) => string | undefined;
+  /** Number of leading columns to freeze (sticky left). Default: 0 */
+  stickyColumns?: number;
+  /** Specific column IDs to freeze (sticky left). Takes precedence over stickyColumns when provided. */
+  stickyColumnIds?: string[];
 }
 
 // ── Tree expand cycle button ──────────────────────────────────────────────────
@@ -253,6 +257,8 @@ export function DataTable<TData, TValue>({
   enableTreeView = false,
   treeIndentPx = 20,
   getRowClassName,
+  stickyColumns = 0,
+  stickyColumnIds: explicitStickyColumnIds,
   className,
   children,
   ...props
@@ -318,6 +324,77 @@ export function DataTable<TData, TValue>({
     React.useState<string[]>(defaultColumnOrder);
   const columnOrder = externalColumnOrder ?? internalColumnOrder;
   const setColumnOrder = onColumnOrderChange ?? setInternalColumnOrder;
+
+  const renderedLeafColumns = React.useMemo(() => {
+    let leafColumns = table.getVisibleLeafColumns();
+
+    if (rowSelectionStyle === "hover" || enableRowDrag) {
+      leafColumns = leafColumns.filter((column) => column.id !== "select");
+    }
+
+    if (enableColumnDrag) {
+      leafColumns = [...leafColumns].sort((a, b) => {
+        const aIndex = columnOrder.indexOf(a.id);
+        const bIndex = columnOrder.indexOf(b.id);
+        if (aIndex === -1) return 1;
+        if (bIndex === -1) return -1;
+        return aIndex - bIndex;
+      });
+    }
+
+    return leafColumns;
+  }, [table, rowSelectionStyle, enableRowDrag, enableColumnDrag, columnOrder]);
+
+  const renderedLeafIndexById = React.useMemo(() => {
+    const indexById = new Map<string, number>();
+    renderedLeafColumns.forEach((column, index) => {
+      indexById.set(column.id, index);
+    });
+    return indexById;
+  }, [renderedLeafColumns]);
+
+  const stickyLeafColumns = React.useMemo(() => {
+    if (explicitStickyColumnIds && explicitStickyColumnIds.length > 0) {
+      const stickyIdSet = new Set(explicitStickyColumnIds);
+      return renderedLeafColumns.filter((column) => stickyIdSet.has(column.id));
+    }
+
+    if (!stickyColumns || stickyColumns <= 0) return [];
+    return renderedLeafColumns.slice(0, stickyColumns);
+  }, [renderedLeafColumns, stickyColumns, explicitStickyColumnIds]);
+
+  const stickyColumnIds = React.useMemo(
+    () => new Set(stickyLeafColumns.map((column) => column.id)),
+    [stickyLeafColumns],
+  );
+
+  const stickyColumnLefts = React.useMemo(() => {
+    const lefts = new Map<string, number>();
+    let runningLeft = 0;
+
+    for (const column of stickyLeafColumns) {
+      lefts.set(column.id, runningLeft);
+      runningLeft += column.getSize();
+    }
+
+    return lefts;
+  }, [stickyLeafColumns]);
+
+  // Width should reflect only currently rendered columns (after visibility/order)
+  // so hidden compare columns do not leave phantom horizontal space.
+  const renderedTableWidth = React.useMemo(() => {
+    return renderedLeafColumns.reduce((total, column) => {
+      const resizedWidth = columnSizing[column.id];
+      const baseWidth = resizedWidth ?? column.getSize();
+      const minWidth = column.columnDef.minSize ?? 0;
+      const maxWidth = column.columnDef.maxSize;
+      const clamped = Math.max(
+        minWidth,
+        maxWidth !== undefined ? Math.min(baseWidth, maxWidth) : baseWidth,
+      );
+      return total + clamped;
+    }, 0);
+  }, [renderedLeafColumns, columnSizing]);
 
   // Internal column wrapping state (used if not controlled externally)
   const [internalColumnWrapping, setInternalColumnWrapping] = React.useState<
@@ -589,9 +666,13 @@ export function DataTable<TData, TValue>({
           >
             <table
               className={cn(
-                "w-full caption-bottom border-separate border-spacing-0",
+                "caption-bottom border-separate border-spacing-0",
                 fontSizeClass,
               )}
+              style={{
+                width: `max(100%, ${renderedTableWidth}px)`,
+                tableLayout: "fixed",
+              }}
             >
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => {
@@ -707,6 +788,32 @@ export function DataTable<TData, TValue>({
                           rowSelectionStyle === "hover" || enableRowDrag;
                         const isFirstColumn = headerIndex === 0 && !hasGutter;
 
+                        // Sticky header alignment must be based on rendered leaf columns,
+                        // not synthetic/group header ids.
+                        const headerLeafColumnIds = header
+                          .getLeafHeaders()
+                          .map((leafHeader) => leafHeader.column.id)
+                          .filter((columnId) =>
+                            renderedLeafIndexById.has(columnId),
+                          );
+                        const stickyHeaderLeafIds = headerLeafColumnIds.filter(
+                          (columnId) => stickyColumnIds.has(columnId),
+                        );
+                        const isStickyColumn =
+                          headerLeafColumnIds.length > 0 &&
+                          stickyHeaderLeafIds.length ===
+                            headerLeafColumnIds.length;
+                        const stickyHeaderColumnId = isStickyColumn
+                          ? stickyHeaderLeafIds.sort(
+                              (a, b) =>
+                                (renderedLeafIndexById.get(a) ?? 0) -
+                                (renderedLeafIndexById.get(b) ?? 0),
+                            )[0]
+                          : undefined;
+                        const stickyLeft = stickyHeaderColumnId
+                          ? (stickyColumnLefts.get(stickyHeaderColumnId) ?? 0)
+                          : 0;
+
                         // Determine if header is a simple string (not a function/component)
                         const headerDef = header.column.columnDef.header;
                         const isSimpleHeader = typeof headerDef === "string";
@@ -739,9 +846,25 @@ export function DataTable<TData, TValue>({
                           dragOverColumnId === header.id &&
                           dragOverColumnPosition === "right";
 
+                        const firstLeafIndex = Math.min(
+                          ...headerLeafColumnIds.map(
+                            (columnId) =>
+                              renderedLeafIndexById.get(columnId) ?? 0,
+                          ),
+                        );
+                        const isFirstNonStickyAfterSticky =
+                          !isStickyColumn &&
+                          firstLeafIndex > 0 &&
+                          stickyColumnIds.has(
+                            renderedLeafColumns[firstLeafIndex - 1]?.id ?? "",
+                          );
+
                         return (
                           <TableHead
                             key={header.id}
+                            data-sticky-column={
+                              isStickyColumn ? "true" : undefined
+                            }
                             colSpan={header.colSpan}
                             onDragOver={
                               canDragColumn
@@ -759,28 +882,62 @@ export function DataTable<TData, TValue>({
                             className={cn(
                               isSimpleHeader ? "px-2" : "p-0", // Add padding for simple headers, let component headers handle their own
                               headerHeight,
-                              // Tree view first column: flex layout for expand-all button + header
-                              enableTreeView &&
-                                headerIndex === 0 &&
-                                "flex items-center",
-                              "relative overflow-hidden text-ellipsis border-b border-border",
+                              "relative",
+                              "overflow-hidden text-ellipsis border-b border-border",
                               !columnWrapping[header.id] && "whitespace-nowrap",
                               columnWrapping[header.id] && "whitespace-normal",
                               isFirstColumn && "border-l border-border",
-                              "border-r border-border",
+                              !isStickyColumn && "border-r border-border",
+                              isStickyColumn && "border-r border-border",
+                              isFirstNonStickyAfterSticky &&
+                                "border-l border-border",
                               isDragOverLeft && "border-l-2 border-l-primary",
                               isDragOverRight && "border-r-2 border-r-primary",
                             )}
-                            style={
-                              isFixedWidth || isActionsColumn
+                            style={{
+                              ...(isActionsColumn
                                 ? { width: "1%" }
-                                : resizedWidth
-                                  ? { width: resizedWidth }
-                                  : undefined
-                            }
+                                : {
+                                    width: resizedWidth ?? header.getSize(),
+                                    minWidth: header.column.columnDef.minSize,
+                                    maxWidth: header.column.columnDef.maxSize,
+                                  }),
+                              ...(isStickyColumn
+                                ? {
+                                    position: "sticky" as const,
+                                    left: stickyLeft,
+                                    zIndex: 60,
+                                    background: "hsl(var(--background) / 1)",
+                                    backgroundColor:
+                                      "hsl(var(--background) / 1)",
+                                    opacity: 1,
+                                    backgroundClip: "padding-box",
+                                    boxShadow:
+                                      "inset -1px 0 0 hsl(var(--border)), inset 0 -1px 0 hsl(var(--border))",
+                                    isolation: "isolate" as const,
+                                    contain: "paint" as const,
+                                    backfaceVisibility: "hidden" as const,
+                                    mixBlendMode: "normal" as const,
+                                    backdropFilter: "none",
+                                    WebkitBackdropFilter: "none",
+                                    transform: "translateZ(0)",
+                                    WebkitTransform: "translateZ(0)",
+                                  }
+                                : {}),
+                            }}
                           >
+                            {isStickyColumn && (
+                              <div className="pointer-events-none absolute inset-x-0 top-0 bottom-px z-0 bg-background" />
+                            )}
                             {header.isPlaceholder ? null : (
-                              <>
+                              <div
+                                className={cn(
+                                  "relative z-10",
+                                  enableTreeView &&
+                                    headerIndex === 0 &&
+                                    "flex items-center",
+                                )}
+                              >
                                 {/* Tree view: cycle expand depth on first column header */}
                                 {enableTreeView && headerIndex === 0 && (
                                   <TreeExpandCycleButton
@@ -800,7 +957,7 @@ export function DataTable<TData, TValue>({
                                     header.getContext(),
                                   )
                                 )}
-                              </>
+                              </div>
                             )}
                             {/* Resize handle - not shown for fixed-width or last column */}
                             {enableColumnResizing &&
@@ -1001,6 +1158,19 @@ export function DataTable<TData, TValue>({
                               rowSelectionStyle === "hover" || enableRowDrag;
                             const isFirstColumn = cellIndex === 0 && !hasGutter;
 
+                            // Sticky column support (match by column id)
+                            const isStickyCell = stickyColumnIds.has(
+                              cell.column.id,
+                            );
+                            const stickyLeft =
+                              stickyColumnLefts.get(cell.column.id) ?? 0;
+                            const isFirstNonStickyAfterSticky =
+                              !isStickyCell &&
+                              cellIndex > 0 &&
+                              stickyColumnIds.has(
+                                sortedCells[cellIndex - 1]?.column.id ?? "",
+                              );
+
                             // Check if this is a fixed-width column
                             const colDef = cell.column.columnDef;
                             const isFixedWidth =
@@ -1027,6 +1197,8 @@ export function DataTable<TData, TValue>({
                               | undefined;
                             const colAlign =
                               (colMeta?.align as string) ?? "left";
+                            const allowHorizontalScroll =
+                              colMeta?.allowHorizontalScroll === true;
                             const alignClass =
                               colAlign === "right"
                                 ? "text-right"
@@ -1046,13 +1218,22 @@ export function DataTable<TData, TValue>({
                             return (
                               <TableCell
                                 key={cell.id}
+                                data-sticky-column={
+                                  isStickyCell ? "true" : undefined
+                                }
                                 className={cn(
                                   cellPadding,
+                                  isStickyCell && "relative",
                                   !isWrapped &&
                                     "overflow-hidden text-ellipsis whitespace-nowrap",
                                   isWrapped && "whitespace-normal break-words",
-                                  !isLastColumn && "border-r border-border",
+                                  !isLastColumn &&
+                                    !isStickyCell &&
+                                    "border-r border-border",
+                                  isStickyCell && "border-r border-border",
                                   isFirstColumn && "border-l border-border",
+                                  isFirstNonStickyAfterSticky &&
+                                    "border-l border-border",
                                   isLastColumn && "border-r border-border",
                                   isActionsColumn && "whitespace-nowrap",
                                   // All rows get bottom border except last row without summary
@@ -1077,11 +1258,41 @@ export function DataTable<TData, TValue>({
                                 )}
                                 style={{
                                   width: resizedWidth || cell.column.getSize(),
+                                  minWidth: cell.column.columnDef.minSize,
+                                  maxWidth: cell.column.columnDef.maxSize,
+                                  ...(isStickyCell
+                                    ? {
+                                        position: "sticky" as const,
+                                        left: stickyLeft,
+                                        zIndex: 50,
+                                        background:
+                                          "hsl(var(--background) / 1)",
+                                        backgroundColor:
+                                          "hsl(var(--background) / 1)",
+                                        opacity: 1,
+                                        backgroundClip: "padding-box",
+                                        boxShadow:
+                                          "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border))",
+                                        borderBottom:
+                                          "1px solid hsl(var(--border))",
+                                        isolation: "isolate" as const,
+                                        contain: "paint" as const,
+                                        backfaceVisibility: "hidden" as const,
+                                        mixBlendMode: "normal" as const,
+                                        backdropFilter: "none",
+                                        WebkitBackdropFilter: "none",
+                                        transform: "translateZ(0)",
+                                        WebkitTransform: "translateZ(0)",
+                                      }
+                                    : {}),
                                 }}
                               >
+                                {isStickyCell && (
+                                  <div className="pointer-events-none absolute inset-0 z-0 border-b border-border bg-background" />
+                                )}
                                 {showTreeUI ? (
                                   <div
-                                    className="flex items-center gap-1"
+                                    className="relative z-10 flex items-center gap-1"
                                     style={{ paddingLeft: `${treeIndent}px` }}
                                   >
                                     {canExpand ? (
@@ -1113,8 +1324,20 @@ export function DataTable<TData, TValue>({
                                     <div
                                       className={cn(
                                         "min-w-0",
-                                        !isWrapped && "truncate",
+                                        !isWrapped &&
+                                          !allowHorizontalScroll &&
+                                          "truncate",
+                                        allowHorizontalScroll &&
+                                          "overflow-x-auto whitespace-nowrap [&::-webkit-scrollbar]:hidden",
                                       )}
+                                      style={
+                                        allowHorizontalScroll
+                                          ? {
+                                              scrollbarWidth: "none",
+                                              msOverflowStyle: "none",
+                                            }
+                                          : undefined
+                                      }
                                     >
                                       {flexRender(
                                         cell.column.columnDef.cell,
@@ -1125,9 +1348,22 @@ export function DataTable<TData, TValue>({
                                 ) : (
                                   <div
                                     className={cn(
-                                      !isWrapped && "truncate",
+                                      "relative z-10",
+                                      !isWrapped &&
+                                        !allowHorizontalScroll &&
+                                        "truncate",
+                                      allowHorizontalScroll &&
+                                        "overflow-x-auto whitespace-nowrap [&::-webkit-scrollbar]:hidden",
                                       alignClass,
                                     )}
+                                    style={
+                                      allowHorizontalScroll
+                                        ? {
+                                            scrollbarWidth: "none",
+                                            msOverflowStyle: "none",
+                                          }
+                                        : undefined
+                                    }
                                   >
                                     {flexRender(
                                       cell.column.columnDef.cell,

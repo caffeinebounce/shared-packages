@@ -27,6 +27,12 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "../../components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 import { Spinner } from "../../components/ui/spinner";
 import {
   Tooltip,
@@ -66,6 +72,8 @@ export interface NavSection {
   type: "section";
   /** Section label (displayed as uppercase header) */
   label: string;
+  /** Optional icon used when sidebar is collapsed */
+  icon?: ComponentType<{ className?: string }>;
   /** Items within this section */
   items: NavItem[];
   /** Whether section is visible (for conditional rendering) */
@@ -203,6 +211,9 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const Link = LinkComponent;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [suppressSectionTooltip, setSuppressSectionTooltip] = useState<string | null>(
+    null,
+  );
 
   // Check if current path is the profile page
   const isOnProfilePage =
@@ -302,15 +313,48 @@ export function AppSidebar({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [enableKeyboardShortcuts, allNavItems, onNavigate]);
 
+  const activeHref = useMemo(() => {
+    if (!pathname || allNavItems.length === 0) return null;
+
+    const matches = allNavItems
+      .filter((item) => {
+        if (item.href === "/" || item.href === "/dashboard" || item.href === "/finance") {
+          return pathname === item.href;
+        }
+        return pathname === item.href || pathname.startsWith(`${item.href}/`);
+      })
+      .sort((a, b) => b.href.length - a.href.length);
+
+    return matches[0]?.href ?? null;
+  }, [pathname, allNavItems]);
+
+  const [sectionOpenState, setSectionOpenState] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    setSectionOpenState((prev) => {
+      const nextState: Record<string, boolean> = {};
+      for (const group of processedNavGroups) {
+        if (group.type === "section" && group.section.collapsible) {
+          nextState[group.section.label] =
+            prev[group.section.label] ?? group.section.defaultOpen === true;
+        }
+      }
+
+      const nextKeys = Object.keys(nextState);
+      const prevKeys = Object.keys(prev);
+      const hasChanged =
+        nextKeys.length !== prevKeys.length ||
+        nextKeys.some((key) => prev[key] !== nextState[key]);
+
+      return hasChanged ? nextState : prev;
+    });
+  }, [processedNavGroups]);
+
   // Determine active state for nav items
   const getIsActive = (item: NavItem) => {
     if (item.isActive !== undefined) return item.isActive;
     if (!pathname) return false;
-    // Exact match for home/dashboard, prefix match for child paths only
-    if (item.href === "/" || item.href === "/dashboard") {
-      return pathname === item.href;
-    }
-    return pathname === item.href || pathname.startsWith(`${item.href}/`);
+    return activeHref === item.href;
   };
 
   // Get icon animation class - returns complete Tailwind classes for purging
@@ -364,7 +408,12 @@ export function AppSidebar({
 
     // Normal item
     return (
-      <SidebarMenuButton asChild isActive={isActive} className="group">
+      <SidebarMenuButton
+        asChild
+        isActive={isActive}
+        className="group"
+        tooltip={item.label}
+      >
         <Link href={item.href}>
           <Icon className={`shrink-0 ${iconAnimationClass}`} />
           <span>{item.label}</span>
@@ -396,33 +445,96 @@ export function AppSidebar({
             if (section.visible === false) return null;
 
             if (section.collapsible) {
+              const SectionIcon = section.icon ?? section.items[0]?.icon;
+              const sectionHref = section.items[0]?.href;
+
               return (
                 <Collapsible
                   key={`section-${section.label}`}
-                  defaultOpen={section.defaultOpen !== false}
+                  open={sectionOpenState[section.label] ?? section.defaultOpen === true}
+                  onOpenChange={(open) =>
+                    setSectionOpenState((prev) => ({
+                      ...prev,
+                      [section.label]: open,
+                    }))
+                  }
                   className="group/collapsible"
                 >
                   <SidebarGroup>
-                    <SidebarGroupLabel
-                      asChild
-                      className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
-                    >
-                      <CollapsibleTrigger className="flex w-full items-center justify-between [&[data-state=open]>svg]:rotate-180">
-                        {section.label}
-                        <ChevronDown className="ml-auto size-4 transition-transform duration-200" />
-                      </CollapsibleTrigger>
-                    </SidebarGroupLabel>
-                    <CollapsibleContent>
-                      <SidebarGroupContent>
+                    {SectionIcon && sectionHref && (
+                      <SidebarGroupContent className="hidden group-data-[collapsible=icon]:block">
                         <SidebarMenu>
-                          {section.items.map((item) => (
-                            <SidebarMenuItem key={item.href}>
-                              {renderNavItem(item)}
-                            </SidebarMenuItem>
-                          ))}
+                          <SidebarMenuItem>
+                            <DropdownMenu
+                              onOpenChange={(open) => {
+                                // Suppress tooltip through the open/close cycle to avoid sticky bubble
+                                // while pointer remains over the trigger.
+                                setSuppressSectionTooltip(section.label);
+                                if (!open && document.activeElement instanceof HTMLElement) {
+                                  document.activeElement.blur();
+                                }
+                              }}
+                            >
+                              <DropdownMenuTrigger asChild>
+                                <SidebarMenuButton
+                                  aria-label={section.label}
+                                  tooltip={
+                                    suppressSectionTooltip === section.label
+                                      ? undefined
+                                      : section.label
+                                  }
+                                  onMouseLeave={() => {
+                                    setSuppressSectionTooltip((prev) =>
+                                      prev === section.label ? null : prev,
+                                    );
+                                  }}
+                                  className="!bg-transparent !text-sidebar-foreground !hover:bg-transparent !hover:text-sidebar-foreground !active:bg-transparent !active:text-sidebar-foreground focus-visible:ring-0"
+                                >
+                                  <SectionIcon className="shrink-0" />
+                                  <span>{section.label}</span>
+                                </SidebarMenuButton>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent side="right" align="start" className="w-64">
+                                {section.items.map((item) => {
+                                  const ItemIcon = item.icon;
+                                  return (
+                                    <DropdownMenuItem key={item.href} asChild>
+                                      <Link href={item.href} className="flex items-center gap-2">
+                                        <ItemIcon className="size-4" />
+                                        <span>{item.label}</span>
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  );
+                                })}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </SidebarMenuItem>
                         </SidebarMenu>
                       </SidebarGroupContent>
-                    </CollapsibleContent>
+                    )}
+
+                    <div className="group-data-[collapsible=icon]:hidden">
+                      <SidebarGroupLabel
+                        asChild
+                        className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                      >
+                        <CollapsibleTrigger className="flex w-full items-center justify-between [&[data-state=open]>svg]:rotate-180">
+                          {section.label}
+                          <ChevronDown className="ml-auto size-4 transition-transform duration-200" />
+                        </CollapsibleTrigger>
+                      </SidebarGroupLabel>
+                      <CollapsibleContent>
+                        <SidebarGroupContent>
+                          <SidebarMenu>
+                            {section.items.map((item) => (
+                              <SidebarMenuItem key={item.href}>
+                                {renderNavItem(item)}
+                              </SidebarMenuItem>
+                            ))}
+                          </SidebarMenu>
+                        </SidebarGroupContent>
+                      </CollapsibleContent>
+                    </div>
                   </SidebarGroup>
                 </Collapsible>
               );

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  buildOAuthRedirectTo,
   clearStalePKCEState,
   sanitizeAuthError,
   sanitizeSigninError,
@@ -184,6 +185,25 @@ describe("sanitizeSigninError", () => {
   it("returns signin-specific message for generic errors", () => {
     expect(sanitizeSigninError("Some unknown error")).toBe(
       "An error occurred during sign in. Please try again.",
+    );
+  });
+});
+
+describe("buildOAuthRedirectTo", () => {
+  it("uses provided origin without trailing slash", () => {
+    expect(
+      buildOAuthRedirectTo("http://localhost:3000", "/admin/dashboard"),
+    ).toBe("http://localhost:3000/callback?next=%2Fadmin%2Fdashboard");
+  });
+
+  it("normalizes trailing slash and encodes next path", () => {
+    expect(
+      buildOAuthRedirectTo(
+        "https://doogteams-mac-mini.tail535a4.ts.net/",
+        "/admin/dashboard?tab=users",
+      ),
+    ).toBe(
+      "https://doogteams-mac-mini.tail535a4.ts.net/callback?next=%2Fadmin%2Fdashboard%3Ftab%3Dusers",
     );
   });
 });

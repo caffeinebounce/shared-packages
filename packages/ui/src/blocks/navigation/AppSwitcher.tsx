@@ -174,14 +174,18 @@ export function AppSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               {/* Logo */}
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                 {brandLogoUrl ? (
                   <Image
                     src={brandLogoUrl}
                     alt={brandName}
                     width={32}
                     height={32}
-                    className="h-8 w-8 rounded-lg"
+                    priority
+                    loading="eager"
+                    fetchPriority="high"
+                    sizes="32px"
+                    className="h-8 w-8 rounded-lg object-contain"
                   />
                 ) : (
                   <div className="h-8 w-8 rounded-lg bg-primary/10" />

@@ -116,8 +116,13 @@ export {
   type DataTableViewsProps,
 } from "./DataTableViews";
 export {
+  FinancialStatementControls,
+  type FinancialStatementControlsProps,
+} from "./FinancialStatementControls";
+export {
   BALANCE_SHEET_CONFIG,
   buildFinancialStatementData,
+  calculateDesktopFinancialColumnSizing,
   type FinancialStatementConfig,
   type FinancialStatementEntry,
   type FinancialStatementSection,
@@ -127,6 +132,8 @@ export {
   type FlatExportRow,
   flattenStatementForExport,
   INCOME_STATEMENT_CONFIG,
+  type PeriodColumnOrder,
+  resolvePeriodColumns,
   type StatementRow,
   type SubtotalRule,
   type SubtotalRulesConfig,
@@ -140,8 +147,23 @@ export {
   FinancialSummaryChart,
   type FinancialSummaryChartConfig,
   type FinancialSummaryChartProps,
+  type FinancialSummaryChartSeries,
   INCOME_STATEMENT_CHART_CONFIG,
 } from "./FinancialSummaryChart";
+export {
+  MobilePeriodStepper,
+  type MobilePeriodStepperProps,
+} from "./MobilePeriodStepper";
+export {
+  type MobileStatementActionExport,
+  type MobileStatementActionSetting,
+  MobileStatementActions,
+  type MobileStatementActionsProps,
+} from "./MobileStatementActions";
+export {
+  MobileStatementFilters,
+  type MobileStatementFiltersProps,
+} from "./MobileStatementFilters";
 export {
   type PeriodGranularity,
   PeriodSelector,

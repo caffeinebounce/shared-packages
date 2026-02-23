@@ -16,6 +16,7 @@ import {
   Calendar,
   CheckCircle2,
   DollarSign,
+  Info,
   TrendingUp,
 } from "lucide-react";
 import * as React from "react";
@@ -99,6 +100,51 @@ function RecCheck({ computed, raw }: { computed: number; raw: number }) {
   );
 }
 
+function splitMetricFormula(formula: string) {
+  const lines = formula
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return {
+    equationLine: lines[0] ?? formula,
+    detailLines: lines.slice(1),
+  };
+}
+
+function MetricEquationTooltip({
+  title,
+  formula,
+}: {
+  title: string;
+  formula: string;
+}) {
+  const { equationLine } = splitMetricFormula(formula);
+  const [lhs, rhs] = equationLine.split("=").map((part) => part.trim());
+
+  if (!rhs) {
+    return <p className="text-xs leading-relaxed">{formula}</p>;
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-[11px] font-medium text-muted-foreground/90">
+        {title}
+      </p>
+      <div className="rounded-md border border-slate-500/15 bg-gradient-to-r from-slate-500/[0.05] via-sky-500/[0.04] to-emerald-500/[0.05] px-2.5 py-1.5">
+        <p className="text-xs font-mono tracking-tight leading-relaxed text-foreground/85">
+          <span className="font-semibold text-sky-700/85 dark:text-sky-200/85">
+            {lhs}
+          </span>
+          <span className="px-1 text-muted-foreground/80">=</span>
+          <span className="text-emerald-700/85 dark:text-emerald-200/85">
+            {rhs}
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface FinancialStatementEntry {
@@ -108,6 +154,8 @@ export interface FinancialStatementEntry {
   account_id: string;
   /** Account display name */
   account_name: string;
+  /** Optional secondary label shown below account name */
+  account_secondary_label?: string | null;
   /** Account number (e.g. "4000") */
   account_number: string | null;
   /** High-level classification: "Revenue" | "Expense" | "Asset" | "Liability" | "Equity" */
@@ -137,6 +185,8 @@ export interface FinancialStatementSection {
   accountClasses: string[];
   /** Sign multiplier for totals (1 for revenue, -1 if you want to flip expenses) */
   sign?: number;
+  /** Render entries directly (no section header or section total row) */
+  standalone?: boolean;
 }
 
 export interface FinancialStatementTotal {
@@ -171,6 +221,8 @@ export interface SubtotalRulesConfig {
   rules: SubtotalRule[];
 }
 
+export type PeriodColumnOrder = "oldest-first" | "newest-first";
+
 export interface FinancialStatementTableProps {
   /** Raw data entries */
   data: FinancialStatementEntry[];
@@ -197,11 +249,26 @@ export interface FinancialStatementTableProps {
   /** Show section header + total rows even when no data exists for that section */
   preserveEmptySections?: boolean;
   /** Show rightmost Total column */
+  showSectionTotals?: boolean;
   showRowTotals?: boolean;
   /** Show a variance % column comparing current vs prior period (only when exactly 1 comparison period) */
   showVariance?: boolean;
   /** Number of current period columns (to split current vs comparison in variance calc) */
   currentPeriodCount?: number;
+  /** Whether table is rendered in a mobile viewport */
+  isMobile?: boolean;
+  /** Whether compare mode is enabled in mobile mode */
+  mobileCompareEnabled?: boolean;
+  /** Optional explicit period order (first to last) for displayed columns */
+  periodOrder?: string[];
+  /** Global order for period columns when periodOrder is not explicitly provided */
+  periodColumnOrder?: PeriodColumnOrder;
+  /** Override period column header labels (key = period key, value = display label) */
+  periodLabels?: Record<string, string>;
+  /** Override the first column header label (default: "Account") */
+  accountColumnLabel?: string;
+  /** Extra menu items for the account column header dropdown */
+  accountColumnMenuItems?: React.ReactNode;
   /** Additional class name */
   className?: string;
 }
@@ -221,7 +288,10 @@ export interface StatementRow {
   _type: RowType;
   id: string;
   name: string;
+  secondaryLabel?: string | null;
   accountNumber: string | null;
+  accountType?: string;
+  accountSubType?: string | null;
   periodAmounts: Record<string, number>;
   total: number;
   children: StatementRow[];
@@ -243,6 +313,107 @@ function toPeriodKey(date: string, unit: TimeUnit): string {
     return `${y}-Q${q}`;
   }
   return `${y}-${String(m).padStart(2, "0")}`;
+}
+
+export function resolvePeriodColumns(
+  periods: string[],
+  timeUnit: TimeUnit,
+  periodOrder?: string[],
+  periodColumnOrder: PeriodColumnOrder = "oldest-first",
+): string[] {
+  const basePeriods =
+    periodColumnOrder === "newest-first" ? [...periods].reverse() : periods;
+
+  if (!periodOrder || periodOrder.length === 0) return basePeriods;
+
+  const normalizedOrder = periodOrder.map((pk) => toPeriodKey(pk, timeUnit));
+  const periodSet = new Set(basePeriods);
+  const prioritized = Array.from(new Set(normalizedOrder)).filter((pk) =>
+    periodSet.has(pk),
+  );
+  const remainder = basePeriods.filter((pk) => !prioritized.includes(pk));
+  return [...prioritized, ...remainder];
+}
+
+interface DesktopSizingInput {
+  periods: string[];
+  rows: StatementRow[];
+  showRowTotals: boolean;
+  showVariance: boolean;
+}
+
+interface DesktopSizingResult {
+  accountSize: number;
+  accountMinSize: number;
+  dataSize: number;
+  dataMinSize: number;
+  totalSize: number;
+}
+
+export function calculateDesktopFinancialColumnSizing({
+  periods,
+  rows,
+  showRowTotals,
+  showVariance,
+}: DesktopSizingInput): DesktopSizingResult {
+  const MIN_ACCOUNT = 260;
+  const MIN_DATA = 88;
+  const MIN_TOTAL = 96;
+  const VARIANCE_COL = showVariance ? 80 : 0;
+  const TARGET_TABLE_WIDTH = 1180;
+
+  let maxNumericChars = 1;
+  for (const row of rows) {
+    for (const pk of periods) {
+      maxNumericChars = Math.max(
+        maxNumericChars,
+        Math.round(Math.abs(row.periodAmounts[pk] ?? 0)).toLocaleString()
+          .length,
+      );
+    }
+    maxNumericChars = Math.max(
+      maxNumericChars,
+      Math.round(Math.abs(row.total ?? 0)).toLocaleString().length,
+    );
+  }
+
+  let dataSize = Math.min(156, Math.max(104, maxNumericChars * 9 + 26));
+  let totalSize = Math.max(MIN_TOTAL, dataSize + 8);
+  let accountSize = Math.max(340, 620 - periods.length * 26);
+
+  let tableWidth =
+    accountSize +
+    periods.length * dataSize +
+    (showRowTotals ? totalSize : 0) +
+    VARIANCE_COL;
+
+  if (tableWidth > TARGET_TABLE_WIDTH) {
+    const reducibleAccount = accountSize - MIN_ACCOUNT;
+    const needed = tableWidth - TARGET_TABLE_WIDTH;
+    const reduceAccount = Math.min(reducibleAccount, needed);
+    accountSize -= reduceAccount;
+    tableWidth -= reduceAccount;
+  }
+
+  if (tableWidth > TARGET_TABLE_WIDTH && periods.length > 0) {
+    const reducibleDataPerCol = Math.max(0, dataSize - MIN_DATA);
+    const totalReducible = reducibleDataPerCol * periods.length;
+    const needed = tableWidth - TARGET_TABLE_WIDTH;
+    const reduceTotal = Math.min(totalReducible, needed);
+    const perCol = Math.floor(reduceTotal / periods.length);
+    dataSize = Math.max(MIN_DATA, dataSize - perCol);
+    if (showRowTotals) {
+      totalSize = Math.max(MIN_TOTAL, totalSize - Math.ceil(perCol * 0.9));
+    }
+  }
+
+  return {
+    accountSize,
+    accountMinSize: MIN_ACCOUNT,
+    dataSize,
+    dataMinSize: MIN_DATA,
+    totalSize,
+  };
 }
 
 function toPeriodLabel(key: string, unit: TimeUnit): string {
@@ -274,6 +445,7 @@ function sumChildPeriods(children: StatementRow[]): {
 interface AccountAgg {
   id: string;
   name: string;
+  secondaryLabel?: string | null;
   number: string | null;
   type: string;
   subType: string | null;
@@ -319,6 +491,7 @@ function buildAccountTree(
       const synthetic: AccountAgg = {
         id: `synthetic-${a.parentNumber}`,
         name: parentName,
+        secondaryLabel: null,
         number: a.parentNumber,
         type: a.type,
         subType: a.subType,
@@ -411,6 +584,9 @@ function buildAccountTree(
         ? acct.name.substring(acct.name.lastIndexOf(":") + 1)
         : acct.name,
       accountNumber: acct.number,
+      secondaryLabel: acct.secondaryLabel,
+      accountType: acct.type,
+      accountSubType: acct.subType,
       periodAmounts,
       total,
       children: childRows,
@@ -621,6 +797,7 @@ export function buildFinancialStatementData(
         accountMap.set(entry.account_id, {
           id: entry.account_id,
           name: entry.account_name,
+          secondaryLabel: entry.account_secondary_label ?? null,
           number: entry.account_number,
           type: entry.account_type ?? "",
           subType: entry.account_sub_type ?? null,
@@ -667,6 +844,18 @@ export function buildFinancialStatementData(
     // Calculate section totals from root-level tree rows (use original accountTree, not grouped)
     const sectionSums = sumChildPeriods(accountTree);
     sectionTotals.set(section.id, sectionSums);
+
+    if (section.standalone) {
+      const normalizeDepth = (items: StatementRow[]): StatementRow[] =>
+        items.map((item) => ({
+          ...item,
+          depth: Math.max(0, item.depth - 1),
+          children: normalizeDepth(item.children),
+        }));
+
+      rows.push(...normalizeDepth(sectionChildren));
+      continue;
+    }
 
     // Section header row
     const sectionHeader: StatementRow = {
@@ -745,6 +934,7 @@ export function buildFinancialStatementData(
 function buildColumns(
   periods: string[],
   unit: TimeUnit,
+  rows: StatementRow[],
   showAccountNumbers: boolean,
   renderAmountCell?: (
     row: StatementRow,
@@ -754,18 +944,33 @@ function buildColumns(
   showRowTotals = true,
   showVariance?: boolean,
   currentPeriodCount?: number,
+  isMobile = false,
+  mobileCompareEnabled = false,
+  periodLabelsOverride?: Record<string, string>,
+  accountColumnLabel = "Account",
+  accountColumnMenuItems?: React.ReactNode,
 ): ColumnDef<StatementRow>[] {
+  const desktopSizing = calculateDesktopFinancialColumnSizing({
+    periods,
+    rows,
+    showRowTotals,
+    showVariance: Boolean(showVariance),
+  });
+
+  const compactMobileAccount = isMobile && periods.length <= 1;
+
   const cols: ColumnDef<StatementRow>[] = [
     {
       id: "account",
       accessorKey: "name",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Account" />
+        <DataTableColumnHeader column={column} title={accountColumnLabel} customMenuItems={accountColumnMenuItems} />
       ),
       meta: {
-        displayName: "Account",
+        displayName: accountColumnLabel,
         icon: BookOpen,
-      } satisfies DataTableColumnMeta,
+        allowHorizontalScroll: isMobile && mobileCompareEnabled,
+      } satisfies DataTableColumnMeta & { allowHorizontalScroll?: boolean },
       cell: ({ row }) => {
         const r = row.original;
         if (r._type === "section-header") {
@@ -793,31 +998,87 @@ function buildColumns(
                 </span>
               )}
               {r.name}
+              {!isMobile && r.secondaryLabel && (
+                <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
+                  {r.secondaryLabel}
+                </span>
+              )}
             </span>
           );
         }
         // Regular account
+        const isPlaceholder = r.accountSubType === "placeholder";
         return (
-          <span>
-            {showAccountNumbers && r.accountNumber && (
-              <span className="font-mono text-muted-foreground mr-1.5 text-xs">
-                {r.accountNumber}
-              </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className={isPlaceholder ? "italic text-muted-foreground" : ""}>
+              {showAccountNumbers && r.accountNumber && (
+                <span className="font-mono text-muted-foreground mr-1.5 text-xs">
+                  {r.accountNumber}
+                </span>
+              )}
+              {r.name}
+              {!isMobile && r.secondaryLabel && (
+                <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
+                  {r.secondaryLabel}
+                </span>
+              )}
+            </span>
+            {r.accountType === "metric" && r.accountSubType && (
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-muted-foreground/70 hover:text-foreground transition-colors"
+                      aria-label={`${r.name} metric details`}
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[340px] text-xs">
+                    <MetricEquationTooltip
+                      title={r.name}
+                      formula={r.accountSubType}
+                    />
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
-            {r.name}
           </span>
         );
       },
       enableSorting: false,
-      // Flex to fill: period cols are ~110px each + 120px total
-      // Give account col all remaining space
-      size: Math.max(300, 900 - periods.length * 110),
-      minSize: 200,
+      // Mobile: shrink account column based on how many period columns need to fit.
+      // 2 periods → moderate shrink, 3+ periods → aggressive shrink
+      size: isMobile
+        ? mobileCompareEnabled || compactMobileAccount
+          ? 180
+          : periods.length >= 3
+            ? 120
+            : periods.length >= 2
+              ? 160
+              : 260
+        : desktopSizing.accountSize,
+      minSize: isMobile
+        ? mobileCompareEnabled || compactMobileAccount
+          ? 120
+          : periods.length >= 2
+            ? 80
+            : 200
+        : desktopSizing.accountMinSize,
+      maxSize:
+        isMobile && !(mobileCompareEnabled || compactMobileAccount)
+          ? periods.length >= 3
+            ? 160
+            : periods.length >= 2
+              ? 200
+              : 320
+          : undefined,
     },
   ];
 
   for (const pk of periods) {
-    const label = toPeriodLabel(pk, unit);
+    const label = periodLabelsOverride?.[pk] ?? toPeriodLabel(pk, unit);
     cols.push({
       id: `period-${pk}`,
       accessorFn: (row) => row.periodAmounts[pk] ?? 0,
@@ -844,13 +1105,19 @@ function buildColumns(
                 r._type === "subtotal-group"
               ? "font-semibold"
               : "";
-        // Use custom renderer for leaf accounts and account-groups
-        if (
-          renderAmountCell &&
-          (r._type === "account" || r._type === "account-group") &&
-          val !== 0
-        ) {
-          return <span className={bold}>{renderAmountCell(r, pk, val)}</span>;
+        // Use custom renderer when provided (caller can enforce metric/non-currency semantics).
+        if (renderAmountCell) {
+          const cellNode = renderAmountCell(r, pk, val);
+          return (
+            <span
+              className={cn(
+                bold,
+                "inline-flex cursor-help border-b border-dotted border-muted-foreground/35 leading-none hover:border-muted-foreground/60",
+              )}
+            >
+              {cellNode}
+            </span>
+          );
         }
         const rawVal = isTotalRow ? r._rawPeriodAmounts?.[pk] : undefined;
         if (isTotalRow && rawVal !== undefined) {
@@ -893,8 +1160,18 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: 110,
-      minSize: 80,
+      // Mobile compare mode: data columns stay readable but can shrink/grow dynamically.
+      size: isMobile
+        ? mobileCompareEnabled
+          ? 96
+          : 110
+        : desktopSizing.dataSize,
+      minSize: isMobile
+        ? mobileCompareEnabled
+          ? 82
+          : 80
+        : desktopSizing.dataMinSize,
+      maxSize: isMobile && mobileCompareEnabled ? 112 : undefined,
     });
   }
 
@@ -924,13 +1201,17 @@ function buildColumns(
                 r._type === "subtotal-group"
               ? "font-semibold"
               : "";
-        if (
-          renderAmountCell &&
-          (r._type === "account" || r._type === "account-group") &&
-          r.total !== 0
-        ) {
+        if (renderAmountCell) {
+          const cellNode = renderAmountCell(r, null, r.total);
           return (
-            <span className={bold}>{renderAmountCell(r, null, r.total)}</span>
+            <span
+              className={cn(
+                bold,
+                "inline-flex cursor-help border-b border-dotted border-muted-foreground/35 leading-none hover:border-muted-foreground/60",
+              )}
+            >
+              {cellNode}
+            </span>
           );
         }
         if (isTotalRow && r._rawTotal !== undefined) {
@@ -973,8 +1254,8 @@ function buildColumns(
         );
       },
       enableSorting: false,
-      size: 130,
-      minSize: 100,
+      size: isMobile ? 130 : desktopSizing.totalSize,
+      minSize: isMobile ? 100 : 96,
     });
   }
 
@@ -1099,11 +1380,21 @@ export function FinancialStatementTable({
   currentPeriodCount,
   toolbar,
   renderAmountCell,
+  isMobile = false,
+  mobileCompareEnabled = false,
+  periodOrder,
+  periodColumnOrder = "oldest-first",
+  periodLabels,
+  accountColumnLabel,
+  accountColumnMenuItems,
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+  const [viewportLayout, setViewportLayout] = React.useState<
+    "portrait" | "landscape" | "unknown"
+  >("unknown");
 
   const { rows: rawRows, periods } = React.useMemo(
     () =>
@@ -1118,27 +1409,67 @@ export function FinancialStatementTable({
     [rawRows, hideZeroRows],
   );
 
+  const orderedPeriods = React.useMemo(
+    () =>
+      resolvePeriodColumns(periods, timeUnit, periodOrder, periodColumnOrder),
+    [periods, timeUnit, periodOrder, periodColumnOrder],
+  );
+
+  const effectiveShowRowTotals =
+    isMobile && mobileCompareEnabled ? false : showRowTotals;
+
   const columns = React.useMemo(
     () =>
       buildColumns(
-        periods,
+        orderedPeriods,
         timeUnit,
+        rows,
         showAccountNumbers,
         renderAmountCell,
-        showRowTotals,
+        effectiveShowRowTotals,
         showVariance,
         currentPeriodCount,
+        isMobile,
+        mobileCompareEnabled,
+        periodLabels,
+        accountColumnLabel,
+        accountColumnMenuItems,
       ),
     [
-      periods,
+      orderedPeriods,
       timeUnit,
+      rows,
       showAccountNumbers,
       renderAmountCell,
-      showRowTotals,
+      effectiveShowRowTotals,
       showVariance,
       currentPeriodCount,
+      isMobile,
+      mobileCompareEnabled,
+      periodLabels,
+      accountColumnLabel,
+      accountColumnMenuItems,
     ],
   );
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const updateViewportLayout = () => {
+      setViewportLayout(
+        window.innerWidth > window.innerHeight ? "landscape" : "portrait",
+      );
+    };
+
+    updateViewportLayout();
+    window.addEventListener("resize", updateViewportLayout);
+    window.addEventListener("orientationchange", updateViewportLayout);
+
+    return () => {
+      window.removeEventListener("resize", updateViewportLayout);
+      window.removeEventListener("orientationchange", updateViewportLayout);
+    };
+  }, []);
 
   // Auto-expand: section headers expanded, account groups expanded 1 level
   React.useEffect(() => {
@@ -1189,6 +1520,7 @@ export function FinancialStatementTable({
         </div>
       )}
       <DataTable
+        key={`fs-${isMobile ? "m" : "d"}-${mobileCompareEnabled ? "cmp" : "std"}-${viewportLayout}`}
         table={table}
         columns={columns}
         enableTreeView
@@ -1199,6 +1531,7 @@ export function FinancialStatementTable({
         rowSelectionStyle="none"
         density="compact"
         fontSize="sm"
+        stickyColumnIds={["account"]}
       />
     </div>
   );

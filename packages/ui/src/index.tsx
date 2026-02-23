@@ -52,12 +52,14 @@ export type {
   FilterOption,
   FilterType,
   FinancialStatementConfig,
+  FinancialStatementControlsProps,
   FinancialStatementEntry,
   FinancialStatementSection,
   FinancialStatementTableProps,
   FinancialStatementTotal,
   FinancialSummaryChartConfig,
   FinancialSummaryChartProps,
+  FinancialSummaryChartSeries,
   FlatExportRow,
   RowSelectionStyle,
   StatementRow,
@@ -94,6 +96,7 @@ export {
   exportToExcel,
   FinanceDecimalsProvider,
   FinanceDisplayProvider,
+  FinancialStatementControls,
   FinancialStatementTable,
   FinancialSummaryChart,
   flattenStatementForExport,
@@ -103,6 +106,14 @@ export {
   getUnitSuffix,
   INCOME_STATEMENT_CHART_CONFIG,
   INCOME_STATEMENT_CONFIG,
+  MobilePeriodStepper,
+  type MobilePeriodStepperProps,
+  type MobileStatementActionExport,
+  type MobileStatementActionSetting,
+  MobileStatementActions,
+  type MobileStatementActionsProps,
+  MobileStatementFilters,
+  type MobileStatementFiltersProps,
   PeriodSelector,
   SummaryAreaChart,
   SummaryBarChart,
@@ -422,6 +433,7 @@ export type {
   DisplayFieldProps,
 } from "./components/ui/display-field";
 export { DisplayField, DisplayFieldGroup } from "./components/ui/display-field";
+export { DraggableStickyModal } from "./components/ui/draggable-sticky-modal";
 export {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -662,9 +674,14 @@ export {
   zenbidThemeConfig,
   zIndex,
 } from "./config";
+export { useComparisonData } from "./hooks/useComparisonData";
 export { useCopyToClipboard } from "./hooks/useCopyToClipboard";
 // Hooks
 export { useDebounce } from "./hooks/useDebounce";
+export {
+  getDefaultLtmRange,
+  useFinancialStatementState,
+} from "./hooks/useFinancialStatementState";
 export {
   formatShortcut,
   type KeyboardShortcutDefinition,
@@ -688,6 +705,8 @@ export {
   type UseSessionErrorsOptions,
   useSessionErrors,
 } from "./hooks/useSessionErrors";
+export { useStatementExport } from "./hooks/useStatementExport";
+export { useStatementMobileMode } from "./hooks/useStatementMobileMode";
 export { type ToastOptions, useToast } from "./hooks/useToast";
 export {
   createDataRestorationHandler,

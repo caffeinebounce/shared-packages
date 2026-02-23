@@ -90,6 +90,14 @@ export function sanitizeSigninError(message: string): string {
 }
 
 /**
+ * Build OAuth callback redirect URL anchored to the active browser origin.
+ */
+export function buildOAuthRedirectTo(origin: string, nextPath: string): string {
+  const siteUrl = origin.replace(/\/$/, "");
+  return `${siteUrl}/callback?next=${encodeURIComponent(nextPath)}`;
+}
+
+/**
  * Clear stale PKCE (Proof Key for Code Exchange) state from localStorage.
  *
  * Supabase stores PKCE code verifiers in localStorage with keys containing

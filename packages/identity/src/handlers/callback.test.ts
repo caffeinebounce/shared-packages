@@ -289,7 +289,7 @@ describe("createAuthCallbackHandler", () => {
       expect(response.url).toBe("http://localhost:3000/admin-pending");
     });
 
-    it("redirects admin to admin subdomain in production", async () => {
+    it("redirects admin to admin subdomain in Compass production", async () => {
       const mockProfile = {
         role: "admin:super",
         admin_approval_status: "approved",
@@ -313,11 +313,44 @@ describe("createAuthCallbackHandler", () => {
       });
 
       const request = new Request(
-        "https://app.example.com/callback?code=valid",
+        "https://app.thecapitalcompass.ai/callback?code=valid",
       );
       const response = await handler(request);
 
-      expect(response.url).toBe("https://admin.app.example.com/dashboard");
+      expect(response.url).toBe("https://admin.thecapitalcompass.ai/dashboard");
+    });
+
+    it("keeps non-production hosts on same origin /admin/dashboard", async () => {
+      const mockProfile = {
+        role: "admin:super",
+        admin_approval_status: "approved",
+      };
+      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({
+        error: null,
+      });
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "123" } },
+      });
+      mockSupabase.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: mockProfile }),
+          }),
+        }),
+      });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+      });
+
+      const request = new Request(
+        "https://doogteams-mac-mini.tail535a4.ts.net/callback?code=valid",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe(
+        "https://doogteams-mac-mini.tail535a4.ts.net/admin/dashboard",
+      );
     });
   });
 

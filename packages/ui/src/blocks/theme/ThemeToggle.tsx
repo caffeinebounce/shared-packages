@@ -18,6 +18,11 @@ export type ThemeMode = "light" | "dark";
  */
 export function useTheme(): ThemeMode {
   const { resolvedTheme } = useNextTheme();
+  if (typeof document !== "undefined") {
+    return document.documentElement.classList.contains("dark")
+      ? "dark"
+      : "light";
+  }
   return (resolvedTheme === "dark" ? "dark" : "light") as ThemeMode;
 }
 
@@ -83,11 +88,34 @@ export function ThemeToggle({
   // Determine if shortcut should be shown: shortcutsVisible overrides showShortcut when provided
   const shouldShowShortcut = shortcutsVisible ?? showShortcut;
 
-  const theme = resolvedTheme === "dark" ? "dark" : "light";
+  const theme: ThemeMode =
+    mounted && typeof document !== "undefined"
+      ? document.documentElement.classList.contains("dark")
+        ? "dark"
+        : "light"
+      : resolvedTheme === "dark"
+        ? "dark"
+        : "light";
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  }, [setTheme, theme]);
+    const currentlyDark =
+      typeof document !== "undefined" &&
+      document.documentElement.classList.contains("dark");
+    const nextTheme: ThemeMode = currentlyDark ? "light" : "dark";
+
+    // Primary path: next-themes
+    setTheme(nextTheme);
+
+    // Fallback path: direct DOM/localStorage update to avoid no-op toggles
+    if (typeof document !== "undefined") {
+      document.documentElement.classList.toggle("dark", nextTheme === "dark");
+      try {
+        localStorage.setItem("theme", nextTheme);
+      } catch {
+        // Ignore storage errors
+      }
+    }
+  }, [setTheme]);
 
   useEffect(() => {
     setMounted(true);

@@ -108,17 +108,22 @@ export function createAuthCallbackHandler({
             const url = new URL(origin);
             const hostname = url.hostname;
 
-            // In production, redirect to admin subdomain
-            if (
-              !hostname.includes("localhost") &&
-              !hostname.includes("127.0.0.1")
-            ) {
-              url.hostname = `admin.${hostname}`;
+            // Only use admin subdomain on known production Compass domains.
+            // For local/Tailscale/dev hosts, keep same host and use /admin/dashboard.
+            const isCompassProductionHost =
+              hostname === "thecapitalcompass.ai" ||
+              hostname === "app.thecapitalcompass.ai" ||
+              hostname.endsWith(".thecapitalcompass.ai");
+
+            if (isCompassProductionHost) {
+              url.hostname = hostname.startsWith("admin.")
+                ? hostname
+                : "admin.thecapitalcompass.ai";
               url.pathname = "/dashboard"; // On subdomain, we use /dashboard not /admin/dashboard
               return NextResponse.redirect(url.toString());
             }
 
-            // In development, use /admin/dashboard path
+            // In development/non-prod hosts, use /admin/dashboard path
             return NextResponse.redirect(`${origin}/admin/dashboard`);
           }
         }
