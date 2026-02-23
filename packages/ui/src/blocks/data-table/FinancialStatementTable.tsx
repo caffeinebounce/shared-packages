@@ -991,17 +991,15 @@ function buildColumns(
         }
         if (r._type === "account-group") {
           return (
-            <span className="flex flex-col leading-tight">
-              <span className="font-medium">
-                {showAccountNumbers && r.accountNumber && (
-                  <span className="font-mono text-muted-foreground mr-1.5 text-xs">
-                    {r.accountNumber}
-                  </span>
-                )}
-                {r.name}
-              </span>
+            <span className="font-medium">
+              {showAccountNumbers && r.accountNumber && (
+                <span className="font-mono text-muted-foreground mr-1.5 text-xs">
+                  {r.accountNumber}
+                </span>
+              )}
+              {r.name}
               {!isMobile && r.secondaryLabel && (
-                <span className="text-[11px] font-normal text-muted-foreground">
+                <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
                   {r.secondaryLabel}
                 </span>
               )}
@@ -1011,18 +1009,16 @@ function buildColumns(
         // Regular account
         const isPlaceholder = r.accountSubType === "placeholder";
         return (
-          <span className="inline-flex items-start gap-1.5">
-            <span className="flex flex-col leading-tight">
-              <span className={isPlaceholder ? "italic text-muted-foreground" : ""}>
-                {showAccountNumbers && r.accountNumber && (
-                  <span className="font-mono text-muted-foreground mr-1.5 text-xs">
-                    {r.accountNumber}
-                  </span>
-                )}
-                {r.name}
-              </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className={isPlaceholder ? "italic text-muted-foreground" : ""}>
+              {showAccountNumbers && r.accountNumber && (
+                <span className="font-mono text-muted-foreground mr-1.5 text-xs">
+                  {r.accountNumber}
+                </span>
+              )}
+              {r.name}
               {!isMobile && r.secondaryLabel && (
-                <span className="text-[11px] font-normal text-muted-foreground">
+                <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
                   {r.secondaryLabel}
                 </span>
               )}
