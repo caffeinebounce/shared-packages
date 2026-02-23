@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.6
+
+### Patch Changes
+
+- Reduce DataTable sticky column z-index layering and remove translateZ promotion to prevent sticky cells bleeding above mobile Sheet overlays.
+
 ## 0.50.5
 
 ### Patch Changes
