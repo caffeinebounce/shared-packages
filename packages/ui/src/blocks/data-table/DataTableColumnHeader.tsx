@@ -118,6 +118,8 @@ export interface DataTableColumnHeaderProps<TData, TValue>
   isWrapped?: boolean;
   /** Callback when wrap toggle is clicked */
   onToggleWrap?: () => void;
+  /** Extra menu items rendered at the top of the dropdown */
+  customMenuItems?: React.ReactNode;
 }
 
 /**
@@ -163,6 +165,7 @@ export function DataTableColumnHeader<TData, TValue>({
   onFilterChange,
   isWrapped: isWrappedProp,
   onToggleWrap: onToggleWrapProp,
+  customMenuItems,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   const meta = column.columnDef.meta as DataTableColumnMeta | undefined;
 
@@ -296,6 +299,12 @@ export function DataTableColumnHeader<TData, TValue>({
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-36">
+          {customMenuItems && (
+            <>
+              {customMenuItems}
+              <DropdownMenuSeparator />
+            </>
+          )}
           {/* Filter option as submenu (side-opening) */}
           {showFilter && (
             <>

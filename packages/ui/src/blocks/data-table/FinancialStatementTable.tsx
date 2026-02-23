@@ -263,6 +263,10 @@ export interface FinancialStatementTableProps {
   periodColumnOrder?: PeriodColumnOrder;
   /** Override period column header labels (key = period key, value = display label) */
   periodLabels?: Record<string, string>;
+  /** Override the first column header label (default: "Account") */
+  accountColumnLabel?: string;
+  /** Extra menu items for the account column header dropdown */
+  accountColumnMenuItems?: React.ReactNode;
   /** Additional class name */
   className?: string;
 }
@@ -936,6 +940,8 @@ function buildColumns(
   isMobile = false,
   mobileCompareEnabled = false,
   periodLabelsOverride?: Record<string, string>,
+  accountColumnLabel = "Account",
+  accountColumnMenuItems?: React.ReactNode,
 ): ColumnDef<StatementRow>[] {
   const desktopSizing = calculateDesktopFinancialColumnSizing({
     periods,
@@ -951,10 +957,10 @@ function buildColumns(
       id: "account",
       accessorKey: "name",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Account" />
+        <DataTableColumnHeader column={column} title={accountColumnLabel} customMenuItems={accountColumnMenuItems} />
       ),
       meta: {
-        displayName: "Account",
+        displayName: accountColumnLabel,
         icon: BookOpen,
         allowHorizontalScroll: isMobile && mobileCompareEnabled,
       } satisfies DataTableColumnMeta & { allowHorizontalScroll?: boolean },
@@ -1361,6 +1367,8 @@ export function FinancialStatementTable({
   periodOrder,
   periodColumnOrder = "oldest-first",
   periodLabels,
+  accountColumnLabel,
+  accountColumnMenuItems,
   className,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
@@ -1406,6 +1414,8 @@ export function FinancialStatementTable({
         isMobile,
         mobileCompareEnabled,
         periodLabels,
+        accountColumnLabel,
+        accountColumnMenuItems,
       ),
     [
       orderedPeriods,
@@ -1419,6 +1429,8 @@ export function FinancialStatementTable({
       isMobile,
       mobileCompareEnabled,
       periodLabels,
+      accountColumnLabel,
+      accountColumnMenuItems,
     ],
   );
 
