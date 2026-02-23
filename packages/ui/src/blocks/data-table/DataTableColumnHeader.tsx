@@ -271,7 +271,7 @@ export function DataTableColumnHeader<TData, TValue>({
               className={cn(
                 "relative flex items-center gap-1.5 w-full h-full px-2",
                 justifyClass || "text-left",
-                "before:absolute before:-inset-x-0 before:-inset-y-[99px] before:-z-10 before:transition-colors hover:before:bg-accent/50",
+                "before:absolute before:-top-[99px] before:bottom-0 before:inset-x-0 before:-z-10 before:pointer-events-none before:transition-colors hover:before:bg-accent/50",
                 isOpen && "before:bg-accent",
                 "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
                 canDrag ? "cursor-grab" : "cursor-pointer",
