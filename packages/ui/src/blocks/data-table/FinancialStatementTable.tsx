@@ -1543,8 +1543,8 @@ export function FinancialStatementTable({
         columns={columns}
         enableTreeView
         treeIndentPx={treeIndentPx}
-        getRowClassName={((row) =>
-          getRowClassName(row as { original: StatementRow }, rowImportanceResolver)) as never}
+        getRowClassName={((row: { original: StatementRow }) =>
+          getRowClassName(row, rowImportanceResolver)) as never}
         enableColumnResizing
         enableRowDrag={false}
         rowSelectionStyle="none"

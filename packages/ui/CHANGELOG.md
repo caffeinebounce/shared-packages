@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.4
+
+### Patch Changes
+
+- Fix build/export for financial statement row-importance helpers, including `createFinancialStatementRowImportanceResolver` in published package artifacts.
+
 ## 0.50.3
 
 ### Patch Changes
