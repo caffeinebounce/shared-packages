@@ -1442,7 +1442,7 @@ export function FinancialSummaryChart({
                   >
                     <SelectTrigger
                       size="sm"
-                      className="h-6 w-[150px] border-0 bg-primary/15 px-2 text-xs text-primary shadow-none ring-0 outline-none hover:bg-primary/20 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 data-[state=open]:bg-primary/20"
+                      className="h-6 w-[150px] !border-0 !bg-primary/15 px-2 text-xs text-primary !shadow-none !ring-0 !outline-none hover:!bg-primary/20 focus:!ring-0 focus:!ring-offset-0 focus-visible:!ring-0 data-[state=open]:!bg-primary/20 dark:!bg-primary/15 dark:hover:!bg-primary/20 dark:data-[state=open]:!bg-primary/20"
                     >
                       <SelectValue />
                     </SelectTrigger>
