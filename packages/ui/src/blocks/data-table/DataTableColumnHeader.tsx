@@ -254,12 +254,12 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn("relative w-full", className)} style={{ minHeight: "inherit", height: "inherit" }}>
+    <div className={cn("flex h-full items-center w-full", className)}>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
         <DropdownMenuTrigger asChild>
           {/* Wrapper div positions the menu but doesn't capture pointer events */}
-          <div className="absolute inset-0" style={{ pointerEvents: "none" }}>
-            {/* Button handles all interaction — absolute inset fills the entire <th> cell */}
+          <div className="w-full h-full" style={{ pointerEvents: "none" }}>
+            {/* Button with before pseudo-element that covers the full <th> cell for hover */}
             <button
               type="button"
               draggable={canDrag}
@@ -269,10 +269,10 @@ export function DataTableColumnHeader<TData, TValue>({
               onClick={handleClick}
               style={{ pointerEvents: "auto" }}
               className={cn(
-                "flex items-center gap-1.5 w-full h-full px-2",
+                "relative flex items-center gap-1.5 w-full h-full px-2",
                 justifyClass || "text-left",
-                "hover:bg-accent/50 transition-colors",
-                isOpen && "bg-accent",
+                "before:absolute before:-inset-x-0 before:-inset-y-[4px] before:-z-10 before:transition-colors hover:before:bg-accent/50",
+                isOpen && "before:bg-accent",
                 "focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
                 canDrag ? "cursor-grab" : "cursor-pointer",
               )}
