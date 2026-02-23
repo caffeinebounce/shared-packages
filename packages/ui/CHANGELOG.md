@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.7
+
+### Patch Changes
+
+- Remove contain:paint and isolation:isolate from DataTable sticky cells to prevent compositing layer promotion that paints above Sheet portals on mobile.
+
 ## 0.50.6
 
 ### Patch Changes
