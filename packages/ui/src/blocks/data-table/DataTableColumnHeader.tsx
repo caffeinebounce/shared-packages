@@ -254,12 +254,12 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn("flex h-full items-center w-full", className)}>
+    <div className={cn("relative w-full", className)} style={{ minHeight: "inherit", height: "inherit" }}>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
         <DropdownMenuTrigger asChild>
           {/* Wrapper div positions the menu but doesn't capture pointer events */}
-          <div className="w-full h-full" style={{ pointerEvents: "none" }}>
-            {/* Button handles all interaction */}
+          <div className="absolute inset-0" style={{ pointerEvents: "none" }}>
+            {/* Button handles all interaction — absolute inset fills the entire <th> cell */}
             <button
               type="button"
               draggable={canDrag}

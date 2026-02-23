@@ -880,7 +880,7 @@ export function DataTable<TData, TValue>({
                                 : undefined
                             }
                             className={cn(
-                              isSimpleHeader ? "px-2" : "p-0 align-top", // Add padding for simple headers, let component headers handle their own; align-top so h-full children fill the cell
+                              isSimpleHeader ? "px-2" : "p-0", // Add padding for simple headers, let component headers handle their own
                               headerHeight,
                               "relative",
                               "overflow-hidden text-ellipsis border-b border-border",
