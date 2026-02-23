@@ -1452,7 +1452,7 @@ export function FinancialSummaryChart({
                   <ComposedChart
                     data={chartData}
                     margin={{ top: 4, right: 8, bottom: 0, left: 12 }}
-                    barCategoryGap="0%"
+                    barCategoryGap="20%"
                     barGap={0}
                   >
                     <defs>
@@ -1555,6 +1555,7 @@ export function FinancialSummaryChart({
                         <Bar
                           key={m.key}
                           dataKey={m.key}
+                          stackId={config.chartType === "bar" ? "summary" : undefined}
                           fill={m.color}
                           radius={[4, 4, 0, 0]}
                           fillOpacity={opacity * 0.8}
