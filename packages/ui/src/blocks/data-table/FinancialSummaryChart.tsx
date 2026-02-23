@@ -1560,6 +1560,25 @@ export function FinancialSummaryChart({
                           fillOpacity={opacity * 0.8}
                           barSize={18}
                           maxBarSize={24}
+                          // Recharts composed charts can render bars half-a-step left
+                          // vs line/point series at certain widths. Shift bars right by
+                          // half their rendered width so bar centers align to category ticks.
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          shape={(props: any) => {
+                            const { x, y, width, height, fill } = props;
+                            return (
+                              <rect
+                                x={x + width / 2}
+                                y={y}
+                                width={width}
+                                height={height}
+                                rx={4}
+                                ry={4}
+                                fill={fill}
+                                fillOpacity={opacity * 0.8}
+                              />
+                            );
+                          }}
                         />
                       ) : (
                         <Area
