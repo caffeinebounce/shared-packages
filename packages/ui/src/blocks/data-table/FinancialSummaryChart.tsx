@@ -13,7 +13,6 @@ import {
   PieChart,
   ReferenceLine,
   ResponsiveContainer,
-  Sector,
   Tooltip,
   XAxis,
   YAxis,
@@ -563,40 +562,24 @@ function PieChartView({
     return new Set([activeMetric]);
   }, [activeMetric, computedMetrics]);
 
-  const activeIndices = pieData
-    .map((d, i) => (activeSliceKeys.has(d.key) ? i : -1))
-    .filter((i) => i >= 0);
-
-  // Custom active shape that pops out and enlarges
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderActiveShape = React.useCallback((props: any) => {
-    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } =
-      props;
-    const midAngle = ((startAngle + endAngle) / 2) * (Math.PI / 180);
-    const offsetX = Math.cos(midAngle) * 6;
-    const offsetY = -Math.sin(midAngle) * 6;
-
-    return (
-      <g>
-        <Sector
-          cx={cx + offsetX}
-          cy={cy + offsetY}
-          innerRadius={innerRadius}
-          outerRadius={outerRadius + 6}
-          startAngle={startAngle}
-          endAngle={endAngle}
-          fill={fill}
-          cornerRadius={2}
-        />
-      </g>
-    );
-  }, []);
+  // Build pop-out data: same structure but zero out non-active slices
+  const popData = React.useMemo(
+    () =>
+      activeSliceKeys.size > 0
+        ? pieData.map((d) => ({
+            ...d,
+            value: activeSliceKeys.has(d.key) ? d.value : 0,
+          }))
+        : [],
+    [pieData, activeSliceKeys],
+  );
 
   return (
     <div className="flex h-full w-full" style={{ height }}>
       <div className="relative min-w-0 flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
+            {/* Base layer — all slices, dimmed when there's a selection */}
             <Pie
               data={pieData}
               cx="50%"
@@ -607,14 +590,7 @@ function PieChartView({
               dataKey="value"
               nameKey="name"
               stroke="none"
-              {...(activeIndices.length > 0
-                ? {
-                    activeIndex: activeIndices,
-                    activeShape: renderActiveShape as never,
-                  }
-                : {})}
-              animationDuration={300}
-              animationEasing="ease-out"
+              isAnimationActive={false}
             >
               {pieData.map((entry) => {
                 const dimmed =
@@ -624,10 +600,35 @@ function PieChartView({
                     key={entry.name}
                     fill={entry.fill}
                     fillOpacity={dimmed ? 0.2 : 1}
+                    style={{ transition: "fill-opacity 300ms ease-out" }}
                   />
                 );
               })}
             </Pie>
+            {/* Pop-out layer — only active slices, larger radius, animated */}
+            {popData.length > 0 && (
+              <Pie
+                data={popData}
+                cx="50%"
+                cy="50%"
+                innerRadius="53%"
+                outerRadius="85%"
+                paddingAngle={2}
+                dataKey="value"
+                nameKey="name"
+                stroke="none"
+                animationDuration={400}
+                animationEasing="ease-out"
+              >
+                {popData.map((entry) => (
+                  <Cell
+                    key={entry.name}
+                    fill={entry.value > 0 ? entry.fill : "transparent"}
+                    fillOpacity={entry.value > 0 ? 1 : 0}
+                  />
+                ))}
+              </Pie>
+            )}
             <Tooltip content={<PieTooltip divisor={divisor} />} />
           </PieChart>
         </ResponsiveContainer>
