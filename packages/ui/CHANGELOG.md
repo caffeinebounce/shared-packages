@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.2
+
+### Patch Changes
+
+- Add unified finance data-state primitives and resolver (`DataStateBanner`, `DataStateInline`, `resolveDataState`) with canonical state taxonomy exports.
+
 ## 0.50.1
 
 ### Patch Changes
