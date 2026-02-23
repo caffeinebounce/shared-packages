@@ -660,7 +660,7 @@ export function DataTable<TData, TValue>({
         <div className={cn("mx-1", fontSizeClass)}>
           <div
             className={cn(
-              "overflow-x-auto rounded-t-md [&::-webkit-scrollbar-track]:bg-transparent",
+              "relative isolate overflow-x-auto rounded-t-md [&::-webkit-scrollbar-track]:bg-transparent",
               summary ? "border-t" : "border rounded-b-md",
             )}
           >
