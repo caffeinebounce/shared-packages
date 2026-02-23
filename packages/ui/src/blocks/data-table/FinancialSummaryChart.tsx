@@ -563,23 +563,31 @@ function PieChartView({
   }, [activeMetric, computedMetrics]);
 
   // Compute midpoint angle for each slice to calculate translate direction
+  // Recharts Pie default: startAngle=0, endAngle=360, drawn counter-clockwise
+  // from 3 o'clock. With default startAngle=0 endAngle=360, first slice starts
+  // at the top (90°) going counter-clockwise in math coords.
+  // Actually Recharts uses startAngle=0 endAngle=360 meaning:
+  //   slice angles go from startAngle=90° down counter-clockwise by default
+  // The safest approach: use the Recharts convention where angle 0 = 3 o'clock,
+  // positive = counter-clockwise. Default Pie starts at 90° (12 o'clock).
   const sliceAngles = React.useMemo(() => {
     const total = pieData.reduce((s, d) => s + d.value, 0);
     if (total === 0) return new Map<string, { tx: number; ty: number }>();
     const angles = new Map<string, { tx: number; ty: number }>();
-    let cumulative = 0;
+    // Recharts default: startAngle=0, endAngle=360
+    // This means first entry starts at 90° in standard math coords (top of circle)
+    // and goes counter-clockwise
+    let currentAngle = 90; // degrees, standard math convention
+    const popDistance = 8;
     for (const d of pieData) {
-      const startAngle = (cumulative / total) * 360;
       const sliceAngle = (d.value / total) * 360;
-      const midAngleDeg = startAngle + sliceAngle / 2;
-      // Recharts pie starts at 90° (top) and goes clockwise in SVG coords
-      const midAngleRad = ((90 - midAngleDeg) * Math.PI) / 180;
-      const popDistance = 8;
+      const midAngleDeg = currentAngle + sliceAngle / 2;
+      const midAngleRad = (midAngleDeg * Math.PI) / 180;
       angles.set(d.key, {
         tx: Math.cos(midAngleRad) * popDistance,
-        ty: -Math.sin(midAngleRad) * popDistance,
+        ty: -Math.sin(midAngleRad) * popDistance, // SVG y is inverted
       });
-      cumulative += d.value;
+      currentAngle += sliceAngle;
     }
     return angles;
   }, [pieData]);
