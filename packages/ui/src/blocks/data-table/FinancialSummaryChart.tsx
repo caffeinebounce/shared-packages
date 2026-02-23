@@ -1436,26 +1436,24 @@ export function FinancialSummaryChart({
                 )}
 
                 {config.dataOptions ? (
-                  <div className="inline-flex h-6 items-center rounded bg-primary/15 text-primary">
-                    <Select
-                      value={config.dataOptions.value}
-                      onValueChange={config.dataOptions.onChange}
+                  <Select
+                    value={config.dataOptions.value}
+                    onValueChange={config.dataOptions.onChange}
+                  >
+                    <SelectTrigger
+                      size="sm"
+                      className="h-6 w-[150px] border-0 bg-primary/15 px-2 text-xs text-primary shadow-none ring-0 outline-none hover:bg-primary/20 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 data-[state=open]:bg-primary/20"
                     >
-                      <SelectTrigger
-                        size="sm"
-                        className="h-6 w-[150px] border-0 bg-transparent px-2 text-xs text-primary shadow-none ring-0 outline-none hover:bg-transparent focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 data-[state=open]:bg-transparent"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {config.dataOptions.options.map((opt) => (
-                          <SelectItem key={opt.value} className="text-xs" value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {config.dataOptions.options.map((opt) => (
+                        <SelectItem key={opt.value} className="text-xs" value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 ) : config.chartControls ? (
                   <div className="inline-flex h-6 items-center rounded bg-primary/15 text-primary">
                     {config.chartControls}
