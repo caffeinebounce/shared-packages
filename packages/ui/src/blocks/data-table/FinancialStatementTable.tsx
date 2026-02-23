@@ -1009,10 +1009,11 @@ function buildColumns(
           );
         }
         // Regular account
+        const isPlaceholder = r.accountSubType === "placeholder";
         return (
           <span className="inline-flex items-start gap-1.5">
             <span className="flex flex-col leading-tight">
-              <span>
+              <span className={isPlaceholder ? "italic text-muted-foreground" : ""}>
                 {showAccountNumbers && r.accountNumber && (
                   <span className="font-mono text-muted-foreground mr-1.5 text-xs">
                     {r.accountNumber}
