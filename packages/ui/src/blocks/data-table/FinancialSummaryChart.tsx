@@ -832,6 +832,15 @@ export function FinancialSummaryChart({
     [data, config, timeUnit, priorTotalsProp],
   );
 
+  // Use numeric x-index in composed charts to guarantee bar/line point alignment
+  // across responsive widths.
+  const indexedChartData = React.useMemo<
+    Array<Record<string, unknown> & { periodLabel?: string; __index: number }>
+  >(
+    () => chartData.map((row, idx) => ({ ...row, __index: idx })),
+    [chartData],
+  );
+
   const visibleSummaryCards = React.useMemo(() => {
     if (!config.statCardKeys?.length) return summaryCards;
     const cardByKey = new Map(summaryCards.map((card) => [card.key, card]));
@@ -1450,7 +1459,7 @@ export function FinancialSummaryChart({
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart
-                    data={chartData}
+                    data={indexedChartData}
                     margin={{ top: 4, right: 8, bottom: 0, left: 12 }}
                     barCategoryGap="0%"
                     barGap={0}
@@ -1491,7 +1500,17 @@ export function FinancialSummaryChart({
                       strokeOpacity={0.5}
                     />
                     <XAxis
-                      dataKey="periodLabel"
+                      type="number"
+                      dataKey="__index"
+                      domain={[0, Math.max(indexedChartData.length - 1, 0)]}
+                      ticks={indexedChartData.map((_, idx) => idx)}
+                      allowDecimals={false}
+                      tickFormatter={(value) => {
+                        const idx = Number(value);
+                        return Number.isFinite(idx)
+                          ? String(indexedChartData[idx]?.periodLabel ?? "")
+                          : "";
+                      }}
                       tick={{
                         fontSize: 11,
                         fill: "var(--muted-foreground, #9ca3af)",
@@ -1528,6 +1547,12 @@ export function FinancialSummaryChart({
                       content={
                         <CustomTooltip metrics={allMetrics} divisor={divisor} />
                       }
+                      labelFormatter={(label) => {
+                        const idx = Number(label);
+                        return Number.isFinite(idx)
+                          ? String(indexedChartData[idx]?.periodLabel ?? "")
+                          : String(label ?? "");
+                      }}
                       cursor={{
                         stroke: "var(--border, #e5e7eb)",
                         strokeDasharray: "3 3",
