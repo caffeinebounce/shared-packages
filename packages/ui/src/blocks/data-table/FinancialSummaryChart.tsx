@@ -6,6 +6,7 @@ import {
   Area,
   AreaChart,
   Bar,
+  ComposedChart,
   CartesianGrid,
   Cell,
   Line,
@@ -763,7 +764,7 @@ function CardSparkline({
             cursor={false}
           />
           <Area
-            type="monotone"
+            type="linear"
             dataKey={dataKey}
             stroke={color}
             strokeWidth={1.5}
@@ -1448,9 +1449,9 @@ export function FinancialSummaryChart({
                 />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
+                  <ComposedChart
                     data={chartData}
-                    margin={{ top: 4, right: 8, bottom: 0, left: 20 }}
+                    margin={{ top: 4, right: 8, bottom: 0, left: 12 }}
                   >
                     <defs>
                       {allMetrics.map((m) => (
@@ -1496,7 +1497,7 @@ export function FinancialSummaryChart({
                       tickLine={false}
                       axisLine={false}
                       dy={8}
-                      padding={{ left: 32, right: 20 }}
+                      padding={{ left: 0, right: 0 }}
                     />
                     <YAxis
                       tick={{
@@ -1535,7 +1536,7 @@ export function FinancialSummaryChart({
                       return m.chartType === "line" || m.dashed ? (
                         <Line
                           key={m.key}
-                          type="monotone"
+                          type="linear"
                           dataKey={m.key}
                           stroke={m.color}
                           strokeWidth={m.key === activeMetric ? 3 : 2}
@@ -1559,7 +1560,7 @@ export function FinancialSummaryChart({
                       ) : (
                         <Area
                           key={m.key}
-                          type="monotone"
+                          type="linear"
                           dataKey={m.key}
                           stroke={m.color}
                           strokeWidth={m.key === activeMetric ? 3 : 2}
@@ -1575,7 +1576,7 @@ export function FinancialSummaryChart({
                         />
                       );
                     })}
-                  </AreaChart>
+                  </ComposedChart>
                 </ResponsiveContainer>
               )}
             </div>
