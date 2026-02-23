@@ -1544,6 +1544,7 @@ export function FinancialSummaryChart({
                           strokeWidth={m.key === activeMetric ? 3 : 2}
                           strokeDasharray={m.dashed ? "6 3" : undefined}
                           strokeOpacity={opacity}
+                          isAnimationActive={false}
                           dot={false}
                           activeDot={{
                             r: 4,
@@ -1559,6 +1560,7 @@ export function FinancialSummaryChart({
                           fill={m.color}
                           radius={[4, 4, 0, 0]}
                           fillOpacity={opacity * 0.8}
+                          isAnimationActive={false}
                           maxBarSize={24}
                         />
                       ) : (
@@ -1571,6 +1573,7 @@ export function FinancialSummaryChart({
                           strokeOpacity={opacity}
                           fill={`url(#gradient-${m.key})`}
                           fillOpacity={opacity}
+                          isAnimationActive={false}
                           dot={false}
                           activeDot={{
                             r: 4,
