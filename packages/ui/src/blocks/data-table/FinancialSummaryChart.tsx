@@ -805,18 +805,8 @@ function CardSparkline({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-function isMobileViewport() {
-  if (typeof window === "undefined") return true;
-  const isTouchDevice = window.matchMedia(
-    "(hover: none) and (pointer: coarse)",
-  ).matches;
-  const desktopWidth = window.matchMedia("(min-width: 1024px)").matches;
-  return isTouchDevice && !desktopWidth;
-}
-
 function resolveDefaultExpanded(defaultExpanded?: boolean) {
-  if (defaultExpanded !== undefined) return defaultExpanded;
-  return !isMobileViewport();
+  return defaultExpanded ?? false;
 }
 
 export function FinancialSummaryChart({
