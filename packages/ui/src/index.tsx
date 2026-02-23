@@ -327,6 +327,7 @@ export {
   AlertDescription,
   AlertTitle,
 } from "./components/ui/alert";
+export { DataStateBanner, DataStateInline } from "./components/ui/data-state";
 export type { SaveStatus } from "./components/ui/auto-save-indicator";
 export { AutoSaveIndicator } from "./components/ui/auto-save-indicator";
 export type {
@@ -726,8 +727,16 @@ export {
 // Utilities
 export {
   type AvatarGradient,
+  type CanonicalDataState,
   cn,
+  type DataStateCopy,
+  DATA_STATE_COPY,
+  type DataStateMetadata,
   getAvatarGradient,
+  getDataStateIcon,
   getGradientIndex,
   getGradientPairs,
+  resolveDataState,
+  type ResolveDataStateInput,
+  type ResolvedDataState,
 } from "./utils/index";
