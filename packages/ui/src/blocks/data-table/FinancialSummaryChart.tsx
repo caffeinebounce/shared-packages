@@ -584,13 +584,13 @@ function PieChartView({
         // Offset along the slice's radial midpoint
         const midAngle = (startAngle + endAngle) / 2;
         const midRad = (midAngle * Math.PI) / 180;
-        const pop = 10;
+        const pop = 6;
         return (
           <Sector
             cx={cx + Math.cos(midRad) * pop}
             cy={cy - Math.sin(midRad) * pop}
             innerRadius={innerRadius}
-            outerRadius={outerRadius + 4}
+            outerRadius={outerRadius}
             startAngle={startAngle}
             endAngle={endAngle}
             fill={fill}
