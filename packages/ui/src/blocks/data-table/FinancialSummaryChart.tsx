@@ -1443,7 +1443,7 @@ export function FinancialSummaryChart({
                     <SelectTrigger
                       size="sm"
                       variant="ghost"
-                      className="h-6 w-[150px] bg-primary/15 px-2 text-xs text-primary hover:bg-primary/20"
+                      className="h-6 w-[150px] rounded bg-primary/30 px-2 text-xs text-primary hover:bg-primary/40"
                     >
                       <SelectValue />
                     </SelectTrigger>
