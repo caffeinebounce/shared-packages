@@ -33,6 +33,14 @@ type SidebarContext = {
   toggleSidebar: () => void;
 };
 
+function getViewportDefaultOpen(width: number): boolean {
+  // >=1024 (desktop): expanded
+  // 768-1023 (tablet): collapsed (icon-only)
+  // <768 (mobile): hidden via sheet; keep desktop state collapsed
+  if (width >= 1024) return true;
+  return false;
+}
+
 const SidebarContext = React.createContext<SidebarContext | null>(null);
 
 function useSidebar() {
@@ -47,7 +55,7 @@ function useSidebar() {
 function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState(false);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -70,7 +78,7 @@ const SidebarProvider = React.forwardRef<
 >(
   (
     {
-      defaultOpen = true,
+      defaultOpen,
       open: openProp,
       onOpenChange: setOpenProp,
       className,
@@ -83,37 +91,29 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
 
-    // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for controlled mode.
-    // Initialize with defaultOpen to match server render and avoid hydration mismatch
-    const [_open, _setOpen] = React.useState(defaultOpen);
+    // defaultOpen from server cookie means explicit user preference exists.
+    const hasServerPreference = defaultOpen !== undefined;
+    const hasExplicitPreferenceRef = React.useRef(hasServerPreference);
+
+    // Internal state for uncontrolled mode.
+    // If no server cookie exists, we intentionally render expanded first (SSR-safe)
+    // and immediately settle to viewport default after hydration.
+    const [_open, _setOpen] = React.useState(defaultOpen ?? true);
     const open = openProp ?? _open;
 
-    // Adjust sidebar state based on screen size after hydration
-    // This runs only on mount to set the initial state based on actual screen width
-    React.useEffect(() => {
-      if (openProp !== undefined) return; // Don't auto-adjust in controlled mode
+    // Apply viewport defaults after hydration when no explicit preference exists.
+    React.useLayoutEffect(() => {
+      if (openProp !== undefined || hasExplicitPreferenceRef.current) return;
 
-      const width = window.innerWidth;
-      // On tablet-sized screens (md-lg), default to collapsed
-      if (width >= 768 && width < 1024) {
-        _setOpen(false);
-      }
-    }, [openProp]);
+      const applyViewportDefault = () => {
+        _setOpen(getViewportDefaultOpen(window.innerWidth));
+      };
 
-    // Auto-collapse/expand when crossing breakpoints
-    React.useEffect(() => {
-      if (openProp !== undefined) return; // Don't auto-adjust in controlled mode
+      applyViewportDefault();
 
       const handleResize = () => {
-        const width = window.innerWidth;
-        if (width >= 1024) {
-          // Large screen: expand
-          _setOpen(true);
-        } else if (width >= 768) {
-          // Tablet: collapse
-          _setOpen(false);
-        }
+        if (hasExplicitPreferenceRef.current) return;
+        applyViewportDefault();
       };
 
       window.addEventListener("resize", handleResize);
@@ -123,6 +123,10 @@ const SidebarProvider = React.forwardRef<
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
         const openState = typeof value === "function" ? value(open) : value;
+
+        // Any explicit toggle becomes the source of truth going forward.
+        hasExplicitPreferenceRef.current = true;
+
         if (setOpenProp) {
           setOpenProp(openState);
         } else {
