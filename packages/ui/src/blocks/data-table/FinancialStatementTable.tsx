@@ -34,6 +34,10 @@ import {
   DataTableCurrencyCell,
   formatCurrencyValue,
 } from "./DataTableCurrencyCell";
+import {
+  type FinancialStatementRowImportanceResolver,
+  getFinancialStatementRowImportanceClassName,
+} from "./financialStatementRowImportance";
 
 // ── Reconciliation check indicator ────────────────────────────────────────────
 
@@ -271,6 +275,8 @@ export interface FinancialStatementTableProps {
   accountColumnMenuItems?: React.ReactNode;
   /** Additional class name */
   className?: string;
+  /** Optional resolver for row-importance styling (normal, emphasis, key-summary) */
+  rowImportanceResolver?: FinancialStatementRowImportanceResolver;
 }
 
 // ── Internal row type ─────────────────────────────────────────────────────────
@@ -1336,22 +1342,33 @@ function buildColumns(
 
 // ── Row styling ───────────────────────────────────────────────────────────────
 
-function getRowClassName(row: { original: StatementRow }): string | undefined {
-  switch (row.original._type) {
-    case "section-header":
-      return "bg-muted/30 border-b-0";
-    case "subtotal-group":
-      return "bg-muted/20";
-    case "section-total":
-    case "subtotal-total":
-      return "bg-muted/40 border-t border-border font-semibold";
-    case "grand-total":
-      return "bg-muted/60 border-t-2 border-double border-border";
-    case "account-group":
-      return undefined;
-    default:
-      return undefined;
-  }
+function getRowClassName(
+  row: { original: StatementRow },
+  rowImportanceResolver?: FinancialStatementRowImportanceResolver,
+): string | undefined {
+  const structuralClass = (() => {
+    switch (row.original._type) {
+      case "section-header":
+        return "bg-muted/30 border-b-0";
+      case "subtotal-group":
+        return "bg-muted/20";
+      case "section-total":
+      case "subtotal-total":
+        return "bg-muted/40 border-t border-border font-semibold";
+      case "grand-total":
+        return "bg-muted/60 border-t-2 border-double border-border";
+      default:
+        return undefined;
+    }
+  })();
+
+  const importanceClass = rowImportanceResolver
+    ? getFinancialStatementRowImportanceClassName(
+        rowImportanceResolver(row.original),
+      )
+    : undefined;
+
+  return cn(structuralClass, importanceClass);
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -1388,6 +1405,7 @@ export function FinancialStatementTable({
   accountColumnLabel,
   accountColumnMenuItems,
   className,
+  rowImportanceResolver,
 }: FinancialStatementTableProps) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [columnVisibility, setColumnVisibility] =
@@ -1525,7 +1543,8 @@ export function FinancialStatementTable({
         columns={columns}
         enableTreeView
         treeIndentPx={treeIndentPx}
-        getRowClassName={getRowClassName as never}
+        getRowClassName={((row) =>
+          getRowClassName(row as { original: StatementRow }, rowImportanceResolver)) as never}
         enableColumnResizing
         enableRowDrag={false}
         rowSelectionStyle="none"
