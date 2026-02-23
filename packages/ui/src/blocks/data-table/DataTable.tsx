@@ -906,7 +906,7 @@ export function DataTable<TData, TValue>({
                                 ? {
                                     position: "sticky" as const,
                                     left: stickyLeft,
-                                    zIndex: 60,
+                                    zIndex: 20,
                                     background: "hsl(var(--background) / 1)",
                                     backgroundColor:
                                       "hsl(var(--background) / 1)",
@@ -920,8 +920,6 @@ export function DataTable<TData, TValue>({
                                     mixBlendMode: "normal" as const,
                                     backdropFilter: "none",
                                     WebkitBackdropFilter: "none",
-                                    transform: "translateZ(0)",
-                                    WebkitTransform: "translateZ(0)",
                                   }
                                 : {}),
                             }}
@@ -1264,7 +1262,7 @@ export function DataTable<TData, TValue>({
                                     ? {
                                         position: "sticky" as const,
                                         left: stickyLeft,
-                                        zIndex: 50,
+                                        zIndex: 10,
                                         background:
                                           "hsl(var(--background) / 1)",
                                         backgroundColor:
@@ -1281,8 +1279,6 @@ export function DataTable<TData, TValue>({
                                         mixBlendMode: "normal" as const,
                                         backdropFilter: "none",
                                         WebkitBackdropFilter: "none",
-                                        transform: "translateZ(0)",
-                                        WebkitTransform: "translateZ(0)",
                                       }
                                     : {}),
                                 }}
