@@ -1,5 +1,15 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.0
+
+### Minor Changes
+
+- Centralize sidebar state in SidebarProvider: 3-mode behavior (expanded/collapsed/hidden), no flash on load, viewport-aware defaults
+
+### Patch Changes
+
+- 306e513: Add shortLabel prop to FinancialMetric and ComputedMetric for pithy collapsed summary pills
+
 ## 0.49.3
 
 ### Patch Changes
