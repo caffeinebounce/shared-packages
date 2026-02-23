@@ -73,6 +73,8 @@ export interface FinancialMetric {
   key: string;
   /** Display label */
   label: string;
+  /** Short label for collapsed summary pills (e.g. "CA" instead of "Current Assets") */
+  shortLabel?: string;
   /** Which account classes to sum (e.g. ["Revenue"]) */
   accountClasses: string[];
   /** Color for the chart (CSS variable or hex) */
@@ -88,6 +90,8 @@ export interface ComputedMetric {
   key: string;
   /** Display label */
   label: string;
+  /** Short label for collapsed summary pills */
+  shortLabel?: string;
   /** Formula: array of metric keys, prefix with "-" to subtract */
   formula: string[];
   /** Color */
@@ -405,12 +409,14 @@ function buildChartData(
     ...config.metrics.map((m) => ({
       key: m.key,
       label: m.label,
+      shortLabel: m.shortLabel,
       color: m.color,
       valueDisplay: m.valueDisplay,
     })),
     ...(config.computedMetrics ?? []).map((m) => ({
       key: m.key,
       label: m.label,
+      shortLabel: m.shortLabel,
       color: m.color,
       valueDisplay: m.valueDisplay,
     })),
@@ -424,7 +430,7 @@ function buildChartData(
 
   const latestPeriod = periods.at(-1);
 
-  const summaryCards = allMetrics.map(({ key, label, color, valueDisplay }) => {
+  const summaryCards = allMetrics.map(({ key, label, shortLabel, color, valueDisplay }) => {
     const total =
       config.statValueMode === "latest"
         ? latestPeriod
@@ -454,6 +460,7 @@ function buildChartData(
     return {
       key,
       label,
+      shortLabel,
       value: total,
       color,
       valueDisplay: valueDisplay ?? { format: "currency" },
@@ -1305,7 +1312,7 @@ export function FinancialSummaryChart({
                   className="size-1.5 rounded-full"
                   style={{ backgroundColor: card.color }}
                 />
-                <span className="text-muted-foreground">{card.label}:</span>
+                <span className="text-muted-foreground">{card.shortLabel ?? card.label}:</span>
                 <span
                   className={cn(
                     "font-mono font-medium",
