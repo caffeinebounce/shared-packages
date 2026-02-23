@@ -101,8 +101,11 @@ const SidebarProvider = React.forwardRef<
     const preferenceRef = React.useRef<boolean | undefined>(defaultOpen);
 
     // Internal state for uncontrolled mode.
-    // SSR defaults to expanded; we sync to correct viewport in layout effect before paint.
-    const [_open, _setOpen] = React.useState(defaultOpen ?? true);
+    // Initialize from actual viewport on client to avoid expanded→collapsed flash.
+    const [_open, _setOpen] = React.useState(() => {
+      if (typeof window === "undefined") return defaultOpen ?? false;
+      return getSidebarOpenForViewport(window.innerWidth, defaultOpen);
+    });
     const open = openProp ?? _open;
 
     // Keep sidebar mode in sync with viewport rules.
