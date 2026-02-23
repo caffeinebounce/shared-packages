@@ -1,4 +1,10 @@
-import { AlertCircle, AlertTriangle, RefreshCcw } from "lucide-react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  Database,
+  LoaderCircle,
+  RefreshCcw,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type CanonicalDataState =
@@ -140,6 +146,10 @@ export function resolveDataState<TData = unknown>({
 
 export function getDataStateIcon(state: CanonicalDataState): LucideIcon {
   switch (state) {
+    case "loading":
+      return LoaderCircle;
+    case "empty":
+      return Database;
     case "error":
     case "unauthorized":
     case "misconfigured":
@@ -148,5 +158,16 @@ export function getDataStateIcon(state: CanonicalDataState): LucideIcon {
       return AlertTriangle;
     default:
       return RefreshCcw;
+  }
+}
+
+export function getDataStateIconClassName(state: CanonicalDataState): string {
+  switch (state) {
+    case "loading":
+      return "animate-spin";
+    case "empty":
+      return "animate-pulse";
+    default:
+      return "";
   }
 }
