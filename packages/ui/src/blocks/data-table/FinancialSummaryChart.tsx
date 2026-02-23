@@ -25,6 +25,13 @@ import {
   YAxis,
 } from "recharts";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import {
   Tooltip as RadixTooltip,
   TooltipContent,
   TooltipTrigger,
@@ -104,6 +111,12 @@ export interface FinancialSummaryChartSeries {
   valueDisplay?: MetricValueDisplayOptions;
 }
 
+export interface FinancialSummaryChartDataOptions {
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<{ value: string; label: string }>;
+}
+
 export interface FinancialSummaryChartConfig {
   /** Chart display units independent of statement/table unit setting (default: "auto") */
   chartDisplayUnits?: DisplayUnits | "auto";
@@ -129,7 +142,9 @@ export interface FinancialSummaryChartConfig {
   defaultExpanded?: boolean;
   /** Title for the chart section */
   title?: string;
-  /** Extra controls rendered alongside chart controls */
+  /** Standardized data selector shown on the right side of chart controls */
+  dataOptions?: FinancialSummaryChartDataOptions;
+  /** Extra controls rendered alongside chart controls (legacy/custom) */
   chartControls?: React.ReactNode;
   /** Render override for chart area; receives active chart type, chart data, derived series, and height */
   renderChart?: (
@@ -1392,7 +1407,7 @@ export function FinancialSummaryChart({
               </div>
             )}
 
-            {(hasChartToggle || config.chartControls) && (
+            {(hasChartToggle || config.dataOptions || config.chartControls) && (
               <div className="mb-2 flex items-center justify-between gap-2">
                 {hasChartToggle ? (
                   <div className="inline-flex items-center gap-1">
@@ -1420,11 +1435,32 @@ export function FinancialSummaryChart({
                   <div />
                 )}
 
-                {config.chartControls && (
+                {config.dataOptions ? (
+                  <div className="inline-flex h-6 items-center rounded bg-primary/15 text-primary">
+                    <Select
+                      value={config.dataOptions.value}
+                      onValueChange={config.dataOptions.onChange}
+                    >
+                      <SelectTrigger
+                        size="sm"
+                        className="h-6 w-[150px] border-0 bg-transparent px-2 text-xs text-primary shadow-none ring-0 outline-none hover:bg-transparent focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 data-[state=open]:bg-transparent"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {config.dataOptions.options.map((opt) => (
+                          <SelectItem key={opt.value} className="text-xs" value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : config.chartControls ? (
                   <div className="inline-flex h-6 items-center rounded bg-primary/15 text-primary">
                     {config.chartControls}
                   </div>
-                )}
+                ) : null}
               </div>
             )}
 
