@@ -531,14 +531,17 @@ function PieChartView({
   cards,
   height,
   divisor = 1,
+  activeMetric,
 }: {
   cards: Array<{ key: string; label: string; value: number; color: string }>;
   height: number;
   divisor?: number;
+  activeMetric?: string | null;
 }) {
   const pieData = cards
     .filter((card) => card.value !== 0)
     .map((card) => ({
+      key: card.key,
       name: card.label,
       value: Math.abs(card.value),
       fill: card.color,
@@ -555,15 +558,25 @@ function PieChartView({
               cx="50%"
               cy="50%"
               innerRadius="55%"
-              outerRadius="80%"
+              outerRadius={activeMetric ? "85%" : "80%"}
               paddingAngle={2}
               dataKey="value"
               nameKey="name"
               stroke="none"
             >
-              {pieData.map((entry) => (
-                <Cell key={entry.name} fill={entry.fill} />
-              ))}
+              {pieData.map((entry) => {
+                const isActive = entry.key === activeMetric;
+                const dimmed = activeMetric && !isActive;
+                return (
+                  <Cell
+                    key={entry.name}
+                    fill={entry.fill}
+                    fillOpacity={dimmed ? 0.2 : 1}
+                    stroke={isActive ? entry.fill : "none"}
+                    strokeWidth={isActive ? 2 : 0}
+                  />
+                );
+              })}
             </Pie>
             <Tooltip content={<PieTooltip divisor={divisor} />} />
           </PieChart>
@@ -1364,6 +1377,7 @@ export function FinancialSummaryChart({
                   }
                   height={config.height ?? 240}
                   divisor={divisor}
+                  activeMetric={activeMetric}
                 />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
