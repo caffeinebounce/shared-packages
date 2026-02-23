@@ -761,7 +761,7 @@ function CardSparkline({
   divisor?: number;
 }) {
   return (
-    <div className="h-10 w-full">
+    <div className="h-[44px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
@@ -1100,9 +1100,9 @@ export function FinancialSummaryChart({
                     </span>
                   )}
                 </p>
-                <div className="mt-0.5 grid min-h-[44px] grid-rows-[auto_18px]">
+                <div className="mt-0.5 h-[44px]">
                   {!cardFlipEnabled || !isFlipped ? (
-                    <>
+                    <div className="grid h-full grid-rows-[auto_18px]">
                       <p
                         className={cn(
                           "text-lg font-semibold tabular-nums tracking-tight",
@@ -1140,7 +1140,7 @@ export function FinancialSummaryChart({
                           </p>
                         )}
                       </div>
-                    </>
+                    </div>
                   ) : (
                     <CardSparkline
                       data={chartData}
