@@ -765,7 +765,7 @@ function CardSparkline({
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
-          margin={{ top: 4, right: 6, bottom: 2, left: 6 }}
+          margin={{ top: 12, right: 6, bottom: 2, left: 6 }}
         >
           <defs>
             <linearGradient id={`spark-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
@@ -1494,7 +1494,7 @@ export function FinancialSummaryChart({
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart
                     data={chartData}
-                    margin={{ top: 4, right: 8, bottom: 0, left: 12 }}
+                    margin={{ top: 12, right: 8, bottom: 0, left: 12 }}
                     barCategoryGap="20%"
                     barGap={0}
                   >
