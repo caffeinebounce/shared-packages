@@ -1441,9 +1441,8 @@ export function FinancialSummaryChart({
                     onValueChange={config.dataOptions.onChange}
                   >
                     <SelectTrigger
-                      size="sm"
                       variant="ghost"
-                      className="h-6 w-[150px] rounded bg-primary/30 px-2 text-xs text-primary hover:bg-primary/40"
+                      className="!h-6 w-auto min-w-0 rounded bg-primary/15 px-2 text-xs text-primary hover:bg-primary/25"
                     >
                       <SelectValue />
                     </SelectTrigger>
