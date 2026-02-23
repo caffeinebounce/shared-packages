@@ -1395,7 +1395,7 @@ export function FinancialSummaryChart({
             {(hasChartToggle || config.chartControls) && (
               <div className="mb-2 flex items-center justify-between gap-2">
                 {hasChartToggle ? (
-                  <div className="inline-flex items-center gap-1 rounded-md bg-background/30 p-0.5">
+                  <div className="inline-flex items-center gap-1">
                     {config.chartTypes!.map((chartType) => {
                       const isActive = activeChartType === chartType;
                       return (
