@@ -25,12 +25,6 @@ import {
   YAxis,
 } from "recharts";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "../../components/ui/select";
-import {
   Tooltip as RadixTooltip,
   TooltipContent,
   TooltipTrigger,
@@ -1401,45 +1395,33 @@ export function FinancialSummaryChart({
             {(hasChartToggle || config.chartControls) && (
               <div className="mb-3 flex items-center justify-between gap-3">
                 {hasChartToggle ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-                      Format
-                    </span>
-                    <Select
-                      value={activeChartType}
-                      onValueChange={(value) =>
-                        setActiveChartType(value as ChartVariant)
-                      }
-                    >
-                      <SelectTrigger className="h-7 w-[132px] border-none bg-transparent text-xs hover:bg-muted/50 focus:ring-0 focus:ring-offset-0">
-                        <div className="flex items-center gap-1.5">
-                          {CHART_TYPE_ICONS[activeChartType]}
-                          <span>{CHART_TYPE_LABELS[activeChartType]}</span>
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {config.chartTypes!.map((chartType) => (
-                          <SelectItem key={chartType} value={chartType}>
-                            <span className="inline-flex items-center gap-2">
-                              {CHART_TYPE_ICONS[chartType]}
-                              {CHART_TYPE_LABELS[chartType]}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="inline-flex items-center gap-1 rounded-md border bg-background/40 p-1">
+                    {config.chartTypes!.map((chartType) => {
+                      const isActive = activeChartType === chartType;
+                      return (
+                        <button
+                          key={chartType}
+                          type="button"
+                          onClick={() => setActiveChartType(chartType)}
+                          className={cn(
+                            "inline-flex h-7 items-center gap-1.5 rounded px-2.5 text-xs transition-colors",
+                            isActive
+                              ? "bg-primary/15 text-primary"
+                              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                          )}
+                        >
+                          {CHART_TYPE_ICONS[chartType]}
+                          <span>{CHART_TYPE_LABELS[chartType]}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div />
                 )}
 
                 {config.chartControls && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-                      Data
-                    </span>
-                    <div className="flex items-center">{config.chartControls}</div>
-                  </div>
+                  <div className="flex items-center">{config.chartControls}</div>
                 )}
               </div>
             )}
