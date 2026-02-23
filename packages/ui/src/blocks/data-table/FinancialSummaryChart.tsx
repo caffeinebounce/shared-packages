@@ -1442,12 +1442,8 @@ export function FinancialSummaryChart({
                   >
                     <SelectTrigger
                       size="sm"
-                      className="h-6 w-[150px] !border-0 px-2 text-xs text-primary !shadow-none !ring-0 !outline-none focus:!ring-0 focus:!ring-offset-0 focus-visible:!ring-0"
-                      style={{
-                        backgroundColor: "hsl(var(--primary) / 0.15)",
-                        borderColor: "transparent",
-                        boxShadow: "none",
-                      }}
+                      variant="ghost"
+                      className="h-6 w-[150px] bg-primary/15 px-2 text-xs text-primary hover:bg-primary/20"
                     >
                       <SelectValue />
                     </SelectTrigger>
