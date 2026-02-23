@@ -562,24 +562,11 @@ function PieChartView({
     return new Set([activeMetric]);
   }, [activeMetric, computedMetrics]);
 
-  // Build pop-out data: same structure but zero out non-active slices
-  const popData = React.useMemo(
-    () =>
-      activeSliceKeys.size > 0
-        ? pieData.map((d) => ({
-            ...d,
-            value: activeSliceKeys.has(d.key) ? d.value : 0,
-          }))
-        : [],
-    [pieData, activeSliceKeys],
-  );
-
   return (
     <div className="flex h-full w-full" style={{ height }}>
       <div className="relative min-w-0 flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            {/* Base layer — all slices, dimmed when there's a selection */}
             <Pie
               data={pieData}
               cx="50%"
@@ -593,42 +580,26 @@ function PieChartView({
               isAnimationActive={false}
             >
               {pieData.map((entry) => {
+                const isActive = activeSliceKeys.has(entry.key);
                 const dimmed =
-                  activeSliceKeys.size > 0 && !activeSliceKeys.has(entry.key);
+                  activeSliceKeys.size > 0 && !isActive;
                 return (
                   <Cell
                     key={entry.name}
                     fill={entry.fill}
-                    fillOpacity={dimmed ? 0.2 : 1}
-                    style={{ transition: "fill-opacity 300ms ease-out" }}
+                    fillOpacity={dimmed ? 0.35 : 1}
+                    stroke={isActive ? entry.fill : "none"}
+                    strokeWidth={isActive ? 3 : 0}
+                    style={{
+                      transition: "fill-opacity 300ms ease-out, transform 300ms ease-out",
+                      transformOrigin: "center",
+                      transform: isActive ? "scale(1.06)" : "scale(1)",
+                      filter: isActive ? `drop-shadow(0 0 6px ${entry.fill}80)` : "none",
+                    }}
                   />
                 );
               })}
             </Pie>
-            {/* Pop-out layer — only active slices, larger radius, animated */}
-            {popData.length > 0 && (
-              <Pie
-                data={popData}
-                cx="50%"
-                cy="50%"
-                innerRadius="53%"
-                outerRadius="85%"
-                paddingAngle={2}
-                dataKey="value"
-                nameKey="name"
-                stroke="none"
-                animationDuration={400}
-                animationEasing="ease-out"
-              >
-                {popData.map((entry) => (
-                  <Cell
-                    key={entry.name}
-                    fill={entry.value > 0 ? entry.fill : "transparent"}
-                    fillOpacity={entry.value > 0 ? 1 : 0}
-                  />
-                ))}
-              </Pie>
-            )}
             <Tooltip content={<PieTooltip divisor={divisor} />} />
           </PieChart>
         </ResponsiveContainer>
