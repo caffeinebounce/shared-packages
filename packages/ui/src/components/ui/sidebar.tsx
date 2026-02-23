@@ -30,6 +30,7 @@ type SidebarContext = {
   openMobile: boolean;
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
+  ready: boolean;
   toggleSidebar: () => void;
 };
 
@@ -96,6 +97,7 @@ const SidebarProvider = React.forwardRef<
   ) => {
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
+    const [ready, setReady] = React.useState(false);
 
     // defaultOpen from server cookie means explicit desktop preference exists.
     const preferenceRef = React.useRef<boolean | undefined>(defaultOpen);
@@ -110,17 +112,21 @@ const SidebarProvider = React.forwardRef<
 
     // Keep sidebar mode in sync with viewport rules.
     React.useLayoutEffect(() => {
-      if (openProp !== undefined) return;
+      if (openProp === undefined) {
+        const syncToViewport = () => {
+          _setOpen(
+            getSidebarOpenForViewport(window.innerWidth, preferenceRef.current),
+          );
+        };
 
-      const syncToViewport = () => {
-        _setOpen(
-          getSidebarOpenForViewport(window.innerWidth, preferenceRef.current),
-        );
-      };
+        syncToViewport();
+        setReady(true);
+        window.addEventListener("resize", syncToViewport);
+        return () => window.removeEventListener("resize", syncToViewport);
+      }
 
-      syncToViewport();
-      window.addEventListener("resize", syncToViewport);
-      return () => window.removeEventListener("resize", syncToViewport);
+      setReady(true);
+      return undefined;
     }, [openProp]);
 
     const setOpen = React.useCallback(
@@ -178,9 +184,10 @@ const SidebarProvider = React.forwardRef<
         isMobile,
         openMobile,
         setOpenMobile,
+        ready,
         toggleSidebar,
       }),
-      [state, open, setOpen, isMobile, openMobile, toggleSidebar],
+      [state, open, setOpen, isMobile, openMobile, ready, toggleSidebar],
     );
 
     return (
@@ -231,7 +238,7 @@ const Sidebar = React.forwardRef<
     },
     ref,
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+    const { isMobile, state, openMobile, setOpenMobile, ready } = useSidebar();
 
     if (collapsible === "none") {
       return (
@@ -275,7 +282,10 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
-        className="group peer hidden md:block text-sidebar-foreground"
+        className={cn(
+          "group peer hidden md:block text-sidebar-foreground",
+          !ready && "md:invisible",
+        )}
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
