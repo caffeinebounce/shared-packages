@@ -2,7 +2,7 @@
 
 import {
   BarChart3,
-  ChartColumn,
+  BarChartHorizontalBig,
   ChevronDown,
   ChevronUp,
   PieChartIcon,
@@ -331,7 +331,7 @@ function renderMetricDisplayValue(
 const CHART_TYPE_ICONS: Record<ChartVariant, React.ReactNode> = {
   area: <BarChart3 className="size-3.5" />,
   line: <BarChart3 className="size-3.5" />,
-  bar: <ChartColumn className="size-3.5" />,
+  bar: <BarChartHorizontalBig className="size-3.5" />,
   pie: <PieChartIcon className="size-3.5" />,
 };
 
