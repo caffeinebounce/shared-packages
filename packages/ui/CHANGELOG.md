@@ -1,5 +1,70 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.22
+
+### Patch Changes
+
+- Show section icons in expanded sidebar alongside section labels
+
+## 0.50.7
+
+### Patch Changes
+
+- Remove contain:paint and isolation:isolate from DataTable sticky cells to prevent compositing layer promotion that paints above Sheet portals on mobile.
+
+## 0.50.6
+
+### Patch Changes
+
+- Reduce DataTable sticky column z-index layering and remove translateZ promotion to prevent sticky cells bleeding above mobile Sheet overlays.
+
+## 0.50.5
+
+### Patch Changes
+
+- Increase Sheet overlay and content z-index to z-[100] so mobile sidebar always covers sticky table cells.
+
+## 0.50.4
+
+### Patch Changes
+
+- Fix build/export for financial statement row-importance helpers, including `createFinancialStatementRowImportanceResolver` in published package artifacts.
+
+## 0.50.3
+
+### Patch Changes
+
+- Use animated Lucide icons for finance data states: spinning loader for loading and pulsing database icon for empty state.
+- Add 3-tier financial statement row importance support (`normal`, `emphasis`, `key-summary`) with shared resolver exports and table styling hooks.
+
+## 0.50.2
+
+### Patch Changes
+
+- Add unified finance data-state primitives and resolver (`DataStateBanner`, `DataStateInline`, `resolveDataState`) with canonical state taxonomy exports.
+
+## 0.50.1
+
+### Patch Changes
+
+- Refactor SidebarProvider to canonical mode state machine (`expanded|collapsed|hidden`) for deterministic viewport behavior and no hydration flicker.
+
+## 0.50.0
+
+### Minor Changes
+
+- Centralize sidebar state in SidebarProvider: 3-mode behavior (expanded/collapsed/hidden), no flash on load, viewport-aware defaults
+
+### Patch Changes
+
+- 306e513: Add shortLabel prop to FinancialMetric and ComputedMetric for pithy collapsed summary pills
+
+## 0.49.3
+
+### Patch Changes
+
+- 484cdb1: Fix: charts default to collapsed everywhere, fix stat card height shift on flip
+
 ## 0.49.2
 
 ### Patch Changes

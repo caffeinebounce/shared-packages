@@ -140,6 +140,13 @@ export {
   type TimeUnit,
 } from "./FinancialStatementTable";
 export {
+  createFinancialStatementRowImportanceResolver,
+  type FinancialStatementKind,
+  type FinancialStatementRowImportance,
+  getFinancialStatementRowImportanceClassName,
+  type FinancialStatementRowImportanceResolver,
+} from "./financialStatementRowImportance";
+export {
   CASH_FLOW_CHART_CONFIG,
   type ChartVariant,
   type ComputedMetric,

@@ -518,9 +518,12 @@ export function AppSidebar({
                         asChild
                         className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
                       >
-                        <CollapsibleTrigger className="flex w-full items-center justify-between [&[data-state=open]>svg]:rotate-180">
-                          {section.label}
-                          <ChevronDown className="ml-auto size-4 transition-transform duration-200" />
+                        <CollapsibleTrigger className="flex w-full items-center justify-between [&[data-state=open]>svg.chevron-icon]:rotate-180">
+                          <span className="flex items-center gap-1.5">
+                            {SectionIcon && <SectionIcon className="size-3.5 shrink-0" />}
+                            {section.label}
+                          </span>
+                          <ChevronDown className="chevron-icon ml-auto size-4 transition-transform duration-200" />
                         </CollapsibleTrigger>
                       </SidebarGroupLabel>
                       <CollapsibleContent>

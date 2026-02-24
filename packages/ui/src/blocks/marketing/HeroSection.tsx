@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../../components/ui/button";
 
 export interface CarouselState {
@@ -116,8 +116,45 @@ export function HeroSection({
     return () => clearInterval(interval);
   }, [carouselState, hasMultipleImages, autoPlayInterval, goToNext]);
 
+  // Touch/swipe support
+  const containerRef = useRef<HTMLDivElement>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !hasMultipleSlides) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      touchStart.current = { x: touch.clientX, y: touch.clientY };
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!touchStart.current) return;
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - touchStart.current.x;
+      const dy = touch.clientY - touchStart.current.y;
+      touchStart.current = null;
+
+      // Horizontal swipe > 50px and more horizontal than vertical
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) goToNext();
+        else goToPrevious();
+      }
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [hasMultipleSlides, goToNext, goToPrevious]);
+
   return (
     <div
+      ref={containerRef}
       className={`relative flex flex-col items-center justify-center min-h-dvh text-center overflow-hidden ${backgroundClasses[background]} ${paddingClasses[padding]} ${className}`}
     >
       {/* Background Image Slider */}
@@ -212,19 +249,23 @@ export function HeroSection({
 
       {/* Dot Indicators */}
       {hasMultipleSlides && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        <div className="absolute bottom-8 inset-x-0 flex items-center justify-center gap-1 z-20">
           {Array.from({ length: totalSlides }).map((_, index) => (
             <button
               type="button"
               key={`slide-dot-${index}`}
               onClick={() => goToSlide(index)}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                index === currentIndex
-                  ? "bg-primary w-8"
-                  : "bg-foreground/30 hover:bg-foreground/50"
-              }`}
+              className="relative flex items-center justify-center p-3"
               aria-label={`Go to slide ${index + 1}`}
-            />
+            >
+              <span
+                className={`block h-2.5 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? "w-8 bg-primary"
+                    : "w-2.5 bg-foreground/30"
+                }`}
+              />
+            </button>
           ))}
         </div>
       )}
