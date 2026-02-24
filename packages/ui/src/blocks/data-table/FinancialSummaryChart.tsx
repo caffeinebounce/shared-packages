@@ -338,7 +338,7 @@ const CHART_TYPE_ICONS: Record<ChartVariant, React.ReactNode> = {
 const CHART_TYPE_LABELS: Record<ChartVariant, string> = {
   area: "Area",
   line: "Line",
-  bar: "Column",
+  bar: "Bar",
   pie: "Pie",
 };
 
