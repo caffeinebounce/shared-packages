@@ -2,7 +2,7 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme as useNextTheme } from "next-themes";
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -83,19 +83,8 @@ export function ThemeToggle({
   className,
 }: ThemeToggleProps) {
   const { resolvedTheme, setTheme } = useNextTheme();
-  const [mounted, setMounted] = useState(false);
-
   // Determine if shortcut should be shown: shortcutsVisible overrides showShortcut when provided
   const shouldShowShortcut = shortcutsVisible ?? showShortcut;
-
-  const theme: ThemeMode =
-    mounted && typeof document !== "undefined"
-      ? document.documentElement.classList.contains("dark")
-        ? "dark"
-        : "light"
-      : resolvedTheme === "dark"
-        ? "dark"
-        : "light";
 
   const toggleTheme = useCallback(() => {
     const currentlyDark =
@@ -116,10 +105,6 @@ export function ThemeToggle({
       }
     }
   }, [setTheme]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Keyboard shortcut to toggle theme
   useEffect(() => {
@@ -160,20 +145,14 @@ export function ThemeToggle({
           className={`group inline-flex h-8 w-8 items-center justify-center text-icon hover:text-icon-hover transition-colors ${className ?? ""}`}
           aria-label="Toggle theme"
         >
-          <div className="relative h-4 w-4" suppressHydrationWarning>
+          <div className="relative h-4 w-4">
+            {/* Sun shows in dark mode (click to go light). CSS-driven to avoid flash. */}
             <Sun
-              className={`absolute inset-0 h-4 w-4 transition-all duration-150 group-hover:rotate-12 ${
-                theme === "dark"
-                  ? "rotate-0 scale-100 opacity-100"
-                  : "rotate-90 scale-0 opacity-0"
-              }`}
+              className="absolute inset-0 h-4 w-4 transition-all duration-150 group-hover:rotate-12 rotate-90 scale-0 opacity-0 dark:rotate-0 dark:scale-100 dark:opacity-100"
             />
+            {/* Moon shows in light mode (click to go dark). CSS-driven to avoid flash. */}
             <Moon
-              className={`absolute inset-0 h-4 w-4 transition-all duration-150 group-hover:-rotate-12 ${
-                theme === "light"
-                  ? "rotate-0 scale-100 opacity-100"
-                  : "-rotate-90 scale-0 opacity-0"
-              }`}
+              className="absolute inset-0 h-4 w-4 transition-all duration-150 group-hover:-rotate-12 rotate-0 scale-100 opacity-100 dark:-rotate-90 dark:scale-0 dark:opacity-0"
             />
           </div>
         </button>
