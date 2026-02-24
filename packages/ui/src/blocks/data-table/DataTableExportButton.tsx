@@ -20,6 +20,11 @@ import {
   TooltipTrigger,
 } from "../../components/ui/tooltip";
 import { cn } from "../../utils";
+import {
+  buildSpreadsheetWorkbookXml,
+  downloadExcelXml,
+  type SpreadsheetCell,
+} from "../../hooks/spreadsheetWorkbook";
 import { useDataTableContext } from "./DataTable";
 import {
   dataTableTopperButtonProps,
@@ -181,18 +186,6 @@ export interface ExportToExcelOptions<TData> {
 }
 
 /**
- * Escapes XML special characters for Excel XML format
- */
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
-
-/**
  * Exports table data to Excel (XML Spreadsheet format) and triggers download
  */
 export function exportToExcel<TData>({
@@ -240,62 +233,40 @@ export function exportToExcel<TData>({
     });
   });
 
-  // Build Excel XML content
-  const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-  <Styles>
-    <Style ss:ID="Header">
-      <Font ss:Bold="1"/>
-      <Interior ss:Color="#E0E0E0" ss:Pattern="Solid"/>
-    </Style>
-  </Styles>
-  <Worksheet ss:Name="Data">
-    <Table>
-      <Row>
-        ${headers.map((h) => `<Cell ss:StyleID="Header"><Data ss:Type="String">${escapeXml(h)}</Data></Cell>`).join("\n        ")}
-      </Row>
-      ${dataRows
-        .map(
-          (row) => `<Row>
-        ${row
-          .map((cell) => {
-            // Detect if value should be treated as a number in Excel
-            // Preserve leading zeros (e.g., "0001234" stays as string)
-            const trimmed = cell.trim();
-            const isNumericPattern =
-              trimmed !== "" && /^-?\d+(\.\d+)?$/.test(trimmed);
-            const hasLeadingZero =
-              /^0\d+$/.test(trimmed) || /^-0\d+$/.test(trimmed);
-            const numValue = Number(trimmed);
-            const isNumber =
-              isNumericPattern && !hasLeadingZero && !Number.isNaN(numValue);
-            const type = isNumber ? "Number" : "String";
-            const value = isNumber ? numValue : escapeXml(cell);
-            return `<Cell><Data ss:Type="${type}">${value}</Data></Cell>`;
-          })
-          .join("\n        ")}
-      </Row>`,
-        )
-        .join("\n      ")}
-    </Table>
-  </Worksheet>
-</Workbook>`;
+  const sheetRows: SpreadsheetCell[][] = [
+    headers.map((header) => ({ value: header, style: "header" })),
+    ...dataRows.map((row) =>
+      row.map((cell) => {
+        const trimmed = cell.trim();
+        const isNumericPattern =
+          trimmed !== "" && /^-?\d+(\.\d+)?$/.test(trimmed);
+        const hasLeadingZero = /^0\d+$/.test(trimmed) || /^-0\d+$/.test(trimmed);
+        const numValue = Number(trimmed);
+        const isNumber =
+          isNumericPattern && !hasLeadingZero && !Number.isNaN(numValue);
 
-  // Create and trigger download
-  const blob = new Blob([xmlContent], {
-    type: "application/vnd.ms-excel;charset=utf-8;",
+        if (isNumber) {
+          return {
+            value: numValue,
+            type: "Number" as const,
+            style:
+              /%$/.test(trimmed) || Math.abs(numValue) <= 1
+                ? ("number" as const)
+                : ("currency" as const),
+          };
+        }
+
+        return { value: cell, style: "text" as const };
+      }),
+    ),
+  ];
+
+  const xmlContent = buildSpreadsheetWorkbookXml({
+    worksheetName: "Data",
+    rows: sheetRows,
   });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", `${filename}.xls`);
-  link.style.visibility = "hidden";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+
+  downloadExcelXml(xmlContent, filename);
 }
 
 export type ExportFormat = "csv" | "excel";
