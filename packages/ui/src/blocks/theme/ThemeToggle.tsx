@@ -136,18 +136,9 @@ export function ThemeToggle({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [shortcut, toggleTheme]);
 
-  // Prevent hydration mismatch by not rendering until mounted
-  if (!mounted) {
-    return (
-      <button
-        type="button"
-        className={`inline-flex h-8 w-8 items-center justify-center text-icon transition-colors ${className ?? ""}`}
-        aria-label="Toggle theme"
-      >
-        <div className="h-4 w-4" />
-      </button>
-    );
-  }
+  // Render eagerly with resolved theme to avoid layout shift.
+  // suppressHydrationWarning on the icon container handles any
+  // server/client mismatch (dark-mode class may differ).
 
   const tooltipContent = tooltip ?? (
     <>
@@ -169,7 +160,7 @@ export function ThemeToggle({
           className={`group inline-flex h-8 w-8 items-center justify-center text-icon hover:text-icon-hover transition-colors ${className ?? ""}`}
           aria-label="Toggle theme"
         >
-          <div className="relative h-4 w-4">
+          <div className="relative h-4 w-4" suppressHydrationWarning>
             <Sun
               className={`absolute inset-0 h-4 w-4 transition-all duration-150 group-hover:rotate-12 ${
                 theme === "dark"
