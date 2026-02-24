@@ -19,12 +19,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../../components/ui/tooltip";
-import { cn } from "../../utils";
 import {
   buildSpreadsheetWorkbookXml,
   downloadExcelXml,
   type SpreadsheetCell,
 } from "../../hooks/spreadsheetWorkbook";
+import { cn } from "../../utils";
 import { useDataTableContext } from "./DataTable";
 import {
   dataTableTopperButtonProps,
@@ -240,7 +240,8 @@ export function exportToExcel<TData>({
         const trimmed = cell.trim();
         const isNumericPattern =
           trimmed !== "" && /^-?\d+(\.\d+)?$/.test(trimmed);
-        const hasLeadingZero = /^0\d+$/.test(trimmed) || /^-0\d+$/.test(trimmed);
+        const hasLeadingZero =
+          /^0\d+$/.test(trimmed) || /^-0\d+$/.test(trimmed);
         const numValue = Number(trimmed);
         const isNumber =
           isNumericPattern && !hasLeadingZero && !Number.isNaN(numValue);
@@ -249,10 +250,7 @@ export function exportToExcel<TData>({
           return {
             value: numValue,
             type: "Number" as const,
-            style:
-              /%$/.test(trimmed) || Math.abs(numValue) <= 1
-                ? ("number" as const)
-                : ("currency" as const),
+            style: "number" as const,
           };
         }
 
