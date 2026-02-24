@@ -84,6 +84,8 @@ export interface FinancialMetric {
   sign?: number;
   /** Display settings for stat card values */
   valueDisplay?: MetricValueDisplayOptions;
+  /** Whether increasing magnitude is favorable for trend indicators */
+  trendDirection?: "higher-is-better" | "lower-is-better";
 }
 
 export interface ComputedMetric {
@@ -103,6 +105,8 @@ export interface ComputedMetric {
   dashed?: boolean;
   /** Display settings for stat card values */
   valueDisplay?: MetricValueDisplayOptions;
+  /** Whether increasing magnitude is favorable for trend indicators */
+  trendDirection?: "higher-is-better" | "lower-is-better";
 }
 
 export type ChartVariant = "area" | "bar" | "line" | "pie";
@@ -220,12 +224,14 @@ export const CASH_FLOW_CHART_CONFIG: FinancialSummaryChartConfig = {
       label: "Investing",
       accountClasses: ["Investing"],
       color: "var(--chart-4, #f59e0b)",
+      trendDirection: "lower-is-better",
     },
     {
       key: "financing",
       label: "Financing",
       accountClasses: ["Financing"],
       color: "var(--chart-5, #8b5cf6)",
+      trendDirection: "lower-is-better",
     },
   ],
   computedMetrics: [
@@ -415,6 +421,7 @@ function buildChartData(
       shortLabel: m.shortLabel,
       color: m.color,
       valueDisplay: m.valueDisplay,
+      trendDirection: m.trendDirection ?? "higher-is-better",
     })),
     ...(config.computedMetrics ?? []).map((m) => ({
       key: m.key,
@@ -422,6 +429,7 @@ function buildChartData(
       shortLabel: m.shortLabel,
       color: m.color,
       valueDisplay: m.valueDisplay,
+      trendDirection: m.trendDirection ?? "higher-is-better",
     })),
   ];
 
@@ -434,7 +442,7 @@ function buildChartData(
   const latestPeriod = periods.at(-1);
 
   const summaryCards = allMetrics.map(
-    ({ key, label, shortLabel, color, valueDisplay }) => {
+    ({ key, label, shortLabel, color, valueDisplay, trendDirection }) => {
       const total =
         config.statValueMode === "latest"
           ? latestPeriod
@@ -473,6 +481,7 @@ function buildChartData(
         priorValue: priorTotal,
         hasPrior,
         noChange,
+        trendDirection,
       };
     },
   );
@@ -1043,10 +1052,14 @@ export function FinancialSummaryChart({
       priorValue?: number;
       hasPrior?: boolean;
       noChange?: boolean;
+      trendDirection?: "higher-is-better" | "lower-is-better";
     }) => {
       const cardValueDisplay = card.valueDisplay ?? axisValueDisplay;
-      const isPositiveTrend =
-        card.key === "expenses" ? (card.trend ?? 0) < 0 : (card.trend ?? 0) > 0;
+      const trendValue = card.trend ?? 0;
+      const trendDirection = card.trendDirection ?? "higher-is-better";
+      const isImproving =
+        trendDirection === "lower-is-better" ? trendValue < 0 : trendValue > 0;
+      const trendArrow = trendValue > 0 ? "▲" : "▼";
       const showNoChange = card.hasPrior && card.noChange;
       const showTrend =
         card.trend !== undefined && card.trend !== 0 && !showNoChange;
@@ -1097,11 +1110,21 @@ export function FinancialSummaryChart({
               <div className="relative min-h-[92px] pl-3 pb-3">
                 <p className="min-h-[32px] text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   {card.label}
-                  {cardPeriodText && (
-                    <span className="ml-1.5 font-normal text-muted-foreground/60">
-                      {cardPeriodText}
-                    </span>
-                  )}
+                  {cardPeriodText &&
+                    (cardPeriodText === "LTM" ? (
+                      <RadixTooltip delayDuration={150}>
+                        <TooltipTrigger asChild>
+                          <span className="ml-1.5 font-normal text-muted-foreground/60 underline decoration-dotted underline-offset-2">
+                            {cardPeriodText}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>Last Twelve Months</TooltipContent>
+                      </RadixTooltip>
+                    ) : (
+                      <span className="ml-1.5 font-normal text-muted-foreground/60">
+                        {cardPeriodText}
+                      </span>
+                    ))}
                 </p>
                 <div className="mt-0.5 h-[44px]">
                   {!cardFlipEnabled || !isFlipped ? (
@@ -1128,18 +1151,18 @@ export function FinancialSummaryChart({
                           <p
                             className={cn(
                               "text-[11px] font-medium",
-                              isPositiveTrend
+                              isImproving
                                 ? "text-emerald-600 dark:text-emerald-400"
                                 : "text-red-500 dark:text-red-400",
                             )}
                           >
-                            {card.trend && card.trend > 0 ? "↑" : "↓"}{" "}
-                            {Math.abs(card.trend ?? 0).toFixed(1)}% vs prior
+                            {trendArrow} {Math.abs(card.trend ?? 0).toFixed(1)}%
+                            vs prior
                           </p>
                         )}
                         {showZeroHint && (
                           <p className="text-[11px] font-medium text-muted-foreground">
-                            No activity
+                            No activity this period
                           </p>
                         )}
                       </div>
@@ -1257,17 +1280,12 @@ export function FinancialSummaryChart({
                   <span
                     className={cn(
                       "font-mono font-medium",
-                      (
-                        card.key === "expenses"
-                          ? (card.trend ?? 0) < 0
-                          : (card.trend ?? 0) > 0
-                      )
+                      isImproving
                         ? "text-emerald-600 dark:text-emerald-400"
                         : "text-red-500 dark:text-red-400",
                     )}
                   >
-                    {(card.trend ?? 0) > 0 ? "↑" : "↓"}{" "}
-                    {Math.abs(card.trend ?? 0).toFixed(1)}%
+                    {trendArrow} {Math.abs(card.trend ?? 0).toFixed(1)}%
                   </span>
                 </div>
               )}
@@ -1488,161 +1506,180 @@ export function FinancialSummaryChart({
                 );
                 if (customChart) return customChart;
                 return null;
-              })() ?? (activeChartType === "pie" ? (
-                <PieChartView
-                  cards={
-                    config.pieSliceKeys?.length
-                      ? summaryCards.filter((card) =>
-                          config.pieSliceKeys?.includes(card.key),
-                        )
-                      : summaryCards
-                  }
-                  height={config.height ?? 240}
-                  divisor={divisor}
-                  activeMetric={activeMetric}
-                  computedMetrics={config.computedMetrics}
-                />
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart
-                    data={chartData}
-                    margin={{ top: 12, right: 8, bottom: 0, left: 12 }}
-                    barCategoryGap="20%"
-                    barGap={0}
-                  >
-                    <defs>
-                      {allMetrics.map((m) => (
-                        <linearGradient
-                          key={m.key}
-                          id={`gradient-${m.key}`}
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
-                        >
-                          <stop
-                            offset="0%"
-                            stopColor={m.color}
-                            stopOpacity={
-                              activeMetric
-                                ? m.key === activeMetric
-                                  ? 0.3
-                                  : 0.02
-                                : 0.2
-                            }
-                          />
-                          <stop
-                            offset="95%"
-                            stopColor={m.color}
-                            stopOpacity={0}
-                          />
-                        </linearGradient>
-                      ))}
-                    </defs>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      vertical={false}
-                      stroke="var(--border, #e5e7eb)"
-                      strokeOpacity={0.5}
-                    />
-                    <XAxis
-                      dataKey="periodLabel"
-                      tick={{
-                        fontSize: 11,
-                        fill: "var(--muted-foreground, #9ca3af)",
-                      }}
-                      tickLine={false}
-                      axisLine={false}
-                      dy={8}
-                      padding={{ left: 0, right: 0 }}
-                    />
-                    <YAxis
-                      tick={{
-                        fontSize: 11,
-                        fill: "var(--muted-foreground, #9ca3af)",
-                      }}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(v) =>
-                        formatMetricDisplayValue(
-                          v as number,
-                          axisValueDisplay,
-                          divisor,
-                        )
-                      }
-                      width={65}
-                    />
-                    {config.showZeroLine && (
-                      <ReferenceLine
-                        y={0}
-                        stroke="var(--border, #e5e7eb)"
+              })() ??
+                (activeChartType === "pie" ? (
+                  <PieChartView
+                    cards={
+                      config.pieSliceKeys?.length
+                        ? summaryCards.filter((card) =>
+                            config.pieSliceKeys?.includes(card.key),
+                          )
+                        : summaryCards
+                    }
+                    height={config.height ?? 240}
+                    divisor={divisor}
+                    activeMetric={activeMetric}
+                    computedMetrics={config.computedMetrics}
+                  />
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart
+                      data={chartData}
+                      margin={{ top: 12, right: 8, bottom: 0, left: 12 }}
+                      barCategoryGap="20%"
+                      barGap={0}
+                    >
+                      <defs>
+                        {allMetrics.map((m) => (
+                          <linearGradient
+                            key={m.key}
+                            id={`gradient-${m.key}`}
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="0%"
+                              stopColor={m.color}
+                              stopOpacity={
+                                activeMetric
+                                  ? m.key === activeMetric
+                                    ? 0.3
+                                    : 0.02
+                                  : 0.2
+                              }
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor={m.color}
+                              stopOpacity={0}
+                            />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      <CartesianGrid
                         strokeDasharray="3 3"
+                        vertical={false}
+                        stroke="var(--border, #e5e7eb)"
+                        strokeOpacity={0.5}
                       />
-                    )}
-                    <Tooltip
-                      content={
-                        <CustomTooltip metrics={allMetrics} divisor={divisor} />
-                      }
-                      cursor={{
-                        stroke: "var(--border, #e5e7eb)",
-                        strokeDasharray: "3 3",
-                      }}
-                    />
-                    {allMetrics.map((m) => {
-                      const opacity = getMetricOpacity(m.key);
-                      return m.chartType === "line" || m.dashed ? (
-                        <Line
-                          key={m.key}
-                          type="linear"
-                          dataKey={m.key}
-                          stroke={m.color}
-                          strokeWidth={m.key === activeMetric ? 3 : 2}
-                          strokeDasharray={m.dashed ? "6 3" : undefined}
-                          strokeOpacity={opacity}
-                          isAnimationActive={false}
-                          dot={false}
-                          activeDot={{
-                            r: 4,
-                            strokeWidth: 2,
-                            fill: "var(--background, #fff)",
-                          }}
+                      <XAxis
+                        dataKey="periodLabel"
+                        tick={{
+                          fontSize: 11,
+                          fill: "var(--muted-foreground, #9ca3af)",
+                        }}
+                        tickLine={false}
+                        axisLine={false}
+                        dy={8}
+                        padding={{ left: 0, right: 0 }}
+                      />
+                      <YAxis
+                        tick={{
+                          fontSize: 11,
+                          fill: "var(--muted-foreground, #9ca3af)",
+                        }}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(v) =>
+                          formatMetricDisplayValue(
+                            v as number,
+                            axisValueDisplay,
+                            divisor,
+                          )
+                        }
+                        width={65}
+                      />
+                      {config.showZeroLine && (
+                        <ReferenceLine
+                          y={0}
+                          stroke="var(--border, #e5e7eb)"
+                          strokeDasharray="3 3"
                         />
-                      ) : m.chartType === "bar" ? (
-                        <Bar
-                          key={m.key}
-                          dataKey={m.key}
-                          stackId={
-                            config.chartType === "bar" ? "summary" : undefined
-                          }
-                          fill={m.color}
-                          radius={[4, 4, 0, 0]}
-                          fillOpacity={opacity * 0.8}
-                          isAnimationActive={false}
-                          maxBarSize={24}
-                        />
-                      ) : (
-                        <Area
-                          key={m.key}
-                          type="linear"
-                          dataKey={m.key}
-                          stroke={m.color}
-                          strokeWidth={m.key === activeMetric ? 3 : 2}
-                          strokeOpacity={opacity}
-                          fill={`url(#gradient-${m.key})`}
-                          fillOpacity={opacity}
-                          isAnimationActive={false}
-                          dot={false}
-                          activeDot={{
-                            r: 4,
-                            strokeWidth: 2,
-                            fill: "var(--background, #fff)",
-                          }}
-                        />
-                      );
-                    })}
-                  </ComposedChart>
-                </ResponsiveContainer>
-              ))}
+                      )}
+                      <Tooltip
+                        content={
+                          <CustomTooltip
+                            metrics={allMetrics}
+                            divisor={divisor}
+                          />
+                        }
+                        cursor={{
+                          stroke: "var(--border, #e5e7eb)",
+                          strokeDasharray: "3 3",
+                        }}
+                      />
+                      {allMetrics.map((m) => {
+                        const opacity = getMetricOpacity(m.key);
+                        return m.chartType === "line" || m.dashed ? (
+                          <Line
+                            key={m.key}
+                            type="linear"
+                            dataKey={m.key}
+                            stroke={m.color}
+                            strokeWidth={m.key === activeMetric ? 3 : 2}
+                            strokeDasharray={m.dashed ? "6 3" : undefined}
+                            strokeOpacity={opacity}
+                            isAnimationActive={false}
+                            dot={false}
+                            activeDot={{
+                              r: 4,
+                              strokeWidth: 2,
+                              fill: "var(--background, #fff)",
+                            }}
+                          />
+                        ) : m.chartType === "bar" ? (
+                          <Bar
+                            key={m.key}
+                            dataKey={m.key}
+                            stackId={
+                              config.chartType === "bar" ? "summary" : undefined
+                            }
+                            fill={m.color}
+                            radius={[4, 4, 0, 0]}
+                            fillOpacity={opacity * 0.8}
+                            isAnimationActive={false}
+                            maxBarSize={24}
+                          >
+                            {chartData.map((row, idx) => {
+                              const value = Number(row[m.key] ?? 0);
+                              return (
+                                <Cell
+                                  key={`${m.key}-${idx}`}
+                                  fill={
+                                    value < 0
+                                      ? "var(--destructive, #ef4444)"
+                                      : m.color
+                                  }
+                                  fillOpacity={opacity * 0.85}
+                                />
+                              );
+                            })}
+                          </Bar>
+                        ) : (
+                          <Area
+                            key={m.key}
+                            type="linear"
+                            dataKey={m.key}
+                            stroke={m.color}
+                            strokeWidth={m.key === activeMetric ? 3 : 2}
+                            strokeOpacity={opacity}
+                            fill={`url(#gradient-${m.key})`}
+                            fillOpacity={opacity}
+                            isAnimationActive={false}
+                            dot={false}
+                            activeDot={{
+                              r: 4,
+                              strokeWidth: 2,
+                              fill: "var(--background, #fff)",
+                            }}
+                          />
+                        );
+                      })}
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                ))}
             </div>
           </div>
         </div>
