@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.50.22
+
+### Patch Changes
+
+- Show section icons in expanded sidebar alongside section labels
+
 ## 0.50.7
 
 ### Patch Changes
