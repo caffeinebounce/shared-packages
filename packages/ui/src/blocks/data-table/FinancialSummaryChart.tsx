@@ -1477,14 +1477,16 @@ export function FinancialSummaryChart({
                 ...(config.renderChart ? {} : { height: config.height ?? 240 }),
               }}
             >
-              {config.renderChart ? (
-                config.renderChart(
+              {(() => {
+                const customChart = config.renderChart?.(
                   activeChartType,
                   chartData,
                   allMetrics,
                   config.height ?? 240,
-                )
-              ) : activeChartType === "pie" ? (
+                );
+                if (customChart) return customChart;
+                return null;
+              })() ?? (activeChartType === "pie" ? (
                 <PieChartView
                   cards={
                     config.pieSliceKeys?.length
@@ -1638,7 +1640,7 @@ export function FinancialSummaryChart({
                     })}
                   </ComposedChart>
                 </ResponsiveContainer>
-              )}
+              ))}
             </div>
           </div>
         </div>
