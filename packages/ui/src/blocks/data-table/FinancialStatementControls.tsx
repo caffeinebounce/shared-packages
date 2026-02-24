@@ -148,7 +148,10 @@ export function FinancialStatementControls({
   showMobilePeriodStepper = true,
 }: FinancialStatementControlsProps) {
   const desktopToolbarRef = useRef<HTMLDivElement>(null);
-  const [useCompactFilters, setUseCompactFilters] = useState(false);
+  // Default to compact on small viewports to avoid layout flash
+  const [useCompactFilters, setUseCompactFilters] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768,
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
