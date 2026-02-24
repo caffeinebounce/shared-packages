@@ -156,7 +156,6 @@ export function DataTableSettings({
                     onClick={() => onChange(setting.id, !checked)}
                     className="flex w-full cursor-pointer items-center gap-3 rounded-sm px-2 py-1.5 text-xs hover:bg-accent"
                   >
-                    <span>{setting.label}</span>
                     <span
                       aria-hidden="true"
                       className={cn(
@@ -171,6 +170,7 @@ export function DataTableSettings({
                         )}
                       />
                     </span>
+                    <span>{setting.label}</span>
                   </button>
                 );
               }

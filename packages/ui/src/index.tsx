@@ -67,6 +67,11 @@ export type {
   SubtotalRulesConfig,
   SummaryType,
   TimeUnit,
+  UnifiedTableControl,
+  UnifiedTableControlKind,
+  UnifiedTableControlsProps,
+  UnifiedTableSettingsControl,
+  UnifiedTableSettingsItem,
 } from "./blocks/data-table";
 export {
   BALANCE_SHEET_CONFIG,
@@ -105,6 +110,7 @@ export {
   getUnitLabel,
   getUnitSuffix,
   INCOME_STATEMENT_CHART_CONFIG,
+  createFinanceTableSettingsItems,
   INCOME_STATEMENT_CONFIG,
   MobilePeriodStepper,
   type MobilePeriodStepperProps,
@@ -124,7 +130,11 @@ export {
   SummaryPanel,
   type SummaryPanelProps,
   SummaryPieChart,
+  UnifiedTableControls,
+  normalizeUnifiedTableControls,
+  unifiedTableControlOrder,
   useDataTableContext,
+  useUnifiedTableSettings,
   useDataTableSettings,
   useFinanceDecimals,
   useFinanceDecimalsSetting,
@@ -393,6 +403,15 @@ export {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./components/ui/collapsible";
+export { DataStateBanner, DataStateInline } from "./components/ui/data-state";
+export {
+  resolveDataState,
+  type CanonicalDataState as DataState,
+  type CanonicalDataState as DataStateKind,
+  type DataStateMetadata,
+  type ResolveDataStateInput,
+  type ResolvedDataState,
+} from "./utils/data-state";
 export type { ComboboxOption, ComboboxProps } from "./components/ui/combobox";
 export { Combobox } from "./components/ui/combobox";
 export {

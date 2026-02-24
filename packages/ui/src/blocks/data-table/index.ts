@@ -172,6 +172,20 @@ export {
   type MobileStatementFiltersProps,
 } from "./MobileStatementFilters";
 export {
+  type UnifiedTableControl,
+  type UnifiedTableControlKind,
+  type UnifiedTableSettingsControl,
+  type UnifiedTableSettingsItem,
+  createFinanceTableSettingsItems,
+  normalizeUnifiedTableControls,
+  unifiedTableControlOrder,
+  useUnifiedTableSettings,
+} from "./UnifiedTableControls.schema";
+export {
+  UnifiedTableControls,
+  type UnifiedTableControlsProps,
+} from "./UnifiedTableControls";
+export {
   type PeriodGranularity,
   PeriodSelector,
   type PeriodSelectorProps,
