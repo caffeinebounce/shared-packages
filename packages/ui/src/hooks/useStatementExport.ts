@@ -8,6 +8,12 @@ import {
   type SubtotalRulesConfig,
   type TimeUnit,
 } from "../blocks/data-table/FinancialStatementTable";
+import {
+  buildSpreadsheetWorkbookXml,
+  downloadExcelXml,
+  excelColumnName,
+  type SpreadsheetCell,
+} from "./spreadsheetWorkbook";
 
 interface UseStatementExportParams {
   entries: FinancialStatementEntry[];
@@ -65,40 +71,43 @@ export function useStatementExport({
         return;
       }
 
-      const escapeXml = (value: string) =>
-        value
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;");
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
-<Styles><Style ss:ID="H"><Font ss:Bold="1"/></Style></Styles>
-<Worksheet ss:Name="${escapeXml(worksheetName)}"><Table>
-<Row>${headers.map((header) => `<Cell ss:StyleID="H"><Data ss:Type="String">${escapeXml(header)}</Data></Cell>`).join("")}</Row>
-${dataRows
-  .map(
-    (row) =>
-      `<Row>${row
-        .map((value, index) => {
-          const isNumber = index > 0 && !Number.isNaN(Number(value));
-          return `<Cell><Data ss:Type="${isNumber ? "Number" : "String"}">${isNumber ? value : escapeXml(value)}</Data></Cell>`;
-        })
-        .join("")}</Row>`,
-  )
-  .join("\n")}
-</Table></Worksheet></Workbook>`;
+      const rowStart = 2;
+      const firstValueColumn = 1;
+      const lastValueColumn = periodKeys.length;
+      const totalColumn = headers.length - 1;
 
-      const blob = new Blob([xml], {
-        type: "application/vnd.ms-excel;charset=utf-8;",
+      const rows: SpreadsheetCell[][] = [
+        headers.map((header, index) => ({
+          value: header,
+          style: index === totalColumn ? "totalLabel" : "header",
+        })),
+        ...flat.map((row, rowIndex): SpreadsheetCell[] => {
+          const excelRow = rowStart + rowIndex;
+          const totalFormula = `SUM(${excelColumnName(firstValueColumn)}${excelRow}:${excelColumnName(lastValueColumn)}${excelRow})`;
+          const periodCells: SpreadsheetCell[] = periodKeys.map((periodKey) => ({
+            value: Number(row[periodKey] ?? 0),
+            style: "currency",
+            type: "Number",
+          }));
+
+          return [
+            { value: row.account, style: "text" },
+            ...periodCells,
+            {
+              formula: totalFormula,
+              value: Number(row.total ?? 0),
+              style: "totalNumber",
+              type: "Number",
+            },
+          ];
+        }),
+      ];
+
+      const xml = buildSpreadsheetWorkbookXml({
+        worksheetName,
+        rows,
       });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `${filename}.xls`;
-      anchor.click();
-      URL.revokeObjectURL(url);
+      downloadExcelXml(xml, filename);
     },
     [
       config,
