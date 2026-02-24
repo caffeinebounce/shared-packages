@@ -16,7 +16,7 @@ export function getDefaultLtmRange(): DateRange {
   const year = now.getFullYear();
   const month = now.getMonth();
   const start = new Date(year - 1, month, 1);
-  const end = new Date(year, month, 0);
+  const end = new Date(year, month + 1, 0);
   return {
     start: start.toISOString().slice(0, 10),
     end: end.toISOString().slice(0, 10),

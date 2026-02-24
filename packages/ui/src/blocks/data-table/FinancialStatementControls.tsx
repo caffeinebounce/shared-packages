@@ -205,6 +205,22 @@ export function FinancialStatementControls({
     };
   }, []);
 
+  const classOptions = [
+    { value: "__unspecified__", label: "Unspecified" },
+    ...classes.map((option) => ({
+      value: option.id,
+      label: option.name,
+    })),
+  ];
+
+  const departmentOptions = [
+    { value: "__unspecified__", label: "Unspecified" },
+    ...departments.map((option) => ({
+      value: option.id,
+      label: option.name,
+    })),
+  ];
+
   return (
     <>
       <div className="space-y-2">
@@ -244,13 +260,7 @@ export function FinancialStatementControls({
             value={selectedClass}
             disabled={false}
             onValueChange={(value) => onClassChange(value || "")}
-            options={[
-              { value: "__unspecified__", label: "Unspecified" },
-              ...classes.map((option) => ({
-                value: option.id,
-                label: option.name,
-              })),
-            ]}
+            options={classOptions}
             placeholder="Class"
             mutedPlaceholder={false}
             searchPlaceholder="Search classes..."
@@ -264,13 +274,7 @@ export function FinancialStatementControls({
             value={selectedDepartment}
             disabled={false}
             onValueChange={(value) => onDepartmentChange(value || "")}
-            options={[
-              { value: "__unspecified__", label: "Unspecified" },
-              ...departments.map((option) => ({
-                value: option.id,
-                label: option.name,
-              })),
-            ]}
+            options={departmentOptions}
             placeholder="Location"
             mutedPlaceholder={false}
             searchPlaceholder="Search locations..."
@@ -420,13 +424,7 @@ export function FinancialStatementControls({
               value={selectedClass}
               disabled={false}
               onValueChange={(value) => onClassChange(value || "")}
-              options={[
-                { value: "__unspecified__", label: "Unspecified" },
-                ...classes.map((option) => ({
-                  value: option.id,
-                  label: option.name,
-                })),
-              ]}
+              options={classOptions}
               placeholder="Class"
               mutedPlaceholder={false}
               searchPlaceholder="Search classes..."
@@ -438,13 +436,7 @@ export function FinancialStatementControls({
               value={selectedDepartment}
               disabled={false}
               onValueChange={(value) => onDepartmentChange(value || "")}
-              options={[
-                { value: "__unspecified__", label: "Unspecified" },
-                ...departments.map((option) => ({
-                  value: option.id,
-                  label: option.name,
-                })),
-              ]}
+              options={departmentOptions}
               placeholder="Location"
               mutedPlaceholder={false}
               searchPlaceholder="Search locations..."

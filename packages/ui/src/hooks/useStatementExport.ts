@@ -50,9 +50,10 @@ export function useStatementExport({
       const filename = `${filenamePrefix}-${periodStart}-to-${periodEnd}`;
 
       if (format === "csv") {
+        const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
         const csv = [
-          headers.join(","),
-          ...dataRows.map((row) => row.map((value) => `"${value}"`).join(",")),
+          headers.map(escapeCsv).join(","),
+          ...dataRows.map((row) => row.map(escapeCsv).join(",")),
         ].join("\n");
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
@@ -68,7 +69,8 @@ export function useStatementExport({
         value
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
