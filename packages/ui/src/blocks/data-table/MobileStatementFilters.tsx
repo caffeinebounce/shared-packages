@@ -50,6 +50,7 @@ export function MobileStatementFilters({
         <button
           type="button"
           onClick={() => onOpenChange(true)}
+          aria-label={`Open filters${filterCount > 0 ? ` (${filterCount} active)` : ""}`}
           className={`${showSummaryChips ? "ml-auto " : ""}inline-flex h-8 items-center gap-1 rounded-md border px-2.5 text-xs font-medium`}
         >
           <Filter className="size-3.5" />

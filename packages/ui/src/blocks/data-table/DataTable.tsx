@@ -660,7 +660,7 @@ export function DataTable<TData, TValue>({
         <div className={cn("mx-1", fontSizeClass)}>
           <div
             className={cn(
-              "relative isolate overflow-x-auto rounded-t-md [&::-webkit-scrollbar-track]:bg-transparent",
+              "overflow-x-auto rounded-t-md [&::-webkit-scrollbar-track]:bg-transparent",
               summary ? "border-t" : "border rounded-b-md",
             )}
           >
@@ -906,7 +906,7 @@ export function DataTable<TData, TValue>({
                                 ? {
                                     position: "sticky" as const,
                                     left: stickyLeft,
-                                    zIndex: 20,
+                                    zIndex: 60,
                                     background: "hsl(var(--background) / 1)",
                                     backgroundColor:
                                       "hsl(var(--background) / 1)",
@@ -914,10 +914,14 @@ export function DataTable<TData, TValue>({
                                     backgroundClip: "padding-box",
                                     boxShadow:
                                       "inset -1px 0 0 hsl(var(--border)), inset 0 -1px 0 hsl(var(--border))",
+                                    isolation: "isolate" as const,
+                                    contain: "paint" as const,
                                     backfaceVisibility: "hidden" as const,
                                     mixBlendMode: "normal" as const,
                                     backdropFilter: "none",
                                     WebkitBackdropFilter: "none",
+                                    transform: "translateZ(0)",
+                                    WebkitTransform: "translateZ(0)",
                                   }
                                 : {}),
                             }}
@@ -1260,7 +1264,7 @@ export function DataTable<TData, TValue>({
                                     ? {
                                         position: "sticky" as const,
                                         left: stickyLeft,
-                                        zIndex: 10,
+                                        zIndex: 50,
                                         background:
                                           "hsl(var(--background) / 1)",
                                         backgroundColor:
@@ -1271,10 +1275,14 @@ export function DataTable<TData, TValue>({
                                           "inset 0 0 0 9999px hsl(var(--background)), inset -1px 0 0 hsl(var(--border))",
                                         borderBottom:
                                           "1px solid hsl(var(--border))",
+                                        isolation: "isolate" as const,
+                                        contain: "paint" as const,
                                         backfaceVisibility: "hidden" as const,
                                         mixBlendMode: "normal" as const,
                                         backdropFilter: "none",
                                         WebkitBackdropFilter: "none",
+                                        transform: "translateZ(0)",
+                                        WebkitTransform: "translateZ(0)",
                                       }
                                     : {}),
                                 }}

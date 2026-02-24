@@ -63,25 +63,30 @@ export function useComparisonData<
 }: UseComparisonDataParams<TRow, TClass, TDepartment>) {
   const { data: response, isLoading } = useDataHook(currentParams);
 
+  const shouldFetchComparison = comparisonMode !== "none";
+  const comparisonEnabled = [0, 1, 2].map(
+    (index) => shouldFetchComparison && !!comparisonRanges[index],
+  );
+
   const { data: compResp0 } = useDataHook({
     ...currentParams,
     periodStart: comparisonRanges[0]?.start ?? "",
     periodEnd: comparisonRanges[0]?.end ?? "",
-    enabled: !!comparisonRanges[0],
+    enabled: comparisonEnabled[0],
     keepPrevious: true,
   });
   const { data: compResp1 } = useDataHook({
     ...currentParams,
     periodStart: comparisonRanges[1]?.start ?? "",
     periodEnd: comparisonRanges[1]?.end ?? "",
-    enabled: !!comparisonRanges[1],
+    enabled: comparisonEnabled[1],
     keepPrevious: true,
   });
   const { data: compResp2 } = useDataHook({
     ...currentParams,
     periodStart: comparisonRanges[2]?.start ?? "",
     periodEnd: comparisonRanges[2]?.end ?? "",
-    enabled: !!comparisonRanges[2],
+    enabled: comparisonEnabled[2],
     keepPrevious: true,
   });
 
