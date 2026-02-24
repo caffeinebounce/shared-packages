@@ -157,6 +157,7 @@ export interface FinancialSummaryChartConfig {
     data: Record<string, unknown>[],
     series: FinancialSummaryChartSeries[],
     height: number,
+    activeMetric?: string | null,
   ) => React.ReactNode;
   /** How stat card values are computed: sum all periods (default) or latest period only */
   statValueMode?: "sum" | "latest";
@@ -1483,6 +1484,7 @@ export function FinancialSummaryChart({
                   chartData,
                   allMetrics,
                   config.height ?? 240,
+                  activeMetric,
                 );
                 if (customChart) return customChart;
                 return null;
