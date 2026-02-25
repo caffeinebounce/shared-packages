@@ -516,7 +516,7 @@ export function AppSidebar({
                     <div className="group-data-[collapsible=icon]:hidden">
                       <SidebarGroupLabel
                         asChild
-                        className="text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                        className="text-xs font-medium uppercase tracking-wider text-sidebar-foreground"
                       >
                         <CollapsibleTrigger className="flex w-full items-center justify-between [&[data-state=open]>svg.chevron-icon]:rotate-180">
                           <span className="flex items-center gap-1.5">
@@ -545,7 +545,7 @@ export function AppSidebar({
 
             return (
               <SidebarGroup key={`section-${section.label}`}>
-                <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-sidebar-foreground">
                   {section.label}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
