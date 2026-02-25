@@ -108,7 +108,6 @@ export {
   getUnitLabel,
   getUnitSuffix,
   INCOME_STATEMENT_CHART_CONFIG,
-  createFinanceTableSettingsItems,
   createFinancialStatementRowImportanceResolver,
   getFinancialStatementRowImportanceClassName,
   INCOME_STATEMENT_CONFIG,
