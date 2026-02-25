@@ -66,29 +66,45 @@ export function UnifiedTableControls({
         )}
         {...props}
       >
-        {normalized.map((control, index) => {
-          if (control.kind === "settings") {
-            return (
-              <DataTableSettings
-                key={control.id ?? `settings-${index}`}
-                settings={control.items.map((item) => ({
-                  id: item.id,
-                  label: item.label,
-                  type: "boolean" as const,
-                  defaultValue: item.defaultValue,
-                }))}
-                values={control.values}
-                onChange={control.onChange}
-              />
-            );
-          }
+        {(() => {
+          const rightKinds = new Set(["export", "settings", "columns"]);
+          const leftControls = normalized.filter((c) => !rightKinds.has(c.kind));
+          const rightControls = normalized.filter((c) => rightKinds.has(c.kind));
 
           return (
-            <div key={control.id ?? `${control.kind}-${index}`}>
-              {control.desktop}
-            </div>
+            <>
+              {leftControls.map((control, index) => (
+                <div key={control.id ?? `${control.kind}-${index}`}>
+                  {"desktop" in control ? control.desktop : null}
+                </div>
+              ))}
+              {rightControls.length > 0 && <div className="ml-auto" />}
+              {rightControls.map((control, index) => {
+                if (control.kind === "settings") {
+                  return (
+                    <DataTableSettings
+                      key={control.id ?? `settings-${index}`}
+                      settings={control.items.map((item) => ({
+                        id: item.id,
+                        label: item.label,
+                        type: "boolean" as const,
+                        defaultValue: item.defaultValue,
+                      }))}
+                      values={control.values}
+                      onChange={control.onChange}
+                    />
+                  );
+                }
+
+                return (
+                  <div key={control.id ?? `${control.kind}-${index}`}>
+                    {"desktop" in control ? control.desktop : null}
+                  </div>
+                );
+              })}
+            </>
           );
-        })}
+        })()}
       </div>
     );
   }
