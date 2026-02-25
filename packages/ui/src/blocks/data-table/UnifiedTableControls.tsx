@@ -67,7 +67,7 @@ export function UnifiedTableControls({
         {...props}
       >
         {(() => {
-          const rightKinds = new Set(["export", "settings", "columns"]);
+          const rightKinds = new Set(["search", "export", "settings", "columns"]);
           const leftControls = normalized.filter((c) => !rightKinds.has(c.kind));
           const rightControls = normalized.filter((c) => rightKinds.has(c.kind));
 
