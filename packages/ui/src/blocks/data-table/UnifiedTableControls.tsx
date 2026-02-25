@@ -60,10 +60,7 @@ export function UnifiedTableControls({
       <div
         role="toolbar"
         aria-orientation="horizontal"
-        className={cn(
-          "flex w-full items-center gap-2 flex-nowrap [&>*]:shrink-0",
-          className,
-        )}
+        className={cn("flex w-full items-center gap-2", className)}
         {...props}
       >
         {(() => {
@@ -73,35 +70,41 @@ export function UnifiedTableControls({
 
           return (
             <>
-              {leftControls.map((control, index) => (
-                <div key={control.id ?? `${control.kind}-${index}`}>
-                  {"desktop" in control ? control.desktop : null}
-                </div>
-              ))}
-              {rightControls.length > 0 && <div className="ml-auto" />}
-              {rightControls.map((control, index) => {
-                if (control.kind === "settings") {
-                  return (
-                    <DataTableSettings
-                      key={control.id ?? `settings-${index}`}
-                      settings={control.items.map((item) => ({
-                        id: item.id,
-                        label: item.label,
-                        type: "boolean" as const,
-                        defaultValue: item.defaultValue,
-                      }))}
-                      values={control.values}
-                      onChange={control.onChange}
-                    />
-                  );
-                }
-
-                return (
+              <div className="flex items-center gap-2 flex-nowrap [&>*]:shrink-0">
+                {leftControls.map((control, index) => (
                   <div key={control.id ?? `${control.kind}-${index}`}>
                     {"desktop" in control ? control.desktop : null}
                   </div>
-                );
-              })}
+                ))}
+              </div>
+
+              {rightControls.length > 0 ? (
+                <div className="ml-auto flex items-center gap-2 flex-nowrap [&>*]:shrink-0">
+                  {rightControls.map((control, index) => {
+                    if (control.kind === "settings") {
+                      return (
+                        <DataTableSettings
+                          key={control.id ?? `settings-${index}`}
+                          settings={control.items.map((item) => ({
+                            id: item.id,
+                            label: item.label,
+                            type: "boolean" as const,
+                            defaultValue: item.defaultValue,
+                          }))}
+                          values={control.values}
+                          onChange={control.onChange}
+                        />
+                      );
+                    }
+
+                    return (
+                      <div key={control.id ?? `${control.kind}-${index}`}>
+                        {"desktop" in control ? control.desktop : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </>
           );
         })()}
