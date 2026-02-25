@@ -201,3 +201,17 @@ export {
   type SummaryPanelProps,
   SummaryPieChart,
 } from "./SummaryPanel";
+export {
+  type UnifiedTableControl,
+  type UnifiedTableControlKind,
+  type UnifiedTableSettingsControl,
+  type UnifiedTableSettingsItem,
+  createFinanceTableSettingsItems,
+  normalizeUnifiedTableControls,
+  unifiedTableControlOrder,
+  useUnifiedTableSettings,
+} from "./UnifiedTableControls.schema";
+export {
+  UnifiedTableControls,
+  type UnifiedTableControlsProps,
+} from "./UnifiedTableControls";

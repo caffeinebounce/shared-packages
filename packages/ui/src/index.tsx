@@ -1,6 +1,15 @@
 // Blocks - composed UI components
 
 export { toast } from "sonner";
+// Data state utilities
+export { DataStateBanner, DataStateInline } from "./components/ui/data-state";
+export {
+  resolveDataState,
+  type CanonicalDataState,
+  type DataStateMetadata,
+  type ResolveDataStateInput,
+  type ResolvedDataState,
+} from "./utils/data-state";
 // Admin Blocks
 export { CompanyNameEditableCell } from "./blocks/admin/CompanyNameEditableCell";
 export { EditableCell } from "./blocks/admin/EditableCell";
@@ -60,6 +69,9 @@ export type {
   FinancialSummaryChartConfig,
   FinancialSummaryChartProps,
   FinancialSummaryChartSeries,
+  FinancialStatementKind,
+  FinancialStatementRowImportance,
+  FinancialStatementRowImportanceResolver,
   FlatExportRow,
   RowSelectionStyle,
   StatementRow,
@@ -67,11 +79,6 @@ export type {
   SubtotalRulesConfig,
   SummaryType,
   TimeUnit,
-  UnifiedTableControl,
-  UnifiedTableControlKind,
-  UnifiedTableControlsProps,
-  UnifiedTableSettingsControl,
-  UnifiedTableSettingsItem,
 } from "./blocks/data-table";
 export {
   BALANCE_SHEET_CONFIG,
@@ -111,6 +118,17 @@ export {
   getUnitSuffix,
   INCOME_STATEMENT_CHART_CONFIG,
   createFinanceTableSettingsItems,
+  createFinancialStatementRowImportanceResolver,
+  normalizeUnifiedTableControls,
+  type UnifiedTableControl,
+  type UnifiedTableControlKind,
+  type UnifiedTableControlsProps,
+  type UnifiedTableSettingsControl,
+  type UnifiedTableSettingsItem,
+  UnifiedTableControls,
+  unifiedTableControlOrder,
+  useUnifiedTableSettings,
+  getFinancialStatementRowImportanceClassName,
   INCOME_STATEMENT_CONFIG,
   MobilePeriodStepper,
   type MobilePeriodStepperProps,
@@ -130,11 +148,7 @@ export {
   SummaryPanel,
   type SummaryPanelProps,
   SummaryPieChart,
-  UnifiedTableControls,
-  normalizeUnifiedTableControls,
-  unifiedTableControlOrder,
   useDataTableContext,
-  useUnifiedTableSettings,
   useDataTableSettings,
   useFinanceDecimals,
   useFinanceDecimalsSetting,
@@ -403,15 +417,6 @@ export {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./components/ui/collapsible";
-export { DataStateBanner, DataStateInline } from "./components/ui/data-state";
-export {
-  resolveDataState,
-  type CanonicalDataState as DataState,
-  type CanonicalDataState as DataStateKind,
-  type DataStateMetadata,
-  type ResolveDataStateInput,
-  type ResolvedDataState,
-} from "./utils/data-state";
 export type { ComboboxOption, ComboboxProps } from "./components/ui/combobox";
 export { Combobox } from "./components/ui/combobox";
 export {

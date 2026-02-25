@@ -229,7 +229,7 @@ export function FinancialStatementControls({
           className={
             useCompactFilters
               ? "invisible pointer-events-none absolute left-0 top-0 -z-10 w-full md:flex items-center gap-2 flex-nowrap [&>*]:shrink-0"
-              : "hidden md:flex items-center gap-2 flex-nowrap [&>*]:shrink-0"
+              : "hidden md:flex w-full items-center gap-2 flex-nowrap [&>*]:shrink-0"
           }
         >
           {periodControl ?? (
