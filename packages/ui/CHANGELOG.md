@@ -1,5 +1,12 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.51.0
+
+### Minor Changes
+
+- 81eefc1: Fix financial statement controls/hooks export and comparison behavior issues from PR review
+- 6b09ccd: Add allDates support to PeriodSelector
+
 ## 0.50.22
 
 ### Patch Changes
