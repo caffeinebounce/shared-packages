@@ -188,6 +188,7 @@ export {
 export {
   type PeriodGranularity,
   PeriodSelector,
+  type PeriodSelectorChangeParams,
   type PeriodSelectorProps,
 } from "./PeriodSelector";
 export {

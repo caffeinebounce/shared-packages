@@ -30,6 +30,14 @@ export type PeriodGranularity =
   | "ytd"
   | "custom";
 
+export interface PeriodSelectorChangeParams {
+  granularity: PeriodGranularity;
+  periodStart: string;
+  periodEnd: string;
+  timeUnit: "month" | "quarter" | "year";
+  allDates?: boolean;
+}
+
 export interface PeriodSelectorProps {
   /** Currently selected granularity */
   granularity: PeriodGranularity;
@@ -37,15 +45,14 @@ export interface PeriodSelectorProps {
   periodStart: string;
   /** The current period end date (ISO string YYYY-MM-DD) */
   periodEnd: string;
+  /** Enable integrated "All dates" mode in selector UI */
+  enableAllDates?: boolean;
+  /** Whether all-dates mode is active */
+  allDates?: boolean;
   /** Fiscal year end month (1-12, default 12 = December = calendar year) */
   fiscalYearEndMonth?: number;
   /** Called when user changes granularity or navigates */
-  onChange: (params: {
-    granularity: PeriodGranularity;
-    periodStart: string;
-    periodEnd: string;
-    timeUnit: "month" | "quarter" | "year";
-  }) => void;
+  onChange: (params: PeriodSelectorChangeParams) => void;
   /** Optional className */
   className?: string;
 }
@@ -196,6 +203,8 @@ export function PeriodSelector({
   granularity,
   periodStart,
   periodEnd,
+  enableAllDates = false,
+  allDates = false,
   fiscalYearEndMonth,
   onChange,
   className,
@@ -218,7 +227,9 @@ export function PeriodSelector({
     return map;
   }, [anchorDate, fiscalMonth, granularity, now]);
 
-  const activeLabel = formatRangeLabel(granularity, selectedStart, selectedEnd);
+  const activeLabel = allDates
+    ? "All dates"
+    : formatRangeLabel(granularity, selectedStart, selectedEnd);
 
   const applyRange = React.useCallback(
     (nextGranularity: PeriodGranularity, nextRange: PeriodRange) => {
@@ -227,10 +238,21 @@ export function PeriodSelector({
         periodStart: toIso(nextRange.start),
         periodEnd: toIso(nextRange.end),
         timeUnit: getTimeUnit(nextGranularity),
+        allDates: false,
       });
     },
     [onChange],
   );
+
+  const applyAllDates = React.useCallback(() => {
+    onChange({
+      granularity,
+      periodStart: "",
+      periodEnd: "",
+      timeUnit: getTimeUnit(granularity),
+      allDates: true,
+    });
+  }, [granularity, onChange]);
 
   const selectGranularity = React.useCallback(
     (nextGranularity: Exclude<PeriodGranularity, "custom">) => {
@@ -247,7 +269,7 @@ export function PeriodSelector({
       direction: -1 | 1,
     ) => {
       const current =
-        granularity === rowGranularity
+        !allDates && granularity === rowGranularity
           ? { start: selectedStart, end: selectedEnd }
           : ranges.get(rowGranularity);
 
@@ -256,7 +278,7 @@ export function PeriodSelector({
       const next = shiftRange(rowGranularity, current, direction);
       applyRange(rowGranularity, next);
     },
-    [applyRange, granularity, ranges, selectedEnd, selectedStart],
+    [allDates, applyRange, granularity, ranges, selectedEnd, selectedStart],
   );
 
   return (
@@ -282,11 +304,27 @@ export function PeriodSelector({
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <div className="space-y-1">
+          {enableAllDates ? (
+            <button
+              type="button"
+              className={cn(
+                "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-medium hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-0",
+                allDates && "bg-accent/60",
+              )}
+              onClick={applyAllDates}
+            >
+              <span className="flex size-4 items-center justify-center text-primary">
+                {allDates ? <Check className="size-3.5" /> : null}
+              </span>
+              All dates
+            </button>
+          ) : null}
+
           {GRANULARITY_ROWS.map((row) => {
             const range = ranges.get(row.key);
             if (!range) return null;
 
-            const isActive = granularity === row.key;
+            const isActive = !allDates && granularity === row.key;
             const showNav =
               row.key === "month" ||
               row.key === "quarter" ||
@@ -366,7 +404,7 @@ export function PeriodSelector({
             type="button"
             className={cn(
               "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-medium hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-0",
-              granularity === "custom" && "bg-accent/60",
+              !allDates && granularity === "custom" && "bg-accent/60",
             )}
             onClick={() =>
               applyRange("custom", {
@@ -376,12 +414,14 @@ export function PeriodSelector({
             }
           >
             <span className="flex size-4 items-center justify-center text-primary">
-              {granularity === "custom" ? <Check className="size-3.5" /> : null}
+              {!allDates && granularity === "custom" ? (
+                <Check className="size-3.5" />
+              ) : null}
             </span>
             Custom
           </button>
 
-          {granularity === "custom" ? (
+          {!allDates && granularity === "custom" ? (
             <div className="px-2 pb-1 pt-1">
               <DateRangePicker
                 value={{ from: selectedStart, to: selectedEnd }}
