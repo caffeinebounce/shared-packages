@@ -140,13 +140,6 @@ export {
   type TimeUnit,
 } from "./FinancialStatementTable";
 export {
-  createFinancialStatementRowImportanceResolver,
-  type FinancialStatementKind,
-  type FinancialStatementRowImportance,
-  getFinancialStatementRowImportanceClassName,
-  type FinancialStatementRowImportanceResolver,
-} from "./financialStatementRowImportance";
-export {
   CASH_FLOW_CHART_CONFIG,
   type ChartVariant,
   type ComputedMetric,
@@ -157,6 +150,13 @@ export {
   type FinancialSummaryChartSeries,
   INCOME_STATEMENT_CHART_CONFIG,
 } from "./FinancialSummaryChart";
+export {
+  createFinancialStatementRowImportanceResolver,
+  type FinancialStatementKind,
+  type FinancialStatementRowImportance,
+  type FinancialStatementRowImportanceResolver,
+  getFinancialStatementRowImportanceClassName,
+} from "./financialStatementRowImportance";
 export {
   MobilePeriodStepper,
   type MobilePeriodStepperProps,
@@ -172,22 +172,9 @@ export {
   type MobileStatementFiltersProps,
 } from "./MobileStatementFilters";
 export {
-  type UnifiedTableControl,
-  type UnifiedTableControlKind,
-  type UnifiedTableSettingsControl,
-  type UnifiedTableSettingsItem,
-  createFinanceTableSettingsItems,
-  normalizeUnifiedTableControls,
-  unifiedTableControlOrder,
-  useUnifiedTableSettings,
-} from "./UnifiedTableControls.schema";
-export {
-  UnifiedTableControls,
-  type UnifiedTableControlsProps,
-} from "./UnifiedTableControls";
-export {
   type PeriodGranularity,
   PeriodSelector,
+  type PeriodSelectorChangeParams,
   type PeriodSelectorProps,
 } from "./PeriodSelector";
 export {
@@ -201,3 +188,17 @@ export {
   type SummaryPanelProps,
   SummaryPieChart,
 } from "./SummaryPanel";
+export {
+  UnifiedTableControls,
+  type UnifiedTableControlsProps,
+} from "./UnifiedTableControls";
+export {
+  createFinanceTableSettingsItems,
+  normalizeUnifiedTableControls,
+  type UnifiedTableControl,
+  type UnifiedTableControlKind,
+  type UnifiedTableSettingsControl,
+  type UnifiedTableSettingsItem,
+  unifiedTableControlOrder,
+  useUnifiedTableSettings,
+} from "./UnifiedTableControls.schema";
