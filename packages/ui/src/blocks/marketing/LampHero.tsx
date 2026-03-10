@@ -4,7 +4,10 @@ import type { LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
-import { LampContainer } from "../../components/ui/lamp";
+import {
+  LampContainer,
+  type LampColorTheme,
+} from "../../components/ui/lamp";
 import { TextGenerateEffect } from "../../components/ui/text-generate-effect";
 import { cn } from "../../utils";
 
@@ -24,8 +27,10 @@ export interface LampHeroProps {
   titleClassName?: string;
   subtitleClassName?: string;
   socialLinksClassName?: string;
+  socialLinkClassName?: string;
   children?: ReactNode;
   socialAnimationDelay?: number;
+  colorTheme?: LampColorTheme;
 }
 
 export function LampHero({
@@ -40,9 +45,11 @@ export function LampHero({
   socialLinksClassName,
   children,
   socialAnimationDelay = 1,
+  colorTheme,
+  socialLinkClassName,
 }: LampHeroProps) {
   return (
-    <LampContainer className={containerClassName}>
+    <LampContainer className={containerClassName} colorTheme={colorTheme}>
       <section
         className={cn(
           "mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center px-6 text-center",
@@ -93,7 +100,11 @@ export function LampHero({
                     ? undefined
                     : "noopener noreferrer"
                 }
-                className="group flex h-11 w-11 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 text-zinc-500 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-indigo-500 hover:bg-indigo-100 hover:text-zinc-900 dark:border-white/20 dark:bg-white/5 dark:text-zinc-300 dark:hover:border-indigo-300/80 dark:hover:bg-indigo-400/10 dark:hover:text-white"
+                className={cn(
+                  "group flex h-11 w-11 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 text-zinc-500 backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:text-zinc-900 dark:border-white/20 dark:bg-white/5 dark:text-zinc-300 dark:hover:text-white",
+                  "hover:border-indigo-500 hover:bg-indigo-100 dark:hover:border-indigo-300/80 dark:hover:bg-indigo-400/10",
+                  socialLinkClassName,
+                )}
                 aria-label={social.label}
               >
                 <social.icon className="h-5 w-5" />
