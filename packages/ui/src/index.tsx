@@ -513,7 +513,7 @@ export {
 } from "./components/ui/input-otp";
 export { Kbd, KbdGroup } from "./components/ui/kbd";
 export { Label } from "./components/ui/label";
-export type { LampContainerProps } from "./components/ui/lamp";
+export type { LampContainerProps, LampColorTheme } from "./components/ui/lamp";
 export { LampContainer } from "./components/ui/lamp";
 export type { LocationMapProps } from "./components/ui/location-map";
 export { LocationMap } from "./components/ui/location-map";
