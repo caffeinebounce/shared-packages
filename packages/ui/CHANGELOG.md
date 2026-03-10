@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.52.0
+
+### Minor Changes
+
+- Add configurable colorTheme prop to LampContainer and LampHero with 7 presets
+
 ## 0.51.0
 
 ### Minor Changes
