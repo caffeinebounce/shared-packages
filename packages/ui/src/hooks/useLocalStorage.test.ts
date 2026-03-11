@@ -2,13 +2,28 @@ import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useLocalStorage } from "./useLocalStorage";
 
+function requireWindowStorage(): Storage {
+  if (
+    typeof window === "undefined" ||
+    !window.localStorage ||
+    typeof window.localStorage.clear !== "function"
+  ) {
+    throw new Error("window.localStorage is not available in this test environment");
+  }
+
+  return window.localStorage;
+}
+
 describe("useLocalStorage", () => {
+  let storage: Storage;
+
   beforeEach(() => {
-    localStorage.clear();
+    storage = requireWindowStorage();
+    storage.clear();
   });
 
   afterEach(() => {
-    localStorage.clear();
+    storage.clear();
   });
 
   it("returns initial value when localStorage is empty", () => {
@@ -19,7 +34,7 @@ describe("useLocalStorage", () => {
   });
 
   it("reads value from localStorage on mount", () => {
-    localStorage.setItem("test-key", JSON.stringify("stored-value"));
+    storage.setItem("test-key", JSON.stringify("stored-value"));
 
     const { result } = renderHook(() => useLocalStorage("test-key", "initial"));
 
@@ -37,7 +52,7 @@ describe("useLocalStorage", () => {
       result.current[1]("new-value");
     });
 
-    expect(localStorage.getItem("test-key")).toBe(JSON.stringify("new-value"));
+    expect(storage.getItem("test-key")).toBe(JSON.stringify("new-value"));
     expect(result.current[0]).toBe("new-value");
   });
 
@@ -70,12 +85,12 @@ describe("useLocalStorage", () => {
     });
 
     expect(result.current[0]).toEqual(newValue);
-    expect(localStorage.getItem("test-key")).toBe(JSON.stringify(newValue));
+    expect(storage.getItem("test-key")).toBe(JSON.stringify(newValue));
   });
 
   it("gracefully handles parse errors", () => {
     // Store invalid JSON
-    localStorage.setItem("test-key", "invalid-json{");
+    storage.setItem("test-key", "invalid-json{");
 
     const consoleWarnSpy = vi
       .spyOn(console, "warn")
@@ -94,7 +109,7 @@ describe("useLocalStorage", () => {
   });
 
   it("removes value from localStorage when removeValue is called", () => {
-    localStorage.setItem("test-key", JSON.stringify("stored"));
+    storage.setItem("test-key", JSON.stringify("stored"));
 
     const { result } = renderHook(() => useLocalStorage("test-key", "initial"));
 
@@ -106,7 +121,7 @@ describe("useLocalStorage", () => {
       result.current[2](); // removeValue
     });
 
-    expect(localStorage.getItem("test-key")).toBeNull();
+    expect(storage.getItem("test-key")).toBeNull();
     expect(result.current[0]).toBe("initial");
   });
 
@@ -131,7 +146,7 @@ describe("useLocalStorage", () => {
   });
 
   it("handles storage event with null value (removal)", () => {
-    localStorage.setItem("test-key", JSON.stringify("stored"));
+    storage.setItem("test-key", JSON.stringify("stored"));
 
     const { result } = renderHook(() => useLocalStorage("test-key", "initial"));
 
