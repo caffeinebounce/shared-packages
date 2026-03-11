@@ -191,7 +191,7 @@ function BrandFooter({
   return (
     <footer
       className={cn(
-        "bg-background/60 backdrop-blur-xl border-t border-white/[0.08] dark:border-white/[0.06]",
+        "bg-white/[0.02] dark:bg-white/[0.04] backdrop-blur-2xl border-t border-white/[0.08]",
         className,
       )}
     >
