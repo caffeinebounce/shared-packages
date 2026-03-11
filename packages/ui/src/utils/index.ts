@@ -7,11 +7,11 @@ export {
 export { cn } from "./cn";
 export {
   type CanonicalDataState,
-  type DataStateCopy,
   DATA_STATE_COPY,
+  type DataStateCopy,
   type DataStateMetadata,
   getDataStateIcon,
-  resolveDataState,
   type ResolveDataStateInput,
   type ResolvedDataState,
+  resolveDataState,
 } from "./data-state";

@@ -402,9 +402,7 @@ export function StatCard({
 
   const cardBaseStyles = cn(
     "h-full relative overflow-hidden gap-0",
-    isCompact
-      ? "min-h-[112px] p-3 md:min-h-[120px] md:p-4"
-      : "py-3",
+    isCompact ? "min-h-[112px] p-3 md:min-h-[120px] md:p-4" : "py-3",
     variantStyles[variant],
     hasChart && "pb-6",
   );

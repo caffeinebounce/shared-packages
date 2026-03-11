@@ -2,8 +2,6 @@
 
 import { SlidersHorizontal } from "lucide-react";
 import * as React from "react";
-
-import { Switch } from "../../components/ui/switch";
 import {
   Sheet,
   SheetContent,
@@ -11,6 +9,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "../../components/ui/sheet";
+import { Switch } from "../../components/ui/switch";
 import { cn } from "../../utils";
 import { DataTableSettings } from "./DataTableSettings";
 import {
@@ -18,8 +17,7 @@ import {
   type UnifiedTableControl,
 } from "./UnifiedTableControls.schema";
 
-export interface UnifiedTableControlsProps
-  extends React.ComponentProps<"div"> {
+export interface UnifiedTableControlsProps extends React.ComponentProps<"div"> {
   controls: UnifiedTableControl[];
   mobileLabel?: string;
 }
@@ -64,9 +62,18 @@ export function UnifiedTableControls({
         {...props}
       >
         {(() => {
-          const rightKinds = new Set(["search", "export", "settings", "columns"]);
-          const leftControls = normalized.filter((c) => !rightKinds.has(c.kind));
-          const rightControls = normalized.filter((c) => rightKinds.has(c.kind));
+          const rightKinds = new Set([
+            "search",
+            "export",
+            "settings",
+            "columns",
+          ]);
+          const leftControls = normalized.filter(
+            (c) => !rightKinds.has(c.kind),
+          );
+          const rightControls = normalized.filter((c) =>
+            rightKinds.has(c.kind),
+          );
 
           return (
             <>
@@ -138,7 +145,10 @@ export function UnifiedTableControls({
             {normalized.map((control, index) => {
               if (control.kind === "settings") {
                 return (
-                  <div key={control.id ?? `settings-${index}`} className="space-y-1">
+                  <div
+                    key={control.id ?? `settings-${index}`}
+                    className="space-y-1"
+                  >
                     <p className="px-1 py-1 text-xs font-medium text-muted-foreground">
                       Settings
                     </p>

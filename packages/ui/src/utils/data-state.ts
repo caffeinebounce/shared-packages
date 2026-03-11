@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import {
   AlertCircle,
   AlertTriangle,
@@ -5,7 +6,6 @@ import {
   LoaderCircle,
   RefreshCcw,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 
 export type CanonicalDataState =
   | "loading"
@@ -56,11 +56,13 @@ export const DATA_STATE_COPY: Record<CanonicalDataState, DataStateCopy> = {
   },
   stale: {
     title: "Showing older data",
-    description: "This view may be out of date. Refresh to see the latest values.",
+    description:
+      "This view may be out of date. Refresh to see the latest values.",
   },
   partial: {
     title: "Some data is missing",
-    description: "We loaded what we could, but part of this view is unavailable.",
+    description:
+      "We loaded what we could, but part of this view is unavailable.",
   },
   error: {
     title: "Something went wrong",
@@ -99,14 +101,19 @@ export function resolveDataState<TData = unknown>({
 
   const computedHasData = hasData
     ? hasData(data)
-    : metadata?.hasData ??
+    : (metadata?.hasData ??
       (Array.isArray(data)
         ? data.length > 0
         : data != null &&
-          (typeof data !== "object" || Object.keys(data as object).length > 0));
+          (typeof data !== "object" ||
+            Object.keys(data as object).length > 0)));
 
   if (metadata?.isLoading || metadata?.isFetching) {
-    return { state: "loading", retryable: false, copy: DATA_STATE_COPY.loading };
+    return {
+      state: "loading",
+      retryable: false,
+      copy: DATA_STATE_COPY.loading,
+    };
   }
 
   if (isUnauthorized) {

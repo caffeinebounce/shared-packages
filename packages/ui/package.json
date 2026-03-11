@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/ui",
-  "version": "0.52.0",
+  "version": "0.52.3",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -55,6 +55,11 @@
       "types": "./dist/settings.d.ts",
       "import": "./dist/settings.mjs",
       "require": "./dist/settings.js"
+    },
+    "./blog": {
+      "types": "./dist/blog.d.ts",
+      "import": "./dist/blog.mjs",
+      "require": "./dist/blog.js"
     },
     "./styles.css": "./dist/styles.css"
   },

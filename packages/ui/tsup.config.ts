@@ -17,6 +17,7 @@ export default defineConfig({
     marketing: "src/entries/marketing.ts",
     forms: "src/entries/forms.ts",
     settings: "src/entries/settings.ts",
+    blog: "src/entries/blog.ts",
   },
   format: ["esm", "cjs"],
   dts: true,

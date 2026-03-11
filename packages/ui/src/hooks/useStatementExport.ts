@@ -84,11 +84,13 @@ export function useStatementExport({
         ...flat.map((row, rowIndex): SpreadsheetCell[] => {
           const excelRow = rowStart + rowIndex;
           const totalFormula = `SUM(${excelColumnName(firstValueColumn)}${excelRow}:${excelColumnName(lastValueColumn)}${excelRow})`;
-          const periodCells: SpreadsheetCell[] = periodKeys.map((periodKey) => ({
-            value: Number(row[periodKey] ?? 0),
-            style: "currency",
-            type: "Number",
-          }));
+          const periodCells: SpreadsheetCell[] = periodKeys.map(
+            (periodKey) => ({
+              value: Number(row[periodKey] ?? 0),
+              style: "currency",
+              type: "Number",
+            }),
+          );
 
           return [
             { value: row.account, style: "text" },

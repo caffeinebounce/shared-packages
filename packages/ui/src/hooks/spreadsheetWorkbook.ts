@@ -63,24 +63,27 @@ export function buildSpreadsheetWorkbookXml({
 }: SpreadsheetWorkbookInput): string {
   const xmlRows = rows
     .map(
-      (row) => `<Row>${row
-        .map((cell) => {
-          const inferredType =
-            cell.type ??
-            (typeof cell.value === "number" || cell.formula ? "Number" : "String");
-          const rawValue = cell.value ?? "";
-          const value =
-            inferredType === "Number"
-              ? Number(rawValue || 0)
-              : escapeXml(String(rawValue));
-          const style = styleId(cell.style);
-          const styleAttr = style ? ` ss:StyleID="${style}"` : "";
-          const formulaAttr = cell.formula
-            ? ` ss:Formula="=${escapeXml(cell.formula)}"`
-            : "";
-          return `<Cell${styleAttr}${formulaAttr}><Data ss:Type="${inferredType}">${value}</Data></Cell>`;
-        })
-        .join("")}</Row>`,
+      (row) =>
+        `<Row>${row
+          .map((cell) => {
+            const inferredType =
+              cell.type ??
+              (typeof cell.value === "number" || cell.formula
+                ? "Number"
+                : "String");
+            const rawValue = cell.value ?? "";
+            const value =
+              inferredType === "Number"
+                ? Number(rawValue || 0)
+                : escapeXml(String(rawValue));
+            const style = styleId(cell.style);
+            const styleAttr = style ? ` ss:StyleID="${style}"` : "";
+            const formulaAttr = cell.formula
+              ? ` ss:Formula="=${escapeXml(cell.formula)}"`
+              : "";
+            return `<Cell${styleAttr}${formulaAttr}><Data ss:Type="${inferredType}">${value}</Data></Cell>`;
+          })
+          .join("")}</Row>`,
     )
     .join("\n");
 

@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   createFinanceTableSettingsItems,
   normalizeUnifiedTableControls,
-  unifiedTableControlOrder,
   type UnifiedTableControl,
+  unifiedTableControlOrder,
 } from "./UnifiedTableControls.schema";
 
 describe("UnifiedTableControls.schema", () => {

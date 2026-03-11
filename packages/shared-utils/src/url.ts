@@ -643,8 +643,12 @@ export function resolveAdminRedirectTarget(params: {
   appOrigin?: string;
   allowSubdomainRouting?: boolean;
 }): string {
-  const { host, protocol = "https", appOrigin, allowSubdomainRouting = true } =
-    params;
+  const {
+    host,
+    protocol = "https",
+    appOrigin,
+    allowSubdomainRouting = true,
+  } = params;
 
   const hostWithoutPort = stripPort(host);
   const origin = appOrigin || `${protocol}://${host}`;

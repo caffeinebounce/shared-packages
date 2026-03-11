@@ -1,4 +1,4 @@
-import * as React from "react";
+import type * as React from "react";
 
 import { useDataTableSettings } from "./DataTableSettings";
 
@@ -45,7 +45,8 @@ export interface UnifiedTableComparisonControl
   kind: "comparison";
 }
 
-export interface UnifiedTableFiltersControl extends UnifiedTableNodeControlBase {
+export interface UnifiedTableFiltersControl
+  extends UnifiedTableNodeControlBase {
   kind: "filters";
 }
 
@@ -53,7 +54,8 @@ export interface UnifiedTableSearchControl extends UnifiedTableNodeControlBase {
   kind: "search";
 }
 
-export interface UnifiedTableColumnsControl extends UnifiedTableNodeControlBase {
+export interface UnifiedTableColumnsControl
+  extends UnifiedTableNodeControlBase {
   kind: "columns";
 }
 
@@ -73,7 +75,9 @@ export type UnifiedTableControl =
 export function normalizeUnifiedTableControls(
   controls: UnifiedTableControl[],
 ): UnifiedTableControl[] {
-  const order = new Map(unifiedTableControlOrder.map((kind, idx) => [kind, idx]));
+  const order = new Map(
+    unifiedTableControlOrder.map((kind, idx) => [kind, idx]),
+  );
 
   return controls
     .filter((control) => !("hidden" in control && control.hidden))

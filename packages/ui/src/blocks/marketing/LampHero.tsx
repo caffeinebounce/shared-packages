@@ -4,10 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
-import {
-  LampContainer,
-  type LampColorTheme,
-} from "../../components/ui/lamp";
+import { type LampColorTheme, LampContainer } from "../../components/ui/lamp";
 import { TextGenerateEffect } from "../../components/ui/text-generate-effect";
 import { cn } from "../../utils";
 

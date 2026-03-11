@@ -91,7 +91,8 @@ function sidebarReducer(
       if (state.viewportWidth < 1024) return state;
       return {
         ...state,
-        desktopPref: state.desktopPref === "collapsed" ? "expanded" : "collapsed",
+        desktopPref:
+          state.desktopPref === "collapsed" ? "expanded" : "collapsed",
       };
     }
     case "OPEN_MOBILE": {
@@ -176,7 +177,8 @@ const SidebarProvider = React.forwardRef<
 
     const isMobile = machine.viewportWidth < 768;
     const openMobile = isMobile && machine.openMobile;
-    const open = resolveSidebarMode(machine.viewportWidth, desktopPref) === "expanded";
+    const open =
+      resolveSidebarMode(machine.viewportWidth, desktopPref) === "expanded";
 
     const setDesktopPreference = React.useCallback(
       (pref: DesktopPreference) => {
@@ -256,7 +258,17 @@ const SidebarProvider = React.forwardRef<
         ready,
         toggleSidebar,
       }),
-      [state, mode, open, setOpen, isMobile, openMobile, setOpenMobile, ready, toggleSidebar],
+      [
+        state,
+        mode,
+        open,
+        setOpen,
+        isMobile,
+        openMobile,
+        setOpenMobile,
+        ready,
+        toggleSidebar,
+      ],
     );
 
     return (

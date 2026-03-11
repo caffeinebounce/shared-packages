@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
-
+import type { StatementRow } from "./FinancialStatementTable";
 import {
   createFinancialStatementRowImportanceResolver,
   getFinancialStatementRowImportanceClassName,
 } from "./financialStatementRowImportance";
-import type { StatementRow } from "./FinancialStatementTable";
 
 function makeRow(name: string): StatementRow {
   return {
@@ -21,9 +20,8 @@ function makeRow(name: string): StatementRow {
 
 describe("createFinancialStatementRowImportanceResolver", () => {
   it("maps income statement labels to emphasis and key-summary", () => {
-    const resolve = createFinancialStatementRowImportanceResolver(
-      "income-statement",
-    );
+    const resolve =
+      createFinancialStatementRowImportanceResolver("income-statement");
 
     expect(resolve(makeRow("Total Revenue"))).toBe("emphasis");
     expect(resolve(makeRow("Operating Income"))).toBe("emphasis");
@@ -32,9 +30,8 @@ describe("createFinancialStatementRowImportanceResolver", () => {
   });
 
   it("maps balance, cash-flow, and working-capital labels", () => {
-    const balance = createFinancialStatementRowImportanceResolver(
-      "balance-sheet",
-    );
+    const balance =
+      createFinancialStatementRowImportanceResolver("balance-sheet");
     const cash = createFinancialStatementRowImportanceResolver("cash-flow");
     const wc = createFinancialStatementRowImportanceResolver("working-capital");
 

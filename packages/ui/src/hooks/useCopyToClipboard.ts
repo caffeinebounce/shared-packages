@@ -42,10 +42,13 @@ export function useCopyToClipboard({
 
       // Prefer Clipboard API (requires secure context)
       if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(value).then(onSuccess).catch(() => {
-          // Fallback for non-secure contexts (e.g. HTTP over Tailscale)
-          fallbackCopy(value) && onSuccess();
-        });
+        navigator.clipboard
+          .writeText(value)
+          .then(onSuccess)
+          .catch(() => {
+            // Fallback for non-secure contexts (e.g. HTTP over Tailscale)
+            fallbackCopy(value) && onSuccess();
+          });
         return;
       }
 

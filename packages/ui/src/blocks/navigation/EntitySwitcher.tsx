@@ -259,9 +259,12 @@ export function EntitySwitcher<T extends Entity>({
                   className="h-8 w-8 rounded-lg"
                   style={{
                     transition: "transform 150ms ease, filter 150ms ease",
-                    transform: isCollapsed && logoHovered ? "scale(1.1)" : "scale(1)",
-                    filter: isCollapsed && logoHovered ? "brightness(1.2)" : "none",
-                  }}>
+                    transform:
+                      isCollapsed && logoHovered ? "scale(1.1)" : "scale(1)",
+                    filter:
+                      isCollapsed && logoHovered ? "brightness(1.2)" : "none",
+                  }}
+                >
                   {activeEntity.logoUrl && (
                     <AvatarImage
                       src={activeEntity.logoUrl}

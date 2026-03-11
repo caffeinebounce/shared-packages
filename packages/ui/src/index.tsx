@@ -1,15 +1,6 @@
 // Blocks - composed UI components
 
 export { toast } from "sonner";
-// Data state utilities
-export { DataStateBanner, DataStateInline } from "./components/ui/data-state";
-export {
-  resolveDataState,
-  type CanonicalDataState,
-  type DataStateMetadata,
-  type ResolveDataStateInput,
-  type ResolvedDataState,
-} from "./utils/data-state";
 // Admin Blocks
 export { CompanyNameEditableCell } from "./blocks/admin/CompanyNameEditableCell";
 export { EditableCell } from "./blocks/admin/EditableCell";
@@ -63,15 +54,15 @@ export type {
   FinancialStatementConfig,
   FinancialStatementControlsProps,
   FinancialStatementEntry,
+  FinancialStatementKind,
+  FinancialStatementRowImportance,
+  FinancialStatementRowImportanceResolver,
   FinancialStatementSection,
   FinancialStatementTableProps,
   FinancialStatementTotal,
   FinancialSummaryChartConfig,
   FinancialSummaryChartProps,
   FinancialSummaryChartSeries,
-  FinancialStatementKind,
-  FinancialStatementRowImportance,
-  FinancialStatementRowImportanceResolver,
   FlatExportRow,
   RowSelectionStyle,
   StatementRow,
@@ -86,6 +77,8 @@ export {
   CASH_FLOW_CHART_CONFIG,
   ComparisonSelector,
   type CurrencySignDisplay,
+  createFinanceTableSettingsItems,
+  createFinancialStatementRowImportanceResolver,
   DataTable,
   DataTableAddButton,
   DataTableColumnFilter,
@@ -113,22 +106,11 @@ export {
   FinancialSummaryChart,
   flattenStatementForExport,
   formatCurrencyValue,
+  getFinancialStatementRowImportanceClassName,
   getUnitDivisor,
   getUnitLabel,
   getUnitSuffix,
   INCOME_STATEMENT_CHART_CONFIG,
-  createFinanceTableSettingsItems,
-  createFinancialStatementRowImportanceResolver,
-  normalizeUnifiedTableControls,
-  type UnifiedTableControl,
-  type UnifiedTableControlKind,
-  type UnifiedTableControlsProps,
-  type UnifiedTableSettingsControl,
-  type UnifiedTableSettingsItem,
-  UnifiedTableControls,
-  unifiedTableControlOrder,
-  useUnifiedTableSettings,
-  getFinancialStatementRowImportanceClassName,
   INCOME_STATEMENT_CONFIG,
   MobilePeriodStepper,
   type MobilePeriodStepperProps,
@@ -138,6 +120,7 @@ export {
   type MobileStatementActionsProps,
   MobileStatementFilters,
   type MobileStatementFiltersProps,
+  normalizeUnifiedTableControls,
   PeriodSelector,
   SummaryAreaChart,
   SummaryBarChart,
@@ -148,11 +131,19 @@ export {
   SummaryPanel,
   type SummaryPanelProps,
   SummaryPieChart,
+  type UnifiedTableControl,
+  type UnifiedTableControlKind,
+  UnifiedTableControls,
+  type UnifiedTableControlsProps,
+  type UnifiedTableSettingsControl,
+  type UnifiedTableSettingsItem,
+  unifiedTableControlOrder,
   useDataTableContext,
   useDataTableSettings,
   useFinanceDecimals,
   useFinanceDecimalsSetting,
   useFinanceDisplay,
+  useUnifiedTableSettings,
 } from "./blocks/data-table";
 export type {
   StudioBlock,
@@ -433,6 +424,8 @@ export {
 // Layout components
 export type { ContainerProps, ContainerSize } from "./components/ui/container";
 export { Container } from "./components/ui/container";
+// Data state utilities
+export { DataStateBanner, DataStateInline } from "./components/ui/data-state";
 export type {
   DatePickerProps,
   DateRangePickerProps,
@@ -513,7 +506,7 @@ export {
 } from "./components/ui/input-otp";
 export { Kbd, KbdGroup } from "./components/ui/kbd";
 export { Label } from "./components/ui/label";
-export type { LampContainerProps, LampColorTheme } from "./components/ui/lamp";
+export type { LampColorTheme, LampContainerProps } from "./components/ui/lamp";
 export { LampContainer } from "./components/ui/lamp";
 export type { LocationMapProps } from "./components/ui/location-map";
 export { LocationMap } from "./components/ui/location-map";
@@ -747,6 +740,13 @@ export {
   type WizardFormInstance,
   type WizardStep,
 } from "./hooks/useWizardForm";
+export {
+  type CanonicalDataState,
+  type DataStateMetadata,
+  type ResolveDataStateInput,
+  type ResolvedDataState,
+  resolveDataState,
+} from "./utils/data-state";
 // Utilities
 export {
   type AvatarGradient,

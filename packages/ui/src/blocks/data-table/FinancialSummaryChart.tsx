@@ -1,19 +1,14 @@
 "use client";
 
-import {
-  BarChart3,
-  ChevronDown,
-  ChevronUp,
-  PieChartIcon,
-} from "lucide-react";
+import { BarChart3, ChevronDown, ChevronUp, PieChartIcon } from "lucide-react";
 import * as React from "react";
 import {
   Area,
   AreaChart,
   Bar,
-  ComposedChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Line,
   Pie,
   PieChart,
@@ -1448,7 +1443,11 @@ export function FinancialSummaryChart({
                     </SelectTrigger>
                     <SelectContent>
                       {config.dataOptions.options.map((opt) => (
-                        <SelectItem key={opt.value} className="text-xs" value={opt.value}>
+                        <SelectItem
+                          key={opt.value}
+                          className="text-xs"
+                          value={opt.value}
+                        >
                           {opt.label}
                         </SelectItem>
                       ))}
@@ -1599,7 +1598,9 @@ export function FinancialSummaryChart({
                         <Bar
                           key={m.key}
                           dataKey={m.key}
-                          stackId={config.chartType === "bar" ? "summary" : undefined}
+                          stackId={
+                            config.chartType === "bar" ? "summary" : undefined
+                          }
                           fill={m.color}
                           radius={[4, 4, 0, 0]}
                           fillOpacity={opacity * 0.8}

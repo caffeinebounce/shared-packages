@@ -970,7 +970,11 @@ function buildColumns(
       id: "account",
       accessorKey: "name",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={accountColumnLabel} customMenuItems={accountColumnMenuItems} />
+        <DataTableColumnHeader
+          column={column}
+          title={accountColumnLabel}
+          customMenuItems={accountColumnMenuItems}
+        />
       ),
       meta: {
         displayName: accountColumnLabel,
@@ -1016,7 +1020,9 @@ function buildColumns(
         const isPlaceholder = r.accountSubType === "placeholder";
         return (
           <span className="inline-flex items-center gap-1.5">
-            <span className={isPlaceholder ? "italic text-muted-foreground" : ""}>
+            <span
+              className={isPlaceholder ? "italic text-muted-foreground" : ""}
+            >
               {showAccountNumbers && r.accountNumber && (
                 <span className="font-mono text-muted-foreground mr-1.5 text-xs">
                   {r.accountNumber}
@@ -1543,8 +1549,10 @@ export function FinancialStatementTable({
         columns={columns}
         enableTreeView
         treeIndentPx={treeIndentPx}
-        getRowClassName={((row: { original: StatementRow }) =>
-          getRowClassName(row, rowImportanceResolver)) as never}
+        getRowClassName={
+          ((row: { original: StatementRow }) =>
+            getRowClassName(row, rowImportanceResolver)) as never
+        }
         enableColumnResizing
         enableRowDrag={false}
         rowSelectionStyle="none"

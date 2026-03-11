@@ -26,14 +26,20 @@ describe("UnifiedTableControls", () => {
 
     expect(screen.getByRole("toolbar")).toBeInTheDocument();
     expect(screen.getByText("Period")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /filters & settings/i })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /filters & settings/i }),
+    ).toBeNull();
   });
 
   it("collapses to a single mobile entrypoint", () => {
     setViewportWidth(375);
 
     const controls: UnifiedTableControl[] = [
-      { kind: "filters", desktop: <div>Filters Desktop</div>, mobile: <div>Filters Mobile</div> },
+      {
+        kind: "filters",
+        desktop: <div>Filters Desktop</div>,
+        mobile: <div>Filters Mobile</div>,
+      },
     ];
 
     render(<UnifiedTableControls controls={controls} />);

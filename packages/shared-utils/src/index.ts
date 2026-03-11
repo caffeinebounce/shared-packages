@@ -71,9 +71,9 @@ export {
   isDevLikeHost,
   isPreviewEnvironment,
   isRenderPreviewDomain,
-  resolveAdminRedirectTarget,
   linkedinUrlSchema,
   pinterestUrlSchema,
+  resolveAdminRedirectTarget,
   // Types
   type SocialHandleSchemaConfig,
   type SocialUrlSchemaConfig,

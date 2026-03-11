@@ -34,7 +34,6 @@ function Calendar({
 
         dropdown_root: "relative",
 
-
         nav: "absolute inset-x-0 top-0 flex h-8 items-center justify-between",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),

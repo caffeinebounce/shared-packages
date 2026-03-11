@@ -14,6 +14,12 @@ import {
   CollapsibleTrigger,
 } from "../../components/ui/collapsible";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -27,12 +33,6 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "../../components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu";
 import { Spinner } from "../../components/ui/spinner";
 import {
   Tooltip,
@@ -211,9 +211,9 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const Link = LinkComponent;
   const [menuOpen, setMenuOpen] = useState(false);
-  const [suppressSectionTooltip, setSuppressSectionTooltip] = useState<string | null>(
-    null,
-  );
+  const [suppressSectionTooltip, setSuppressSectionTooltip] = useState<
+    string | null
+  >(null);
 
   // Check if current path is the profile page
   const isOnProfilePage =
@@ -318,7 +318,11 @@ export function AppSidebar({
 
     const matches = allNavItems
       .filter((item) => {
-        if (item.href === "/" || item.href === "/dashboard" || item.href === "/finance") {
+        if (
+          item.href === "/" ||
+          item.href === "/dashboard" ||
+          item.href === "/finance"
+        ) {
           return pathname === item.href;
         }
         return pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -328,7 +332,9 @@ export function AppSidebar({
     return matches[0]?.href ?? null;
   }, [pathname, allNavItems]);
 
-  const [sectionOpenState, setSectionOpenState] = useState<Record<string, boolean>>({});
+  const [sectionOpenState, setSectionOpenState] = useState<
+    Record<string, boolean>
+  >({});
 
   useEffect(() => {
     setSectionOpenState((prev) => {
@@ -451,7 +457,10 @@ export function AppSidebar({
               return (
                 <Collapsible
                   key={`section-${section.label}`}
-                  open={sectionOpenState[section.label] ?? section.defaultOpen === true}
+                  open={
+                    sectionOpenState[section.label] ??
+                    section.defaultOpen === true
+                  }
                   onOpenChange={(open) =>
                     setSectionOpenState((prev) => ({
                       ...prev,
@@ -470,7 +479,10 @@ export function AppSidebar({
                                 // Suppress tooltip through the open/close cycle to avoid sticky bubble
                                 // while pointer remains over the trigger.
                                 setSuppressSectionTooltip(section.label);
-                                if (!open && document.activeElement instanceof HTMLElement) {
+                                if (
+                                  !open &&
+                                  document.activeElement instanceof HTMLElement
+                                ) {
                                   document.activeElement.blur();
                                 }
                               }}
@@ -494,12 +506,19 @@ export function AppSidebar({
                                   <span>{section.label}</span>
                                 </SidebarMenuButton>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent side="right" align="start" className="w-64">
+                              <DropdownMenuContent
+                                side="right"
+                                align="start"
+                                className="w-64"
+                              >
                                 {section.items.map((item) => {
                                   const ItemIcon = item.icon;
                                   return (
                                     <DropdownMenuItem key={item.href} asChild>
-                                      <Link href={item.href} className="flex items-center gap-2">
+                                      <Link
+                                        href={item.href}
+                                        className="flex items-center gap-2"
+                                      >
                                         <ItemIcon className="size-4" />
                                         <span>{item.label}</span>
                                       </Link>
@@ -520,7 +539,9 @@ export function AppSidebar({
                       >
                         <CollapsibleTrigger className="flex w-full items-center justify-between [&[data-state=open]>svg.chevron-icon]:rotate-180">
                           <span className="flex items-center gap-1.5">
-                            {SectionIcon && <SectionIcon className="size-3.5 shrink-0" />}
+                            {SectionIcon && (
+                              <SectionIcon className="size-3.5 shrink-0" />
+                            )}
                             {section.label}
                           </span>
                           <ChevronDown className="chevron-icon ml-auto size-4 transition-transform duration-200" />
