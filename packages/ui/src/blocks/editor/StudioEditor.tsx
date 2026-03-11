@@ -104,6 +104,8 @@ export interface StudioEditorProps {
   initialDevice?: string;
   /** Called when user changes the device. Receives the device name. */
   onDeviceChange?: (device: string) => void;
+  /** Enable verbose debug logging for editor initialization and canvas diagnostics. */
+  debug?: boolean;
 }
 
 /** Width constant for email content containers. Standard email width for compatibility. */
@@ -1238,6 +1240,7 @@ export function StudioEditor({
   lockPreview = false,
   initialDevice,
   onDeviceChange,
+  debug = false,
 }: StudioEditorProps) {
   const editorRef = useRef<Editor | null>(null);
 
@@ -1299,12 +1302,16 @@ export function StudioEditor({
     (editor: Editor) => {
       editorRef.current = editor;
 
-      console.log("[StudioEditor] handleReady called:", {
-        hasInitialProject: !!initialProject,
-        initialProjectKeys: initialProject ? Object.keys(initialProject) : null,
-        previewMode,
-        lockPreview,
-      });
+      if (debug) {
+        console.log("[StudioEditor] handleReady called:", {
+          hasInitialProject: !!initialProject,
+          initialProjectKeys: initialProject
+            ? Object.keys(initialProject)
+            : null,
+          previewMode,
+          lockPreview,
+        });
+      }
 
       // Register custom blocks
       const blockManager = editor.Blocks;
@@ -1318,91 +1325,93 @@ export function StudioEditor({
         });
       }
 
-      // Debug: Check what the SDK loaded via project.default
-      editor.onReady(() => {
-        const loadedData = editor.getProjectData();
-        console.log("[StudioEditor] onReady - SDK loaded data:", loadedData);
-        console.log("[StudioEditor] onReady - getHtml():", editor.getHtml());
-        console.log(
-          "[StudioEditor] onReady - Components:",
-          editor.getComponents().length,
-        );
+      // Optional diagnostics for debugging Studio SDK initialization
+      if (debug) {
+        editor.onReady(() => {
+          const loadedData = editor.getProjectData();
+          console.log("[StudioEditor] onReady - SDK loaded data:", loadedData);
+          console.log("[StudioEditor] onReady - getHtml():", editor.getHtml());
+          console.log(
+            "[StudioEditor] onReady - Components:",
+            editor.getComponents().length,
+          );
 
-        // Debug: Check canvas state
-        const canvasEl = editor.Canvas.getElement();
-        const canvasDoc = editor.Canvas.getDocument();
-        const canvasBody = editor.Canvas.getBody();
-        const canvasFrame = editor.Canvas.getFrameEl();
+          // Debug: Check canvas state
+          const canvasEl = editor.Canvas.getElement();
+          const canvasDoc = editor.Canvas.getDocument();
+          const canvasBody = editor.Canvas.getBody();
+          const canvasFrame = editor.Canvas.getFrameEl();
 
-        // Check for wrapper element
-        const wrapper = editor.getWrapper();
+          // Check for wrapper element
+          const wrapper = editor.getWrapper();
 
-        console.log("[StudioEditor] onReady - Canvas debug:", {
-          canvasEl: canvasEl,
-          canvasElDimensions: canvasEl
-            ? { width: canvasEl.offsetWidth, height: canvasEl.offsetHeight }
-            : null,
-          canvasDoc: canvasDoc,
-          canvasBody: canvasBody,
-          canvasBodyChildren: canvasBody?.children?.length,
-          canvasFrame: canvasFrame,
-          canvasFrameSrc: canvasFrame?.src,
-          wrapper: wrapper,
-          wrapperHtml: wrapper?.toHTML?.(),
+          console.log("[StudioEditor] onReady - Canvas debug:", {
+            canvasEl: canvasEl,
+            canvasElDimensions: canvasEl
+              ? { width: canvasEl.offsetWidth, height: canvasEl.offsetHeight }
+              : null,
+            canvasDoc: canvasDoc,
+            canvasBody: canvasBody,
+            canvasBodyChildren: canvasBody?.children?.length,
+            canvasFrame: canvasFrame,
+            canvasFrameSrc: canvasFrame?.src,
+            wrapper: wrapper,
+            wrapperHtml: wrapper?.toHTML?.(),
+          });
+
+          // List all children of the canvas body
+          if (canvasBody) {
+            console.log("[StudioEditor] Canvas body children:");
+            Array.from(canvasBody.children).forEach((child, i) => {
+              console.log(`  [${i}] ${child.tagName}`, child);
+            });
+          }
+
+          // Check wrapper computed styles
+          const wrapperEl = canvasBody?.querySelector(
+            '[data-gjs-type="wrapper"]',
+          ) as HTMLElement | null;
+          if (wrapperEl) {
+            const styles = window.getComputedStyle(wrapperEl);
+            console.log("[StudioEditor] Wrapper element styles:", {
+              display: styles.display,
+              visibility: styles.visibility,
+              opacity: styles.opacity,
+              height: styles.height,
+              width: styles.width,
+              overflow: styles.overflow,
+              position: styles.position,
+              zIndex: styles.zIndex,
+              backgroundColor: styles.backgroundColor,
+            });
+            console.log(
+              "[StudioEditor] Wrapper element dimensions:",
+              wrapperEl.getBoundingClientRect(),
+            );
+            console.log(
+              "[StudioEditor] Wrapper innerHTML preview:",
+              wrapperEl.innerHTML.substring(0, 300),
+            );
+          }
+
+          // Check canvas frame styles
+          if (canvasFrame) {
+            const frameStyles = window.getComputedStyle(canvasFrame);
+            console.log("[StudioEditor] Canvas frame styles:", {
+              display: frameStyles.display,
+              visibility: frameStyles.visibility,
+              opacity: frameStyles.opacity,
+              height: frameStyles.height,
+              width: frameStyles.width,
+              position: frameStyles.position,
+            });
+            console.log(
+              "[StudioEditor] Canvas frame dimensions:",
+              canvasFrame.getBoundingClientRect(),
+            );
+          }
         });
-
-        // List all children of the canvas body
-        if (canvasBody) {
-          console.log("[StudioEditor] Canvas body children:");
-          Array.from(canvasBody.children).forEach((child, i) => {
-            console.log(`  [${i}] ${child.tagName}`, child);
-          });
-        }
-
-        // Check wrapper computed styles
-        const wrapperEl = canvasBody?.querySelector(
-          '[data-gjs-type="wrapper"]',
-        ) as HTMLElement | null;
-        if (wrapperEl) {
-          const styles = window.getComputedStyle(wrapperEl);
-          console.log("[StudioEditor] Wrapper element styles:", {
-            display: styles.display,
-            visibility: styles.visibility,
-            opacity: styles.opacity,
-            height: styles.height,
-            width: styles.width,
-            overflow: styles.overflow,
-            position: styles.position,
-            zIndex: styles.zIndex,
-            backgroundColor: styles.backgroundColor,
-          });
-          console.log(
-            "[StudioEditor] Wrapper element dimensions:",
-            wrapperEl.getBoundingClientRect(),
-          );
-          console.log(
-            "[StudioEditor] Wrapper innerHTML preview:",
-            wrapperEl.innerHTML.substring(0, 300),
-          );
-        }
-
-        // Check canvas frame styles
-        if (canvasFrame) {
-          const frameStyles = window.getComputedStyle(canvasFrame);
-          console.log("[StudioEditor] Canvas frame styles:", {
-            display: frameStyles.display,
-            visibility: frameStyles.visibility,
-            opacity: frameStyles.opacity,
-            height: frameStyles.height,
-            width: frameStyles.width,
-            position: frameStyles.position,
-          });
-          console.log(
-            "[StudioEditor] Canvas frame dimensions:",
-            canvasFrame.getBoundingClientRect(),
-          );
-        }
-      });
+      }
 
       // Set up change listener
       if (onChange) {
@@ -1481,6 +1490,7 @@ export function StudioEditor({
     },
     [
       allBlocks,
+      debug,
       initialProject,
       onChange,
       onSave,
@@ -1502,15 +1512,17 @@ export function StudioEditor({
   const defaultProject = useMemo(() => {
     const isEmail = projectType === "email";
 
-    console.log("[StudioEditor] defaultProject computation:", {
-      hasInitialProject: !!initialProject,
-      initialProjectLength: initialProject
-        ? Object.keys(initialProject).length
-        : 0,
-      willUseInitialProject: !!(
-        initialProject && Object.keys(initialProject).length > 0
-      ),
-    });
+    if (debug) {
+      console.log("[StudioEditor] defaultProject computation:", {
+        hasInitialProject: !!initialProject,
+        initialProjectLength: initialProject
+          ? Object.keys(initialProject).length
+          : 0,
+        willUseInitialProject: !!(
+          initialProject && Object.keys(initialProject).length > 0
+        ),
+      });
+    }
 
     // If initialProject is provided, use it as-is (CSS will be added via plugins)
     if (initialProject && Object.keys(initialProject).length > 0) {
@@ -1547,7 +1559,7 @@ export function StudioEditor({
         },
       ],
     };
-  }, [initialContent, initialProject, projectType]);
+  }, [debug, initialContent, initialProject, projectType]);
 
   // Create a plugin that injects theme styles and conditional logic via CssComposer
   // This is the SDK-recommended way to add global CSS to the canvas
