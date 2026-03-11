@@ -18,6 +18,7 @@ export default defineConfig({
     forms: "src/entries/forms.ts",
     settings: "src/entries/settings.ts",
     blog: "src/entries/blog.ts",
+    portal: "src/entries/portal.ts",
   },
   format: ["esm", "cjs"],
   dts: true,

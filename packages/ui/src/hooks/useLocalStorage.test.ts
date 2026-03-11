@@ -8,7 +8,9 @@ function requireWindowStorage(): Storage {
     !window.localStorage ||
     typeof window.localStorage.clear !== "function"
   ) {
-    throw new Error("window.localStorage is not available in this test environment");
+    throw new Error(
+      "window.localStorage is not available in this test environment",
+    );
   }
 
   return window.localStorage;
