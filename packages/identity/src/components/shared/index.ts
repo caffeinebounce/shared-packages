@@ -4,7 +4,12 @@ export {
   type AuthFormLayoutProps,
 } from "./AuthFormLayout";
 export { AuthHeader, type AuthHeaderProps } from "./AuthHeader";
-export { AuthPageLayout, type AuthPageLayoutProps } from "./AuthPageLayout";
+export {
+  type AuthColorScheme,
+  AuthPageLayout,
+  type AuthPageLayoutProps,
+  type AuthPageVariant,
+} from "./AuthPageLayout";
 export {
   LastSignInHint,
   type LastSignInHintProps,

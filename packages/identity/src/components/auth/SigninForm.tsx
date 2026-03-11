@@ -70,6 +70,8 @@ export interface SigninFormProps extends AuthFormConfig {
   showHomeLink?: boolean;
   /** localStorage key for last sign-in data. Default: "last_signin" */
   lastSignInStorageKey?: string;
+  /** Whether to show the logo inside the card. Default: true */
+  showLogo?: boolean;
 }
 
 /**
@@ -114,6 +116,7 @@ export function SigninForm({
   showLastSignInHint = true,
   showHomeLink = true,
   lastSignInStorageKey = "last_signin",
+  showLogo,
 }: SigninFormProps) {
   const { logError } = useErrorLogger();
   const mergedLinks = { ...defaultAuthLinks, ...links };
@@ -473,7 +476,7 @@ export function SigninForm({
       {/* Header */}
       <div className="space-y-2">
         <AuthHeader
-          logo={logo}
+          logo={showLogo !== false ? logo : undefined}
           title={`Sign in to ${appName}`}
           ImageComponent={Image}
         />

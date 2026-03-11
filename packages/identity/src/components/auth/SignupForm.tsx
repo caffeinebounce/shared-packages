@@ -101,6 +101,8 @@ export interface SignupFormProps extends AuthFormConfig {
   consentSize?: "default" | "compact";
   /** Show the Home back-link on the auth form. Default: true */
   showHomeLink?: boolean;
+  /** Whether to show the logo inside the card. Default: true */
+  showLogo?: boolean;
 }
 
 /**
@@ -133,6 +135,7 @@ export function SignupForm({
   consentPosition = "above",
   consentSize = "default",
   showHomeLink = true,
+  showLogo,
 }: SignupFormProps) {
   const mergedLinks = { ...defaultAuthLinks, ...links };
   const Link = LinkComponent;
@@ -384,7 +387,7 @@ export function SignupForm({
       {/* Header */}
       <div className="space-y-2">
         <AuthHeader
-          logo={logo}
+          logo={showLogo !== false ? logo : undefined}
           title={`Sign up for ${appName}`}
           ImageComponent={Image}
         />

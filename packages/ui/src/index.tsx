@@ -154,8 +154,11 @@ export type {
 } from "./blocks/editor";
 // GrapesJS Studio Visual Editor
 export { StudioEditor } from "./blocks/editor";
-export type { BackgroundRippleEffectProps } from "./blocks/effects";
-export { BackgroundRippleEffect } from "./blocks/effects";
+export type {
+  BackgroundRippleEffectProps,
+  RollingBackgroundProps,
+} from "./blocks/effects";
+export { BackgroundRippleEffect, RollingBackground } from "./blocks/effects";
 export type {
   FeedbackButtonProps,
   FeedbackDialogProps,

@@ -21,6 +21,8 @@ export interface AuthHeaderProps {
     height: number;
     className?: string;
   }>;
+  /** Whether to show the logo inside the card. Default: true */
+  showLogo?: boolean;
   /** Additional className */
   className?: string;
 }
