@@ -59,7 +59,7 @@ export default defineConfig({
           console.log(`Added "use client" to ${filePath}`);
         }
       } catch (e) {
-        console.error(`Failed to add "use client" to ${filePath}:`, e);
+        throw new Error(`Failed to add "use client" to ${filePath}: ${String(e)}`);
       }
     }
 
@@ -68,7 +68,7 @@ export default defineConfig({
       copyFileSync("src/styles/base.css", "dist/styles.css");
       console.log("Copied styles.css to dist/");
     } catch (e) {
-      console.error("Failed to copy styles.css:", e);
+      throw new Error(`Failed to copy styles.css to dist/: ${String(e)}`);
     }
   },
 });

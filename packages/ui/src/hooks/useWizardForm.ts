@@ -3,16 +3,27 @@
 import { useCallback, useMemo, useState } from "react";
 import type { StepStatus } from "../blocks/forms/FormWizard";
 
+type FormFieldKey<TValues extends Record<string, unknown>> = Extract<
+  keyof TValues,
+  string
+>;
+
 /**
  * Generic form interface for data restoration helper.
  * Compatible with TanStack Form's useForm return type.
  * Uses generic function signatures to accept TanStack Form's complex type structure.
  */
-export interface FormWithSetFieldValue<_TValues> {
-  // biome-ignore lint/suspicious/noExplicitAny: TanStack Form uses complex template literal types for field names
-  setFieldValue: (field: any, value: any) => void;
-  // biome-ignore lint/suspicious/noExplicitAny: TanStack Form uses complex template literal types for field names
-  validateField: (field: any, trigger: "change" | "blur") => void;
+export interface FormWithSetFieldValue<
+  TValues extends Record<string, unknown>,
+> {
+  setFieldValue: <TField extends FormFieldKey<TValues>>(
+    field: TField,
+    value: TValues[TField],
+  ) => void;
+  validateField: (
+    field: FormFieldKey<TValues>,
+    trigger: "change" | "blur",
+  ) => void;
 }
 
 /**
@@ -63,14 +74,14 @@ export function createDataRestorationHandler<
 
     // Merge with defaults, preferring actual data values
     const newValues = { ...defaultValues } as TValues;
-    const keys = Object.keys(defaultValues) as (keyof TValues)[];
+    const keys = Object.keys(defaultValues) as FormFieldKey<TValues>[];
 
     for (const key of keys) {
       const restoredValue = actualData[key];
       // Only use restored value if it's not null/undefined
       // (empty strings like "" are valid for optional fields)
       if (restoredValue !== undefined && restoredValue !== null) {
-        newValues[key] = restoredValue as TValues[keyof TValues];
+        newValues[key] = restoredValue as TValues[typeof key];
       }
     }
 
@@ -164,10 +175,14 @@ export interface FieldMeta {
  * Uses generic function signatures to accept TanStack Form's complex type structure.
  */
 export interface WizardFormInstance<_TValues extends Record<string, unknown>> {
-  // biome-ignore lint/suspicious/noExplicitAny: TanStack Form uses complex template literal types for field names
-  setFieldValue: (field: any, value: any) => void;
-  // biome-ignore lint/suspicious/noExplicitAny: TanStack Form uses complex template literal types for field names
-  validateField: (field: any, trigger: "change" | "blur") => void;
+  setFieldValue: (
+    field: FormFieldKey<_TValues>,
+    value: _TValues[FormFieldKey<_TValues>],
+  ) => void;
+  validateField: (
+    field: FormFieldKey<_TValues>,
+    trigger: "change" | "blur",
+  ) => void;
   validateAllFields: (trigger: "change" | "blur") => void;
   reset: () => void;
   handleSubmit: () => void | Promise<void>;
@@ -245,7 +260,7 @@ export function createFormResetHandler<TValues extends Record<string, unknown>>(
     form.reset();
 
     // Reset all form fields to default values
-    const keys = Object.keys(defaultValues) as (keyof TValues)[];
+    const keys = Object.keys(defaultValues) as FormFieldKey<TValues>[];
     for (const key of keys) {
       form.setFieldValue(key, defaultValues[key]);
     }

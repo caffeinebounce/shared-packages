@@ -8,6 +8,7 @@
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "test": "turbo run test --output-logs=errors-only",
+    "typecheck": "turbo run typecheck",
     "lint": "biome check --write . && turbo run lint",
     "format": "biome check --write .",
     "format:check": "biome check .",

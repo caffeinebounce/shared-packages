@@ -75,8 +75,8 @@ describe("DeleteConfirmationDialog", () => {
   });
 
   it("handles async onConfirm and shows loading state", async () => {
-    const onConfirm = vi.fn(
-      () => new Promise((resolve) => setTimeout(resolve, 100)),
+    const onConfirm = vi.fn<() => Promise<void>>(
+      () => new Promise<void>((resolve) => setTimeout(resolve, 100)),
     );
     render(
       <DeleteConfirmationDialog {...defaultProps} onConfirm={onConfirm} />,
@@ -97,8 +97,8 @@ describe("DeleteConfirmationDialog", () => {
   });
 
   it("disables buttons while loading", async () => {
-    const onConfirm = vi.fn(
-      () => new Promise((resolve) => setTimeout(resolve, 200)),
+    const onConfirm = vi.fn<() => Promise<void>>(
+      () => new Promise<void>((resolve) => setTimeout(resolve, 200)),
     );
     render(
       <DeleteConfirmationDialog {...defaultProps} onConfirm={onConfirm} />,

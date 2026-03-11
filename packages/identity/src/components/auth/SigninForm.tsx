@@ -66,6 +66,8 @@ export interface SigninFormProps extends AuthFormConfig {
   onAuthEvent?: AuthEventCallbacks;
   /** Show hint about last used sign-in method. Default: true */
   showLastSignInHint?: boolean;
+  /** Show the Home back-link on the auth form. Default: true */
+  showHomeLink?: boolean;
   /** localStorage key for last sign-in data. Default: "last_signin" */
   lastSignInStorageKey?: string;
 }
@@ -110,6 +112,7 @@ export function SigninForm({
   className,
   onAuthEvent,
   showLastSignInHint = true,
+  showHomeLink = true,
   lastSignInStorageKey = "last_signin",
 }: SigninFormProps) {
   const { logError } = useErrorLogger();
@@ -438,7 +441,7 @@ export function SigninForm({
   return (
     <AuthFormLayout
       homeUrl={mergedLinks.home}
-      showHomeLink={!mfaRequired}
+      showHomeLink={showHomeLink && !mfaRequired}
       LinkComponent={Link}
       className={className}
       footer={

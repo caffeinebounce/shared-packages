@@ -156,6 +156,19 @@ export interface FinancialSummaryChartConfig {
   priorPeriodLabel?: string;
 }
 
+interface PieSliceRenderProps {
+  cx: number;
+  cy: number;
+  innerRadius: number;
+  outerRadius: number;
+  startAngle: number;
+  endAngle: number;
+  fill: string;
+  payload?: {
+    key?: string;
+  };
+}
+
 // ── Presets ────────────────────────────────────────────────────────────────────
 
 export const INCOME_STATEMENT_CHART_CONFIG: FinancialSummaryChartConfig = {
@@ -580,9 +593,8 @@ function PieChartView({
   }, [activeMetric, computedMetrics]);
 
   // Custom shape renderer for every slice — active slices get offset from center
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderSlice = React.useCallback(
-    (props: any) => {
+    (props: PieSliceRenderProps) => {
       const {
         cx,
         cy,
@@ -593,7 +605,7 @@ function PieChartView({
         fill,
         payload,
       } = props;
-      const isActive = activeSliceKeys.has(payload?.key);
+      const isActive = payload?.key ? activeSliceKeys.has(payload.key) : false;
       const dimmed = activeSliceKeys.size > 0 && !isActive;
 
       if (isActive) {

@@ -14,6 +14,10 @@
       "outputs": ["coverage/**"],
       "cache": false
     },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
     "lint": {
       "outputs": []
     },

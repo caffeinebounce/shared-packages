@@ -99,6 +99,8 @@ export interface SignupFormProps extends AuthFormConfig {
   consentPosition?: "above" | "below";
   /** Size of consent text - compact uses smaller text (default: "default") */
   consentSize?: "default" | "compact";
+  /** Show the Home back-link on the auth form. Default: true */
+  showHomeLink?: boolean;
 }
 
 /**
@@ -130,6 +132,7 @@ export function SignupForm({
   consentItems = [],
   consentPosition = "above",
   consentSize = "default",
+  showHomeLink = true,
 }: SignupFormProps) {
   const mergedLinks = { ...defaultAuthLinks, ...links };
   const Link = LinkComponent;
@@ -349,6 +352,7 @@ export function SignupForm({
   return (
     <AuthFormLayout
       homeUrl={mergedLinks.home}
+      showHomeLink={showHomeLink}
       LinkComponent={Link}
       className={className}
       footer={
