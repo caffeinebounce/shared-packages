@@ -189,9 +189,14 @@ function BrandFooter({
   };
 
   return (
-    <footer className={cn("bg-background border-t border-border", className)}>
+    <footer
+      className={cn(
+        "bg-background/60 backdrop-blur-xl border-t border-white/[0.08] dark:border-white/[0.06]",
+        className,
+      )}
+    >
       {/* Decorative gradient border-top */}
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       <div
         className={cn(
@@ -276,7 +281,7 @@ function BrandFooter({
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-full bg-muted/50 hover:bg-muted p-2 transition-colors text-muted-foreground hover:text-foreground"
+                  className="rounded-full bg-white/[0.06] hover:bg-white/[0.12] dark:bg-white/[0.06] dark:hover:bg-white/[0.12] p-2 transition-colors text-muted-foreground hover:text-foreground backdrop-blur-sm"
                   aria-label={social.label}
                 >
                   {social.icon}
