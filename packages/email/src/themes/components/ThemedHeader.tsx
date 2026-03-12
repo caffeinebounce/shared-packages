@@ -20,7 +20,7 @@ export function ThemedHeader({
 
   const sectionStyle: React.CSSProperties = {
     textAlign: align,
-    marginBottom: "24px",
+    marginBottom: "20px",
   };
 
   // Full/wide logo
@@ -29,10 +29,10 @@ export function ThemedHeader({
       <Section style={sectionStyle}>
         <Img
           src={config.logoUrl}
-          width={200}
+          width={140}
           alt={config.appName}
           style={{
-            maxWidth: "200px",
+            maxWidth: "140px",
             height: "auto",
             ...(align === "center" ? { margin: "0 auto" } : {}),
             ...(align === "right"

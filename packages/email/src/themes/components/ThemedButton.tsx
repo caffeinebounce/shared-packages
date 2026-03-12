@@ -18,8 +18,10 @@ export function ThemedButton({ url, text, tokens }: ThemedButtonProps) {
           borderRadius: tokens.buttonRadius,
           padding: tokens.buttonPadding,
           fontFamily: tokens.fontFamily,
-          fontSize: "14px",
-          fontWeight: "600",
+          fontSize: "13px",
+          fontWeight: "700",
+          letterSpacing: "0.5px",
+          textTransform: "uppercase",
           textDecoration: "none",
           display: "inline-block",
         }}

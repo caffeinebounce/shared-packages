@@ -1,15 +1,12 @@
 import type { EmailThemeTokens } from "./tokens";
 
-/**
- * Factory theme — dark, premium finance.
- */
 export const factoryThemeTokens: EmailThemeTokens = {
   background: "#000000",
-  contentBackground: "#000000",
+  contentBackground: "#0A0A0A",
   headingColor: "#ffffff",
-  bodyColor: "#888888",
-  mutedColor: "#555555",
-  footerColor: "#555555",
+  bodyColor: "#AAAAAA",
+  mutedColor: "#666666",
+  footerColor: "#444444",
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   buttonBg: "#ffffff",
@@ -19,5 +16,5 @@ export const factoryThemeTokens: EmailThemeTokens = {
   accentColor: "#FF4628",
   iconBg: "#222222",
   iconRadius: "14px",
-  dividerColor: "#333333",
+  dividerColor: "#222222",
 };

@@ -13,7 +13,7 @@ interface WelcomeProps {
 export function Welcome({ name, logoMode, tokens, config }: WelcomeProps) {
   const headingStyle = {
     color: tokens.headingColor,
-    fontSize: "24px",
+    fontSize: "28px",
     fontWeight: "700",
     margin: "0 0 16px",
     fontFamily: tokens.fontFamily,
@@ -21,7 +21,7 @@ export function Welcome({ name, logoMode, tokens, config }: WelcomeProps) {
   const bodyStyle = {
     color: tokens.bodyColor,
     fontSize: "16px",
-    lineHeight: "1.6",
+    lineHeight: "1.7",
     margin: "0 0 8px",
     fontFamily: tokens.fontFamily,
   };

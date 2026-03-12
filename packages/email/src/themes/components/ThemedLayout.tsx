@@ -1,4 +1,11 @@
-import { Body, Container, Head, Html, Preview } from "@react-email/components";
+import {
+  Body,
+  Container,
+  Head,
+  Hr,
+  Html,
+  Preview,
+} from "@react-email/components";
 import type { ReactNode } from "react";
 import type { EmailCategory, EmailThemeConfig } from "../index";
 import type { EmailThemeTokens } from "../tokens";
@@ -27,6 +34,7 @@ export function ThemedLayout({
   email,
 }: ThemedLayoutProps) {
   const isLight = tokens.background !== "#000000";
+  const isDark = !isLight;
 
   return (
     <Html>
@@ -51,61 +59,63 @@ export function ThemedLayout({
             height: "100%",
           }}
         >
-          {/* Row 1: Header — pinned to top */}
-          <tr>
-            <td align="center" valign="top" style={{ padding: "40px 20px 0" }}>
-              <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
-                <div style={{ padding: "0 40px" }}>
+          {/* Accent stripe at top */}
+          {isDark && (
+            <tr>
+              <td style={{ padding: "0" }}>
+                <div
+                  style={{
+                    height: "3px",
+                    backgroundColor: tokens.accentColor,
+                    margin: "0",
+                  }}
+                />
+              </td>
+            </tr>
+          )}
+
+          {/* Single content row with card */}
+          <tr style={{ height: "100%" }}>
+            <td
+              align="center"
+              valign="top"
+              style={{ padding: isDark ? "48px 20px 40px" : "40px 20px" }}
+            >
+              <Container style={{ margin: "0 auto", maxWidth: "520px" }}>
+                {/* Card */}
+                <div
+                  style={{
+                    backgroundColor: tokens.contentBackground,
+                    borderRadius: isDark ? "12px" : "8px",
+                    padding: isDark ? "48px 44px 40px" : "40px 40px 32px",
+                    ...(isDark
+                      ? { border: `1px solid ${tokens.dividerColor}` }
+                      : {}),
+                  }}
+                >
+                  {/* Logo */}
                   <ThemedHeader
                     tokens={tokens}
                     config={config}
                     logoMode={logoMode}
                     logoAlign={logoAlign}
                   />
-                </div>
-              </Container>
-            </td>
-          </tr>
 
-          {/* Row 2: Content — vertically centered, expands to fill */}
-          <tr style={{ height: "100%" }}>
-            <td
-              align="center"
-              valign="middle"
-              style={{
-                padding: "0 20px",
-                ...(config.watermarkUrl
-                  ? {
-                      backgroundImage: `url(${config.watermarkUrl})`,
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: "center center",
-                      backgroundSize: "80%",
-                    }
-                  : {}),
-              }}
-            >
-              <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
-                <div
-                  style={{
-                    backgroundColor: tokens.contentBackground,
-                    padding: "24px 40px",
-                  }}
-                >
+                  {/* Subtle divider after logo */}
+                  <Hr
+                    style={{
+                      borderColor: tokens.dividerColor,
+                      borderWidth: "1px 0 0 0",
+                      margin: "0 0 32px 0",
+                    }}
+                  />
+
+                  {/* Content */}
                   {children}
                 </div>
-              </Container>
-            </td>
-          </tr>
 
-          {/* Row 3: Footer — pinned to bottom */}
-          <tr>
-            <td
-              align="center"
-              valign="bottom"
-              style={{ padding: "0 20px 40px" }}
-            >
-              <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
-                <div style={{ padding: "0 40px" }}>
+                {/* Footer outside card, below */}
+                <div style={{ padding: "32px 4px 0" }}>
                   <ThemedFooter
                     tokens={tokens}
                     config={config}
