@@ -74,7 +74,7 @@ export function RollingBackground({
     };
 
     runAnimation();
-  }, [dotControls, circleControls, logoControls, lineWidth]);
+  }, [dotControls, circleControls, logoControls, dotX]);
 
   return (
     <div

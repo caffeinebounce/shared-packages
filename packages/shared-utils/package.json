@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/shared-utils",
-  "version": "0.7.23",
+  "version": "0.7.24",
   "description": "Shared utility functions for Capital Collective projects",
   "type": "module",
   "main": "./dist/index.js",
