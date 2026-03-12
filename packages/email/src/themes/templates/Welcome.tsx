@@ -10,7 +10,7 @@ interface WelcomeProps {
   config: EmailThemeConfig;
 }
 
-export function Welcome({ name, tokens, config }: WelcomeProps) {
+export function Welcome({ name, logoMode, tokens, config }: WelcomeProps) {
   const headingStyle = {
     color: tokens.headingColor,
     fontSize: "24px",

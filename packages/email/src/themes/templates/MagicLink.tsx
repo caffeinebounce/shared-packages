@@ -11,7 +11,12 @@ interface MagicLinkProps {
   config: EmailThemeConfig;
 }
 
-export function MagicLink({ magicLinkUrl, tokens, config }: MagicLinkProps) {
+export function MagicLink({
+  magicLinkUrl,
+  logoMode,
+  tokens,
+  config,
+}: MagicLinkProps) {
   const headingStyle = {
     color: tokens.headingColor,
     fontSize: "24px",
