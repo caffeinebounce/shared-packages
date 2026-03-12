@@ -75,6 +75,22 @@ export function RollingBackground({
     };
 
     runAnimation();
+
+    // Keep dot positioned on resize
+    let animDone = false;
+    const timer = setTimeout(() => {
+      animDone = true;
+    }, 2100);
+    const handleResize = () => {
+      if (!animDone) return;
+      const newVw = containerRef.current?.offsetWidth ?? window.innerWidth;
+      dotX.set(newVw - 100);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [dotControls, circleControls, logoControls, dotX]);
 
   return (
