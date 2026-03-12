@@ -55,6 +55,18 @@ export {
   VerifyEmailTemplate,
   type VerifyEmailTemplateProps,
 } from "./templates/VerifyEmailTemplate";
+export type {
+  CreateEmailThemeOptions,
+  EmailCategory,
+  EmailThemeConfig,
+  EmailThemeResult,
+  EmailThemeTokens,
+  ThemeName,
+} from "./themes";
+// Theme System
+export { createEmailTheme, getUnsubscribeHeaders } from "./themes";
+export { compassThemeTokens } from "./themes/compass";
+export { factoryThemeTokens } from "./themes/factory";
 // Types
 export type { SendEmailResult } from "./types";
 // Brand Types
