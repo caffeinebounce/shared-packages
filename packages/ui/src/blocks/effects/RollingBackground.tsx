@@ -52,31 +52,13 @@ export function RollingBackground({
       const vw = containerRef.current?.offsetWidth ?? window.innerWidth;
       const targetX = vw - 100; // 100px padding from right edge
 
-      // Bounce keyframes for Y (subtle sine oscillation)
-      const topY = 0;
-      const bounceAmp = 8;
-      const bounceY = [
-        topY,
-        topY - bounceAmp,
-        topY,
-        topY - bounceAmp * 0.6,
-        topY,
-        topY - bounceAmp * 0.3,
-        topY,
-        topY,
-      ];
-
-      // Animate dot x + y simultaneously
+      // Smooth horizontal glide — no bounce
       dotControls.start({
         x: targetX,
-        y: bounceY,
+        filter: ["blur(6px)", "blur(3px)", "blur(0px)"],
         transition: {
-          x: { duration: 1.8, ease: "easeOut" },
-          y: {
-            duration: 1.8,
-            ease: "easeInOut",
-            times: [0, 0.2, 0.4, 0.55, 0.7, 0.82, 0.92, 1],
-          },
+          x: { duration: 2, ease: [0.25, 0.1, 0.25, 1] },
+          filter: { duration: 2, ease: "easeOut" },
         },
       });
 
@@ -116,9 +98,9 @@ export function RollingBackground({
         }}
       />
 
-      {/* Rolling dot — 64px */}
+      {/* Rolling dot — 64px, starts blurry */}
       <motion.div
-        initial={{ x: -64, y: 0 }}
+        initial={{ x: -64, filter: "blur(8px)" }}
         animate={dotControls}
         style={{
           position: "absolute",
