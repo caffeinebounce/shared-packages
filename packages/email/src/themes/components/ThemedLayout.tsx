@@ -39,30 +39,54 @@ export function ThemedLayout({
           padding: "0",
         }}
       >
-        <Container
+        {/* Table wrapper for min-height — email clients ignore min-height on divs */}
+        <table
+          role="presentation"
+          width="100%"
+          cellPadding={0}
+          cellSpacing={0}
           style={{
-            margin: "0 auto",
-            maxWidth: "560px",
-            padding: isLight ? "40px 20px" : "0",
+            backgroundColor: tokens.background,
+            minHeight: "600px",
+            height: "100%",
           }}
         >
-          <div
-            style={{
-              backgroundColor: tokens.contentBackground,
-              borderRadius: isLight ? "8px" : "0px",
-              padding: "40px 40px 32px",
-            }}
-          >
-            <ThemedHeader tokens={tokens} config={config} logoMode={logoMode} />
-            {children}
-            <ThemedFooter
-              tokens={tokens}
-              config={config}
-              category={category}
-              email={email}
-            />
-          </div>
-        </Container>
+          <tr>
+            <td
+              align="center"
+              valign="middle"
+              style={{ padding: isLight ? "40px 20px" : "60px 20px" }}
+            >
+              <Container
+                style={{
+                  margin: "0 auto",
+                  maxWidth: "560px",
+                }}
+              >
+                <div
+                  style={{
+                    backgroundColor: tokens.contentBackground,
+                    borderRadius: isLight ? "8px" : "0px",
+                    padding: "40px 40px 32px",
+                  }}
+                >
+                  <ThemedHeader
+                    tokens={tokens}
+                    config={config}
+                    logoMode={logoMode}
+                  />
+                  {children}
+                  <ThemedFooter
+                    tokens={tokens}
+                    config={config}
+                    category={category}
+                    email={email}
+                  />
+                </div>
+              </Container>
+            </td>
+          </tr>
+        </table>
       </Body>
     </Html>
   );
