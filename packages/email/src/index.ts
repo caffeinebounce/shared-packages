@@ -85,3 +85,12 @@ export {
   type EmailTransport,
   type SmtpConfig,
 } from "./types/provider";
+export {
+  buildUnsubscribeUrl,
+  buildUnsubscribeUrlFromConfig,
+  generateUnsubscribeToken,
+  getUnsubscribeHeadersFromConfig,
+  parseListUnsubscribeHeader,
+  type UnsubscribeTokenInput,
+  verifyUnsubscribeToken,
+} from "./unsubscribe";

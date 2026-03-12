@@ -1,4 +1,5 @@
 import React from "react";
+import { getUnsubscribeHeadersFromConfig } from "../unsubscribe";
 import { compassThemeTokens } from "./compass";
 import { factoryThemeTokens } from "./factory";
 import { AccountApproved } from "./templates/AccountApproved";
@@ -70,45 +71,11 @@ export interface EmailThemeResult {
   getUnsubscribeHeaders: (email: string) => Record<string, string>;
 }
 
-// ---------------------------------------------------------------------------
-// Unsubscribe token helpers
-// ---------------------------------------------------------------------------
-
-async function generateUnsubscribeTokenAsync(
-  email: string,
-  secret?: string,
-): Promise<string> {
-  if (!secret) {
-    return btoa(email);
-  }
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const signature = await crypto.subtle.sign("HMAC", key, enc.encode(email));
-  return Array.from(new Uint8Array(signature))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 export async function getUnsubscribeHeaders(
   config: EmailThemeConfig,
   email: string,
 ): Promise<Record<string, string>> {
-  const token = await generateUnsubscribeTokenAsync(
-    email,
-    config.unsubscribeSecret,
-  );
-  const base = config.unsubscribeUrl || `${config.siteUrl}/unsubscribe`;
-  const url = `${base}?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
-  return {
-    "List-Unsubscribe": `<${url}>`,
-    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-  };
+  return getUnsubscribeHeadersFromConfig(config, email);
 }
 
 // ---------------------------------------------------------------------------
@@ -191,15 +158,7 @@ export function createEmailTheme(
       }),
 
     getUnsubscribeHeaders: (email: string) => {
-      // Returns a promise-wrapped object for sync callers.
-      // For async usage, call the exported getUnsubscribeHeaders() directly.
-      const base = config.unsubscribeUrl || `${config.siteUrl}/unsubscribe`;
-      const token = btoa(email); // sync fallback (no secret)
-      const url = `${base}?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
-      return {
-        "List-Unsubscribe": `<${url}>`,
-        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-      };
+      return getUnsubscribeHeadersFromConfig(config, email);
     },
   };
 }

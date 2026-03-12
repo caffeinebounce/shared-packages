@@ -1,19 +1,10 @@
 import { Link, Section, Text } from "@react-email/components";
+import {
+  buildUnsubscribeUrlFromConfig,
+  generateUnsubscribeToken,
+} from "../../unsubscribe";
 import type { EmailCategory, EmailThemeConfig } from "../index";
 import type { EmailThemeTokens } from "../tokens";
-
-function generateUnsubscribeToken(email: string, _secret?: string): string {
-  return btoa(email);
-}
-
-export function buildUnsubscribeUrl(
-  config: EmailThemeConfig,
-  email: string,
-): string {
-  const base = config.unsubscribeUrl || `${config.siteUrl}/unsubscribe`;
-  const token = generateUnsubscribeToken(email, config.unsubscribeSecret);
-  return `${base}?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
-}
 
 interface ThemedFooterProps {
   tokens: EmailThemeTokens;
@@ -60,7 +51,17 @@ export function ThemedFooter({
 
       {category === "marketing" && email && (
         <Text style={footerTextStyle}>
-          <Link href={buildUnsubscribeUrl(config, email)} style={linkStyle}>
+          <Link
+            href={buildUnsubscribeUrlFromConfig(
+              config,
+              email,
+              generateUnsubscribeToken({
+                email,
+                secret: config.unsubscribeSecret,
+              }),
+            )}
+            style={linkStyle}
+          >
             Unsubscribe
           </Link>
           {config.emailPreferencesUrl && (
