@@ -83,18 +83,15 @@ export function RollingBackground({
       // Animate line width to follow dot
       animate(lineWidth, targetX, { duration: 1.8, ease: "easeOut" });
 
-      // Decorative circle fades in around same time dot settles
-      await new Promise((r) => setTimeout(r, 1600));
+      // Decorative circle + logo start fading in early (while dot is still rolling)
+      await new Promise((r) => setTimeout(r, 400));
       circleControls.start({
         opacity: 0.15,
-        transition: { duration: 0.6, ease: "easeOut" },
+        transition: { duration: 0.8, ease: "easeOut" },
       });
-
-      // Logo watermark fades in after animation completes
-      await new Promise((r) => setTimeout(r, 400));
       logoControls.start({
         opacity: 1,
-        transition: { duration: 0.5, ease: "easeOut" },
+        transition: { duration: 0.8, ease: "easeOut" },
       });
     };
 
