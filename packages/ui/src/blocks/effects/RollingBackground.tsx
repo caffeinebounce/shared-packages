@@ -43,7 +43,7 @@ export function RollingBackground({
   const circleControls = useAnimation();
   const logoControls = useAnimation();
 
-  const dotX = useMotionValue(-64);
+  const dotX = useMotionValue(-120);
   const lineWidth = useTransform(dotX, (v) => Math.max(0, v - 80));
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,12 +53,13 @@ export function RollingBackground({
       const vw = containerRef.current?.offsetWidth ?? window.innerWidth;
       const targetX = vw - 100; // 100px padding from right edge
 
-      // Smooth horizontal glide — no bounce
+      // Smooth horizontal glide
       // Animate dotX directly so line derives from same value
       animate(dotX, targetX, { duration: 2, ease: [0.25, 0.1, 0.25, 1] });
       dotControls.start({
-        filter: ["blur(6px)", "blur(3px)", "blur(0px)"],
-        transition: { duration: 2, ease: "easeOut" },
+        opacity: [0, 1, 1, 1],
+        filter: ["blur(6px)", "blur(4px)", "blur(1px)", "blur(0px)"],
+        transition: { duration: 2, ease: "easeOut", times: [0, 0.1, 0.5, 1] },
       });
 
       // Decorative circle + logo start fading in early (while dot is still rolling)
@@ -94,9 +95,9 @@ export function RollingBackground({
         }}
       />
 
-      {/* Rolling dot — 64px, starts blurry */}
+      {/* Rolling dot — 64px, starts off-screen + invisible */}
       <motion.div
-        initial={{ filter: "blur(8px)" }}
+        initial={{ filter: "blur(8px)", opacity: 0 }}
         animate={dotControls}
         style={{
           position: "absolute",
