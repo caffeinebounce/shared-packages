@@ -12,7 +12,6 @@ interface ThemedLayoutProps {
   preview: string;
   children: ReactNode;
   email?: string;
-  /** Override logo mode for this specific email */
   logoMode?: "square" | "full";
 }
 
@@ -26,6 +25,7 @@ export function ThemedLayout({
   email,
 }: ThemedLayoutProps) {
   const isLight = tokens.background !== "#000000";
+  const sidePad = isLight ? "40px 20px 0" : "40px 20px 0";
 
   return (
     <Html>
@@ -39,7 +39,6 @@ export function ThemedLayout({
           padding: "0",
         }}
       >
-        {/* Table wrapper for min-height — email clients ignore min-height on divs */}
         <table
           role="presentation"
           width="100%"
@@ -51,31 +50,50 @@ export function ThemedLayout({
             height: "100%",
           }}
         >
+          {/* Row 1: Header — pinned to top */}
           <tr>
-            <td
-              align="center"
-              valign="middle"
-              style={{ padding: isLight ? "40px 20px" : "60px 20px" }}
-            >
-              <Container
-                style={{
-                  margin: "0 auto",
-                  maxWidth: "560px",
-                }}
-              >
+            <td align="center" valign="top" style={{ padding: sidePad }}>
+              <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
                 <div
-                  style={{
-                    backgroundColor: tokens.contentBackground,
-                    borderRadius: isLight ? "8px" : "0px",
-                    padding: "40px 40px 32px",
-                  }}
+                  style={{ padding: isLight ? "40px 40px 0" : "40px 40px 0" }}
                 >
                   <ThemedHeader
                     tokens={tokens}
                     config={config}
                     logoMode={logoMode}
                   />
+                </div>
+              </Container>
+            </td>
+          </tr>
+
+          {/* Row 2: Content — grows to fill space */}
+          <tr>
+            <td align="center" valign="top" style={{ padding: "0 20px" }}>
+              <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
+                <div
+                  style={{
+                    backgroundColor: tokens.contentBackground,
+                    padding: "0 40px",
+                  }}
+                >
                   {children}
+                </div>
+              </Container>
+            </td>
+          </tr>
+
+          {/* Row 3: Footer — pinned to bottom */}
+          <tr>
+            <td
+              align="center"
+              valign="bottom"
+              style={{ padding: "0 20px 40px" }}
+            >
+              <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
+                <div
+                  style={{ padding: isLight ? "0 40px 40px" : "0 40px 40px" }}
+                >
                   <ThemedFooter
                     tokens={tokens}
                     config={config}
