@@ -157,7 +157,7 @@ export function RollingBackground({
             lineHeight: 1,
             filter: "grayscale(0.3)",
           }}
-          className="[&>*]:opacity-10"
+          className=""
         >
           {logo}
         </motion.div>
