@@ -106,29 +106,29 @@ export function RollingBackground({
       ref={containerRef}
       className={`absolute inset-0 overflow-hidden pointer-events-none${className ? ` ${className}` : ""}`}
     >
-      {/* Trailing line */}
+      {/* Trailing line — thinner, stops short of the dot */}
       <motion.div
         style={{
           position: "absolute",
-          top: "calc(15% + 7px)", // center on dot vertically
+          top: "calc(15% + 14px)",
           left: 0,
-          height: 2,
+          height: 1,
           backgroundColor: accentColor,
-          width: lineWidth,
+          width: useTransform(lineWidth, (v) => Math.max(0, v - 40)),
           originX: 0,
         }}
       />
 
-      {/* Rolling dot */}
+      {/* Rolling dot — 2x bigger (32px) */}
       <motion.div
-        initial={{ x: -20, y: 0 }}
+        initial={{ x: -32, y: 0 }}
         animate={dotControls}
         style={{
           position: "absolute",
           top: "calc(15% - 0px)",
           left: 0,
-          width: 16,
-          height: 16,
+          width: 32,
+          height: 32,
           borderRadius: "50%",
           backgroundColor: accentColor,
         }}
