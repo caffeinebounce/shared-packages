@@ -13,6 +13,7 @@ interface ThemedLayoutProps {
   children: ReactNode;
   email?: string;
   logoMode?: "square" | "full";
+  logoAlign?: "left" | "center" | "right";
 }
 
 export function ThemedLayout({
@@ -22,10 +23,10 @@ export function ThemedLayout({
   preview,
   children,
   logoMode,
+  logoAlign,
   email,
 }: ThemedLayoutProps) {
   const isLight = tokens.background !== "#000000";
-  const sidePad = isLight ? "40px 20px 0" : "40px 20px 0";
 
   return (
     <Html>
@@ -52,29 +53,28 @@ export function ThemedLayout({
         >
           {/* Row 1: Header — pinned to top */}
           <tr>
-            <td align="center" valign="top" style={{ padding: sidePad }}>
+            <td align="center" valign="top" style={{ padding: "40px 20px 0" }}>
               <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
-                <div
-                  style={{ padding: isLight ? "40px 40px 0" : "40px 40px 0" }}
-                >
+                <div style={{ padding: "0 40px" }}>
                   <ThemedHeader
                     tokens={tokens}
                     config={config}
                     logoMode={logoMode}
+                    logoAlign={logoAlign}
                   />
                 </div>
               </Container>
             </td>
           </tr>
 
-          {/* Row 2: Content — grows to fill space */}
-          <tr>
-            <td align="center" valign="top" style={{ padding: "0 20px" }}>
+          {/* Row 2: Content — vertically centered, expands to fill */}
+          <tr style={{ height: "100%" }}>
+            <td align="center" valign="middle" style={{ padding: "0 20px" }}>
               <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
                 <div
                   style={{
                     backgroundColor: tokens.contentBackground,
-                    padding: "0 40px",
+                    padding: "24px 40px",
                   }}
                 >
                   {children}
@@ -91,9 +91,7 @@ export function ThemedLayout({
               style={{ padding: "0 20px 40px" }}
             >
               <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
-                <div
-                  style={{ padding: isLight ? "0 40px 40px" : "0 40px 40px" }}
-                >
+                <div style={{ padding: "0 40px" }}>
                   <ThemedFooter
                     tokens={tokens}
                     config={config}

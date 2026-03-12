@@ -5,22 +5,40 @@ import type { EmailThemeTokens } from "../tokens";
 interface ThemedHeaderProps {
   tokens: EmailThemeTokens;
   config: EmailThemeConfig;
-  /** Override the default logo mode for this specific email */
   logoMode?: "square" | "full";
+  logoAlign?: "left" | "center" | "right";
 }
 
-export function ThemedHeader({ tokens, config, logoMode }: ThemedHeaderProps) {
+export function ThemedHeader({
+  tokens,
+  config,
+  logoMode,
+  logoAlign,
+}: ThemedHeaderProps) {
   const mode = logoMode || config.logoMode || "square";
+  const align = logoAlign || config.logoAlign || "center";
+
+  const sectionStyle: React.CSSProperties = {
+    textAlign: align,
+    marginBottom: "24px",
+  };
 
   // Full/wide logo
   if (mode === "full" && config.logoUrl) {
     return (
-      <Section style={{ textAlign: "center", marginBottom: "24px" }}>
+      <Section style={sectionStyle}>
         <Img
           src={config.logoUrl}
           width={200}
           alt={config.appName}
-          style={{ margin: "0 auto", maxWidth: "200px", height: "auto" }}
+          style={{
+            maxWidth: "200px",
+            height: "auto",
+            ...(align === "center" ? { margin: "0 auto" } : {}),
+            ...(align === "right"
+              ? { marginLeft: "auto", marginRight: "0" }
+              : {}),
+          }}
         />
       </Section>
     );
@@ -29,13 +47,19 @@ export function ThemedHeader({ tokens, config, logoMode }: ThemedHeaderProps) {
   // Square logo/icon
   if (mode === "square" && config.logoSquareUrl) {
     return (
-      <Section style={{ textAlign: "center", marginBottom: "24px" }}>
+      <Section style={sectionStyle}>
         <Img
           src={config.logoSquareUrl}
           width={56}
           height={56}
           alt={config.appName}
-          style={{ margin: "0 auto", borderRadius: tokens.iconRadius }}
+          style={{
+            borderRadius: tokens.iconRadius,
+            ...(align === "center" ? { margin: "0 auto" } : {}),
+            ...(align === "right"
+              ? { marginLeft: "auto", marginRight: "0" }
+              : {}),
+          }}
         />
       </Section>
     );
@@ -43,7 +67,7 @@ export function ThemedHeader({ tokens, config, logoMode }: ThemedHeaderProps) {
 
   // Fallback: accent dot in rounded square
   return (
-    <Section style={{ textAlign: "center", marginBottom: "24px" }}>
+    <Section style={sectionStyle}>
       <div
         style={{
           display: "inline-block",

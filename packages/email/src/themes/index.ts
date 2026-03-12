@@ -26,6 +26,8 @@ export interface EmailThemeConfig {
   logoSquareUrl?: string;
   /** Default logo display mode. Default: "square" */
   logoMode?: "square" | "full";
+  /** Default logo alignment. Default: "center" */
+  logoAlign?: "left" | "center" | "right";
   /** Defaults to {siteUrl}/unsubscribe */
   unsubscribeUrl?: string;
   emailPreferencesUrl?: string;
