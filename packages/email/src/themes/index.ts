@@ -28,6 +28,8 @@ export interface EmailThemeConfig {
   logoMode?: "square" | "full";
   /** Default logo alignment. Default: "center" */
   logoAlign?: "left" | "center" | "right";
+  /** Faint watermark logo URL (rendered as low-opacity background image). Works best with a pre-faded PNG. */
+  watermarkUrl?: string;
   /** Defaults to {siteUrl}/unsubscribe */
   unsubscribeUrl?: string;
   emailPreferencesUrl?: string;

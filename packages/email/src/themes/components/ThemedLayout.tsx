@@ -69,7 +69,21 @@ export function ThemedLayout({
 
           {/* Row 2: Content — vertically centered, expands to fill */}
           <tr style={{ height: "100%" }}>
-            <td align="center" valign="middle" style={{ padding: "0 20px" }}>
+            <td
+              align="center"
+              valign="middle"
+              style={{
+                padding: "0 20px",
+                ...(config.watermarkUrl
+                  ? {
+                      backgroundImage: `url(${config.watermarkUrl})`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "center center",
+                      backgroundSize: "80%",
+                    }
+                  : {}),
+              }}
+            >
               <Container style={{ margin: "0 auto", maxWidth: "560px" }}>
                 <div
                   style={{
