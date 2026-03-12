@@ -86,8 +86,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
-    "test:watch": "vitest",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096 --localstorage-file=.vitest-localstorage' vitest run",
+    "test:watch": "NODE_OPTIONS='--localstorage-file=.vitest-localstorage' vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "clean": "rm -rf dist",
     "lint": "biome check src/"

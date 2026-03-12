@@ -39,7 +39,7 @@ export function RollingBackground({
   className,
 }: RollingBackgroundProps) {
   const dotControls = useAnimation();
-  const lineControls = useAnimation();
+  const _lineControls = useAnimation();
   const circleControls = useAnimation();
   const logoControls = useAnimation();
 

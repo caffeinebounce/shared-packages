@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DeleteConfirmationDialog } from "../delete-confirmation-dialog";
 
@@ -65,13 +66,16 @@ describe("DeleteConfirmationDialog", () => {
   });
 
   it("calls onConfirm when confirm button is clicked", async () => {
+    const user = userEvent.setup();
     const onConfirm = vi.fn();
     render(
       <DeleteConfirmationDialog {...defaultProps} onConfirm={onConfirm} />,
     );
 
-    fireEvent.click(screen.getByText("Delete"));
-    expect(onConfirm).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByText("Delete"));
+    await waitFor(() => {
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("handles async onConfirm and shows loading state", async () => {
@@ -247,6 +251,7 @@ describe("DeleteConfirmationDialog", () => {
     });
 
     it("triggers confirmation on Enter key when input matches", async () => {
+      const user = userEvent.setup();
       const onConfirm = vi.fn();
       render(
         <DeleteConfirmationDialog
@@ -259,12 +264,14 @@ describe("DeleteConfirmationDialog", () => {
       const input = screen.getByRole("textbox");
 
       // Type correct text
-      fireEvent.change(input, { target: { value: confirmationText } });
+      await user.type(input, confirmationText);
 
       // Press Enter
-      fireEvent.keyDown(input, { key: "Enter" });
+      await user.keyboard("{Enter}");
 
-      expect(onConfirm).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(onConfirm).toHaveBeenCalledTimes(1);
+      });
     });
 
     it("does not trigger confirmation on Enter when input does not match", () => {
