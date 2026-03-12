@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FinancialStatementEntry } from "./FinancialStatementTable";
 import type { FinancialSummaryChartConfig } from "./FinancialSummaryChart";
 import { FinancialSummaryChart } from "./FinancialSummaryChart";
@@ -45,6 +45,10 @@ describe("FinancialSummaryChart", () => {
         dispatchEvent: vi.fn(),
       })),
     );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it("uses statValueMode='sum' to aggregate across periods", () => {
