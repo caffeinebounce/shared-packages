@@ -6,12 +6,14 @@ import type { EmailThemeTokens } from "../tokens";
 
 interface ConfirmationProps {
   confirmUrl: string;
+  logoMode?: "square" | "full";
   tokens: EmailThemeTokens;
   config: EmailThemeConfig;
 }
 
 export function Confirmation({
   confirmUrl,
+  logoMode,
   tokens,
   config,
 }: ConfirmationProps) {
@@ -35,6 +37,7 @@ export function Confirmation({
       tokens={tokens}
       config={config}
       category="transactional"
+      logoMode={logoMode}
       preview={`Confirm your ${config.appName} account`}
     >
       <Text style={headingStyle}>Confirm your account</Text>

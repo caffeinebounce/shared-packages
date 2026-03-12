@@ -20,7 +20,12 @@ export interface EmailThemeConfig {
   address: string;
   accentColor: string;
   siteUrl: string;
+  /** Full/wide logo URL (used when logoMode="full") */
   logoUrl?: string;
+  /** Square logo/icon URL (used when logoMode="square") */
+  logoSquareUrl?: string;
+  /** Default logo display mode. Default: "square" */
+  logoMode?: "square" | "full";
   /** Defaults to {siteUrl}/unsubscribe */
   unsubscribeUrl?: string;
   emailPreferencesUrl?: string;
@@ -40,21 +45,23 @@ export interface CreateEmailThemeOptions {
 export interface EmailThemeResult {
   config: EmailThemeConfig;
   tokens: EmailThemeTokens;
-  Confirmation: React.FC<{ confirmUrl: string }>;
-  Welcome: React.FC<{ name?: string }>;
+  Confirmation: React.FC<{ confirmUrl: string; logoMode?: "square" | "full" }>;
+  Welcome: React.FC<{ name?: string; logoMode?: "square" | "full" }>;
   AccountApproved: React.FC<{
     name?: string;
     ctaUrl?: string;
     ctaText?: string;
+    logoMode?: "square" | "full";
   }>;
-  PasswordReset: React.FC<{ resetUrl: string }>;
-  MagicLink: React.FC<{ magicLinkUrl: string }>;
+  PasswordReset: React.FC<{ resetUrl: string; logoMode?: "square" | "full" }>;
+  MagicLink: React.FC<{ magicLinkUrl: string; logoMode?: "square" | "full" }>;
   Notification: React.FC<{
     title: string;
     body: string;
     ctaUrl?: string;
     ctaText?: string;
     email?: string;
+    logoMode?: "square" | "full";
   }>;
   getUnsubscribeHeaders: (email: string) => Record<string, string>;
 }
@@ -130,34 +137,51 @@ export function createEmailTheme(
     config,
     tokens,
 
-    Confirmation: ({ confirmUrl }) =>
-      React.createElement(Confirmation, { confirmUrl, tokens, config }),
-
-    Welcome: ({ name } = {}) =>
-      React.createElement(Welcome, { name, tokens, config }),
-
-    AccountApproved: ({ name, ctaUrl, ctaText } = {}) =>
-      React.createElement(AccountApproved, {
-        name,
-        ctaUrl,
-        ctaText,
+    Confirmation: ({ confirmUrl, logoMode }) =>
+      React.createElement(Confirmation, {
+        confirmUrl,
+        logoMode,
         tokens,
         config,
       }),
 
-    PasswordReset: ({ resetUrl }) =>
-      React.createElement(PasswordReset, { resetUrl, tokens, config }),
+    Welcome: ({ name, logoMode } = {}) =>
+      React.createElement(Welcome, { name, logoMode, tokens, config }),
 
-    MagicLink: ({ magicLinkUrl }) =>
-      React.createElement(MagicLink, { magicLinkUrl, tokens, config }),
+    AccountApproved: ({ name, ctaUrl, ctaText, logoMode } = {}) =>
+      React.createElement(AccountApproved, {
+        name,
+        ctaUrl,
+        ctaText,
+        logoMode,
+        tokens,
+        config,
+      }),
 
-    Notification: ({ title, body, ctaUrl, ctaText, email }) =>
+    PasswordReset: ({ resetUrl, logoMode }) =>
+      React.createElement(PasswordReset, {
+        resetUrl,
+        logoMode,
+        tokens,
+        config,
+      }),
+
+    MagicLink: ({ magicLinkUrl, logoMode }) =>
+      React.createElement(MagicLink, {
+        magicLinkUrl,
+        logoMode,
+        tokens,
+        config,
+      }),
+
+    Notification: ({ title, body, ctaUrl, ctaText, email, logoMode }) =>
       React.createElement(Notification, {
         title,
         body,
         ctaUrl,
         ctaText,
         email,
+        logoMode,
         tokens,
         config,
       }),

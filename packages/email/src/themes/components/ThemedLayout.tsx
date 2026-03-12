@@ -12,6 +12,8 @@ interface ThemedLayoutProps {
   preview: string;
   children: ReactNode;
   email?: string;
+  /** Override logo mode for this specific email */
+  logoMode?: "square" | "full";
 }
 
 export function ThemedLayout({
@@ -20,6 +22,7 @@ export function ThemedLayout({
   category,
   preview,
   children,
+  logoMode,
   email,
 }: ThemedLayoutProps) {
   const isLight = tokens.background !== "#000000";
@@ -50,7 +53,7 @@ export function ThemedLayout({
               padding: "40px 40px 32px",
             }}
           >
-            <ThemedHeader tokens={tokens} config={config} />
+            <ThemedHeader tokens={tokens} config={config} logoMode={logoMode} />
             {children}
             <ThemedFooter
               tokens={tokens}

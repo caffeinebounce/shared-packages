@@ -5,6 +5,7 @@ import type { EmailThemeTokens } from "../tokens";
 
 interface WelcomeProps {
   name?: string;
+  logoMode?: "square" | "full";
   tokens: EmailThemeTokens;
   config: EmailThemeConfig;
 }
@@ -30,6 +31,7 @@ export function Welcome({ name, tokens, config }: WelcomeProps) {
       tokens={tokens}
       config={config}
       category="transactional"
+      logoMode={logoMode}
       preview={`Welcome to ${config.appName}`}
     >
       <Text style={headingStyle}>Welcome to {config.appName}</Text>

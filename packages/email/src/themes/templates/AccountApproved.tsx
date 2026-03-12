@@ -8,6 +8,7 @@ interface AccountApprovedProps {
   name?: string;
   ctaUrl?: string;
   ctaText?: string;
+  logoMode?: "square" | "full";
   tokens: EmailThemeTokens;
   config: EmailThemeConfig;
 }
@@ -16,6 +17,7 @@ export function AccountApproved({
   name,
   ctaUrl,
   ctaText,
+  logoMode,
   tokens,
   config,
 }: AccountApprovedProps) {

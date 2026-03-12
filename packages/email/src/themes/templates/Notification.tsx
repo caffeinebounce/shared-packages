@@ -10,6 +10,7 @@ interface NotificationProps {
   ctaUrl?: string;
   ctaText?: string;
   email?: string;
+  logoMode?: "square" | "full";
   tokens: EmailThemeTokens;
   config: EmailThemeConfig;
 }
@@ -20,6 +21,7 @@ export function Notification({
   ctaUrl,
   ctaText,
   email,
+  logoMode,
   tokens,
   config,
 }: NotificationProps) {
@@ -45,6 +47,7 @@ export function Notification({
       category="marketing"
       preview={title}
       email={email}
+      logoMode={logoMode}
     >
       <Text style={headingStyle}>{title}</Text>
       <Text style={bodyStyle}>{body}</Text>

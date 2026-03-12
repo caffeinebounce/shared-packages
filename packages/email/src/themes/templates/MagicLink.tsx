@@ -6,6 +6,7 @@ import type { EmailThemeTokens } from "../tokens";
 
 interface MagicLinkProps {
   magicLinkUrl: string;
+  logoMode?: "square" | "full";
   tokens: EmailThemeTokens;
   config: EmailThemeConfig;
 }
@@ -31,6 +32,7 @@ export function MagicLink({ magicLinkUrl, tokens, config }: MagicLinkProps) {
       tokens={tokens}
       config={config}
       category="transactional"
+      logoMode={logoMode}
       preview={`Your ${config.appName} login link`}
     >
       <Text style={headingStyle}>Your login link</Text>

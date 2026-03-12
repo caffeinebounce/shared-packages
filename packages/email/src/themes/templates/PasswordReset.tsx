@@ -6,12 +6,14 @@ import type { EmailThemeTokens } from "../tokens";
 
 interface PasswordResetProps {
   resetUrl: string;
+  logoMode?: "square" | "full";
   tokens: EmailThemeTokens;
   config: EmailThemeConfig;
 }
 
 export function PasswordReset({
   resetUrl,
+  logoMode,
   tokens,
   config,
 }: PasswordResetProps) {
