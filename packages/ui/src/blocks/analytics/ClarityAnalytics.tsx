@@ -8,6 +8,10 @@ declare global {
   }
 }
 
+type ClarityQueueFn = ((...args: unknown[]) => void) & {
+  q?: unknown[][];
+};
+
 export interface ClarityAnalyticsProps {
   /**
    * Microsoft Clarity project ID.
@@ -45,32 +49,20 @@ export function ClarityAnalytics({ projectId }: ClarityAnalyticsProps) {
     }
 
     // Load Clarity script (standard Microsoft Clarity initialization pattern)
-    ((
-      c: Window & typeof globalThis,
-      l: Document,
-      a: string,
-      r: string,
-      i: string,
-      t?: HTMLScriptElement,
-      y?: Element | null,
-    ) => {
-      // biome-ignore lint/suspicious/noExplicitAny: Clarity API requires dynamic property access
-      (c as any)[a] =
-        // biome-ignore lint/suspicious/noExplicitAny: Clarity API requires dynamic property access
-        (c as any)[a] ||
-        ((...args: unknown[]) => {
-          // biome-ignore lint/suspicious/noExplicitAny: Clarity API requires dynamic property access
-          // biome-ignore lint/suspicious/noAssignInExpressions: Standard Clarity initialization pattern
-          ((c as any)[a].q = (c as any)[a].q || []).push(args);
-        });
-      t = l.createElement(r) as HTMLScriptElement;
-      t.async = true;
-      t.src = `https://www.clarity.ms/tag/${i}`;
-      y = l.getElementsByTagName(r)[0];
-      if (y?.parentNode) {
-        y.parentNode.insertBefore(t, y);
-      }
-    })(window, document, "clarity", "script", projectId);
+    const queuedClarity: ClarityQueueFn = (...args: unknown[]) => {
+      queuedClarity.q ??= [];
+      queuedClarity.q.push(args);
+    };
+
+    window.clarity = queuedClarity;
+
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = `https://www.clarity.ms/tag/${projectId}`;
+    const firstScript = document.getElementsByTagName("script")[0];
+    if (firstScript?.parentNode) {
+      firstScript.parentNode.insertBefore(script, firstScript);
+    }
   }, [projectId]);
 
   return null;

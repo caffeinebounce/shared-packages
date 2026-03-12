@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 12
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,6 +77,14 @@ jobs:
 
       - name: Build
         run: yarn build
+
+      - name: UI Quality Gate
+        working-directory: packages/ui
+        run: |
+          yarn typecheck
+          yarn lint
+          yarn test
+          yarn build
 
       - name: Publish UI package
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
