@@ -1265,9 +1265,17 @@ export function StudioEditor({
         for (const key of keysToRemove) {
           localStorage.removeItem(key);
         }
-        // Also clear any keys that start with common GrapesJS prefixes
-        const allKeys = Object.keys(localStorage);
-        for (const key of allKeys) {
+        // Also clear any keys that start with common GrapesJS prefixes.
+        // Use Storage#key(index) instead of Object.keys(localStorage) so this
+        // works with both browser and test storage implementations.
+        const dynamicKeys: string[] = [];
+        for (let i = 0; i < localStorage.length; i += 1) {
+          const key = localStorage.key(i);
+          if (key !== null) {
+            dynamicKeys.push(key);
+          }
+        }
+        for (const key of dynamicKeys) {
           if (
             key.startsWith("gjs-") ||
             key.startsWith("gjs") ||
