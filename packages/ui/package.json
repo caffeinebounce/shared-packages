@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/ui",
-  "version": "0.52.11",
+  "version": "0.52.12",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

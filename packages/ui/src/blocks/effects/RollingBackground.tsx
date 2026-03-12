@@ -50,7 +50,7 @@ export function RollingBackground({
   useEffect(() => {
     const runAnimation = async () => {
       const vw = containerRef.current?.offsetWidth ?? window.innerWidth;
-      const targetX = vw - 50;
+      const targetX = vw - 100; // 100px padding from right edge
 
       // Bounce keyframes for Y (subtle sine oscillation)
       const topY = 0;
@@ -106,29 +106,29 @@ export function RollingBackground({
       ref={containerRef}
       className={`absolute inset-0 overflow-hidden pointer-events-none${className ? ` ${className}` : ""}`}
     >
-      {/* Trailing line — thinner, stops short of the dot */}
+      {/* Trailing line — thin, well-detached from dot */}
       <motion.div
         style={{
           position: "absolute",
-          top: "calc(15% + 14px)",
+          top: "calc(15% + 30px)",
           left: 0,
           height: 1,
           backgroundColor: accentColor,
-          width: useTransform(lineWidth, (v) => Math.max(0, v - 40)),
+          width: useTransform(lineWidth, (v) => Math.max(0, v - 80)),
           originX: 0,
         }}
       />
 
-      {/* Rolling dot — 2x bigger (32px) */}
+      {/* Rolling dot — 64px */}
       <motion.div
-        initial={{ x: -32, y: 0 }}
+        initial={{ x: -64, y: 0 }}
         animate={dotControls}
         style={{
           position: "absolute",
           top: "calc(15% - 0px)",
           left: 0,
-          width: 32,
-          height: 32,
+          width: 64,
+          height: 64,
           borderRadius: "50%",
           backgroundColor: accentColor,
         }}
