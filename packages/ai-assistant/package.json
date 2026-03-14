@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/ai-assistant",
-  "version": "0.5.34",
+  "version": "0.5.35",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
