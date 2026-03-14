@@ -93,5 +93,5 @@ function PageSections({
   );
 }
 
-export { PageSections, PageSection };
-export type { PageSectionsProps, PageSectionProps };
+export type { PageSectionProps, PageSectionsProps };
+export { PageSection, PageSections };
