@@ -100,9 +100,9 @@ export function RollingBackground({
     >
       {/* Trailing line — thin, well-detached from dot */}
       <motion.div
+        className="top-[calc(10%+30px)] sm:top-[calc(15%+30px)]"
         style={{
           position: "absolute",
-          top: "calc(15% + 30px)",
           left: 0,
           height: 1,
           backgroundColor: accentColor,
@@ -115,9 +115,9 @@ export function RollingBackground({
       <motion.div
         initial={{ filter: "blur(8px)", opacity: 0 }}
         animate={dotControls}
+        className="top-[10%] sm:top-[15%]"
         style={{
           position: "absolute",
-          top: "calc(15% - 0px)",
           left: 0,
           x: dotX,
           width: 64,
@@ -131,6 +131,7 @@ export function RollingBackground({
       <motion.div
         initial={{ opacity: 0 }}
         animate={circleControls}
+        className="hidden sm:block"
         style={{
           position: "absolute",
           bottom: -100,
