@@ -232,8 +232,12 @@ export {
   UserPageLayout,
   WizardLayout,
 } from "./blocks/layouts";
-export type { ContactInfoProps } from "./blocks/legal";
-export { ContactInfo } from "./blocks/legal";
+export type {
+  ContactInfoProps,
+  DisclosureFootnotesProps,
+  DisclosureItem,
+} from "./blocks/legal";
+export { ContactInfo, DisclosureFootnotes } from "./blocks/legal";
 export type {
   ActionCard,
   Benefit,
