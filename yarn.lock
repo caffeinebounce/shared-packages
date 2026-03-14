@@ -237,7 +237,7 @@ __metadata:
   resolution: "@caffeinebounce/ai-assistant@workspace:packages/ai-assistant"
   dependencies:
     "@caffeinebounce/ui": "npm:^0.52.0"
-    "@types/node": "npm:^24.10.1"
+    "@types/node": "npm:^25.5.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     lucide-react: "npm:^0.577.0"
@@ -277,7 +277,7 @@ __metadata:
   resolution: "@caffeinebounce/email@workspace:packages/email"
   dependencies:
     "@react-email/components": "npm:^1.0.1"
-    "@types/node": "npm:^24.10.1"
+    "@types/node": "npm:^25.5.0"
     "@types/nodemailer": "npm:^7"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
@@ -302,7 +302,7 @@ __metadata:
     "@caffeinebounce/ui": "npm:^0.52.0"
     "@supabase/ssr": "npm:^0.8.0"
     "@supabase/supabase-js": "npm:^2.49.4"
-    "@types/node": "npm:^24.10.1"
+    "@types/node": "npm:^25.5.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@types/validator": "npm:^13.15.10"
@@ -3307,7 +3307,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=8.1.0, @types/node@npm:^24.10.1":
+"@types/node@npm:*, @types/node@npm:>=8.1.0":
   version: 24.10.10
   resolution: "@types/node@npm:24.10.10"
   dependencies:
