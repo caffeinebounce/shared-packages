@@ -89,6 +89,7 @@ jobs:
       - name: Publish UI package
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         working-directory: packages/ui
+        continue-on-error: true
         run: yarn npm publish
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
