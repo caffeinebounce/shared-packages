@@ -22,7 +22,7 @@
     "setup-hooks": "scripts/setup-hooks.sh"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=25.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.7",
