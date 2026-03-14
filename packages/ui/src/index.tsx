@@ -280,6 +280,11 @@ export type {
   NavbarUserMenuProps,
   NavbarUserProfile,
   NavLink,
+  RouteSegmentedSwitcherItem,
+  RouteSegmentedSwitcherProps,
+  SegmentedSwitcherItem,
+  SegmentedSwitcherMatchMode,
+  SegmentedSwitcherProps,
 } from "./blocks/navigation";
 export {
   AppSwitcher,
@@ -289,6 +294,8 @@ export {
   Navbar,
   NavbarLogo,
   NavbarUserMenu,
+  RouteSegmentedSwitcher,
+  SegmentedSwitcher,
 } from "./blocks/navigation";
 export type {
   SettingsLayoutProps,

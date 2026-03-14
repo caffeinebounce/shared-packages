@@ -47,15 +47,15 @@
     }
   },
   "devDependencies": {
-    "@types/react": "^19.2.1",
-    "react": "^19.2.1",
+    "@types/react": "^19.2.14",
+    "react": "^19.2.4",
     "stripe": "^17.5.0",
-    "tsup": "^8.5.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^3.5.0",
     "@stripe/stripe-js": "^5.8.0",
-    "lucide-react": "^0.556.0"
+    "lucide-react": "^0.577.0"
   }
 }

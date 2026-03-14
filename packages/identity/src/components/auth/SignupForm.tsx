@@ -16,6 +16,8 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   type ComponentType,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
   useEffect,
   useMemo,
   useRef,
@@ -89,6 +91,10 @@ export interface SignupFormProps extends AuthFormConfig {
   oauthProviders?: OAuthProvider[];
   /** Show "Coming Soon" for Google OAuth */
   googleComingSoon?: boolean;
+  /** Show "Coming Soon" for Microsoft OAuth */
+  azureComingSoon?: boolean;
+  /** When true, OAuth provider icons switch to monochrome (current text color) on hover */
+  oauthIconMonochromeOnHover?: boolean;
   /** Additional className for the form container */
   className?: string;
   /** Optional callbacks for logging authentication events */
@@ -129,6 +135,8 @@ export function SignupForm({
   }>,
   oauthProviders = ["azure"],
   googleComingSoon = false,
+  azureComingSoon = false,
+  oauthIconMonochromeOnHover = false,
   className,
   onAuthEvent,
   consentItems = [],
@@ -151,6 +159,8 @@ export function SignupForm({
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
+  const [hoveredOAuthProvider, setHoveredOAuthProvider] =
+    useState<OAuthProvider | null>(null);
   const oauthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Dynamic consent state - initialize from consentItems defaults
@@ -352,6 +362,25 @@ export function SignupForm({
   const showGoogle = oauthProviders.includes("google");
   const showMicrosoft = oauthProviders.includes("azure");
 
+  function handleOAuthHover(provider: OAuthProvider) {
+    setHoveredOAuthProvider(provider);
+  }
+
+  function handleOAuthHoverEnd(
+    event:
+      | ReactMouseEvent<HTMLButtonElement>
+      | ReactPointerEvent<HTMLButtonElement>,
+  ) {
+    const relatedTarget = event.relatedTarget;
+    if (
+      relatedTarget instanceof Node &&
+      event.currentTarget.contains(relatedTarget)
+    ) {
+      return;
+    }
+    setHoveredOAuthProvider(null);
+  }
+
   return (
     <AuthFormLayout
       homeUrl={mergedLinks.home}
@@ -414,6 +443,12 @@ export function SignupForm({
               onClick={
                 googleComingSoon ? undefined : () => handleOAuthSignIn("google")
               }
+              onMouseOver={() => handleOAuthHover("google")}
+              onMouseOut={handleOAuthHoverEnd}
+              onPointerEnter={() => handleOAuthHover("google")}
+              onPointerLeave={handleOAuthHoverEnd}
+              onFocus={() => handleOAuthHover("google")}
+              onBlur={() => setHoveredOAuthProvider(null)}
               className={cn(
                 "w-full bg-muted/50 border-border hover:bg-muted relative overflow-hidden",
                 googleComingSoon
@@ -429,6 +464,10 @@ export function SignupForm({
               >
                 <GoogleIcon
                   className={cn("size-5", googleComingSoon && "opacity-50")}
+                  monochrome={
+                    oauthIconMonochromeOnHover &&
+                    hoveredOAuthProvider === "google"
+                  }
                 />
                 Continue with Google
                 {googleComingSoon && (
@@ -453,9 +492,20 @@ export function SignupForm({
               type="button"
               variant="outline"
               size="lg"
-              onClick={() => handleOAuthSignIn("azure")}
-              disabled={loading || oauthLoading !== null}
-              className="w-full bg-muted/50 border-border text-foreground hover:bg-muted relative overflow-hidden"
+              onClick={
+                azureComingSoon ? undefined : () => handleOAuthSignIn("azure")
+              }
+              disabled={azureComingSoon || loading || oauthLoading !== null}
+              onMouseOver={() => handleOAuthHover("azure")}
+              onMouseOut={handleOAuthHoverEnd}
+              onPointerEnter={() => handleOAuthHover("azure")}
+              onPointerLeave={handleOAuthHoverEnd}
+              onFocus={() => handleOAuthHover("azure")}
+              onBlur={() => setHoveredOAuthProvider(null)}
+              className={cn(
+                "w-full bg-muted/50 border-border hover:bg-muted relative overflow-hidden",
+                azureComingSoon ? "text-muted-foreground" : "text-foreground",
+              )}
             >
               <span
                 className={cn(
@@ -463,8 +513,19 @@ export function SignupForm({
                   oauthLoading === "azure" ? "opacity-0" : "opacity-100",
                 )}
               >
-                <MicrosoftIcon className="size-5" />
+                <MicrosoftIcon
+                  className={cn("size-5", azureComingSoon && "opacity-50")}
+                  monochrome={
+                    oauthIconMonochromeOnHover &&
+                    hoveredOAuthProvider === "azure"
+                  }
+                />
                 Continue with Microsoft
+                {azureComingSoon && (
+                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                    Soon
+                  </span>
+                )}
               </span>
               <span
                 className={cn(

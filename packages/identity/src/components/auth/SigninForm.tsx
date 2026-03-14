@@ -10,7 +10,14 @@ import {
 } from "@caffeinebounce/ui";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type ComponentType, useEffect, useRef, useState } from "react";
+import {
+  type ComponentType,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import type { SignInMethod } from "../../hooks/useLastSignIn";
 import { useLastSignIn } from "../../hooks/useLastSignIn";
@@ -60,6 +67,10 @@ export interface SigninFormProps extends AuthFormConfig {
   oauthProviders?: OAuthProvider[];
   /** Show "Coming Soon" for Google OAuth */
   googleComingSoon?: boolean;
+  /** Show "Coming Soon" for Microsoft OAuth */
+  azureComingSoon?: boolean;
+  /** When true, OAuth provider icons switch to monochrome (current text color) on hover */
+  oauthIconMonochromeOnHover?: boolean;
   /** Additional className for the form container */
   className?: string;
   /** Optional callbacks for logging authentication events */
@@ -111,6 +122,8 @@ export function SigninForm({
   }>,
   oauthProviders = ["azure"],
   googleComingSoon = false,
+  azureComingSoon = false,
+  oauthIconMonochromeOnHover = false,
   className,
   onAuthEvent,
   showLastSignInHint = true,
@@ -137,6 +150,8 @@ export function SigninForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
+  const [hoveredOAuthProvider, setHoveredOAuthProvider] =
+    useState<OAuthProvider | null>(null);
   const [emailVerificationPending, setEmailVerificationPending] =
     useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -437,6 +452,25 @@ export function SigninForm({
   const showGoogle = oauthProviders.includes("google");
   const showMicrosoft = oauthProviders.includes("azure");
 
+  function handleOAuthHover(provider: OAuthProvider) {
+    setHoveredOAuthProvider(provider);
+  }
+
+  function handleOAuthHoverEnd(
+    event:
+      | ReactMouseEvent<HTMLButtonElement>
+      | ReactPointerEvent<HTMLButtonElement>,
+  ) {
+    const relatedTarget = event.relatedTarget;
+    if (
+      relatedTarget instanceof Node &&
+      event.currentTarget.contains(relatedTarget)
+    ) {
+      return;
+    }
+    setHoveredOAuthProvider(null);
+  }
+
   // Check if a method matches the last sign-in for highlighting
   const isLastMethod = (method: SignInMethod) =>
     showLastSignInHint && lastSignIn?.method === method;
@@ -503,6 +537,12 @@ export function SigninForm({
               onClick={
                 googleComingSoon ? undefined : () => handleOAuthSignIn("google")
               }
+              onMouseOver={() => handleOAuthHover("google")}
+              onMouseOut={handleOAuthHoverEnd}
+              onPointerEnter={() => handleOAuthHover("google")}
+              onPointerLeave={handleOAuthHoverEnd}
+              onFocus={() => handleOAuthHover("google")}
+              onBlur={() => setHoveredOAuthProvider(null)}
               className={cn(
                 "w-full bg-muted/50 border-border hover:bg-muted relative",
                 googleComingSoon
@@ -521,6 +561,10 @@ export function SigninForm({
               >
                 <GoogleIcon
                   className={cn("size-5", googleComingSoon && "opacity-50")}
+                  monochrome={
+                    oauthIconMonochromeOnHover &&
+                    hoveredOAuthProvider === "google"
+                  }
                 />
                 Continue with Google
                 {googleComingSoon && (
@@ -547,11 +591,24 @@ export function SigninForm({
               type="button"
               variant="outline"
               size="lg"
-              onClick={() => handleOAuthSignIn("azure")}
-              disabled={loading || oauthLoading !== null}
+              onClick={
+                azureComingSoon ? undefined : () => handleOAuthSignIn("azure")
+              }
+              disabled={azureComingSoon || loading || oauthLoading !== null}
+              onMouseOver={() => handleOAuthHover("azure")}
+              onMouseOut={handleOAuthHoverEnd}
+              onPointerEnter={() => handleOAuthHover("azure")}
+              onPointerLeave={handleOAuthHoverEnd}
+              onFocus={() => handleOAuthHover("azure")}
+              onBlur={() => setHoveredOAuthProvider(null)}
               className={cn(
-                "w-full bg-muted/50 border-border text-foreground hover:bg-muted relative",
-                isLastMethod("azure") ? "justify-between" : "justify-center",
+                "w-full bg-muted/50 border-border hover:bg-muted relative",
+                azureComingSoon
+                  ? "text-muted-foreground justify-center"
+                  : "text-foreground",
+                !azureComingSoon && isLastMethod("azure")
+                  ? "justify-between"
+                  : "justify-center",
               )}
             >
               <span
@@ -560,10 +617,21 @@ export function SigninForm({
                   oauthLoading === "azure" ? "opacity-0" : "opacity-100",
                 )}
               >
-                <MicrosoftIcon className="size-5" />
+                <MicrosoftIcon
+                  className={cn("size-5", azureComingSoon && "opacity-50")}
+                  monochrome={
+                    oauthIconMonochromeOnHover &&
+                    hoveredOAuthProvider === "azure"
+                  }
+                />
                 Continue with Microsoft
+                {azureComingSoon && (
+                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                    Soon
+                  </span>
+                )}
               </span>
-              {isLastMethod("azure") && !oauthLoading && (
+              {isLastMethod("azure") && !azureComingSoon && !oauthLoading && (
                 <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/30 rounded z-10 relative">
                   Last Used
                 </span>

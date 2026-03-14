@@ -34,3 +34,12 @@ export {
   type NavbarUserMenuProps,
   type NavbarUserProfile,
 } from "./NavbarUserMenu";
+export {
+  RouteSegmentedSwitcher,
+  type RouteSegmentedSwitcherItem,
+  type RouteSegmentedSwitcherProps,
+  SegmentedSwitcher,
+  type SegmentedSwitcherItem,
+  type SegmentedSwitcherMatchMode,
+  type SegmentedSwitcherProps,
+} from "./SegmentedSwitcher";

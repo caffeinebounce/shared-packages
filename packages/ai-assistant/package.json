@@ -37,15 +37,15 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@types/react": "^19.2.1",
-    "@types/react-dom": "^19.2.1",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "tsup": "^8.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "@caffeinebounce/ui": "^0.52.0",
-    "lucide-react": "^0.556.0"
+    "lucide-react": "^0.577.0"
   }
 }
