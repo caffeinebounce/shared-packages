@@ -10,6 +10,8 @@ export interface DisclosureItem {
   label?: string;
   /** The disclosure copy */
   text: string;
+  /** Opt-in hide — defaults to false (shown). Set true to suppress this item. */
+  hidden?: boolean;
 }
 
 export interface DisclosureFootnotesProps {
@@ -26,15 +28,17 @@ export function DisclosureFootnotes({
 }: DisclosureFootnotesProps) {
   const [expanded, setExpanded] = useState(false);
 
-  if (disclosures.length === 0) return null;
+  const activeDisclosures = disclosures.filter((d) => !d.hidden);
+
+  if (activeDisclosures.length === 0) return null;
 
   const COLLAPSE_THRESHOLD = 3;
   const shouldCollapse =
-    variant === "compact" && disclosures.length > COLLAPSE_THRESHOLD;
+    variant === "compact" && activeDisclosures.length > COLLAPSE_THRESHOLD;
   const visibleDisclosures =
     shouldCollapse && !expanded
-      ? disclosures.slice(0, COLLAPSE_THRESHOLD)
-      : disclosures;
+      ? activeDisclosures.slice(0, COLLAPSE_THRESHOLD)
+      : activeDisclosures;
 
   return (
     <section
@@ -65,7 +69,7 @@ export function DisclosureFootnotes({
             onClick={() => setExpanded(true)}
             className="mt-3 text-xs text-muted-foreground/50 underline underline-offset-2 transition-colors hover:text-muted-foreground"
           >
-            Show all disclosures ({disclosures.length})
+            Show all disclosures ({activeDisclosures.length})
           </button>
         )}
       </div>
