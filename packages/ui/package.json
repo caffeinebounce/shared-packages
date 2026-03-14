@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/ui",
-  "version": "0.52.28",
+  "version": "0.52.32",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -86,7 +86,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "NODE_OPTIONS='--max-old-space-size=4096 --localstorage-file=.vitest-localstorage' vitest run",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096 --localstorage-file=.vitest-localstorage' yarn run -T vitest run",
     "test:watch": "NODE_OPTIONS='--localstorage-file=.vitest-localstorage' vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "clean": "rm -rf dist",

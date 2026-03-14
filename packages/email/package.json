@@ -28,8 +28,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "dev:email": "email dev --dir src/templates",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "yarn run -T vitest run",
+    "test:watch": "yarn run -T vitest",
     "clean": "rm -rf dist",
     "lint": "biome check src/"
   },
