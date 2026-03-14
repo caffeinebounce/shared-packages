@@ -92,7 +92,7 @@ export function EditableCell({
       const result = schema.safeParse(valueToSave);
       if (!result.success) {
         // Zod error handling
-        toast.error(result.error.errors?.[0]?.message || result.error.message);
+        toast.error(result.error.issues?.[0]?.message || result.error.message);
         // Revert if boolean toggle failed validation (unlikely but possible)
         if (type === "boolean") setValue(initialValue ?? false);
         return;

@@ -115,7 +115,7 @@ function safeParseUrl(urlString: string): URL | null {
  */
 export function createSocialUrlSchema(
   config: SocialUrlSchemaConfig,
-): z.ZodEffects<z.ZodString, string, string> {
+): z.ZodType<string> {
   const {
     name,
     hostnames,
@@ -181,7 +181,7 @@ export function createSocialUrlSchema(
  */
 export function createSocialHandleSchema(
   config: SocialHandleSchemaConfig,
-): z.ZodEffects<z.ZodString, string, string> {
+): z.ZodType<string> {
   const { name, maxLength, pattern, validCharsDescription } = config;
 
   return z
@@ -219,7 +219,7 @@ export function createSocialHandleSchema(
  */
 export function createUrlSchema(
   errorMessage = "Please enter a valid URL",
-): z.ZodEffects<z.ZodString, string, string> {
+): z.ZodType<string> {
   return z.string().refine((val) => {
     if (!val) return true; // Empty is valid (handled by optional/required separately)
 
