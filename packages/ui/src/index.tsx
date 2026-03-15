@@ -242,6 +242,7 @@ export type {
   ActionCard,
   Benefit,
   BenefitsSectionProps,
+  EditorialHeroProps,
   HeroSectionProps,
   HeroSectionWithRippleProps,
   ImpactSectionProps,
@@ -259,6 +260,7 @@ export type {
 } from "./blocks/marketing";
 export {
   BenefitsSection,
+  EditorialHero,
   HeroSection,
   HeroSectionWithRipple,
   ImpactSection,
