@@ -27,7 +27,9 @@ export function StepFlow({
               </div>
 
               {!isLast ? (
-                <span className={cn("hidden text-lg md:inline", arrowClassName)}>
+                <span
+                  className={cn("hidden text-lg md:inline", arrowClassName)}
+                >
                   →
                 </span>
               ) : null}

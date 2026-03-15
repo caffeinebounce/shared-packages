@@ -24,10 +24,7 @@ export function QuoteBlock({
       )}
     >
       <div
-        className={cn(
-          "mx-auto mb-6 h-px w-16 bg-white/30",
-          accentClassName,
-        )}
+        className={cn("mx-auto mb-6 h-px w-16 bg-white/30", accentClassName)}
       />
 
       <blockquote className="font-serif text-2xl leading-relaxed text-white md:text-3xl">

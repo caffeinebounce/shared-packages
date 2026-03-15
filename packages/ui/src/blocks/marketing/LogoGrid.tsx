@@ -36,7 +36,9 @@ export function LogoGrid({ items, columns = 4, className }: LogoGridProps) {
               className="max-h-10 w-auto object-contain opacity-90"
             />
           ) : (
-            <span className="text-sm font-medium text-white/80">{item.name}</span>
+            <span className="text-sm font-medium text-white/80">
+              {item.name}
+            </span>
           )}
         </div>
       ))}

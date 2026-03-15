@@ -19,6 +19,7 @@ export {
   type LampHeroProps,
   type LampHeroSocialLink,
 } from "./LampHero";
+export { LogoGrid, type LogoGridItem, type LogoGridProps } from "./LogoGrid";
 export {
   MissionSection,
   type MissionSectionProps,
@@ -35,12 +36,11 @@ export {
   NextStepsSection,
   type NextStepsSectionProps,
 } from "./NextStepsSection";
+export { QuoteBlock, type QuoteBlockProps } from "./QuoteBlock";
+export { StepFlow, type StepFlowProps } from "./StepFlow";
 export {
   type Testimonial,
   TestimonialsSection,
   type TestimonialsSectionProps,
 } from "./TestimonialsSection";
-export { QuoteBlock, type QuoteBlockProps } from "./QuoteBlock";
-export { LogoGrid, type LogoGridItem, type LogoGridProps } from "./LogoGrid";
-export { StepFlow, type StepFlowProps } from "./StepFlow";
 export { Timeline, type TimelineItem, type TimelineProps } from "./Timeline";
