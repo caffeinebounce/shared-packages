@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { useReducedMotion } from "motion/react";
 
 import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { Navbar } from "./Navbar";
@@ -93,7 +93,9 @@ describe("Navbar", () => {
         logo={<span>Logo</span>}
         links={[{ href: "/about", label: "About" }]}
         LinkComponent={TestLink}
-        mobileMenuClosedIcon={<span data-testid="custom-closed-icon">Open</span>}
+        mobileMenuClosedIcon={
+          <span data-testid="custom-closed-icon">Open</span>
+        }
         mobileMenuOpenIcon={<span data-testid="custom-open-icon">Close</span>}
       />,
     );
@@ -120,7 +122,9 @@ describe("Navbar", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
 
     const header = screen.getByRole("banner");
-    const mobileMenu = document.querySelector('[data-slot="navbar-mobile-menu"]');
+    const mobileMenu = document.querySelector(
+      '[data-slot="navbar-mobile-menu"]',
+    );
 
     expect(header).toHaveClass("bg-background");
     expect(header).not.toHaveClass("bg-transparent");
@@ -168,7 +172,9 @@ describe("Navbar", () => {
     fireEvent.click(menuButton);
 
     const header = screen.getByRole("banner");
-    const mobileMenu = document.querySelector('[data-slot="navbar-mobile-menu"]');
+    const mobileMenu = document.querySelector(
+      '[data-slot="navbar-mobile-menu"]',
+    );
 
     expect(header).toHaveClass("bg-black");
     expect(header).not.toHaveClass("bg-black/65");
@@ -205,7 +211,9 @@ describe("Navbar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
 
-    const mobileMenu = document.querySelector('[data-slot="navbar-mobile-menu"]');
+    const mobileMenu = document.querySelector(
+      '[data-slot="navbar-mobile-menu"]',
+    );
 
     await waitFor(() => {
       expect(mobileMenu).toHaveStyle("top: 56px");
