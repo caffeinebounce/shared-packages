@@ -407,7 +407,7 @@ __metadata:
     clsx: "npm:^2.1.1"
     cmdk: "npm:^1.1.1"
     date-fns: "npm:^4.1.0"
-    html2canvas-pro: "npm:^1.5.8"
+    html2canvas-pro: "npm:^2.0.2"
     input-otp: "npm:^1.4.2"
     lucide-react: "npm:^0.577.0"
     motion: "npm:^12.36.0"
@@ -4676,13 +4676,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html2canvas-pro@npm:^1.5.8":
-  version: 1.6.6
-  resolution: "html2canvas-pro@npm:1.6.6"
+"html2canvas-pro@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "html2canvas-pro@npm:2.0.2"
   dependencies:
     css-line-break: "npm:^2.1.0"
     text-segmentation: "npm:^1.0.3"
-  checksum: 10c0/53c6bc105b286982247eda78790a5eabe1192167b53520497e9a289c3a0e81732c2a97d500eaac7532ca478641fe72fa85fbf7433fc1a140bab6f8aa5af8eb2e
+  checksum: 10c0/15268678f32010437a91b65cfc8420cbba3090b5f1871e581cebcc4cce6f957126aae39b9587dd8495a728f4a3fad307b7314d289e6d593c4ea378b771a6bee0
   languageName: node
   linkType: hard
 
