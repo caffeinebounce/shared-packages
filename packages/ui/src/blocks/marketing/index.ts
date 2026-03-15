@@ -5,6 +5,10 @@ export {
   type Outcome,
 } from "./BenefitsSection";
 export {
+  EditorialHero,
+  type EditorialHeroProps,
+} from "./EditorialHero";
+export {
   type CarouselState,
   HeroSection,
   type HeroSectionProps,

@@ -1,5 +1,11 @@
 # @caffeinebounce/shared-utils
 
+## 0.7.43
+
+### Patch Changes
+
+- ce8fea1: Migrate shared Zod usage to v4-compatible package versions and internal typings.
+
 ## 0.7.8
 
 ### Patch Changes

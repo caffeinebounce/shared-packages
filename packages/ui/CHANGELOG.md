@@ -1,5 +1,19 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.53.0
+
+### Minor Changes
+
+- Add a new EditorialHero marketing block with focal media cropping for editorial landing pages.
+- 526d0bd: Add animated mobile navbar toggles, opaque mobile menu surfaces, named navbar presets, and screen-height mobile menu support.
+
+### Patch Changes
+
+- 7afc2be: Update `html2canvas-pro` to v2 in `@caffeinebounce/ui`.
+- ce8fea1: Migrate shared Zod usage to v4-compatible package versions and internal typings.
+- Updated dependencies [ce8fea1]
+  - @caffeinebounce/shared-utils@0.7.43
+
 ## 0.52.0
 
 ### Minor Changes
