@@ -40,3 +40,7 @@ export {
   TestimonialsSection,
   type TestimonialsSectionProps,
 } from "./TestimonialsSection";
+export { QuoteBlock, type QuoteBlockProps } from "./QuoteBlock";
+export { LogoGrid, type LogoGridItem, type LogoGridProps } from "./LogoGrid";
+export { StepFlow, type StepFlowProps } from "./StepFlow";
+export { Timeline, type TimelineItem, type TimelineProps } from "./Timeline";
