@@ -1,8 +1,9 @@
 "use client";
 
+import { useReducedMotion } from "motion/react";
 import { Menu, X } from "lucide-react";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { cn } from "../../utils";
@@ -27,6 +28,8 @@ export interface NavLink {
 export interface NavbarProps {
   /** Logo/brand element (typically an image with text) */
   logo: ReactNode;
+  /** Optional named styling preset for site-specific chrome */
+  preset?: "default" | "keenan";
   /** Navigation links to display in desktop view */
   links?: NavLink[];
   /** Right side content (user menu, theme toggle, etc.) */
@@ -58,8 +61,58 @@ export interface NavbarProps {
   mobileMenuOpenIcon?: ReactNode;
   /** Custom mobile menu button content when closed */
   mobileMenuClosedIcon?: ReactNode;
+  /** Mobile menu height behavior */
+  mobileMenuHeight?: "content" | "screen";
   /** Max width for the inner container (e.g., "max-w-5xl", "max-w-7xl"). Defaults to full container width. */
   containerClassName?: string;
+}
+
+function DefaultMobileMenuIcon({
+  open,
+  reducedMotion,
+}: {
+  open: boolean;
+  reducedMotion: boolean;
+}) {
+  const transition = reducedMotion
+    ? "none"
+    : "transform 300ms cubic-bezier(0.22, 1, 0.36, 1), opacity 300ms cubic-bezier(0.22, 1, 0.36, 1)";
+  const lineStyle = {
+    backgroundColor: "currentColor",
+    transition,
+  };
+
+  return (
+    <span
+      aria-hidden="true"
+      data-slot="navbar-mobile-menu-icon"
+      data-state={open ? "open" : "closed"}
+      className="relative flex h-5 w-5 items-center justify-center"
+    >
+      <span
+        className="absolute h-0.5 w-5 rounded-full"
+        style={{
+          ...lineStyle,
+          transform: open ? "translateY(0) rotate(45deg)" : "translateY(-6px)",
+        }}
+      />
+      <span
+        className="absolute h-0.5 w-5 rounded-full"
+        style={{
+          ...lineStyle,
+          opacity: open ? 0 : 1,
+          transform: open ? "scaleX(0)" : "scaleX(1)",
+        }}
+      />
+      <span
+        className="absolute h-0.5 w-5 rounded-full"
+        style={{
+          ...lineStyle,
+          transform: open ? "translateY(0) rotate(-45deg)" : "translateY(6px)",
+        }}
+      />
+    </span>
+  );
 }
 
 /**
@@ -82,6 +135,7 @@ export interface NavbarProps {
  */
 export function Navbar({
   logo,
+  preset = "default",
   links = [],
   rightContent,
   mobileContent,
@@ -93,14 +147,21 @@ export function Navbar({
   showMobileMenu = true,
   mobileMenuOpenIcon,
   mobileMenuClosedIcon,
+  mobileMenuHeight = "content",
   containerClassName,
 }: NavbarProps) {
+  const headerRef = useRef<HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuTop, setMobileMenuTop] = useState(0);
+  const reducedMotion = useReducedMotion() ?? false;
   const { direction, isAtTop } = useScrollDirection({
     threshold: 10,
     topThreshold: 50,
   });
 
+  const usesCustomMobileMenuIcons =
+    mobileMenuOpenIcon !== undefined || mobileMenuClosedIcon !== undefined;
+  const isScreenHeightMobileMenu = mobileMenuHeight === "screen";
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   // Determine the anchor/link element to use
@@ -116,10 +177,72 @@ export function Navbar({
     solid: "bg-background border-b border-border",
     blur: "bg-background/60 backdrop-blur-xl backdrop-saturate-150 border-b border-border dark:border-white/10",
   };
+  const presetClasses = {
+    default: {
+      header: "",
+      mobileMenuHeader: "bg-background border-b border-border shadow-lg",
+      mobileMenu: "bg-background shadow-lg",
+      mobileMenuButton: "",
+    },
+    keenan: {
+      header:
+        "border-white/10 bg-black/65 shadow-[0_18px_48px_rgba(0,0,0,0.45)] backdrop-blur-2xl",
+      mobileMenuHeader:
+        "border-white/10 bg-black shadow-[0_18px_48px_rgba(0,0,0,0.45)] backdrop-blur-2xl",
+      mobileMenu:
+        "border-white/10 bg-black shadow-[0_22px_56px_rgba(0,0,0,0.5)]",
+      mobileMenuButton: "text-white hover:bg-white/5 hover:text-white",
+    },
+  };
 
   // Determine visibility based on scroll direction
   const shouldHide =
-    sticky && hideOnScrollDown && !isAtTop && direction === "down";
+    sticky &&
+    hideOnScrollDown &&
+    !mobileMenuOpen &&
+    !isAtTop &&
+    direction === "down";
+
+  useLayoutEffect(() => {
+    if (!mobileMenuOpen || !isScreenHeightMobileMenu) {
+      setMobileMenuTop(0);
+      return;
+    }
+
+    const updateMobileMenuTop = () => {
+      const nextTop = Math.max(
+        headerRef.current?.getBoundingClientRect().bottom ?? 0,
+        0,
+      );
+      setMobileMenuTop(nextTop);
+    };
+
+    updateMobileMenuTop();
+    window.addEventListener("resize", updateMobileMenuTop);
+    window.addEventListener("scroll", updateMobileMenuTop, { passive: true });
+
+    return () => {
+      window.removeEventListener("resize", updateMobileMenuTop);
+      window.removeEventListener("scroll", updateMobileMenuTop);
+    };
+  }, [mobileMenuOpen, isScreenHeightMobileMenu]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen || !isScreenHeightMobileMenu) {
+      return;
+    }
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [mobileMenuOpen, isScreenHeightMobileMenu]);
 
   // Use fixed positioning when hideOnScrollDown is enabled for smooth hide/show
   // Otherwise use sticky for standard behavior
@@ -132,10 +255,14 @@ export function Navbar({
 
   return (
     <header
+      ref={headerRef}
+      data-preset={preset}
       className={cn(
         "z-50 w-full transition-[transform,background-color,border-color,backdrop-filter] duration-300",
         positionClass,
         variantClasses[variant],
+        presetClasses[preset].header,
+        mobileMenuOpen && presetClasses[preset].mobileMenuHeader,
         className,
       )}
       style={{
@@ -191,13 +318,27 @@ export function Navbar({
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+              data-slot="navbar-mobile-menu-button"
+              data-state={mobileMenuOpen ? "open" : "closed"}
+              className={cn(
+                "inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
+                presetClasses[preset].mobileMenuButton,
+              )}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen
-                ? mobileMenuOpenIcon || <X className="h-5 w-5" />
-                : mobileMenuClosedIcon || <Menu className="h-5 w-5" />}
+              {usesCustomMobileMenuIcons ? (
+                mobileMenuOpen ? (
+                  mobileMenuOpenIcon || <X className="h-5 w-5" />
+                ) : (
+                  mobileMenuClosedIcon || <Menu className="h-5 w-5" />
+                )
+              ) : (
+                <DefaultMobileMenuIcon
+                  open={mobileMenuOpen}
+                  reducedMotion={reducedMotion}
+                />
+              )}
             </button>
           )}
         </div>
@@ -205,8 +346,33 @@ export function Navbar({
 
       {/* Mobile Menu */}
       {showMobileMenu && mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background">
-          <nav className="container py-4 flex flex-col gap-4">
+        <div
+          data-slot="navbar-mobile-menu"
+          data-height={mobileMenuHeight}
+          data-preset={preset}
+          className={cn(
+            "md:hidden border-t border-border",
+            presetClasses[preset].mobileMenu,
+            isScreenHeightMobileMenu &&
+              "fixed inset-x-0 overflow-y-auto overscroll-contain",
+          )}
+          style={
+            isScreenHeightMobileMenu
+              ? {
+                  top: mobileMenuTop,
+                  height: `calc(100dvh - ${mobileMenuTop}px)`,
+                }
+              : undefined
+          }
+        >
+          <nav
+            data-slot="navbar-mobile-menu-content"
+            className={cn(
+              "container mx-auto flex flex-col gap-4 px-4 py-4 md:px-8",
+              isScreenHeightMobileMenu && "min-h-full overflow-y-auto",
+              containerClassName,
+            )}
+          >
             {mobileContent || (
               <>
                 {/* Default: Render links */}

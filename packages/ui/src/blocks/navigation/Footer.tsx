@@ -281,7 +281,7 @@ function BrandFooter({
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-full bg-white/[0.06] hover:bg-white/[0.12] dark:bg-white/[0.06] dark:hover:bg-white/[0.12] p-2 transition-colors text-muted-foreground hover:text-foreground backdrop-blur-sm"
+                  className="rounded-lg bg-white/[0.06] p-2 text-muted-foreground backdrop-blur-sm transition-colors hover:bg-white/[0.12] hover:text-foreground dark:bg-white/[0.06] dark:hover:bg-white/[0.12]"
                   aria-label={social.label}
                 >
                   {social.icon}
