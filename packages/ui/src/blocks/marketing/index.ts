@@ -14,6 +14,8 @@ export {
   type BentoGridSectionProps,
 } from "./BentoGridSection";
 export {
+  CTAWithDashedGridLines,
+  type CTAWithDashedGridLinesProps,
   CtaWithDashedGridLines,
   type CtaWithDashedGridLinesProps,
 } from "./CtaWithDashedGridLines";

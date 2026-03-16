@@ -41,7 +41,7 @@ function GridLineVertical({ offset = 32, className }: GridLineProps) {
   );
 }
 
-export interface CtaWithDashedGridLinesProps {
+export interface CTAWithDashedGridLinesProps {
   heading?: ReactNode;
   highlightedHeading?: ReactNode;
   description?: ReactNode;
@@ -59,21 +59,21 @@ export interface CtaWithDashedGridLinesProps {
   className?: string;
 }
 
-export function CtaWithDashedGridLines({
+export function CTAWithDashedGridLines({
   heading = "Ship products with the speed of light",
   highlightedHeading,
   description = "Get the best in class support for the most advanced products.",
-  primaryAction = { label: "Buy now", href: "#" },
-  secondaryAction = { label: "Talk to us", href: "#" },
+  primaryAction,
+  secondaryAction,
   quote = '"This is the best product ever when it comes to shipping. Ten on ten recommended. I just can\'t wait to see what happens with this product."',
   quoteAuthor = "Michael Scarn",
   quoteRole = "Side projects builder",
   className,
-}: CtaWithDashedGridLinesProps) {
+}: CTAWithDashedGridLinesProps) {
   return (
     <section className={cn("py-16 md:py-24", className)}>
       <div className="container mx-auto px-4">
-        <div className="relative rounded-2xl border border-border/80 bg-background">
+        <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-background">
           <GridLineHorizontal className="top-0" />
           <GridLineHorizontal className="bottom-0" />
           <GridLineVertical className="left-0" />
@@ -91,14 +91,20 @@ export function CtaWithDashedGridLines({
                 {description}
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild>
-                  <a href={primaryAction.href}>{primaryAction.label}</a>
-                </Button>
-                <Button asChild variant="outline">
-                  <a href={secondaryAction.href}>{secondaryAction.label}</a>
-                </Button>
-              </div>
+              {primaryAction || secondaryAction ? (
+                <div className="mt-8 flex flex-wrap gap-3">
+                  {primaryAction ? (
+                    <Button asChild>
+                      <a href={primaryAction.href}>{primaryAction.label}</a>
+                    </Button>
+                  ) : null}
+                  {secondaryAction ? (
+                    <Button asChild variant="outline">
+                      <a href={secondaryAction.href}>{secondaryAction.label}</a>
+                    </Button>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
 
             <aside className="border-t border-dashed border-border/70 p-8 md:border-t-0 md:border-l md:p-10">
@@ -116,3 +122,13 @@ export function CtaWithDashedGridLines({
     </section>
   );
 }
+
+/**
+ * @deprecated Use `CTAWithDashedGridLines`.
+ */
+export const CtaWithDashedGridLines = CTAWithDashedGridLines;
+
+/**
+ * @deprecated Use `CTAWithDashedGridLinesProps`.
+ */
+export type CtaWithDashedGridLinesProps = CTAWithDashedGridLinesProps;
