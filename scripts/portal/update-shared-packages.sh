@@ -90,7 +90,7 @@ load_config() {
     " "$CONFIG_FILE" 2>/dev/null))
   fi
 
-  # Fallback to common packages if no config or empty
+  # Fallback to the common portal-consumed package subset if no config or empty
   if [[ ${#PACKAGES[@]} -eq 0 ]]; then
     PACKAGES=(
       "@caffeinebounce/ui"

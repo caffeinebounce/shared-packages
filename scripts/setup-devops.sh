@@ -95,6 +95,7 @@ print_status() {
 
 # =============================================================================
 # Step 1: Create devops.config.json if needed
+# portalPackages is the default portal-linked subset, not the full workspace inventory.
 # =============================================================================
 
 print_status "step" "Checking devops.config.json..."

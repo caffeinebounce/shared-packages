@@ -82,7 +82,7 @@ load_config() {
       SHARED_PACKAGES_PATH="$path"
     fi
   else
-    # Fallback to common packages if no config
+    # Fallback to the common portal-consumed package subset if no config
     PORTAL_PACKAGES=(
       "@caffeinebounce/ui"
       "@caffeinebounce/identity"

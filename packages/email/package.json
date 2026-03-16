@@ -30,6 +30,7 @@
     "dev:email": "email dev --dir src/templates",
     "test": "yarn run -T vitest run",
     "test:watch": "yarn run -T vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "clean": "rm -rf dist",
     "lint": "biome check src/"
   },

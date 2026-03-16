@@ -4,8 +4,8 @@ This guide walks through setting up the pre-commit hooks and auto-publish system
 
 ## Prerequisites
 
-- Node.js 20.9+
-- Yarn 4.11.0
+- Node.js 25+
+- Yarn 4.12.0
 - Git 2.9+
 - pip (Python package manager, for pre-commit framework)
 

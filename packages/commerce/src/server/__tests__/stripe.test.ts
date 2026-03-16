@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+type MockStripeInstance = {
+  _secretKey: string;
+  _config: Record<string, unknown>;
+};
+
 // Mock the stripe module with a class that can be used with `new`
 vi.mock("stripe", () => {
   return {
@@ -43,10 +48,11 @@ describe("Stripe Server Integration", () => {
 
       const { getStripe } = await import("../stripe");
       const stripe = await getStripe();
+      const mockedStripe = stripe as unknown as MockStripeInstance;
 
       expect(stripe).toBeDefined();
-      expect(stripe._secretKey).toBe("sk_test_123"); // pragma: allowlist secret
-      expect(stripe._config).toEqual({
+      expect(mockedStripe._secretKey).toBe("sk_test_123"); // pragma: allowlist secret
+      expect(mockedStripe._config).toEqual({
         apiVersion: "2025-02-24.acacia",
         typescript: true,
       });
