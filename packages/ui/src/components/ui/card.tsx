@@ -20,7 +20,7 @@ export type CardElevation = "flat" | "raised" | "floating";
 export type CardBorder = "default" | "subtle" | "none";
 
 const cardVariants = cva(
-  "bg-card text-card-foreground flex flex-col gap-6 rounded-xl py-6",
+  "bg-card text-card-foreground flex flex-col gap-6 rounded-box py-6",
   {
     variants: {
       elevation: {

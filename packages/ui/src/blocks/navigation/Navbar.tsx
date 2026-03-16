@@ -5,6 +5,7 @@ import { useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
+import { Container } from "../../components/ui/container";
 import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { cn } from "../../utils";
 
@@ -63,7 +64,7 @@ export interface NavbarProps {
   mobileMenuClosedIcon?: ReactNode;
   /** Mobile menu height behavior */
   mobileMenuHeight?: "content" | "screen";
-  /** Max width for the inner container (e.g., "max-w-5xl", "max-w-7xl"). Defaults to full container width. */
+  /** Additional classes layered onto the shared container width/padding system. */
   containerClassName?: string;
 }
 
@@ -269,9 +270,10 @@ export function Navbar({
         transform: shouldHide ? "translateY(-100%)" : "translateY(0)",
       }}
     >
-      <div
+      <Container
+        data-slot="navbar-container"
         className={cn(
-          "container mx-auto flex h-14 items-center justify-between gap-4 px-4 md:px-8",
+          "flex h-14 items-center justify-between gap-4",
           containerClassName,
         )}
       >
@@ -321,7 +323,7 @@ export function Navbar({
               data-slot="navbar-mobile-menu-button"
               data-state={mobileMenuOpen ? "open" : "closed"}
               className={cn(
-                "inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
+                "inline-flex h-9 w-9 items-center justify-center rounded-box text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
                 presetClasses[preset].mobileMenuButton,
               )}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
@@ -342,7 +344,7 @@ export function Navbar({
             </button>
           )}
         </div>
-      </div>
+      </Container>
 
       {/* Mobile Menu */}
       {showMobileMenu && mobileMenuOpen && (
@@ -365,45 +367,53 @@ export function Navbar({
               : undefined
           }
         >
-          <nav
-            data-slot="navbar-mobile-menu-content"
+          <Container
+            data-slot="navbar-mobile-menu-container"
             className={cn(
-              "container mx-auto flex flex-col gap-4 px-4 py-4 md:px-8",
-              isScreenHeightMobileMenu && "min-h-full overflow-y-auto",
+              "py-4",
+              isScreenHeightMobileMenu && "h-full",
               containerClassName,
             )}
           >
-            {mobileContent || (
-              <>
-                {/* Default: Render links */}
-                {links.map((link) =>
-                  link.external ? (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground transition-colors py-2"
-                      onClick={closeMobileMenu}
-                    >
-                      {link.icon}
-                      {link.label}
-                    </a>
-                  ) : (
-                    <LinkEl
-                      key={link.href}
-                      href={link.href}
-                      className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground transition-colors py-2"
-                      onClick={closeMobileMenu}
-                    >
-                      {link.icon}
-                      {link.label}
-                    </LinkEl>
-                  ),
-                )}
-              </>
-            )}
-          </nav>
+            <nav
+              data-slot="navbar-mobile-menu-content"
+              className={cn(
+                "flex flex-col gap-4",
+                isScreenHeightMobileMenu && "min-h-full overflow-y-auto",
+              )}
+            >
+              {mobileContent || (
+                <>
+                  {/* Default: Render links */}
+                  {links.map((link) =>
+                    link.external ? (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground transition-colors py-2"
+                        onClick={closeMobileMenu}
+                      >
+                        {link.icon}
+                        {link.label}
+                      </a>
+                    ) : (
+                      <LinkEl
+                        key={link.href}
+                        href={link.href}
+                        className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground transition-colors py-2"
+                        onClick={closeMobileMenu}
+                      >
+                        {link.icon}
+                        {link.label}
+                      </LinkEl>
+                    ),
+                  )}
+                </>
+              )}
+            </nav>
+          </Container>
         </div>
       )}
     </header>

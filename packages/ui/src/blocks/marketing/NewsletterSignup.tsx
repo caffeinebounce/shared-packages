@@ -80,7 +80,7 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
   if (submitted) {
     return (
       <div
-        className={`flex items-center justify-center gap-3 rounded-md border border-border px-4 py-3 ${className || ""}`}
+        className={`flex items-center justify-center gap-3 rounded-box border border-border px-4 py-3 ${className || ""}`}
       >
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground animate-in zoom-in duration-300">
           <Check

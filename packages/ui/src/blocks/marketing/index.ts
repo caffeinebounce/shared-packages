@@ -14,6 +14,11 @@ export {
   type BentoGridSectionProps,
 } from "./BentoGridSection";
 export {
+  BlurLogoCloud,
+  type BlurLogoCloudItem,
+  type BlurLogoCloudProps,
+} from "./BlurLogoCloud";
+export {
   CTAWithDashedGridLines,
   type CTAWithDashedGridLinesProps,
   CtaWithDashedGridLines,
@@ -71,6 +76,11 @@ export {
   SpotlightHeroSection,
   type SpotlightHeroSectionProps,
 } from "./SpotlightHeroSection";
+export {
+  type StackedIsometricFeatureItem,
+  StackedIsometricFeatures,
+  type StackedIsometricFeaturesProps,
+} from "./StackedIsometricFeatures";
 export { StepFlow, type StepFlowProps } from "./StepFlow";
 export {
   type StickyScrollStoryItem,

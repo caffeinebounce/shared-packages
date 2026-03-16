@@ -48,7 +48,7 @@ describe("Input", () => {
       render(<Input data-testid="input" variant="default" />);
       const input = screen.getByTestId("input");
       expect(input).toHaveClass("border");
-      expect(input).toHaveClass("rounded-md");
+      expect(input).toHaveClass("rounded-box");
     });
 
     it("applies filled variant", () => {
@@ -68,7 +68,7 @@ describe("Input", () => {
     it("defaults to default variant", () => {
       render(<Input data-testid="input" />);
       const input = screen.getByTestId("input");
-      expect(input).toHaveClass("rounded-md");
+      expect(input).toHaveClass("rounded-box");
       expect(input).toHaveClass("shadow-xs");
     });
   });
@@ -96,7 +96,7 @@ describe("Input", () => {
   describe("inputVariants function", () => {
     it("returns correct classes for default variant", () => {
       const classes = inputVariants({ variant: "default" });
-      expect(classes).toContain("rounded-md");
+      expect(classes).toContain("rounded-box");
       expect(classes).toContain("border");
     });
 

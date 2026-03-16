@@ -85,7 +85,7 @@ export function BenefitsSection({
             {benefits.map((benefit) => (
               <div
                 key={benefit.text}
-                className="flex items-start gap-4 p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                className="flex items-start gap-4 rounded-box bg-muted/30 p-4 transition-colors hover:bg-muted/50"
               >
                 <div className="shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <benefit.icon className="w-5 h-5 text-primary" />
@@ -97,7 +97,7 @@ export function BenefitsSection({
 
           {/* Outcomes */}
           {outcomes.length > 0 && (
-            <div className="bg-background border rounded-xl p-8 md:p-10">
+            <div className="bg-background border rounded-box p-8 md:p-10">
               <h3 className="text-2xl font-bold text-foreground mb-6 text-center">
                 {outcomesHeading}
               </h3>

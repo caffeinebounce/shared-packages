@@ -194,6 +194,46 @@ describe("EditorialHero", () => {
     ).toBeInTheDocument();
   });
 
+  it("uses pixelated canvas by default and lets consumers opt out", async () => {
+    const { container, rerender } = render(
+      <EditorialHero
+        heading="A sharper hero"
+        media={{
+          src: "/images/hero-1.webp",
+          alt: "Portrait",
+          width: 1500,
+          height: 625,
+        }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-slot="focal-media-canvas"]'),
+      ).toBeInTheDocument();
+    });
+
+    rerender(
+      <EditorialHero
+        heading="A sharper hero"
+        media={{
+          src: "/images/hero-1.webp",
+          alt: "Portrait",
+          width: 1500,
+          height: 625,
+          pixelatedCanvas: false,
+        }}
+      />,
+    );
+
+    expect(
+      container.querySelector('[data-slot="focal-media-canvas"]'),
+    ).toBeNull();
+    expect(
+      container.querySelector('[data-slot="focal-media-image"]'),
+    ).toBeInTheDocument();
+  });
+
   it("positions focal media from the supplied focal point", async () => {
     const { container } = render(
       <FocalMediaFrame

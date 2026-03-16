@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { Button } from "../../components/ui/button";
 import { Container } from "../../components/ui/container";
+import type { PixelatedCanvasProps } from "../../components/ui/pixelated-canvas";
 import { cn } from "../../utils";
 import { FocalMediaFrame } from "./FocalMediaFrame";
 
@@ -33,6 +34,10 @@ interface EditorialHeroMedia {
     y: number;
   };
   height: number;
+  pixelatedCanvas?: boolean;
+  pixelatedCanvasProps?: Partial<
+    Omit<PixelatedCanvasProps, "alt" | "height" | "src" | "width">
+  >;
   src: string;
   width: number;
 }
@@ -114,11 +119,13 @@ export function EditorialHero({
     <FocalMediaFrame
       alt={media.alt}
       className={cn(
-        "h-[24rem] w-full rounded-xl border border-border/70 bg-card shadow-lg md:h-[28rem] lg:h-full lg:min-h-[32rem]",
+        "h-[24rem] w-full rounded-box border border-border/70 bg-card shadow-lg md:h-[28rem] lg:h-full lg:min-h-[32rem]",
         mediaClassName,
       )}
       focalPoint={media.focalPoint}
       height={media.height}
+      pixelatedCanvas={media.pixelatedCanvas ?? true}
+      pixelatedCanvasProps={media.pixelatedCanvasProps}
       src={media.src}
       width={media.width}
     >
@@ -127,7 +134,7 @@ export function EditorialHero({
       {media.badge ? (
         <div
           className={cn(
-            "absolute left-4 top-4 z-10 rounded-lg border border-border/70 bg-background/85 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] text-foreground/85 shadow-sm backdrop-blur",
+            "pointer-events-none absolute left-4 top-4 z-10 rounded-box border border-border/70 bg-background/85 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] text-foreground/85 shadow-sm backdrop-blur",
             mediaBadgeClassName,
           )}
           data-slot={
@@ -143,7 +150,7 @@ export function EditorialHero({
       {desktop && media.callout ? (
         <div
           className={cn(
-            "absolute inset-x-6 bottom-6 z-10 rounded-xl border border-border/70 bg-background/88 p-5 shadow-lg backdrop-blur",
+            "pointer-events-none absolute inset-x-6 bottom-6 z-10 rounded-box border border-border/70 bg-background/88 p-5 shadow-lg backdrop-blur",
             mediaCalloutClassName,
           )}
           data-slot="editorial-hero-callout-desktop"
@@ -193,7 +200,7 @@ export function EditorialHero({
           {media.callout ? (
             <div
               className={cn(
-                "rounded-xl border border-border/70 bg-card/90 p-5 shadow-sm backdrop-blur lg:hidden",
+                "rounded-box border border-border/70 bg-card/90 p-5 shadow-sm backdrop-blur lg:hidden",
                 mediaCalloutClassName,
               )}
               data-slot="editorial-hero-callout-mobile"
@@ -233,7 +240,7 @@ export function EditorialHero({
                 <div
                   key={`signal-${index}`}
                   className={cn(
-                    "rounded-xl border border-border/70 bg-card/70 p-5 shadow-sm",
+                    "rounded-box border border-border/70 bg-card/70 p-5 shadow-sm",
                     signalCardClassName,
                   )}
                   data-slot="editorial-hero-signal"

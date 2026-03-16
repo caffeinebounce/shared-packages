@@ -72,7 +72,7 @@ export function TestimonialsSection({
             {testimonials.map((testimonial) => (
               <div
                 key={testimonial.id}
-                className="bg-background border rounded-xl p-6 flex flex-col"
+                className="bg-background border rounded-box p-6 flex flex-col"
               >
                 <Quote className="w-8 h-8 text-primary/30 mb-4" />
                 <blockquote className="text-foreground flex-1 mb-4">

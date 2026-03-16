@@ -87,7 +87,7 @@ export function LocationMap({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-lg border border-border ${className || ""}`}
+      className={`relative overflow-hidden rounded-box border border-border ${className || ""}`}
     >
       {hasCoordinates ? (
         <>

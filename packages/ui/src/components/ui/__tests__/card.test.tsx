@@ -22,6 +22,11 @@ describe("Card", () => {
       render(<Card data-testid="card">Content</Card>);
       expect(screen.getByTestId("card")).toHaveAttribute("data-slot", "card");
     });
+
+    it("uses the shared box radius by default", () => {
+      render(<Card data-testid="card">Content</Card>);
+      expect(screen.getByTestId("card")).toHaveClass("rounded-box");
+    });
   });
 
   describe("elevation prop", () => {

@@ -129,7 +129,7 @@ export function NextStepsSection({
                 {locations.map((location) => (
                   <div
                     key={location.city}
-                    className="bg-background border rounded-xl p-6 flex flex-col"
+                    className="bg-background border rounded-box p-6 flex flex-col"
                   >
                     <div className="text-sm text-primary mb-2">
                       {location.city}, {location.state}
@@ -164,7 +164,7 @@ export function NextStepsSection({
                 return (
                   <div
                     key={key}
-                    className="bg-background border rounded-xl p-6"
+                    className="bg-background border rounded-box p-6"
                   >
                     <div className="flex items-center gap-2 mb-4">
                       <Icon className="w-5 h-5 text-primary" />
