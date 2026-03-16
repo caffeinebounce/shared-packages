@@ -22,12 +22,21 @@ export type ButtonHoverEffect = "slide" | "glow" | "scale" | "none";
  */
 export type ButtonCorners = "default" | "pill" | "sharp";
 
-const CTA_BUTTON_VARIANTS = ["default", "outline", "secondary", "premium"] as const;
+const CTA_BUTTON_VARIANTS = [
+  "default",
+  "outline",
+  "secondary",
+  "premium",
+] as const;
 type CtaButtonVariant = (typeof CTA_BUTTON_VARIANTS)[number];
 type ResolvedButtonHoverEffect = ButtonHoverEffect | "theme";
 
-function isCtaButtonVariant(variant: ButtonProps["variant"]): variant is CtaButtonVariant {
-  return CTA_BUTTON_VARIANTS.includes((variant || "default") as CtaButtonVariant);
+function isCtaButtonVariant(
+  variant: ButtonProps["variant"],
+): variant is CtaButtonVariant {
+  return CTA_BUTTON_VARIANTS.includes(
+    (variant || "default") as CtaButtonVariant,
+  );
 }
 
 function resolveButtonHoverEffect(
@@ -52,10 +61,12 @@ const buttonVariants = cva(
           "border bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive/60",
         outline: "button-cta button-cta-outline border shadow-xs",
         secondary: "button-cta button-cta-secondary border",
-        ghost: "font-medium text-foreground hover:bg-accent hover:text-accent-foreground",
+        ghost:
+          "font-medium text-foreground hover:bg-accent hover:text-accent-foreground",
         "ghost-icon":
           "font-medium text-icon hover:text-icon-hover [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:scale-110",
-        muted: "font-medium text-muted-foreground hover:text-foreground transition-colors",
+        muted:
+          "font-medium text-muted-foreground hover:text-foreground transition-colors",
         link: "font-medium text-primary underline-offset-4 hover:underline",
       },
       size: {

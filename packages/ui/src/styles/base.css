@@ -44,7 +44,12 @@
   --text-base: 0.875rem;
 
   /* CTA buttons */
-  --button-cta-font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  --button-cta-font-family: var(
+    --font-sans,
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
   --button-cta-font-weight: 500;
   --button-cta-letter-spacing: 0;
   --button-cta-text-transform: none;
@@ -879,13 +884,17 @@ textarea:-moz-autofill {
   --button-cta-active-border: var(--button-premium-active-border);
 }
 
-[data-slot="button"].button-cta:not([data-hover-effect="slide"]):not([data-hover-effect="theme"]):hover {
+[data-slot="button"].button-cta:not([data-hover-effect="slide"]):not(
+    [data-hover-effect="theme"]
+  ):hover {
   background-color: var(--button-cta-hover-bg);
   color: var(--button-cta-hover-fg);
   border-color: var(--button-cta-hover-border);
 }
 
-[data-slot="button"].button-cta:not([data-hover-effect="slide"]):not([data-hover-effect="theme"]):active {
+[data-slot="button"].button-cta:not([data-hover-effect="slide"]):not(
+    [data-hover-effect="theme"]
+  ):active {
   background-color: var(--button-cta-active-bg);
   color: var(--button-cta-active-fg);
   border-color: var(--button-cta-active-border);
