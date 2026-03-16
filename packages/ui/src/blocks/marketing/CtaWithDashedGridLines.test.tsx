@@ -1,11 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { CtaWithDashedGridLines } from "./CtaWithDashedGridLines";
+import {
+  CTAWithDashedGridLines,
+  CtaWithDashedGridLines,
+} from "./CtaWithDashedGridLines";
 
-describe("CtaWithDashedGridLines", () => {
+describe("CTAWithDashedGridLines", () => {
   it("renders heading, actions, and quote content", () => {
     render(
-      <CtaWithDashedGridLines
+      <CTAWithDashedGridLines
         heading="Ship products"
         highlightedHeading="faster"
         primaryAction={{ label: "Buy now", href: "/buy" }}
@@ -25,5 +28,10 @@ describe("CtaWithDashedGridLines", () => {
       "/talk",
     );
     expect(screen.getByText("Michael Scarn")).toBeInTheDocument();
+  });
+
+  it("keeps deprecated export alias working", () => {
+    render(<CtaWithDashedGridLines heading="Alias still works" />);
+    expect(screen.getByText("Alias still works")).toBeInTheDocument();
   });
 });
