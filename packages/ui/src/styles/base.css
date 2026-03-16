@@ -331,6 +331,14 @@
   --sidebar-ring: oklch(0.556 0 0);
   --icon: oklch(1 0 0 / 0.7);
   --icon-hover: oklch(1 0 0);
+  --button-outline-bg: color-mix(in srgb, var(--input) 30%, transparent);
+  --button-outline-border: var(--input);
+  --button-outline-hover-bg: color-mix(in srgb, var(--input) 50%, transparent);
+  --button-outline-hover-fg: var(--foreground);
+  --button-outline-hover-border: var(--input);
+  --button-outline-active-bg: color-mix(in srgb, var(--input) 65%, transparent);
+  --button-outline-active-fg: var(--foreground);
+  --button-outline-active-border: var(--input);
   --highlight-color: oklch(0.3 0.05 90);
   --cell-border-color: oklch(1 0 0 / 0.2);
   --cell-fill-color: oklch(1 0 0 / 0.08);

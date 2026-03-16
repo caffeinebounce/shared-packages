@@ -32,6 +32,7 @@ export type PixelatedCanvasProps = Omit<
   jitterSpeed?: number;
   fadeOnLeave?: boolean;
   fadeSpeed?: number;
+  imageCrossOrigin?: "" | "anonymous" | "use-credentials" | null;
 };
 
 export function PixelatedCanvas({
@@ -62,6 +63,7 @@ export function PixelatedCanvas({
   jitterSpeed = 4,
   fadeOnLeave = true,
   fadeSpeed = 0.1,
+  imageCrossOrigin = "anonymous",
   ...canvasProps
 }: PixelatedCanvasProps) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
@@ -100,8 +102,8 @@ export function PixelatedCanvas({
     }
 
     const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.src = src;
+    image.crossOrigin = imageCrossOrigin;
+    let retriedWithoutCrossOrigin = false;
 
     const compute = () => {
       if (!canvas) {
@@ -445,27 +447,10 @@ export function PixelatedCanvas({
         return;
       }
 
-      const handlePointerMove = (event: PointerEvent) => {
-        const rect = canvas.getBoundingClientRect();
-        targetMouseRef.current.x = event.clientX - rect.left;
-        targetMouseRef.current.y = event.clientY - rect.top;
-        pointerInsideRef.current = true;
-        activityTargetRef.current = 1;
-      };
-
-      const handlePointerEnter = () => {
-        pointerInsideRef.current = true;
-        activityTargetRef.current = 1;
-      };
-
-      const handlePointerLeave = () => {
-        pointerInsideRef.current = false;
-
-        if (fadeOnLeave) {
-          activityTargetRef.current = 0;
-        } else {
-          targetMouseRef.current.x = -9999;
-          targetMouseRef.current.y = -9999;
+      const stopAnimation = () => {
+        if (rafRef.current !== null) {
+          cancelAnimationFrame(rafRef.current);
+          rafRef.current = null;
         }
       };
 
@@ -573,37 +558,92 @@ export function PixelatedCanvas({
         }
 
         ctx.globalAlpha = 1;
+
+        if (fadeOnLeave && !pointerInsideRef.current && activity <= 0.01) {
+          activityRef.current = 0;
+          targetMouseRef.current.x = -9999;
+          targetMouseRef.current.y = -9999;
+          animatedMouseRef.current.x = -9999;
+          animatedMouseRef.current.y = -9999;
+          drawSamples();
+          stopAnimation();
+          return;
+        }
+
         rafRef.current = requestAnimationFrame(animate);
+      };
+
+      const startAnimation = () => {
+        if (rafRef.current !== null) {
+          return;
+        }
+
+        lastFrameRef.current = 0;
+        rafRef.current = requestAnimationFrame(animate);
+      };
+
+      const handlePointerMove = (event: PointerEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        targetMouseRef.current.x = event.clientX - rect.left;
+        targetMouseRef.current.y = event.clientY - rect.top;
+        pointerInsideRef.current = true;
+        activityTargetRef.current = 1;
+        startAnimation();
+      };
+
+      const handlePointerEnter = () => {
+        pointerInsideRef.current = true;
+        activityTargetRef.current = 1;
+        startAnimation();
+      };
+
+      const handlePointerLeave = () => {
+        pointerInsideRef.current = false;
+
+        if (fadeOnLeave) {
+          activityTargetRef.current = 0;
+        } else {
+          activityTargetRef.current = 0;
+          activityRef.current = 0;
+          targetMouseRef.current.x = -9999;
+          targetMouseRef.current.y = -9999;
+          animatedMouseRef.current.x = -9999;
+          animatedMouseRef.current.y = -9999;
+          drawSamples();
+          stopAnimation();
+        }
       };
 
       canvas.addEventListener("pointermove", handlePointerMove);
       canvas.addEventListener("pointerenter", handlePointerEnter);
       canvas.addEventListener("pointerleave", handlePointerLeave);
-      rafRef.current = requestAnimationFrame(animate);
 
       cleanupInteraction = () => {
         canvas.removeEventListener("pointermove", handlePointerMove);
         canvas.removeEventListener("pointerenter", handlePointerEnter);
         canvas.removeEventListener("pointerleave", handlePointerLeave);
-
-        if (rafRef.current) {
-          cancelAnimationFrame(rafRef.current);
-          rafRef.current = null;
-        }
+        stopAnimation();
       };
     };
 
     image.onerror = () => {
+      if (!retriedWithoutCrossOrigin && image.crossOrigin !== null) {
+        retriedWithoutCrossOrigin = true;
+        image.crossOrigin = null;
+        image.src = "";
+        image.src = src;
+        return;
+      }
+
       console.error("Failed to load image for PixelatedCanvas:", src);
     };
+
+    image.src = src;
 
     const handleResize = () => {
       if (image.complete && image.naturalWidth) {
         compute();
-
-        if (!interactive) {
-          drawSamples();
-        }
+        drawSamples();
       }
     };
 
@@ -645,6 +685,7 @@ export function PixelatedCanvas({
     jitterSpeed,
     fadeOnLeave,
     fadeSpeed,
+    imageCrossOrigin,
     onReady,
   ]);
 

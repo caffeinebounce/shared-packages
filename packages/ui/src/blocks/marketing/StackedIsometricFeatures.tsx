@@ -427,7 +427,7 @@ export function StackedIsometricFeatures({
         >
           {items.map((item, index) => {
             const isActive = index === activeIndex;
-            const label = item.label ?? `0${index + 1}`;
+            const label = item.label ?? String(index + 1).padStart(2, "0");
 
             return (
               <button
