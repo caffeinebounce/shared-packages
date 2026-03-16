@@ -46,6 +46,52 @@ afterEach(() => {
 });
 
 describe("Navbar", () => {
+  it("uses the shared container defaults and preserves custom container overrides", () => {
+    const { container } = render(
+      <Navbar
+        logo={<span>Logo</span>}
+        links={[{ href: "/about", label: "About" }]}
+        LinkComponent={TestLink}
+        containerClassName="max-w-5xl"
+      />,
+    );
+
+    const navbarContainer = container.querySelector(
+      '[data-slot="navbar-container"]',
+    );
+
+    expect(navbarContainer).toHaveClass("w-full");
+    expect(navbarContainer).toHaveClass("max-w-5xl");
+    expect(navbarContainer).toHaveClass("px-4");
+    expect(navbarContainer).toHaveClass("sm:px-6");
+    expect(navbarContainer).toHaveClass("lg:px-8");
+    expect(navbarContainer).not.toHaveClass("md:px-8");
+  });
+
+  it("uses the shared container defaults in the mobile menu content", () => {
+    const { container } = render(
+      <Navbar
+        logo={<span>Logo</span>}
+        links={[{ href: "/about", label: "About" }]}
+        LinkComponent={TestLink}
+        containerClassName="max-w-5xl"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+
+    const mobileMenuContainer = container.querySelector(
+      '[data-slot="navbar-mobile-menu-container"]',
+    );
+
+    expect(mobileMenuContainer).toHaveClass("w-full");
+    expect(mobileMenuContainer).toHaveClass("max-w-5xl");
+    expect(mobileMenuContainer).toHaveClass("px-4");
+    expect(mobileMenuContainer).toHaveClass("sm:px-6");
+    expect(mobileMenuContainer).toHaveClass("lg:px-8");
+    expect(mobileMenuContainer).not.toHaveClass("md:px-8");
+  });
+
   it("defaults to the default preset without keenan chrome", () => {
     render(
       <Navbar
@@ -75,6 +121,7 @@ describe("Navbar", () => {
       '[data-slot="navbar-mobile-menu-icon"]',
     );
 
+    expect(menuButton).toHaveClass("rounded-box");
     expect(menuButton).toHaveAttribute("data-state", "closed");
     expect(toggleIcon).toHaveAttribute("data-state", "closed");
 

@@ -17,11 +17,11 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          "dark:bg-input/30 border-input rounded-md border bg-transparent shadow-xs " +
+          "dark:bg-input/30 border-input rounded-box border bg-transparent shadow-xs " +
           "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] " +
           "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
         filled:
-          "bg-muted/50 dark:bg-input/50 rounded-md border-0 " +
+          "bg-muted/50 dark:bg-input/50 rounded-box border-0 " +
           "focus-visible:bg-muted/70 dark:focus-visible:bg-input/70 focus-visible:ring-ring/50 focus-visible:ring-[3px] " +
           "aria-invalid:bg-destructive/10 aria-invalid:ring-destructive/20",
         underline:

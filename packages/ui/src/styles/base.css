@@ -24,6 +24,7 @@
 :root {
   /* Border radius scale */
   --radius: 0.625rem;
+  --box-radius: var(--radius);
 
   /* Layout variables - centralized width settings */
   --layout-max-width: 1280px;
@@ -41,6 +42,62 @@
 
   /* Typography - base */
   --text-base: 0.875rem;
+
+  /* CTA buttons */
+  --button-cta-font-family: var(
+    --font-sans,
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
+  --button-cta-font-weight: 500;
+  --button-cta-letter-spacing: 0;
+  --button-cta-text-transform: none;
+  --button-cta-theme-overlay-opacity: 1;
+  --button-cta-theme-overlay-hover-opacity: 1;
+  --button-cta-theme-overlay-offset: calc(100% + 2px);
+  --button-cta-theme-hover-scale: 1;
+  --button-cta-theme-hover-shadow: none;
+
+  --button-default-bg: var(--primary);
+  --button-default-fg: var(--primary-foreground);
+  --button-default-border: transparent;
+  --button-default-hover-bg: color-mix(in srgb, var(--primary) 90%, black);
+  --button-default-hover-fg: var(--primary-foreground);
+  --button-default-hover-border: transparent;
+  --button-default-active-bg: color-mix(in srgb, var(--primary) 82%, black);
+  --button-default-active-fg: var(--primary-foreground);
+  --button-default-active-border: transparent;
+
+  --button-outline-bg: var(--background);
+  --button-outline-fg: var(--foreground);
+  --button-outline-border: var(--border);
+  --button-outline-hover-bg: var(--accent);
+  --button-outline-hover-fg: var(--accent-foreground);
+  --button-outline-hover-border: var(--border);
+  --button-outline-active-bg: color-mix(in srgb, var(--accent) 90%, black);
+  --button-outline-active-fg: var(--accent-foreground);
+  --button-outline-active-border: var(--border);
+
+  --button-secondary-bg: var(--secondary);
+  --button-secondary-fg: var(--secondary-foreground);
+  --button-secondary-border: transparent;
+  --button-secondary-hover-bg: color-mix(in srgb, var(--secondary) 90%, black);
+  --button-secondary-hover-fg: var(--secondary-foreground);
+  --button-secondary-hover-border: transparent;
+  --button-secondary-active-bg: color-mix(in srgb, var(--secondary) 82%, black);
+  --button-secondary-active-fg: var(--secondary-foreground);
+  --button-secondary-active-border: transparent;
+
+  --button-premium-bg: white;
+  --button-premium-fg: black;
+  --button-premium-border: white;
+  --button-premium-hover-bg: var(--primary);
+  --button-premium-hover-fg: var(--primary-foreground);
+  --button-premium-hover-border: var(--primary);
+  --button-premium-active-bg: color-mix(in srgb, var(--primary) 86%, black);
+  --button-premium-active-fg: var(--primary-foreground);
+  --button-premium-active-border: color-mix(in srgb, var(--primary) 86%, black);
 
   /* ===========================================
      Brand Customization Variables (Phase 2)
@@ -202,6 +259,15 @@
   /* Icon colors - dark mode */
   --icon: oklch(1 0 0 / 0.7);
   --icon-hover: oklch(1 0 0);
+
+  --button-outline-bg: color-mix(in srgb, var(--input) 30%, transparent);
+  --button-outline-border: var(--input);
+  --button-outline-hover-bg: color-mix(in srgb, var(--input) 50%, transparent);
+  --button-outline-hover-fg: var(--foreground);
+  --button-outline-hover-border: var(--input);
+  --button-outline-active-bg: color-mix(in srgb, var(--input) 65%, transparent);
+  --button-outline-active-fg: var(--foreground);
+  --button-outline-active-border: var(--input);
 
   /* BackgroundRippleEffect - dark mode */
   --cell-border-color: oklch(1 0 0 / 0.2);
@@ -435,8 +501,9 @@
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
   /* Border radius scale */
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-box: var(--box-radius);
+  --radius-sm: max(calc(var(--radius) - 4px), 0px);
+  --radius-md: max(calc(var(--radius) - 2px), 0px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
@@ -758,19 +825,96 @@ textarea:-moz-autofill {
    Button Slide Hover Effect
    =========================================== */
 
-/* Default button with slide effect - only when hoverEffect="slide" (default) */
-[data-slot="button"][data-variant="default"][data-hover-effect="slide"] {
+/* CTA button theme contract */
+[data-slot="button"].button-cta {
+  font-family: var(--button-cta-font-family) !important;
+  font-weight: var(--button-cta-font-weight) !important;
+  letter-spacing: var(--button-cta-letter-spacing) !important;
+  text-transform: var(--button-cta-text-transform) !important;
+  background-color: var(--button-cta-bg);
+  color: var(--button-cta-fg);
+  border-color: var(--button-cta-border);
+}
+
+[data-slot="button"].button-cta-default {
+  --button-cta-bg: var(--button-default-bg);
+  --button-cta-fg: var(--button-default-fg);
+  --button-cta-border: var(--button-default-border);
+  --button-cta-hover-bg: var(--button-default-hover-bg);
+  --button-cta-hover-fg: var(--button-default-hover-fg);
+  --button-cta-hover-border: var(--button-default-hover-border);
+  --button-cta-active-bg: var(--button-default-active-bg);
+  --button-cta-active-fg: var(--button-default-active-fg);
+  --button-cta-active-border: var(--button-default-active-border);
+}
+
+[data-slot="button"].button-cta-outline {
+  --button-cta-bg: var(--button-outline-bg);
+  --button-cta-fg: var(--button-outline-fg);
+  --button-cta-border: var(--button-outline-border);
+  --button-cta-hover-bg: var(--button-outline-hover-bg);
+  --button-cta-hover-fg: var(--button-outline-hover-fg);
+  --button-cta-hover-border: var(--button-outline-hover-border);
+  --button-cta-active-bg: var(--button-outline-active-bg);
+  --button-cta-active-fg: var(--button-outline-active-fg);
+  --button-cta-active-border: var(--button-outline-active-border);
+}
+
+[data-slot="button"].button-cta-secondary {
+  --button-cta-bg: var(--button-secondary-bg);
+  --button-cta-fg: var(--button-secondary-fg);
+  --button-cta-border: var(--button-secondary-border);
+  --button-cta-hover-bg: var(--button-secondary-hover-bg);
+  --button-cta-hover-fg: var(--button-secondary-hover-fg);
+  --button-cta-hover-border: var(--button-secondary-hover-border);
+  --button-cta-active-bg: var(--button-secondary-active-bg);
+  --button-cta-active-fg: var(--button-secondary-active-fg);
+  --button-cta-active-border: var(--button-secondary-active-border);
+}
+
+[data-slot="button"].button-cta-premium {
+  --button-cta-bg: var(--button-premium-bg);
+  --button-cta-fg: var(--button-premium-fg);
+  --button-cta-border: var(--button-premium-border);
+  --button-cta-hover-bg: var(--button-premium-hover-bg);
+  --button-cta-hover-fg: var(--button-premium-hover-fg);
+  --button-cta-hover-border: var(--button-premium-hover-border);
+  --button-cta-active-bg: var(--button-premium-active-bg);
+  --button-cta-active-fg: var(--button-premium-active-fg);
+  --button-cta-active-border: var(--button-premium-active-border);
+}
+
+[data-slot="button"].button-cta:not([data-hover-effect="slide"]):not(
+    [data-hover-effect="theme"]
+  ):hover {
+  background-color: var(--button-cta-hover-bg);
+  color: var(--button-cta-hover-fg);
+  border-color: var(--button-cta-hover-border);
+}
+
+[data-slot="button"].button-cta:not([data-hover-effect="slide"]):not(
+    [data-hover-effect="theme"]
+  ):active {
+  background-color: var(--button-cta-active-bg);
+  color: var(--button-cta-active-fg);
+  border-color: var(--button-cta-active-border);
+}
+
+[data-slot="button"].button-cta[data-hover-effect="theme"],
+[data-slot="button"].button-cta[data-hover-effect="slide"] {
   position: relative;
   overflow: hidden;
   z-index: 0;
 }
 
-[data-slot="button"][data-variant="default"][data-hover-effect="slide"]::before {
+[data-slot="button"].button-cta[data-hover-effect="theme"]::before,
+[data-slot="button"].button-cta[data-hover-effect="slide"]::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-color: var(--primary-foreground);
-  transform: translate3d(0, calc(100% + 2px), 0);
+  background-color: var(--button-cta-hover-bg);
+  opacity: var(--button-cta-theme-overlay-opacity);
+  transform: translate3d(0, var(--button-cta-theme-overlay-offset), 0);
   transition: transform 300ms ease-out;
   will-change: transform;
   backface-visibility: hidden;
@@ -778,71 +922,27 @@ textarea:-moz-autofill {
   z-index: -1;
 }
 
-[data-slot="button"][data-variant="default"][data-hover-effect="slide"]:hover::before {
+[data-slot="button"].button-cta[data-hover-effect="theme"]:hover::before,
+[data-slot="button"].button-cta[data-hover-effect="slide"]:hover::before {
   transform: translate3d(0, 0, 0);
+  opacity: var(--button-cta-theme-overlay-hover-opacity);
 }
 
-[data-slot="button"][data-variant="default"][data-hover-effect="slide"]:hover {
-  color: var(--primary);
+[data-slot="button"].button-cta[data-hover-effect="theme"]:hover,
+[data-slot="button"].button-cta[data-hover-effect="slide"]:hover {
+  color: var(--button-cta-hover-fg);
+  border-color: var(--button-cta-hover-border);
 }
 
-[data-slot="button"][data-variant="premium"][data-hover-effect="slide"] {
-  position: relative;
-  overflow: hidden;
-  z-index: 0;
-  background-color: white;
-  color: black;
-  border-color: white;
+[data-slot="button"].button-cta[data-hover-effect="theme"]:active,
+[data-slot="button"].button-cta[data-hover-effect="slide"]:active {
+  color: var(--button-cta-active-fg);
+  border-color: var(--button-cta-active-border);
 }
 
-[data-slot="button"][data-variant="premium"][data-hover-effect="slide"]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: var(--primary);
-  transform: translate3d(0, calc(100% + 2px), 0);
-  transition: transform 300ms ease-out;
-  will-change: transform;
-  backface-visibility: hidden;
-  pointer-events: none;
-  z-index: -1;
-}
-
-[data-slot="button"][data-variant="premium"][data-hover-effect="slide"]:hover::before {
-  transform: translate3d(0, 0, 0);
-}
-
-[data-slot="button"][data-variant="premium"][data-hover-effect="slide"]:hover {
-  color: var(--primary-foreground);
-  border-color: var(--primary);
-}
-
-/* Outline button with slide effect - fills with primary color on hover */
-[data-slot="button"][data-variant="outline"][data-hover-effect="slide"] {
-  position: relative;
-  overflow: hidden;
-  z-index: 0;
-}
-
-[data-slot="button"][data-variant="outline"][data-hover-effect="slide"]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: var(--primary);
-  transform: translate3d(0, calc(100% + 2px), 0);
-  transition: transform 300ms ease-out;
-  will-change: transform;
-  backface-visibility: hidden;
-  pointer-events: none;
-  z-index: -1;
-}
-
-[data-slot="button"][data-variant="outline"][data-hover-effect="slide"]:hover::before {
-  transform: translate3d(0, 0, 0);
-}
-
-[data-slot="button"][data-variant="outline"][data-hover-effect="slide"]:hover {
-  color: var(--primary-foreground);
+[data-slot="button"].button-cta[data-hover-effect="theme"]:hover {
+  box-shadow: var(--button-cta-theme-hover-shadow);
+  transform: scale(var(--button-cta-theme-hover-scale));
 }
 
 /* Destructive button with slide effect - starts light, fills with red on hover */

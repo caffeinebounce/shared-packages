@@ -2,6 +2,7 @@
 
 import { type FormEvent, type ReactNode, useState } from "react";
 import { Button } from "../../components/ui/button";
+import { Container } from "../../components/ui/container";
 import { Input } from "../../components/ui/input";
 import { Separator } from "../../components/ui/separator";
 import { cn } from "../../utils";
@@ -25,7 +26,7 @@ export interface FooterProps {
   /** Additional bottom content */
   bottomContent?: ReactNode;
   className?: string;
-  /** Additional className for the inner container (e.g., "max-w-5xl") */
+  /** Additional classes layered onto the shared container width/padding system. */
   containerClassName?: string;
   /** Footer variant */
   variant?: "default" | "brand" | "minimal";
@@ -82,11 +83,9 @@ export function Footer({
   // Default variant — original implementation
   return (
     <footer className={cn("bg-muted/50 border-t", className)}>
-      <div
-        className={cn(
-          "container mx-auto px-4 md:px-8 py-12 md:py-16",
-          containerClassName,
-        )}
+      <Container
+        data-slot="footer-container"
+        className={cn("py-12 md:py-16", containerClassName)}
       >
         <div className="flex flex-col md:flex-row justify-between gap-8">
           {logo && (
@@ -151,7 +150,7 @@ export function Footer({
             </div>
           </>
         )}
-      </div>
+      </Container>
     </footer>
   );
 }
@@ -198,11 +197,9 @@ function BrandFooter({
       {/* Decorative gradient border-top */}
       <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-      <div
-        className={cn(
-          "container mx-auto px-4 md:px-8 py-16 md:py-20",
-          containerClassName,
-        )}
+      <Container
+        data-slot="footer-container"
+        className={cn("py-16 md:py-20", containerClassName)}
       >
         {/* Top zone: logo + tagline / newsletter */}
         {(logo || tagline || newsletter) && (
@@ -281,7 +278,8 @@ function BrandFooter({
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg bg-white/[0.06] p-2 text-muted-foreground backdrop-blur-sm transition-colors hover:bg-white/[0.12] hover:text-foreground dark:bg-white/[0.06] dark:hover:bg-white/[0.12]"
+                  className="inline-flex h-10 w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                  data-slot="footer-social-link"
                   aria-label={social.label}
                 >
                   {social.icon}
@@ -292,7 +290,7 @@ function BrandFooter({
 
           {bottomContent}
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }
@@ -318,11 +316,9 @@ function MinimalFooter({
 
   return (
     <footer className={cn("bg-background border-t border-border", className)}>
-      <div
-        className={cn(
-          "container mx-auto px-4 md:px-8 py-6",
-          containerClassName,
-        )}
+      <Container
+        data-slot="footer-container"
+        className={cn("py-6", containerClassName)}
       >
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           {copyright && (
@@ -364,7 +360,7 @@ function MinimalFooter({
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

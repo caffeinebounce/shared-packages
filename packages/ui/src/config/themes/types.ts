@@ -104,6 +104,37 @@ export interface ThemeColors {
 }
 
 // =============================================================================
+// BUTTON THEME CONFIGURATION
+// =============================================================================
+
+export type ThemeButtonVariantName =
+  | "default"
+  | "outline"
+  | "secondary"
+  | "premium";
+
+export interface ThemeButtonVariant {
+  background?: string;
+  foreground?: string;
+  border?: string;
+  hoverBackground?: string;
+  hoverForeground?: string;
+  hoverBorder?: string;
+  activeBackground?: string;
+  activeForeground?: string;
+  activeBorder?: string;
+}
+
+export interface ThemeButtons {
+  hoverEffect?: ButtonHoverEffect;
+  fontFamily?: string;
+  fontWeight?: string;
+  letterSpacing?: string;
+  textTransform?: string;
+  variants?: Partial<Record<ThemeButtonVariantName, ThemeButtonVariant>>;
+}
+
+// =============================================================================
 // THEME DEFINITION
 // =============================================================================
 
@@ -129,6 +160,9 @@ export interface Theme {
 
   /** Shadow intensity multiplier (0.5 to 1.5, default 1) */
   shadowIntensity?: number;
+
+  /** CTA button theme configuration */
+  buttons?: ThemeButtons;
 }
 
 // =============================================================================

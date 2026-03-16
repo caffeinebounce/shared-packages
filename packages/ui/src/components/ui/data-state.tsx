@@ -37,7 +37,7 @@ export function DataStateBanner({
   return (
     <div
       className={cn(
-        "rounded-lg border bg-muted/20 px-4 py-3",
+        "rounded-box border bg-muted/20 px-4 py-3",
         state === "error" ||
           state === "unauthorized" ||
           state === "misconfigured"
@@ -90,7 +90,7 @@ export function DataStateInline({
   return (
     <div
       className={cn(
-        "rounded-md border bg-muted/20 px-3 py-2",
+        "rounded-box border bg-muted/20 px-3 py-2",
         "flex items-center gap-2 text-sm",
         className,
       )}

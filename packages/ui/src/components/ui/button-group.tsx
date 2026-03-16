@@ -41,19 +41,19 @@ function ButtonGroup({
           ? "flex-row items-center -space-x-px"
           : "flex-col -space-y-px",
         // Style direct children to have connected appearance
-        // Use !important to override Button's own rounded-md classes
+        // Use !important to override Button's own shared box radius classes
         "[&>*]:!rounded-none",
-        "[&>*:first-child]:!rounded-l-md",
-        "[&>*:last-child]:!rounded-r-md",
+        "[&>*:first-child]:!rounded-l-box",
+        "[&>*:last-child]:!rounded-r-box",
         orientation === "vertical" && [
-          "[&>*:first-child]:!rounded-t-md [&>*:first-child]:!rounded-l-none",
-          "[&>*:last-child]:!rounded-b-md [&>*:last-child]:!rounded-r-none",
+          "[&>*:first-child]:!rounded-t-box [&>*:first-child]:!rounded-l-none",
+          "[&>*:last-child]:!rounded-b-box [&>*:last-child]:!rounded-r-none",
         ],
         // Handle nested button groups
         "**:[role=group]:flex",
         "**:[role=group]>*:!rounded-none",
-        "[&>[role=group]:first-child>*:first-child]:!rounded-l-md",
-        "[&>[role=group]:last-child>*:last-child]:!rounded-r-md",
+        "[&>[role=group]:first-child>*:first-child]:!rounded-l-box",
+        "[&>[role=group]:last-child>*:last-child]:!rounded-r-box",
         className,
       )}
       {...props}

@@ -136,7 +136,7 @@ export function NumberStepper({
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-md border border-input bg-transparent dark:bg-input/30",
+        "inline-flex items-center rounded-box border border-input bg-transparent dark:bg-input/30",
         disabled && "opacity-50",
         sizes.wrapper,
         className,

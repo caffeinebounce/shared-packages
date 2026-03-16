@@ -107,7 +107,7 @@ export function MissionSection({
                   {stats.map((stat) => (
                     <div
                       key={stat.value}
-                      className="bg-background border rounded-xl p-8 text-center"
+                      className="bg-background border rounded-box p-8 text-center"
                     >
                       <div className="text-5xl md:text-6xl font-black text-primary mb-3">
                         {stat.value}
@@ -147,7 +147,7 @@ export function MissionSection({
                 {programs.map((program) => (
                   <div
                     key={program.name}
-                    className="group bg-background border rounded-xl p-8 transition-all hover:border-primary/50 hover:shadow-lg"
+                    className="group bg-background border rounded-box p-8 transition-all hover:border-primary/50 hover:shadow-lg"
                   >
                     <div className="text-sm font-medium text-primary mb-2">
                       {program.location}

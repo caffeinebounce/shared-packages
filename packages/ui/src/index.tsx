@@ -242,6 +242,7 @@ export type {
   ActionCard,
   Benefit,
   BenefitsSectionProps,
+  CtaWithDashedGridLinesProps,
   EditorialHeroProps,
   HeroSectionProps,
   HeroSectionWithRippleProps,
@@ -254,12 +255,15 @@ export type {
   NextStepsSectionProps,
   Outcome,
   Program,
+  StackedIsometricFeatureItem,
+  StackedIsometricFeaturesProps,
   Stat,
   Testimonial,
   TestimonialsSectionProps,
 } from "./blocks/marketing";
 export {
   BenefitsSection,
+  CtaWithDashedGridLines,
   EditorialHero,
   HeroSection,
   HeroSectionWithRipple,
@@ -268,6 +272,7 @@ export {
   MissionSection,
   NewsletterSignup,
   NextStepsSection,
+  StackedIsometricFeatures,
   TestimonialsSection,
 } from "./blocks/marketing";
 export type {
@@ -546,6 +551,8 @@ export {
   extendedPasswordRules,
   PasswordRequirements,
 } from "./components/ui/password-requirements";
+export type { PixelatedCanvasProps } from "./components/ui/pixelated-canvas";
+export { PixelatedCanvas } from "./components/ui/pixelated-canvas";
 export {
   Popover,
   PopoverAnchor,
@@ -668,6 +675,9 @@ export type {
   BuiltInThemeName,
   ColorScheme,
   ProductThemeConfig,
+  ThemeButtons,
+  ThemeButtonVariant,
+  ThemeButtonVariantName,
   ThemeColors,
   ThemeConfig,
   ThemeFonts,

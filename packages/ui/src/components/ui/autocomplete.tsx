@@ -314,7 +314,7 @@ export function Autocomplete({
               {/* biome-ignore lint/a11y/noStaticElementInteractions: Mouse events are for hover state only, not interactivity */}
               <div
                 className={cn(
-                  "flex h-9 w-full items-center gap-2 rounded-md border border-input bg-muted/30 px-2 py-1 shadow-xs",
+                  "flex h-9 w-full items-center gap-2 rounded-box border border-input bg-muted/30 px-2 py-1 shadow-xs",
                   disabled && "cursor-not-allowed opacity-50",
                   error && "border-destructive",
                   className,
@@ -367,7 +367,7 @@ export function Autocomplete({
                 typeof document !== "undefined" &&
                 createPortal(
                   <div
-                    className="fixed z-[9999] max-w-xs rounded-md border bg-popover px-3 py-2 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+                    className="fixed z-[9999] max-w-xs rounded-box border bg-popover px-3 py-2 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
                     style={{
                       left: tooltipPosition.x + 8,
                       top: tooltipPosition.y - 8,
@@ -408,7 +408,7 @@ export function Autocomplete({
                 }
                 autoComplete="off"
                 className={cn(
-                  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-colors",
+                  "flex h-9 w-full rounded-box border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-colors",
                   "placeholder:text-muted-foreground",
                   "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
                   "disabled:cursor-not-allowed disabled:opacity-50",

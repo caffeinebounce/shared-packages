@@ -27,7 +27,7 @@ export function LogoGrid({ items, columns = 4, className }: LogoGridProps) {
       {items.map((item, index) => (
         <div
           key={`${item.name}-${index}`}
-          className="flex min-h-20 items-center justify-center rounded-xl border border-white/10 bg-white/5 p-4"
+          className="flex min-h-20 items-center justify-center rounded-box border border-white/10 bg-white/5 p-4"
         >
           {item.logo ? (
             <img

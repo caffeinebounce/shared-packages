@@ -24,6 +24,7 @@ describe("Textarea", () => {
     expect(className).toContain("min-w-0");
     expect(className).toContain("max-w-full");
     expect(className).toContain("[overflow-wrap:anywhere]");
+    expect(className).toContain("rounded-box");
   });
 
   it("applies custom className", () => {

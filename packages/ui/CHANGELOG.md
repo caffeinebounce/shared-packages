@@ -1,5 +1,20 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.54.0
+
+### Minor Changes
+
+- 79048e9: Add Aceternity-inspired phase 1 marketing blocks under `@caffeinebounce/ui/marketing`, including spotlight hero, bento grid, infinite testimonials, sticky story, tracing beam content, background beams CTA, hover border CTA group, and text-generate hero copy.
+- 58aebe8: Add new editorial marketing blocks and shared theming improvements, including
+  `StackedIsometricFeatures`, `BlurLogoCloud`, `CtaWithDashedGridLines`, richer
+  timeline and hero primitives, and token-driven navigation, button, and box-radius
+  styling for site shells.
+
+### Patch Changes
+
+- 626fe71: Polish `CtaWithDashedGridLines` by adding `CTAWithDashedGridLines` naming alias consistency, avoiding default placeholder links for optional actions, and clipping dashed-grid decoration overflow.
+- 118ceed: Add `CtaWithDashedGridLines` marketing block (Aceternity-inspired CTA with dashed grid lines) and export it from `@caffeinebounce/ui/marketing`.
+
 ## 0.53.0
 
 ### Minor Changes

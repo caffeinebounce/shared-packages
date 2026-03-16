@@ -19,7 +19,7 @@ export function QuoteBlock({
   return (
     <figure
       className={cn(
-        "mx-auto max-w-3xl rounded-2xl border border-white/10 bg-white/5 px-6 py-10 text-center md:px-10",
+        "mx-auto max-w-3xl rounded-box border border-white/10 bg-white/5 px-6 py-10 text-center md:px-10",
         className,
       )}
     >

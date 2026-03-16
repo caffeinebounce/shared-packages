@@ -22,7 +22,7 @@ export function StepFlow({
         return (
           <div key={`${step}-${index}`} className="md:col-span-3">
             <div className="flex items-center gap-3">
-              <div className="flex-1 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div className="flex-1 rounded-box border border-white/10 bg-white/5 p-4">
                 <p className="text-sm font-medium text-white">{step}</p>
               </div>
 

@@ -44,11 +44,11 @@ describe("Button", () => {
       );
     });
 
-    it("sets data-hover-effect to slide by default", () => {
+    it("sets CTA variants to theme hover by default", () => {
       render(<Button>Test</Button>);
       expect(screen.getByRole("button")).toHaveAttribute(
         "data-hover-effect",
-        "slide",
+        "theme",
       );
     });
 
@@ -62,9 +62,11 @@ describe("Button", () => {
   });
 
   describe("variant prop", () => {
-    it("applies default variant styles", () => {
+    it("applies themed default CTA classes", () => {
       render(<Button variant="default">Default</Button>);
-      expect(screen.getByRole("button")).toHaveClass("bg-primary");
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("button-cta");
+      expect(button).toHaveClass("button-cta-default");
     });
 
     it("applies destructive variant styles", () => {
@@ -72,19 +74,31 @@ describe("Button", () => {
       expect(screen.getByRole("button")).toHaveClass("bg-destructive");
     });
 
-    it("applies outline variant styles", () => {
+    it("applies themed outline CTA classes", () => {
       render(<Button variant="outline">Outline</Button>);
-      expect(screen.getByRole("button")).toHaveClass("border");
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("button-cta");
+      expect(button).toHaveClass("button-cta-outline");
     });
 
-    it("applies secondary variant styles", () => {
+    it("applies themed secondary CTA classes", () => {
       render(<Button variant="secondary">Secondary</Button>);
-      expect(screen.getByRole("button")).toHaveClass("bg-secondary");
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("button-cta");
+      expect(button).toHaveClass("button-cta-secondary");
+    });
+
+    it("applies themed premium CTA classes", () => {
+      render(<Button variant="premium">Premium</Button>);
+      const button = screen.getByRole("button");
+      expect(button).toHaveClass("button-cta");
+      expect(button).toHaveClass("button-cta-premium");
     });
 
     it("applies ghost variant styles", () => {
       render(<Button variant="ghost">Ghost</Button>);
       expect(screen.getByRole("button")).toHaveClass("hover:bg-accent");
+      expect(screen.getByRole("button")).not.toHaveClass("button-cta");
     });
 
     it("applies link variant styles", () => {
@@ -116,9 +130,10 @@ describe("Button", () => {
   });
 
   describe("corners prop", () => {
-    it("applies default corners (no extra class)", () => {
+    it("applies default corners via the shared box radius", () => {
       render(<Button corners="default">Default</Button>);
       const button = screen.getByRole("button");
+      expect(button).toHaveClass("rounded-box");
       expect(button).not.toHaveClass("rounded-full");
       expect(button).not.toHaveClass("rounded-none");
     });
@@ -135,6 +150,22 @@ describe("Button", () => {
   });
 
   describe("hoverEffect prop", () => {
+    it("uses theme hover by default for outline CTA variants too", () => {
+      render(<Button variant="outline">Outline</Button>);
+      expect(screen.getByRole("button")).toHaveAttribute(
+        "data-hover-effect",
+        "theme",
+      );
+    });
+
+    it("keeps slide as the default for non-CTA variants", () => {
+      render(<Button variant="destructive">Delete</Button>);
+      expect(screen.getByRole("button")).toHaveAttribute(
+        "data-hover-effect",
+        "slide",
+      );
+    });
+
     it("applies slide effect (empty string, handled by CSS)", () => {
       render(<Button hoverEffect="slide">Slide</Button>);
       const button = screen.getByRole("button");
@@ -183,6 +214,12 @@ describe("Button", () => {
       expect(classes).toContain("bg-destructive");
     });
 
+    it("returns shared CTA theme classes for CTA variants", () => {
+      const classes = buttonVariants({ variant: "default" });
+      expect(classes).toContain("button-cta");
+      expect(classes).toContain("button-cta-default");
+    });
+
     it("returns correct classes for size", () => {
       const classes = buttonVariants({ size: "lg" });
       expect(classes).toContain("h-10");
@@ -193,13 +230,18 @@ describe("Button", () => {
       expect(classes).toContain("rounded-full");
     });
 
+    it("uses the shared box radius for default corners", () => {
+      const classes = buttonVariants({ corners: "default" });
+      expect(classes).toContain("rounded-box");
+    });
+
     it("combines multiple variants", () => {
       const classes = buttonVariants({
         variant: "secondary",
         size: "sm",
         corners: "sharp",
       });
-      expect(classes).toContain("bg-secondary");
+      expect(classes).toContain("button-cta-secondary");
       expect(classes).toContain("h-8");
       expect(classes).toContain("rounded-none");
     });

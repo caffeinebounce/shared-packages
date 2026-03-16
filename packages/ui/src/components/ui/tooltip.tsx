@@ -82,7 +82,7 @@ function TooltipContent({
           // Typography - clean small text, light weight
           "text-xs leading-normal font-light",
           // Spacing and shape - tight rounded corners
-          "rounded-md px-3 py-1.5",
+          "rounded-box px-3 py-1.5",
           // Animations - smooth fade and scale
           "animate-in fade-in-0 zoom-in-95 duration-150",
           "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=closed]:duration-100",
