@@ -9,8 +9,8 @@ import {
   type MarketingSectionTone,
   sectionPaddingClasses,
   sectionToneClasses,
-  useMotionEnabled,
 } from "./aceternity/shared";
+import { useMotionEnabled } from "./aceternity/useMotionEnabled";
 
 export interface BackgroundBeamsCTASectionProps {
   heading: ReactNode;

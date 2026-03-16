@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SpotlightHeroSection } from "./SpotlightHeroSection";
 
 describe("SpotlightHeroSection", () => {
-  it("renders heading and actions", () => {
+  beforeEach(() => {
     vi.stubGlobal(
       "matchMedia",
       vi.fn().mockImplementation(() => ({
@@ -17,7 +17,13 @@ describe("SpotlightHeroSection", () => {
         dispatchEvent: vi.fn(),
       })),
     );
+  });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("renders heading and actions", () => {
     render(
       <SpotlightHeroSection
         eyebrow="New"
@@ -32,7 +38,5 @@ describe("SpotlightHeroSection", () => {
       "href",
       "/start",
     );
-
-    vi.unstubAllGlobals();
   });
 });

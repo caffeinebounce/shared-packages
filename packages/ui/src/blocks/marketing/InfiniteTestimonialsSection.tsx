@@ -2,14 +2,34 @@
 
 import { Quote } from "lucide-react";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import {
   cx,
+  hasWindow,
   type MarketingSectionPadding,
   type MarketingSectionTone,
   sectionPaddingClasses,
   sectionToneClasses,
-  useMotionEnabled,
 } from "./aceternity/shared";
+import { useMotionEnabled } from "./aceternity/useMotionEnabled";
+
+const MARQUEE_STYLE_ID = "cb-infinite-testimonials-keyframes";
+
+function injectMarqueeKeyframes() {
+  if (!hasWindow() || document.getElementById(MARQUEE_STYLE_ID)) {
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.id = MARQUEE_STYLE_ID;
+  style.textContent = `
+    @keyframes cb-marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(calc(-50% - 0.5rem)); }
+    }
+  `;
+  document.head.appendChild(style);
+}
 
 export interface InfiniteTestimonialItem {
   id: string;
@@ -40,6 +60,10 @@ export function InfiniteTestimonialsSection({
   const motionEnabled = useMotionEnabled();
   const items =
     testimonials.length > 0 ? [...testimonials, ...testimonials] : [];
+
+  useEffect(() => {
+    injectMarqueeKeyframes();
+  }, []);
 
   return (
     <section
@@ -100,8 +124,6 @@ export function InfiniteTestimonialsSection({
           </div>
         </div>
       </div>
-
-      <style>{`@keyframes cb-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 0.5rem)); } }`}</style>
     </section>
   );
 }

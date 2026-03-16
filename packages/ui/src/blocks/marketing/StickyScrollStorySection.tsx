@@ -46,6 +46,14 @@ export function StickyScrollStorySection({
   const activeItem = useMemo(() => items[activeIndex], [items, activeIndex]);
 
   useEffect(() => {
+    setActiveIndex((current) => {
+      const max = Math.max(items.length - 1, 0);
+      const fromDefault = clamp(defaultActiveIndex, 0, max);
+      return current > max ? fromDefault : current;
+    });
+  }, [defaultActiveIndex, items.length]);
+
+  useEffect(() => {
     if (!hasWindow() || items.length === 0) {
       return;
     }

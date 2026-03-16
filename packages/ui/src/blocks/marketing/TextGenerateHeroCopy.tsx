@@ -9,8 +9,8 @@ import {
   type MarketingSectionTone,
   sectionPaddingClasses,
   sectionToneClasses,
-  useMotionEnabled,
 } from "./aceternity/shared";
+import { useMotionEnabled } from "./aceternity/useMotionEnabled";
 
 export interface TextGenerateHeroCopyProps {
   text: string;
@@ -29,7 +29,10 @@ function useGeneratedText(
   startDelayMs: number,
   enabled: boolean,
 ) {
-  const tokens = useMemo(() => text.split(" "), [text]);
+  const tokens = useMemo(
+    () => text.split(/\s+/).filter((token) => token.length > 0),
+    [text],
+  );
   const [visibleCount, setVisibleCount] = useState(enabled ? 0 : tokens.length);
 
   useEffect(() => {

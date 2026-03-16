@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { StickyScrollStorySection } from "./StickyScrollStorySection";
 
 class IO {
@@ -14,6 +14,10 @@ describe("StickyScrollStorySection", () => {
       "IntersectionObserver",
       IO as unknown as typeof IntersectionObserver,
     );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it("renders steps and first visual", () => {
@@ -39,7 +43,5 @@ describe("StickyScrollStorySection", () => {
     expect(screen.getByText("Plan")).toBeInTheDocument();
     expect(screen.getByText("Ship")).toBeInTheDocument();
     expect(screen.getByText("One")).toBeInTheDocument();
-
-    vi.unstubAllGlobals();
   });
 });

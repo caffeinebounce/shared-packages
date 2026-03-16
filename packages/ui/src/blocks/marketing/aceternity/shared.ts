@@ -1,5 +1,3 @@
-import { useReducedMotion } from "motion/react";
-
 export type MarketingSectionTone = "default" | "muted" | "accent";
 export type MarketingSectionPadding = "sm" | "md" | "lg";
 
@@ -17,11 +15,6 @@ export const sectionToneClasses: Record<MarketingSectionTone, string> = {
 
 export function cx(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
-}
-
-export function useMotionEnabled() {
-  const prefersReducedMotion = useReducedMotion();
-  return !prefersReducedMotion;
 }
 
 export function clamp(value: number, min: number, max: number) {
