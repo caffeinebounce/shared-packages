@@ -1,9 +1,18 @@
 export {
+  BackgroundBeamsCTASection,
+  type BackgroundBeamsCTASectionProps,
+} from "./BackgroundBeamsCTASection";
+export {
   type Benefit,
   BenefitsSection,
   type BenefitsSectionProps,
   type Outcome,
 } from "./BenefitsSection";
+export {
+  type BentoGridItem,
+  BentoGridSection,
+  type BentoGridSectionProps,
+} from "./BentoGridSection";
 export {
   EditorialHero,
   type EditorialHeroProps,
@@ -17,7 +26,17 @@ export {
   HeroSectionWithRipple,
   type HeroSectionWithRippleProps,
 } from "./HeroSectionWithRipple";
+export {
+  HoverBorderCTAGroup,
+  type HoverBorderCTAGroupProps,
+  type HoverBorderCTAItem,
+} from "./HoverBorderCTAGroup";
 export { ImpactSection, type ImpactSectionProps } from "./ImpactSection";
+export {
+  type InfiniteTestimonialItem,
+  InfiniteTestimonialsSection,
+  type InfiniteTestimonialsSectionProps,
+} from "./InfiniteTestimonialsSection";
 export {
   LampHero,
   type LampHeroProps,
@@ -41,10 +60,29 @@ export {
   type NextStepsSectionProps,
 } from "./NextStepsSection";
 export { QuoteBlock, type QuoteBlockProps } from "./QuoteBlock";
+export {
+  type SpotlightHeroAction,
+  SpotlightHeroSection,
+  type SpotlightHeroSectionProps,
+} from "./SpotlightHeroSection";
 export { StepFlow, type StepFlowProps } from "./StepFlow";
+export {
+  type StickyScrollStoryItem,
+  StickyScrollStorySection,
+  type StickyScrollStorySectionProps,
+} from "./StickyScrollStorySection";
 export {
   type Testimonial,
   TestimonialsSection,
   type TestimonialsSectionProps,
 } from "./TestimonialsSection";
+export {
+  TextGenerateHeroCopy,
+  type TextGenerateHeroCopyProps,
+} from "./TextGenerateHeroCopy";
 export { Timeline, type TimelineItem, type TimelineProps } from "./Timeline";
+export {
+  type TracingBeamContentItem,
+  TracingBeamContentSection,
+  type TracingBeamContentSectionProps,
+} from "./TracingBeamContentSection";
