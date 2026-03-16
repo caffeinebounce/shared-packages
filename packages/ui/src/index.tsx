@@ -242,6 +242,7 @@ export type {
   ActionCard,
   Benefit,
   BenefitsSectionProps,
+  CTAWithDashedGridLinesProps,
   CtaWithDashedGridLinesProps,
   EditorialHeroProps,
   HeroSectionProps,
@@ -263,6 +264,7 @@ export type {
 } from "./blocks/marketing";
 export {
   BenefitsSection,
+  CTAWithDashedGridLines,
   CtaWithDashedGridLines,
   EditorialHero,
   HeroSection,
