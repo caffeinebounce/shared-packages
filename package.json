@@ -16,7 +16,7 @@
     "validate:packages": "node ./scripts/validate-workspace-packages.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "yarn build && changeset publish",
+    "release": "changeset publish",
     "clean": "turbo run clean && rm -rf node_modules",
     "publish:local": "./scripts/publish-local.sh",
     "publish:patch": "./scripts/publish-local.sh patch",

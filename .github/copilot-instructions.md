@@ -77,7 +77,7 @@ shared-packages/
 | Clean | `yarn clean` | Remove dist folders and node_modules |
 | Create changeset | `yarn changeset` | Track version changes for release |
 | Version packages | `yarn version-packages` | Update versions based on changesets |
-| Release/Publish | `yarn release` | Build + publish to GitHub Packages |
+| Release/Publish | `yarn release` | Publish updated packages to GitHub Packages |
 | Validate package contracts | `yarn validate:packages` | Check scripts, publish metadata, and built export targets |
 
 ### Validation Before PR
