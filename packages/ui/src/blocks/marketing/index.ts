@@ -1,4 +1,8 @@
 export {
+  EncryptedText,
+  type EncryptedTextProps,
+} from "../../components/ui/encrypted-text";
+export {
   BackgroundBeamsCTASection,
   type BackgroundBeamsCTASectionProps,
 } from "./BackgroundBeamsCTASection";
