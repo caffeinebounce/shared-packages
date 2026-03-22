@@ -42,25 +42,25 @@ export function MediaCard({ item, className }: MediaCardProps) {
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           {item.imageUrl ? (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-white/10 dark:bg-white/5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
               <Image
                 src={item.imageUrl}
                 alt={item.publication}
                 width={32}
                 height={32}
-                className="object-contain"
+                className="object-contain dark:brightness-150 dark:contrast-125"
               />
             </div>
           ) : (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-100 text-xs font-semibold text-zinc-500 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xs font-semibold text-zinc-500 dark:text-zinc-300">
               {item.publication.slice(0, 2).toUpperCase()}
             </div>
           )}
           <div>
-            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-300">
               {item.publication}
             </p>
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            <p className="text-xs text-zinc-400 dark:text-zinc-400">
               {formattedDate}
             </p>
           </div>
@@ -73,13 +73,13 @@ export function MediaCard({ item, className }: MediaCardProps) {
       </h3>
 
       {item.excerpt ? (
-        <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
           {item.excerpt}
         </p>
       ) : null}
 
       {item.highlight ? (
-        <blockquote className="border-l-2 border-indigo-400/50 pl-3 text-sm italic text-zinc-500 dark:border-indigo-400/30 dark:text-zinc-400">
+        <blockquote className="border-l-2 border-indigo-400/50 pl-3 text-sm italic text-zinc-500 dark:border-indigo-400/40 dark:text-zinc-300">
           {item.highlight}
         </blockquote>
       ) : null}
