@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, stagger, useAnimate } from "motion/react";
+import type { ElementType } from "react";
 import { useEffect } from "react";
 
 import { cn } from "../../utils";
@@ -11,6 +12,8 @@ export interface TextGenerateEffectProps {
   filter?: boolean;
   duration?: number;
   staggerDelay?: number;
+  /** HTML element to render – defaults to div; use "h1" or "h2" for headings */
+  as?: ElementType;
 }
 
 export function TextGenerateEffect({
@@ -19,6 +22,7 @@ export function TextGenerateEffect({
   filter = true,
   duration = 0.55,
   staggerDelay = 0.14,
+  as: Component = "div",
 }: TextGenerateEffectProps) {
   const [scope, animate] = useAnimate();
   const wordsArray = words.split(" ");
@@ -32,12 +36,12 @@ export function TextGenerateEffect({
   }, [animate, duration, filter, staggerDelay]);
 
   return (
-    <div className={cn("font-bold tracking-tight", className)}>
+    <Component className={cn("font-bold tracking-tight", className)}>
       <motion.div ref={scope}>
         {wordsArray.map((word, index) => (
           <motion.span
             key={`${word}-${index}`}
-            className="mr-3 inline-block text-zinc-900 opacity-0 dark:text-white"
+            className="mr-3 inline-block text-foreground opacity-0"
             style={{
               filter: filter ? "blur(10px)" : "none",
               transform: "translateY(10px)",
@@ -47,6 +51,6 @@ export function TextGenerateEffect({
           </motion.span>
         ))}
       </motion.div>
-    </div>
+    </Component>
   );
 }
