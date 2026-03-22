@@ -2,12 +2,7 @@
 
 import { motion, useInView } from "motion/react";
 import type React from "react";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "../../utils";
 
 export type EncryptedTextProps = {
@@ -312,8 +307,7 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
           displayChar = " ";
         } else {
           displayChar =
-            scrambleCharsRef.current[index] ??
-            generateRandomCharacter(charset);
+            scrambleCharsRef.current[index] ?? generateRandomCharacter(charset);
         }
 
         const charClassName = isHoverScrambled
