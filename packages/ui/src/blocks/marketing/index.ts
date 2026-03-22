@@ -9,6 +9,11 @@ export {
   type PixelatedCanvasProps,
 } from "../../components/ui/pixelated-canvas";
 export {
+  ThemeLogo,
+  type ThemeLogoProps,
+  type ThemeLogoVariant,
+} from "../../components/ui/theme-logo";
+export {
   BackgroundBeamsCTASection,
   type BackgroundBeamsCTASectionProps,
 } from "./BackgroundBeamsCTASection";
