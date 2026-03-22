@@ -1,8 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { cn } from "../../utils";
 
@@ -38,6 +38,21 @@ export function Timeline({
   hoverEffect = false,
 }: TimelineProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const leaveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleEnter = useCallback((idx: number) => {
+    if (leaveTimeout.current) {
+      clearTimeout(leaveTimeout.current);
+      leaveTimeout.current = null;
+    }
+    setHoveredIndex(idx);
+  }, []);
+
+  const handleLeave = useCallback(() => {
+    leaveTimeout.current = setTimeout(() => {
+      setHoveredIndex(null);
+    }, 50);
+  }, []);
 
   return (
     <ol className={cn("space-y-0", className)} data-slot="timeline">
@@ -52,10 +67,8 @@ export function Timeline({
               "group relative pl-11 md:pl-14",
               hoverEffect ? "pb-2 md:pb-2" : "pb-6 md:pb-8",
             )}
-            onMouseEnter={
-              hoverEffect ? () => setHoveredIndex(index) : undefined
-            }
-            onMouseLeave={hoverEffect ? () => setHoveredIndex(null) : undefined}
+            onMouseEnter={hoverEffect ? () => handleEnter(index) : undefined}
+            onMouseLeave={hoverEffect ? handleLeave : undefined}
           >
             {!isLast ? (
               <span
@@ -81,24 +94,16 @@ export function Timeline({
 
             {/* Hover wrapper — padding creates the visible highlight area around the card */}
             <div className={cn("relative", hoverEffect && "p-2")}>
-              {hoverEffect && (
-                <AnimatePresence>
-                  {hoveredIndex === index && (
-                    <motion.span
-                      className="absolute inset-0 block h-full w-full rounded-2xl bg-neutral-200 dark:bg-slate-800/[0.8]"
-                      layoutId="timelineHoverBackground"
-                      initial={{ opacity: 0 }}
-                      animate={{
-                        opacity: 1,
-                        transition: { duration: 0.15 },
-                      }}
-                      exit={{
-                        opacity: 0,
-                        transition: { duration: 0.15, delay: 0.2 },
-                      }}
-                    />
-                  )}
-                </AnimatePresence>
+              {hoverEffect && hoveredIndex === index && (
+                <motion.span
+                  className="absolute inset-0 block h-full w-full rounded-2xl bg-neutral-200 dark:bg-slate-800/[0.8]"
+                  layoutId="timelineHoverBackground"
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30,
+                  }}
+                />
               )}
 
               <div
