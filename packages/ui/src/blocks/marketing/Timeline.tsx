@@ -48,7 +48,10 @@ export function Timeline({
         return (
           <li
             key={`${item.title}-${index}`}
-            className="group relative pl-11 pb-6 md:pl-14 md:pb-8"
+            className={cn(
+              "group relative pl-11 md:pl-14",
+              hoverEffect ? "pb-2 md:pb-2" : "pb-6 md:pb-8",
+            )}
             onMouseEnter={
               hoverEffect ? () => setHoveredIndex(index) : undefined
             }
@@ -76,16 +79,14 @@ export function Timeline({
               />
             </span>
 
-            <div
-              className="relative rounded-xl border border-border bg-card px-5 py-5 shadow-sm transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:border-border/80 group-hover:shadow-md md:px-6 md:py-6"
-              data-slot="timeline-card"
-            >
+            {/* Hover wrapper — padding creates the visible highlight area around the card */}
+            <div className={cn("relative", hoverEffect && "p-2")}>
               {hoverEffect && (
                 <AnimatePresence>
                   {hoveredIndex === index && (
                     <motion.span
-                      className="pointer-events-none absolute inset-0 rounded-xl border-2 border-primary/60 dark:border-primary/50"
-                      layoutId="timelineHoverOutline"
+                      className="absolute inset-0 block h-full w-full rounded-2xl bg-neutral-200 dark:bg-slate-800/[0.8]"
+                      layoutId="timelineHoverBackground"
                       initial={{ opacity: 0 }}
                       animate={{
                         opacity: 1,
@@ -100,45 +101,55 @@ export function Timeline({
                 </AnimatePresence>
               )}
 
-              <div className="relative z-20 flex items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span
-                    className={cn(
-                      "h-px w-8 shrink-0 rounded-full opacity-80",
-                      dotClassName,
-                    )}
-                    data-slot="timeline-accent-rule"
-                  />
-                  <p
-                    className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
-                    data-slot="timeline-period"
-                  >
-                    {period}
-                  </p>
+              <div
+                className={cn(
+                  "relative z-20 rounded-xl border bg-card px-5 py-5 shadow-sm md:px-6 md:py-6",
+                  hoverEffect
+                    ? "border-transparent dark:border-white/[0.2] transition-colors duration-300 group-hover:border-slate-300 dark:group-hover:border-slate-700"
+                    : "border-border transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:border-border/80 group-hover:shadow-md",
+                )}
+                data-slot="timeline-card"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={cn(
+                        "h-px w-8 shrink-0 rounded-full opacity-80",
+                        dotClassName,
+                      )}
+                      data-slot="timeline-accent-rule"
+                    />
+                    <p
+                      className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
+                      data-slot="timeline-period"
+                    >
+                      {period}
+                    </p>
+                  </div>
+
+                  {item.logo ? (
+                    <div className="shrink-0" data-slot="timeline-logo">
+                      {item.logo}
+                    </div>
+                  ) : null}
                 </div>
 
-                {item.logo ? (
-                  <div className="shrink-0" data-slot="timeline-logo">
-                    {item.logo}
-                  </div>
+                <h3 className="mt-4 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
+                  {item.title}
+                </h3>
+
+                {item.subtitle ? (
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {item.subtitle}
+                  </p>
+                ) : null}
+
+                {item.description ? (
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground/90 md:text-[0.95rem]">
+                    {item.description}
+                  </p>
                 ) : null}
               </div>
-
-              <h3 className="relative z-20 mt-4 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
-                {item.title}
-              </h3>
-
-              {item.subtitle ? (
-                <p className="relative z-20 mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {item.subtitle}
-                </p>
-              ) : null}
-
-              {item.description ? (
-                <p className="relative z-20 mt-4 text-sm leading-relaxed text-muted-foreground/90 md:text-[0.95rem]">
-                  {item.description}
-                </p>
-              ) : null}
             </div>
           </li>
         );
