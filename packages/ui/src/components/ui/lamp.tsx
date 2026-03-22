@@ -100,6 +100,31 @@ export function LampContainer({
     return () => cancelAnimationFrame(timer);
   }, []);
 
+  // Track theme changes to retrigger glow animation
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const html = document.documentElement;
+    let wasDark = html.classList.contains("dark");
+
+    const observer = new MutationObserver(() => {
+      const isDark = html.classList.contains("dark");
+      if (isDark !== wasDark) {
+        wasDark = isDark;
+        // Reset mounted to retrigger the glow animation
+        setMounted(false);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setMounted(true);
+          });
+        });
+      }
+    });
+
+    observer.observe(html, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
       className={cn(
