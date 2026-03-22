@@ -23,6 +23,8 @@ export interface SpotlightHeroSectionProps {
   heading: ReactNode;
   subheading?: ReactNode;
   actions?: SpotlightHeroAction[];
+  /** HTML heading level – defaults to h2; use h1 for page heroes */
+  headingLevel?: "h1" | "h2" | "h3";
   tone?: MarketingSectionTone;
   padding?: MarketingSectionPadding;
   className?: string;
@@ -33,10 +35,12 @@ export function SpotlightHeroSection({
   heading,
   subheading,
   actions = [],
+  headingLevel = "h2",
   tone = "default",
   padding = "lg",
   className,
 }: SpotlightHeroSectionProps) {
+  const Heading = headingLevel;
   const motionEnabled = useMotionEnabled();
 
   return (
@@ -80,9 +84,9 @@ export function SpotlightHeroSection({
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="mx-auto max-w-4xl text-4xl font-semibold tracking-tight text-foreground md:text-6xl">
+        <Heading className="mx-auto max-w-4xl text-4xl font-semibold tracking-tight text-foreground md:text-6xl">
           {heading}
-        </h2>
+        </Heading>
         {subheading ? (
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
             {subheading}
