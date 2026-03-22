@@ -1,6 +1,8 @@
 "use client";
 
+import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
+import { useState } from "react";
 
 import { cn } from "../../utils";
 
@@ -17,6 +19,8 @@ export interface TimelineProps {
   /** Accent hook applied to the node and editorial rule */
   dotClassName?: string;
   className?: string;
+  /** Enable the sliding hover highlight between cards */
+  hoverEffect?: boolean;
 }
 
 function getTimelinePeriod(item: TimelineItem, index: number) {
@@ -31,7 +35,10 @@ export function Timeline({
   items,
   dotClassName = "bg-primary",
   className,
+  hoverEffect = false,
 }: TimelineProps) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   return (
     <ol className={cn("space-y-0", className)} data-slot="timeline">
       {items.map((item, index) => {
@@ -42,6 +49,10 @@ export function Timeline({
           <li
             key={`${item.title}-${index}`}
             className="group relative pl-11 pb-6 md:pl-14 md:pb-8"
+            onMouseEnter={
+              hoverEffect ? () => setHoveredIndex(index) : undefined
+            }
+            onMouseLeave={hoverEffect ? () => setHoveredIndex(null) : undefined}
           >
             {!isLast ? (
               <span
@@ -66,10 +77,30 @@ export function Timeline({
             </span>
 
             <div
-              className="rounded-xl border border-border bg-card px-5 py-5 shadow-sm transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:border-border/80 group-hover:shadow-md md:px-6 md:py-6"
+              className="relative rounded-xl border border-border bg-card px-5 py-5 shadow-sm transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:border-border/80 group-hover:shadow-md md:px-6 md:py-6"
               data-slot="timeline-card"
             >
-              <div className="flex items-start justify-between gap-4">
+              {hoverEffect && (
+                <AnimatePresence>
+                  {hoveredIndex === index && (
+                    <motion.span
+                      className="absolute inset-0 h-full w-full bg-neutral-200/50 dark:bg-slate-800/[0.8] block rounded-xl"
+                      layoutId="timelineHoverBackground"
+                      initial={{ opacity: 0 }}
+                      animate={{
+                        opacity: 1,
+                        transition: { duration: 0.15 },
+                      }}
+                      exit={{
+                        opacity: 0,
+                        transition: { duration: 0.15, delay: 0.2 },
+                      }}
+                    />
+                  )}
+                </AnimatePresence>
+              )}
+
+              <div className="relative z-20 flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <span
                     className={cn(
@@ -93,18 +124,18 @@ export function Timeline({
                 ) : null}
               </div>
 
-              <h3 className="mt-4 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
+              <h3 className="relative z-20 mt-4 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
                 {item.title}
               </h3>
 
               {item.subtitle ? (
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                <p className="relative z-20 mt-3 text-sm leading-relaxed text-muted-foreground">
                   {item.subtitle}
                 </p>
               ) : null}
 
               {item.description ? (
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground/90 md:text-[0.95rem]">
+                <p className="relative z-20 mt-4 text-sm leading-relaxed text-muted-foreground/90 md:text-[0.95rem]">
                   {item.description}
                 </p>
               ) : null}
