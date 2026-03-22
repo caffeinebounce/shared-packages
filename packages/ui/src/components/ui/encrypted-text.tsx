@@ -81,24 +81,47 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
 
   const [forceStart, setForceStart] = useState(false);
 
-  // Fallback: if element is already in viewport on mount, useInView may miss it
+  // Fallback: useInView can miss elements already in viewport during SSR hydration
+  // or inside animated containers (transforms). Use a hard timeout as ultimate fallback.
   useEffect(() => {
     if (isInView || forceStart) return;
-    const el = ref.current;
-    if (!el) return;
-    // Check after a frame to let layout settle
-    const timer = requestAnimationFrame(() => {
-      const rect = el.getBoundingClientRect();
-      if (
-        rect.top < window.innerHeight &&
-        rect.bottom > 0 &&
-        rect.left < window.innerWidth &&
-        rect.right > 0
-      ) {
-        setForceStart(true);
+
+    // Try viewport check repeatedly for 500ms, then force-start regardless
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    const check = () => {
+      if (cancelled || isInView || forceStart) return;
+      const el = ref.current;
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (
+          rect.top < window.innerHeight &&
+          rect.bottom > 0 &&
+          rect.left < window.innerWidth &&
+          rect.right > 0
+        ) {
+          setForceStart(true);
+          return;
+        }
       }
-    });
-    return () => cancelAnimationFrame(timer);
+      attempts++;
+      if (attempts < maxAttempts) {
+        requestAnimationFrame(check);
+      }
+    };
+    requestAnimationFrame(check);
+
+    // Hard fallback: if nothing fired after 600ms, just start
+    const hardTimeout = setTimeout(() => {
+      if (!cancelled) setForceStart(true);
+    }, 600);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(hardTimeout);
+    };
   }, [isInView, forceStart]);
 
   const [revealCount, setRevealCount] = useState<number>(0);
