@@ -84,8 +84,8 @@ export function Timeline({
                 <AnimatePresence>
                   {hoveredIndex === index && (
                     <motion.span
-                      className="absolute inset-0 h-full w-full bg-neutral-200/50 dark:bg-slate-800/[0.8] block rounded-xl"
-                      layoutId="timelineHoverBackground"
+                      className="pointer-events-none absolute inset-0 rounded-xl border-2 border-primary/60 dark:border-primary/50"
+                      layoutId="timelineHoverOutline"
                       initial={{ opacity: 0 }}
                       animate={{
                         opacity: 1,
