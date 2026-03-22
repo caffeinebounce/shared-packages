@@ -103,7 +103,7 @@ export function LampContainer({
   return (
     <div
       className={cn(
-        "relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-white transition-colors duration-300 dark:bg-black",
+        "relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background transition-colors duration-300",
         className,
       )}
     >
@@ -153,7 +153,7 @@ export function LampContainer({
       </div>
 
       {/* Top fade overlay */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-white via-white/85 to-transparent dark:from-black dark:via-black/85" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-background via-background/85 to-transparent" />
 
       <div className="relative z-10 w-full">{children}</div>
     </div>
