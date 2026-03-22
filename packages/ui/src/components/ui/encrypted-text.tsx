@@ -79,6 +79,28 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
 
+  const [forceStart, setForceStart] = useState(false);
+
+  // Fallback: if element is already in viewport on mount, useInView may miss it
+  useEffect(() => {
+    if (isInView || forceStart) return;
+    const el = ref.current;
+    if (!el) return;
+    // Check after a frame to let layout settle
+    const timer = requestAnimationFrame(() => {
+      const rect = el.getBoundingClientRect();
+      if (
+        rect.top < window.innerHeight &&
+        rect.bottom > 0 &&
+        rect.left < window.innerWidth &&
+        rect.right > 0
+      ) {
+        setForceStart(true);
+      }
+    });
+    return () => cancelAnimationFrame(timer);
+  }, [isInView, forceStart]);
+
   const [revealCount, setRevealCount] = useState<number>(0);
   const [hoverScrambledIndices, setHoverScrambledIndices] = useState<
     Set<number>
@@ -113,7 +135,7 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
 
   // Initial reveal animation
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView && !forceStart) return;
 
     const initial = text
       ? generateGibberishPreservingSpaces(text, charset)
@@ -167,7 +189,7 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isInView, text, revealDelayMs, charset, flipDelayMs]);
+  }, [isInView, forceStart, text, revealDelayMs, charset, flipDelayMs]);
 
   const startScrambling = useCallback(
     (indices: number[]) => {
