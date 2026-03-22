@@ -19,6 +19,7 @@ export default defineConfig({
     settings: "src/entries/settings.ts",
     blog: "src/entries/blog.ts",
     portal: "src/entries/portal.ts",
+    media: "src/entries/media.ts",
   },
   format: ["esm", "cjs"],
   dts: true,
