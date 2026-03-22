@@ -52,7 +52,7 @@ export function LampHero({
     <LampContainer className={containerClassName} colorTheme={colorTheme}>
       <section
         className={cn(
-          "mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center px-6 text-center",
+          "mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-6 text-center",
           className,
           contentClassName,
         )}
