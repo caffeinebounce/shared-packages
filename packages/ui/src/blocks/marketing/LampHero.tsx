@@ -117,7 +117,6 @@ export function LampHero({
             ))}
           </motion.div>
         ) : null}
-
       </section>
     </LampContainer>
   );
