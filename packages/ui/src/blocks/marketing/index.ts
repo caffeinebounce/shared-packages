@@ -3,6 +3,10 @@ export {
   type EncryptedTextProps,
 } from "../../components/ui/encrypted-text";
 export {
+  PixelatedCanvas,
+  type PixelatedCanvasProps,
+} from "../../components/ui/pixelated-canvas";
+export {
   BackgroundBeamsCTASection,
   type BackgroundBeamsCTASectionProps,
 } from "./BackgroundBeamsCTASection";
