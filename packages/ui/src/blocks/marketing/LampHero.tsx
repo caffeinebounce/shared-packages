@@ -69,6 +69,8 @@ export function LampHero({
           />
         ) : null}
 
+        {children}
+
         {subtitle ? (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -116,7 +118,6 @@ export function LampHero({
           </motion.div>
         ) : null}
 
-        {children}
       </section>
     </LampContainer>
   );
