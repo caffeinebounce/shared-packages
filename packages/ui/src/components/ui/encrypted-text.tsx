@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView } from "motion/react";
+import { motion } from "motion/react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "../../utils";
@@ -77,52 +77,14 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
   hoverDurationMs = 150,
 }) => {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
+  // Simple mount-based trigger — no useInView SSR race conditions
 
-  const [forceStart, setForceStart] = useState(false);
+  const [started, setStarted] = useState(false);
 
-  // Fallback: useInView can miss elements already in viewport during SSR hydration
-  // or inside animated containers (transforms). Use a hard timeout as ultimate fallback.
   useEffect(() => {
-    if (isInView || forceStart) return;
-
-    // Try viewport check repeatedly for 500ms, then force-start regardless
-    let cancelled = false;
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    const check = () => {
-      if (cancelled || isInView || forceStart) return;
-      const el = ref.current;
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        if (
-          rect.top < window.innerHeight &&
-          rect.bottom > 0 &&
-          rect.left < window.innerWidth &&
-          rect.right > 0
-        ) {
-          setForceStart(true);
-          return;
-        }
-      }
-      attempts++;
-      if (attempts < maxAttempts) {
-        requestAnimationFrame(check);
-      }
-    };
-    requestAnimationFrame(check);
-
-    // Hard fallback: if nothing fired after 600ms, just start
-    const hardTimeout = setTimeout(() => {
-      if (!cancelled) setForceStart(true);
-    }, 600);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(hardTimeout);
-    };
-  }, [isInView, forceStart]);
+    const id = requestAnimationFrame(() => setStarted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   const [revealCount, setRevealCount] = useState<number>(0);
   // Tick counter forces re-render when scramble chars flip (ref mutations alone don't trigger render)
@@ -160,7 +122,7 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
 
   // Initial reveal animation
   useEffect(() => {
-    if (!isInView && !forceStart) return;
+    if (!started) return;
 
     const initial = text
       ? generateGibberishPreservingSpaces(text, charset)
@@ -216,7 +178,7 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isInView, forceStart, text, revealDelayMs, charset, flipDelayMs]);
+  }, [started, text, revealDelayMs, charset, flipDelayMs]);
 
   const startScrambling = useCallback(
     (indices: number[]) => {
