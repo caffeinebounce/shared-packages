@@ -72,7 +72,7 @@ export function Timeline({
           >
             {!isLast ? (
               <span
-                className="pointer-events-none absolute left-[0.95rem] top-8 bottom-0 w-px bg-border md:left-[1.125rem] md:top-9"
+                className="pointer-events-none absolute left-[0.95rem] top-[2.25rem] bottom-0 w-px bg-border md:left-[1.125rem] md:top-[2.625rem]"
                 data-slot="timeline-connector"
               />
             ) : null}
