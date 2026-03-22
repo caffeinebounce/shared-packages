@@ -188,15 +188,14 @@ function BrandFooter({
   };
 
   return (
-    <div className="dark">
-      <footer
-        className={cn(
-          "bg-gradient-to-b from-black/50 to-black/90 backdrop-blur-2xl border-t border-white/[0.06]",
-          className,
-        )}
-      >
-        {/* Decorative gradient border-top */}
-        <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+    <footer
+      className={cn(
+        "bg-gradient-to-b from-muted/60 to-muted dark:from-black/50 dark:to-black/90 backdrop-blur-2xl border-t border-border",
+        className,
+      )}
+    >
+      {/* Decorative gradient border-top */}
+      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
         <Container
           data-slot="footer-container"
@@ -291,9 +290,8 @@ function BrandFooter({
 
             {bottomContent}
           </div>
-        </Container>
-      </footer>
-    </div>
+      </Container>
+    </footer>
   );
 }
 
