@@ -2,7 +2,12 @@
 
 import { motion, useInView } from "motion/react";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { cn } from "../../utils";
 
 export type EncryptedTextProps = {
@@ -26,7 +31,8 @@ export type EncryptedTextProps = {
   revealedClassName?: string;
   /**
    * Enable hover scramble effect on revealed characters.
-   * When true, hovering a character scrambles it and its neighbours (±hoverRadius).
+   * When true, hovering a character scrambles it and its neighbours (±hoverRadius)
+   * continuously until the mouse leaves.
    * Defaults to false.
    */
   hoverScramble?: boolean;
@@ -36,8 +42,8 @@ export type EncryptedTextProps = {
    */
   hoverRadius?: number;
   /**
-   * Duration in milliseconds for the hover scramble effect before
-   * characters settle back. Defaults to 150.
+   * Duration in milliseconds after mouse leaves before characters settle back.
+   * Defaults to 150.
    */
   hoverDurationMs?: number;
 };
@@ -83,12 +89,18 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
     Set<number>
   >(new Set());
   const [hoverChars, setHoverChars] = useState<Map<number, string>>(new Map());
-  const hoverTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
-    new Map(),
-  );
+
+  // Track which indices are actively hovered (mouse is over them)
+  const activeHoverRef = useRef<Set<number>>(new Set());
+  // Intervals for flipping characters while hovered
   const hoverFlipRef = useRef<Map<number, ReturnType<typeof setInterval>>>(
     new Map(),
   );
+  // Timeouts for settling after mouse leaves
+  const settleTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
+
   const animationFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const lastFlipTimeRef = useRef<number>(0);
@@ -96,14 +108,15 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
     text ? generateGibberishPreservingSpaces(text, charset).split("") : [],
   );
 
-  // Cleanup hover timers on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      for (const t of hoverTimersRef.current.values()) clearTimeout(t);
       for (const t of hoverFlipRef.current.values()) clearInterval(t);
+      for (const t of settleTimersRef.current.values()) clearTimeout(t);
     };
   }, []);
 
+  // Initial reveal animation
   useEffect(() => {
     if (!isInView) return;
 
@@ -161,46 +174,34 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
     };
   }, [isInView, text, revealDelayMs, charset, flipDelayMs]);
 
-  const handleCharHover = useCallback(
-    (index: number) => {
-      if (!hoverScramble) return;
-      // Only scramble revealed, non-space characters
-      const indicesToScramble: number[] = [];
-      for (
-        let i = Math.max(0, index - hoverRadius);
-        i <= Math.min(text.length - 1, index + hoverRadius);
-        i++
-      ) {
-        if (text[i] !== " ") {
-          indicesToScramble.push(i);
-        }
-      }
-
-      if (indicesToScramble.length === 0) return;
-
+  const startScrambling = useCallback(
+    (indices: number[]) => {
       // Add to scrambled set
       setHoverScrambledIndices((prev) => {
         const next = new Set(prev);
-        for (const i of indicesToScramble) next.add(i);
+        for (const i of indices) next.add(i);
         return next;
       });
 
-      // Start flipping characters rapidly
-      for (const i of indicesToScramble) {
-        // Clear any existing timer/interval for this index
-        const existingTimer = hoverTimersRef.current.get(i);
-        if (existingTimer) clearTimeout(existingTimer);
-        const existingFlip = hoverFlipRef.current.get(i);
-        if (existingFlip) clearInterval(existingFlip);
+      for (const i of indices) {
+        // Cancel any settle timer — we're re-entering
+        const existingSettle = settleTimersRef.current.get(i);
+        if (existingSettle) {
+          clearTimeout(existingSettle);
+          settleTimersRef.current.delete(i);
+        }
 
-        // Immediately set a random char
+        // If already flipping, skip
+        if (hoverFlipRef.current.has(i)) continue;
+
+        // Immediate random char
         setHoverChars((prev) => {
           const next = new Map(prev);
           next.set(i, generateRandomCharacter(charset));
           return next;
         });
 
-        // Flip rapidly during hover duration
+        // Continuous flip interval while hovered
         const flipInterval = setInterval(() => {
           setHoverChars((prev) => {
             const next = new Map(prev);
@@ -209,11 +210,27 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
           });
         }, 30);
         hoverFlipRef.current.set(i, flipInterval);
+      }
+    },
+    [charset],
+  );
 
-        // After duration, settle back to real character
+  const stopScrambling = useCallback(
+    (indices: number[]) => {
+      for (const i of indices) {
+        // Only stop if no longer actively hovered by any source
+        if (activeHoverRef.current.has(i)) continue;
+
+        // Schedule settle after delay
         const timer = setTimeout(() => {
-          clearInterval(flipInterval);
-          hoverFlipRef.current.delete(i);
+          // Stop flipping
+          const flip = hoverFlipRef.current.get(i);
+          if (flip) {
+            clearInterval(flip);
+            hoverFlipRef.current.delete(i);
+          }
+          settleTimersRef.current.delete(i);
+
           setHoverScrambledIndices((prev) => {
             const next = new Set(prev);
             next.delete(i);
@@ -225,10 +242,54 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
             return next;
           });
         }, hoverDurationMs);
-        hoverTimersRef.current.set(i, timer);
+        settleTimersRef.current.set(i, timer);
       }
     },
-    [hoverScramble, hoverRadius, hoverDurationMs, text, charset],
+    [hoverDurationMs],
+  );
+
+  const getAffectedIndices = useCallback(
+    (index: number): number[] => {
+      const indices: number[] = [];
+      for (
+        let i = Math.max(0, index - hoverRadius);
+        i <= Math.min(text.length - 1, index + hoverRadius);
+        i++
+      ) {
+        if (text[i] !== " ") {
+          indices.push(i);
+        }
+      }
+      return indices;
+    },
+    [hoverRadius, text],
+  );
+
+  const handleCharEnter = useCallback(
+    (index: number) => {
+      if (!hoverScramble) return;
+      const indices = getAffectedIndices(index);
+      if (indices.length === 0) return;
+
+      // Mark all affected as actively hovered
+      for (const i of indices) activeHoverRef.current.add(i);
+
+      startScrambling(indices);
+    },
+    [hoverScramble, getAffectedIndices, startScrambling],
+  );
+
+  const handleCharLeave = useCallback(
+    (index: number) => {
+      if (!hoverScramble) return;
+      const indices = getAffectedIndices(index);
+
+      // Remove this char's contribution to active hover
+      for (const i of indices) activeHoverRef.current.delete(i);
+
+      stopScrambling(indices);
+    },
+    [hoverScramble, getAffectedIndices, stopScrambling],
   );
 
   if (!text) return null;
@@ -251,7 +312,8 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
           displayChar = " ";
         } else {
           displayChar =
-            scrambleCharsRef.current[index] ?? generateRandomCharacter(charset);
+            scrambleCharsRef.current[index] ??
+            generateRandomCharacter(charset);
         }
 
         const charClassName = isHoverScrambled
@@ -272,7 +334,12 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
             )}
             onMouseEnter={
               isFullyRevealed && hoverScramble
-                ? () => handleCharHover(index)
+                ? () => handleCharEnter(index)
+                : undefined
+            }
+            onMouseLeave={
+              isFullyRevealed && hoverScramble
+                ? () => handleCharLeave(index)
                 : undefined
             }
           >
