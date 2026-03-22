@@ -125,6 +125,8 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
   }, [isInView, forceStart]);
 
   const [revealCount, setRevealCount] = useState<number>(0);
+  // Tick counter forces re-render when scramble chars flip (ref mutations alone don't trigger render)
+  const [, setTick] = useState(0);
   const [hoverScrambledIndices, setHoverScrambledIndices] = useState<
     Set<number>
   >(new Set());
@@ -199,6 +201,8 @@ export const EncryptedText: React.FC<EncryptedTextProps> = ({
           }
         }
         lastFlipTimeRef.current = now;
+        // Force re-render so scramble ref mutations become visible
+        setTick((t) => t + 1);
       }
 
       animationFrameRef.current = requestAnimationFrame(update);
