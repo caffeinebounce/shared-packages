@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Button } from "../../components/ui/button";
+import { CardSpotlight } from "../../components/ui/card-spotlight";
 import {
   cx,
   type MarketingSectionPadding,
@@ -31,6 +32,7 @@ export interface BentoGridSectionProps {
   padding?: MarketingSectionPadding;
   className?: string;
   containerClassName?: string;
+  spotlight?: boolean;
 }
 
 export function BentoGridSection({
@@ -41,6 +43,7 @@ export function BentoGridSection({
   padding = "lg",
   className,
   containerClassName,
+  spotlight = false,
 }: BentoGridSectionProps) {
   return (
     <section
@@ -64,45 +67,93 @@ export function BentoGridSection({
         ) : null}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 auto-rows-[minmax(11rem,auto)]">
-          {items.map((item) => (
-            <article
-              key={item.id}
-              className={cx(
-                "overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 dark:bg-neutral-900 shadow-sm transition-colors flex flex-col",
-                item.colSpan === 2 && "md:col-span-2",
-                item.rowSpan === 2 && "md:row-span-2",
-              )}
-            >
-              {item.illustration ? (
-                <div
-                  className={cx("w-full overflow-hidden", item.headerClassName)}
-                  aria-hidden="true"
-                >
-                  {item.illustration}
+          {items.map((item) =>
+            spotlight ? (
+              <CardSpotlight
+                key={item.id}
+                className={cx(
+                  "rounded-xl p-0 flex flex-col",
+                  item.colSpan === 2 && "md:col-span-2",
+                  item.rowSpan === 2 && "md:row-span-2",
+                )}
+              >
+                <div className="relative z-20 flex flex-col flex-1">
+                  {item.illustration ? (
+                    <div
+                      className={cx(
+                        "w-full overflow-hidden",
+                        item.headerClassName,
+                      )}
+                      aria-hidden="true"
+                    >
+                      {item.illustration}
+                    </div>
+                  ) : null}
+                  <div className="flex flex-1 flex-col p-5">
+                    {item.icon ? (
+                      <div className="mb-3 text-neutral-300" aria-hidden="true">
+                        {item.icon}
+                      </div>
+                    ) : null}
+                    <h3 className="text-lg font-medium text-neutral-100">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 flex-1 text-sm leading-6 text-neutral-400">
+                      {item.description}
+                    </p>
+                    {item.cta ? (
+                      <div className="mt-4">
+                        <Button asChild variant="outline" size="sm">
+                          <a href={item.cta.href}>{item.cta.label}</a>
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
-              ) : null}
-              <div className="flex flex-1 flex-col p-5">
-                {item.icon ? (
-                  <div className="mb-3 text-neutral-300" aria-hidden="true">
-                    {item.icon}
+              </CardSpotlight>
+            ) : (
+              <article
+                key={item.id}
+                className={cx(
+                  "overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 dark:bg-neutral-900 shadow-sm transition-colors flex flex-col",
+                  item.colSpan === 2 && "md:col-span-2",
+                  item.rowSpan === 2 && "md:row-span-2",
+                )}
+              >
+                {item.illustration ? (
+                  <div
+                    className={cx(
+                      "w-full overflow-hidden",
+                      item.headerClassName,
+                    )}
+                    aria-hidden="true"
+                  >
+                    {item.illustration}
                   </div>
                 ) : null}
-                <h3 className="text-lg font-medium text-neutral-100">
-                  {item.title}
-                </h3>
-                <p className="mt-2 flex-1 text-sm leading-6 text-neutral-400">
-                  {item.description}
-                </p>
-                {item.cta ? (
-                  <div className="mt-4">
-                    <Button asChild variant="outline" size="sm">
-                      <a href={item.cta.href}>{item.cta.label}</a>
-                    </Button>
-                  </div>
-                ) : null}
-              </div>
-            </article>
-          ))}
+                <div className="flex flex-1 flex-col p-5">
+                  {item.icon ? (
+                    <div className="mb-3 text-neutral-300" aria-hidden="true">
+                      {item.icon}
+                    </div>
+                  ) : null}
+                  <h3 className="text-lg font-medium text-neutral-100">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-neutral-400">
+                    {item.description}
+                  </p>
+                  {item.cta ? (
+                    <div className="mt-4">
+                      <Button asChild variant="outline" size="sm">
+                        <a href={item.cta.href}>{item.cta.label}</a>
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+              </article>
+            ),
+          )}
         </div>
       </div>
     </section>

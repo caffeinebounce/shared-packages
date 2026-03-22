@@ -1,3 +1,5 @@
+export { CanvasRevealEffect } from "../../components/ui/canvas-reveal-effect";
+export { CardSpotlight } from "../../components/ui/card-spotlight";
 export {
   EncryptedText,
   type EncryptedTextProps,

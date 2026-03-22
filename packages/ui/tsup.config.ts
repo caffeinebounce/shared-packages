@@ -35,6 +35,8 @@ export default defineConfig({
     "next/navigation",
     "next-themes",
     "sonner",
+    "three",
+    "@react-three/fiber",
   ],
   treeshake: true,
   minify: false,
