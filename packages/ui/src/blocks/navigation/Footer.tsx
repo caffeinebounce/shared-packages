@@ -188,16 +188,17 @@ function BrandFooter({
   };
 
   return (
-    <footer
-      className={cn(
-        "bg-gradient-to-b from-black/40 to-black/80 dark:from-black/50 dark:to-black/90 backdrop-blur-2xl border-t border-white/[0.06]",
-        className,
-      )}
-    >
-      {/* Decorative gradient border-top */}
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+    <div className="dark">
+      <footer
+        className={cn(
+          "bg-gradient-to-b from-black/50 to-black/90 backdrop-blur-2xl border-t border-white/[0.06]",
+          className,
+        )}
+      >
+        {/* Decorative gradient border-top */}
+        <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-      <Container
+        <Container
         data-slot="footer-container"
         className={cn("py-16 md:py-20", containerClassName)}
       >
@@ -290,8 +291,9 @@ function BrandFooter({
 
           {bottomContent}
         </div>
-      </Container>
-    </footer>
+        </Container>
+      </footer>
+    </div>
   );
 }
 
