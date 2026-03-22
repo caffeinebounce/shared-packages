@@ -199,98 +199,98 @@ function BrandFooter({
         <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
         <Container
-        data-slot="footer-container"
-        className={cn("py-16 md:py-20", containerClassName)}
-      >
-        {/* Top zone: logo + tagline / newsletter */}
-        {(logo || tagline || newsletter) && (
-          <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
-            <div className="space-y-3">
-              {logo}
-              {tagline && (
-                <p className="text-base text-muted-foreground max-w-sm">
-                  {tagline}
-                </p>
+          data-slot="footer-container"
+          className={cn("py-16 md:py-20", containerClassName)}
+        >
+          {/* Top zone: logo + tagline / newsletter */}
+          {(logo || tagline || newsletter) && (
+            <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
+              <div className="space-y-3">
+                {logo}
+                {tagline && (
+                  <p className="text-base text-muted-foreground max-w-sm">
+                    {tagline}
+                  </p>
+                )}
+              </div>
+
+              {newsletter && (
+                <form
+                  onSubmit={handleNewsletterSubmit}
+                  className="flex gap-2 w-full max-w-sm"
+                >
+                  <Input
+                    type="email"
+                    placeholder={newsletter.placeholder ?? "Enter your email"}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="flex-1"
+                    required
+                  />
+                  <Button type="submit" size="sm">
+                    {newsletter.buttonText ?? "Subscribe"}
+                  </Button>
+                </form>
               )}
             </div>
-
-            {newsletter && (
-              <form
-                onSubmit={handleNewsletterSubmit}
-                className="flex gap-2 w-full max-w-sm"
-              >
-                <Input
-                  type="email"
-                  placeholder={newsletter.placeholder ?? "Enter your email"}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1"
-                  required
-                />
-                <Button type="submit" size="sm">
-                  {newsletter.buttonText ?? "Subscribe"}
-                </Button>
-              </form>
-            )}
-          </div>
-        )}
-
-        {/* Middle zone: link groups grid */}
-        {linkGroups.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
-            {linkGroups.map((group) => (
-              <div key={group.title}>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-                  {group.title}
-                </h3>
-                <ul className="space-y-3">
-                  {group.links.map((link) => (
-                    <li key={link.label}>
-                      <a
-                        href={link.href}
-                        className="text-sm text-muted-foreground/80 hover:text-foreground transition-colors"
-                        {...(link.external && {
-                          target: "_blank",
-                          rel: "noopener noreferrer",
-                        })}
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Bottom zone */}
-        <Separator className="mb-8" />
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          {copyright && (
-            <p className="text-sm text-muted-foreground">{copyright}</p>
           )}
 
-          {socialLinks.length > 0 && (
-            <div className="flex gap-2">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-10 w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-                  data-slot="footer-social-link"
-                  aria-label={social.label}
-                >
-                  {social.icon}
-                </a>
+          {/* Middle zone: link groups grid */}
+          {linkGroups.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
+              {linkGroups.map((group) => (
+                <div key={group.title}>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                    {group.title}
+                  </h3>
+                  <ul className="space-y-3">
+                    {group.links.map((link) => (
+                      <li key={link.label}>
+                        <a
+                          href={link.href}
+                          className="text-sm text-muted-foreground/80 hover:text-foreground transition-colors"
+                          {...(link.external && {
+                            target: "_blank",
+                            rel: "noopener noreferrer",
+                          })}
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
             </div>
           )}
 
-          {bottomContent}
-        </div>
+          {/* Bottom zone */}
+          <Separator className="mb-8" />
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            {copyright && (
+              <p className="text-sm text-muted-foreground">{copyright}</p>
+            )}
+
+            {socialLinks.length > 0 && (
+              <div className="flex gap-2">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-10 w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                    data-slot="footer-social-link"
+                    aria-label={social.label}
+                  >
+                    {social.icon}
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {bottomContent}
+          </div>
         </Container>
       </footer>
     </div>
