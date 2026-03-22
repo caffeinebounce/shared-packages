@@ -13,6 +13,8 @@ export interface BentoGridItem {
   title: ReactNode;
   description: ReactNode;
   icon?: ReactNode;
+  illustration?: ReactNode;
+  headerClassName?: string;
   cta?: {
     href: string;
     label: string;
@@ -28,6 +30,7 @@ export interface BentoGridSectionProps {
   tone?: MarketingSectionTone;
   padding?: MarketingSectionPadding;
   className?: string;
+  containerClassName?: string;
 }
 
 export function BentoGridSection({
@@ -37,6 +40,7 @@ export function BentoGridSection({
   tone = "muted",
   padding = "lg",
   className,
+  containerClassName,
 }: BentoGridSectionProps) {
   return (
     <section
@@ -47,7 +51,7 @@ export function BentoGridSection({
       )}
       data-slot="bento-grid-section"
     >
-      <div className="container mx-auto px-4">
+      <div className={cx("mx-auto max-w-6xl px-6", containerClassName)}>
         {heading ? (
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <h2 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
@@ -64,29 +68,39 @@ export function BentoGridSection({
             <article
               key={item.id}
               className={cx(
-                "rounded-2xl border border-border/70 bg-card p-5 shadow-xs transition-colors",
+                "overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 dark:bg-neutral-900 shadow-sm transition-colors flex flex-col",
                 item.colSpan === 2 && "md:col-span-2",
                 item.rowSpan === 2 && "md:row-span-2",
               )}
             >
-              {item.icon ? (
-                <div className="mb-3 text-primary" aria-hidden="true">
-                  {item.icon}
+              {item.illustration ? (
+                <div
+                  className={cx("w-full overflow-hidden", item.headerClassName)}
+                  aria-hidden="true"
+                >
+                  {item.illustration}
                 </div>
               ) : null}
-              <h3 className="text-lg font-medium text-foreground">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {item.description}
-              </p>
-              {item.cta ? (
-                <div className="mt-4">
-                  <Button asChild variant="outline" size="sm">
-                    <a href={item.cta.href}>{item.cta.label}</a>
-                  </Button>
-                </div>
-              ) : null}
+              <div className="flex flex-1 flex-col p-5">
+                {item.icon ? (
+                  <div className="mb-3 text-neutral-300" aria-hidden="true">
+                    {item.icon}
+                  </div>
+                ) : null}
+                <h3 className="text-lg font-medium text-neutral-100">
+                  {item.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-6 text-neutral-400">
+                  {item.description}
+                </p>
+                {item.cta ? (
+                  <div className="mt-4">
+                    <Button asChild variant="outline" size="sm">
+                      <a href={item.cta.href}>{item.cta.label}</a>
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
             </article>
           ))}
         </div>
