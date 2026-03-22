@@ -137,6 +137,8 @@ export function ThemeToggle({
   }, [shortcut, toggleTheme]);
 
   // Prevent hydration mismatch by not rendering until mounted
+  // Use CSS-based icons so the correct icon shows immediately via the `dark`
+  // class set by next-themes' script before paint — no JS state needed.
   if (!mounted) {
     return (
       <button
@@ -144,7 +146,10 @@ export function ThemeToggle({
         className={`inline-flex h-8 w-8 items-center justify-center text-icon transition-colors ${className ?? ""}`}
         aria-label="Toggle theme"
       >
-        <div className="h-4 w-4" />
+        <div className="relative h-4 w-4">
+          <Sun className="absolute inset-0 h-4 w-4 opacity-0 dark:opacity-100 transition-opacity duration-150" />
+          <Moon className="absolute inset-0 h-4 w-4 opacity-100 dark:opacity-0 transition-opacity duration-150" />
+        </div>
       </button>
     );
   }
