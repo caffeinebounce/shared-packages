@@ -32,6 +32,7 @@ export type PixelatedCanvasProps = Omit<
   jitterSpeed?: number;
   fadeOnLeave?: boolean;
   fadeSpeed?: number;
+  springBack?: number;
   imageCrossOrigin?: "" | "anonymous" | "use-credentials" | null;
 };
 
@@ -63,6 +64,7 @@ export function PixelatedCanvas({
   jitterSpeed = 4,
   fadeOnLeave = true,
   fadeSpeed = 0.1,
+  springBack = 0.08,
   imageCrossOrigin = "anonymous",
   ...canvasProps
 }: PixelatedCanvasProps) {
@@ -89,8 +91,8 @@ export function PixelatedCanvas({
   const rafRef = React.useRef<number | null>(null);
   const lastFrameRef = React.useRef(0);
   const pointerInsideRef = React.useRef(false);
-  const activityRef = React.useRef(0);
-  const activityTargetRef = React.useRef(0);
+  // Per-sample displacement: Float32Array storing [dx0, dy0, dx1, dy1, ...]
+  const displacementRef = React.useRef<Float32Array | null>(null);
 
   React.useEffect(() => {
     let isCancelled = false;
@@ -384,6 +386,8 @@ export function PixelatedCanvas({
       }
 
       samplesRef.current = samples;
+      // Allocate per-sample displacement storage (dx, dy per sample)
+      displacementRef.current = new Float32Array(samples.length * 2);
     };
 
     const drawSamples = () => {
@@ -468,8 +472,9 @@ export function PixelatedCanvas({
         const ctx = canvas.getContext("2d");
         const dims = dimsRef.current;
         const samples = samplesRef.current;
+        const displacement = displacementRef.current;
 
-        if (!ctx || !dims || !samples) {
+        if (!ctx || !dims || !samples || !displacement) {
           rafRef.current = requestAnimationFrame(animate);
           return;
         }
@@ -478,13 +483,6 @@ export function PixelatedCanvas({
           (targetMouseRef.current.x - animatedMouseRef.current.x) * followSpeed;
         animatedMouseRef.current.y +=
           (targetMouseRef.current.y - animatedMouseRef.current.y) * followSpeed;
-
-        if (fadeOnLeave) {
-          activityRef.current +=
-            (activityTargetRef.current - activityRef.current) * fadeSpeed;
-        } else {
-          activityRef.current = pointerInsideRef.current ? 1 : 0;
-        }
 
         if (backgroundColor) {
           ctx.fillStyle = backgroundColor;
@@ -497,46 +495,88 @@ export function PixelatedCanvas({
         const mouseY = animatedMouseRef.current.y;
         const sigma = Math.max(1, distortionRadius * 0.5);
         const time = now * 0.001 * jitterSpeed;
-        const activity = Math.max(0, Math.min(1, activityRef.current));
+        const pointerInside = pointerInsideRef.current;
+        const springDecay = Math.max(0, Math.min(1, springBack));
 
-        for (const sample of samples) {
+        // Track max displacement magnitude for stop-condition
+        let maxAbsDisp = 0;
+
+        for (let i = 0; i < samples.length; i++) {
+          const sample = samples[i];
+
           if (sample.drop || sample.a <= 0) {
             continue;
           }
 
-          let drawX = sample.x + cellSize / 2;
-          let drawY = sample.y + cellSize / 2;
-          const deltaX = drawX - mouseX;
-          const deltaY = drawY - mouseY;
+          const sampleCenterX = sample.x + cellSize / 2;
+          const sampleCenterY = sample.y + cellSize / 2;
+          const deltaX = sampleCenterX - mouseX;
+          const deltaY = sampleCenterY - mouseY;
           const distanceSquared = deltaX * deltaX + deltaY * deltaY;
           const falloff = Math.exp(-distanceSquared / (2 * sigma * sigma));
-          const influence = falloff * activity;
 
-          if (influence > 0.0005) {
+          let dispX = displacement[i * 2];
+          let dispY = displacement[i * 2 + 1];
+
+          if (falloff > 0.01 && pointerInside) {
+            // Cursor is influencing this pixel — lerp displacement toward target
+            let targetDx = 0;
+            let targetDy = 0;
+
             if (distortionMode === "repel") {
               const distance = Math.sqrt(distanceSquared) + 0.0001;
-              drawX += (deltaX / distance) * distortionStrength * influence;
-              drawY += (deltaY / distance) * distortionStrength * influence;
+              targetDx = (deltaX / distance) * distortionStrength * falloff;
+              targetDy = (deltaY / distance) * distortionStrength * falloff;
             } else if (distortionMode === "attract") {
               const distance = Math.sqrt(distanceSquared) + 0.0001;
-              drawX -= (deltaX / distance) * distortionStrength * influence;
-              drawY -= (deltaY / distance) * distortionStrength * influence;
+              targetDx = -(deltaX / distance) * distortionStrength * falloff;
+              targetDy = -(deltaY / distance) * distortionStrength * falloff;
             } else {
-              const angle = distortionStrength * 0.05 * influence;
+              // swirl
+              const angle = distortionStrength * 0.05 * falloff;
               const cosAngle = Math.cos(angle);
               const sinAngle = Math.sin(angle);
               const rotatedX = cosAngle * deltaX - sinAngle * deltaY;
               const rotatedY = sinAngle * deltaX + cosAngle * deltaY;
-              drawX = mouseX + rotatedX;
-              drawY = mouseY + rotatedY;
+              targetDx = mouseX + rotatedX - sampleCenterX;
+              targetDy = mouseY + rotatedY - sampleCenterY;
             }
 
-            if (jitterStrength > 0) {
-              const jitterSeed = sample.seed * 43758.5453;
-              drawX += Math.sin(time + jitterSeed) * jitterStrength * influence;
-              drawY +=
-                Math.cos(time + jitterSeed * 1.13) * jitterStrength * influence;
+            dispX += (targetDx - dispX) * followSpeed;
+            dispY += (targetDy - dispY) * followSpeed;
+          } else {
+            // No cursor influence — spring back toward (0, 0)
+            if (fadeOnLeave) {
+              dispX *= 1 - springDecay;
+              dispY *= 1 - springDecay;
+              // Snap to zero when negligible to avoid endless drift
+              if (Math.abs(dispX) < 0.01) dispX = 0;
+              if (Math.abs(dispY) < 0.01) dispY = 0;
+            } else {
+              dispX = 0;
+              dispY = 0;
             }
+          }
+
+          displacement[i * 2] = dispX;
+          displacement[i * 2 + 1] = dispY;
+
+          const absDisp = Math.abs(dispX) + Math.abs(dispY);
+          if (absDisp > maxAbsDisp) maxAbsDisp = absDisp;
+
+          let drawX = sampleCenterX + dispX;
+          let drawY = sampleCenterY + dispY;
+
+          // Jitter scales with displacement magnitude (fades as pixel settles)
+          if (jitterStrength > 0 && absDisp > 0.01) {
+            const dispMag = Math.min(
+              1,
+              absDisp / Math.max(1, distortionStrength),
+            );
+            const jitterSeed = sample.seed * 43758.5453;
+            drawX += Math.sin(time + jitterSeed) * jitterStrength * dispMag;
+            drawY +=
+              Math.cos(time + jitterSeed * 1.13) * jitterStrength * dispMag;
           }
 
           ctx.globalAlpha = sample.a;
@@ -559,8 +599,9 @@ export function PixelatedCanvas({
 
         ctx.globalAlpha = 1;
 
-        if (fadeOnLeave && !pointerInsideRef.current && activity <= 0.01) {
-          activityRef.current = 0;
+        // Stop animation when all pixels have settled and cursor is outside
+        if (!pointerInside && maxAbsDisp < 0.5) {
+          displacement.fill(0);
           targetMouseRef.current.x = -9999;
           targetMouseRef.current.y = -9999;
           animatedMouseRef.current.x = -9999;
@@ -587,24 +628,20 @@ export function PixelatedCanvas({
         targetMouseRef.current.x = event.clientX - rect.left;
         targetMouseRef.current.y = event.clientY - rect.top;
         pointerInsideRef.current = true;
-        activityTargetRef.current = 1;
         startAnimation();
       };
 
       const handlePointerEnter = () => {
         pointerInsideRef.current = true;
-        activityTargetRef.current = 1;
         startAnimation();
       };
 
       const handlePointerLeave = () => {
         pointerInsideRef.current = false;
 
-        if (fadeOnLeave) {
-          activityTargetRef.current = 0;
-        } else {
-          activityTargetRef.current = 0;
-          activityRef.current = 0;
+        if (!fadeOnLeave) {
+          // Snap all displacements to zero immediately
+          displacementRef.current?.fill(0);
           targetMouseRef.current.x = -9999;
           targetMouseRef.current.y = -9999;
           animatedMouseRef.current.x = -9999;
@@ -612,6 +649,7 @@ export function PixelatedCanvas({
           drawSamples();
           stopAnimation();
         }
+        // If fadeOnLeave=true, animation continues and pixels spring back on their own
       };
 
       canvas.addEventListener("pointermove", handlePointerMove);
@@ -684,7 +722,7 @@ export function PixelatedCanvas({
     jitterStrength,
     jitterSpeed,
     fadeOnLeave,
-    fadeSpeed,
+    springBack,
     imageCrossOrigin,
     onReady,
   ]);
