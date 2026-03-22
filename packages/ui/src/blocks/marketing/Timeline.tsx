@@ -45,7 +45,7 @@ export function Timeline({
           >
             {!isLast ? (
               <span
-                className="pointer-events-none absolute left-[0.95rem] top-8 bottom-0 w-px bg-white/10 md:left-[1.125rem] md:top-9"
+                className="pointer-events-none absolute left-[0.95rem] top-8 bottom-0 w-px bg-border md:left-[1.125rem] md:top-9"
                 data-slot="timeline-connector"
               />
             ) : null}
@@ -54,8 +54,8 @@ export function Timeline({
               className="pointer-events-none absolute left-0 top-1 flex h-8 w-8 items-center justify-center md:top-1.5 md:h-9 md:w-9"
               data-slot="timeline-node"
             >
-              <span className="absolute inset-0 rounded-full border border-white/12 bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset]" />
-              <span className="absolute inset-[0.52rem] rounded-full bg-white/[0.06] md:inset-[0.62rem]" />
+              <span className="absolute inset-0 rounded-full border border-border bg-muted/30 shadow-sm" />
+              <span className="absolute inset-[0.52rem] rounded-full bg-muted/50 md:inset-[0.62rem]" />
               <span
                 className={cn(
                   "absolute inset-[0.74rem] rounded-full opacity-90 md:inset-[0.84rem]",
@@ -66,7 +66,7 @@ export function Timeline({
             </span>
 
             <div
-              className="rounded-box border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.025))] px-5 py-5 shadow-[0_20px_65px_rgba(0,0,0,0.26)] transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:border-white/18 group-hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.03))] group-hover:shadow-[0_26px_75px_rgba(0,0,0,0.32)] md:px-6 md:py-6"
+              className="rounded-xl border border-border bg-card px-5 py-5 shadow-sm transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:border-border/80 group-hover:shadow-md md:px-6 md:py-6"
               data-slot="timeline-card"
             >
               <div className="flex items-start justify-between gap-4">
@@ -79,7 +79,7 @@ export function Timeline({
                     data-slot="timeline-accent-rule"
                   />
                   <p
-                    className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-white/48"
+                    className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
                     data-slot="timeline-period"
                   >
                     {period}
@@ -93,18 +93,18 @@ export function Timeline({
                 ) : null}
               </div>
 
-              <h3 className="mt-4 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-white md:text-[1.85rem]">
+              <h3 className="mt-4 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
                 {item.title}
               </h3>
 
               {item.subtitle ? (
-                <p className="mt-3 text-sm leading-relaxed text-white/58">
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                   {item.subtitle}
                 </p>
               ) : null}
 
               {item.description ? (
-                <p className="mt-4 text-sm leading-relaxed text-white/78 md:text-[0.95rem]">
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground/90 md:text-[0.95rem]">
                   {item.description}
                 </p>
               ) : null}
