@@ -15,7 +15,7 @@ export interface LampHeroSocialLink {
 }
 
 export interface LampHeroProps {
-  title: string;
+  title?: string;
   subtitle?: ReactNode;
   socialLinks?: LampHeroSocialLink[];
   /** HTML heading level for the title – defaults to h1 */
@@ -57,15 +57,17 @@ export function LampHero({
           contentClassName,
         )}
       >
-        <TextGenerateEffect
-          words={title}
-          as={headingLevel}
-          className={cn(
-            "mx-auto max-w-4xl text-5xl leading-tight sm:text-6xl md:text-7xl",
-            titleClassName,
-          )}
-          staggerDelay={0.1}
-        />
+        {title ? (
+          <TextGenerateEffect
+            words={title}
+            as={headingLevel}
+            className={cn(
+              "mx-auto max-w-4xl text-5xl leading-tight sm:text-6xl md:text-7xl",
+              titleClassName,
+            )}
+            staggerDelay={0.1}
+          />
+        ) : null}
 
         {subtitle ? (
           <motion.div
