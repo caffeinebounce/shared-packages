@@ -14,6 +14,8 @@ export interface TimelineItem {
   /** Small pill badge (e.g. industry label) shown above the description */
   badge?: string;
   description?: string;
+  /** Second paragraph describing your personal role/contribution — rendered with slightly higher emphasis */
+  role?: string;
 }
 
 export interface TimelineProps {
@@ -206,6 +208,18 @@ export function Timeline({
                     }}
                   >
                     {item.description}
+                  </p>
+                ) : null}
+
+                {item.role ? (
+                  <p
+                    className="mt-2 text-sm leading-relaxed md:text-[0.95rem]"
+                    style={{
+                      color: "var(--color-foreground)",
+                      opacity: 0.8,
+                    }}
+                  >
+                    {item.role}
                   </p>
                 ) : null}
               </div>
