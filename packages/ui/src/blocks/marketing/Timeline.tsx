@@ -22,6 +22,8 @@ export interface TimelineItem {
   degrees?: Array<{ name: string; honors?: string }>;
   /** Education-specific: expandable accordion of internships/experiences */
   internships?: Array<{ company: string; role?: string }>;
+  /** Render as a compact/minimal entry — no card background, border, or hover effect */
+  compact?: boolean;
 }
 
 export interface TimelineProps {
@@ -192,8 +194,10 @@ export function Timeline({
             </span>
 
             {/* Hover wrapper — padding creates the visible highlight area around the card */}
-            <div className={cn("relative", hoverEffect && "p-2")}>
-              {hoverEffect && hoveredIndex === index && (
+            <div
+              className={cn("relative", hoverEffect && !item.compact && "p-2")}
+            >
+              {hoverEffect && !item.compact && hoveredIndex === index && (
                 <motion.span
                   className="absolute inset-0 block h-full w-full rounded-2xl"
                   style={{
@@ -211,15 +215,24 @@ export function Timeline({
 
               <div
                 className={cn(
-                  "relative z-20 rounded-xl px-5 py-5 shadow-sm md:px-6 md:py-6",
-                  hoverEffect
-                    ? "transition-colors duration-300"
-                    : "transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:shadow-md",
+                  "relative z-20 rounded-xl",
+                  item.compact
+                    ? "px-5 py-3 md:px-6 md:py-3"
+                    : cn(
+                        "px-5 py-5 shadow-sm md:px-6 md:py-6",
+                        hoverEffect
+                          ? "transition-colors duration-300"
+                          : "transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:shadow-md",
+                      ),
                 )}
-                style={{
-                  border: `1px solid ${hoverEffect ? "transparent" : borderColor}`,
-                  backgroundColor: cardBg,
-                }}
+                style={
+                  item.compact
+                    ? {}
+                    : {
+                        border: `1px solid ${hoverEffect ? "transparent" : borderColor}`,
+                        backgroundColor: cardBg,
+                      }
+                }
                 data-slot="timeline-card"
               >
                 <div className="flex items-center justify-between gap-4">
