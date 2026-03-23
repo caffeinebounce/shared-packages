@@ -246,50 +246,52 @@ export function Timeline({
                   ) : null}
                 </div>
 
-                <h3 className="mt-4 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
-                  {item.title}
-                </h3>
+                <div className="mt-4 flex items-baseline justify-between gap-3">
+                  <h3 className="font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
+                    {item.title}
+                  </h3>
 
-                {item.badge || item.location ? (
-                  <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                    {item.badge ? (
-                      <span
-                        className="inline-block rounded-full px-2.5 py-0.5 text-[0.65rem] font-medium"
-                        style={{
-                          backgroundColor:
-                            "color-mix(in oklch, var(--color-primary, #6366f1) 15%, transparent)",
-                          color: "var(--color-primary, #6366f1)",
-                        }}
-                      >
-                        {item.badge}
-                      </span>
-                    ) : null}
-                    {item.location ? (
-                      <span
-                        className="inline-flex items-center gap-1 text-[0.65rem]"
-                        style={{ color: "var(--color-muted-foreground)" }}
-                      >
-                        <svg
-                          width="11"
-                          height="11"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          style={{ opacity: 0.7 }}
-                          aria-label="Location"
-                          role="img"
+                  {item.badge || item.location ? (
+                    <div className="flex shrink-0 items-center gap-2">
+                      {item.badge ? (
+                        <span
+                          className="inline-block rounded-full px-2.5 py-0.5 text-[0.65rem] font-medium"
+                          style={{
+                            backgroundColor:
+                              "color-mix(in oklch, var(--color-primary, #6366f1) 15%, transparent)",
+                            color: "var(--color-primary, #6366f1)",
+                          }}
                         >
-                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                          <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        {item.location}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : null}
+                          {item.badge}
+                        </span>
+                      ) : null}
+                      {item.location ? (
+                        <span
+                          className="inline-flex items-center gap-1 text-[0.65rem]"
+                          style={{ color: "var(--color-muted-foreground)" }}
+                        >
+                          <svg
+                            width="11"
+                            height="11"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{ opacity: 0.7 }}
+                            aria-label="Location"
+                            role="img"
+                          >
+                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                          {item.location}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
 
                 {item.description ? (
                   <p
