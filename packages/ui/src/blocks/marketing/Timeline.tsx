@@ -16,6 +16,8 @@ export interface TimelineItem {
   description?: string;
   /** Second paragraph describing your personal role/contribution — rendered with slightly higher emphasis */
   role?: string;
+  /** Education-specific: list of degrees rendered as individual lines */
+  degrees?: Array<{ name: string; honors?: string }>;
 }
 
 export interface TimelineProps {
@@ -221,6 +223,47 @@ export function Timeline({
                   >
                     {item.role}
                   </p>
+                ) : null}
+
+                {item.degrees && item.degrees.length > 0 ? (
+                  <ul className="mt-3 space-y-1.5">
+                    {item.degrees.map((deg, di) => (
+                      <li
+                        key={di}
+                        className="flex items-baseline gap-2 text-sm md:text-[0.95rem]"
+                      >
+                        <span
+                          className="shrink-0"
+                          style={{
+                            color: "var(--color-primary, #6366f1)",
+                            fontSize: "0.5rem",
+                            lineHeight: 1,
+                          }}
+                        >
+                          ●
+                        </span>
+                        <span
+                          style={{
+                            color: "var(--color-foreground)",
+                            opacity: 0.85,
+                          }}
+                        >
+                          {deg.name}
+                          {deg.honors ? (
+                            <span
+                              className="ml-1.5"
+                              style={{
+                                color: "var(--color-muted-foreground)",
+                                opacity: 0.9,
+                              }}
+                            >
+                              — {deg.honors}
+                            </span>
+                          ) : null}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 ) : null}
               </div>
             </div>
