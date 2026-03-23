@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, type ReactNode, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Container } from "../../components/ui/container";
 import { Input } from "../../components/ui/input";
@@ -180,6 +180,16 @@ function BrandFooter({
   | "containerClassName"
 >) {
   const [email, setEmail] = useState("");
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const check = () => setIsDark(html.classList.contains("dark"));
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(html, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
 
   const handleNewsletterSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -187,12 +197,15 @@ function BrandFooter({
     setEmail("");
   };
 
+  const footerBg = isDark
+    ? "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.9))"
+    : "linear-gradient(to bottom, color-mix(in oklch, var(--color-primary, #6366f1) 4%, var(--color-background, #fff)), color-mix(in oklch, var(--color-primary, #6366f1) 8%, var(--color-muted, #f5f5f5)))";
+
   return (
     <footer
       className={cn("backdrop-blur-2xl", className)}
       style={{
-        background:
-          "linear-gradient(to bottom, color-mix(in oklch, var(--color-primary, #6366f1) 4%, var(--color-background, #fff)), color-mix(in oklch, var(--color-primary, #6366f1) 8%, var(--color-muted, #f5f5f5)))",
+        background: footerBg,
         borderTop: "1px solid var(--color-border, hsl(var(--border)))",
       }}
     >
