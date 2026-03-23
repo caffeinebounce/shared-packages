@@ -57,11 +57,24 @@ export function BentoGridSection({
       <div className={cx("mx-auto max-w-6xl px-6", containerClassName)}>
         {heading ? (
           <div className="mx-auto mb-10 max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+            <h2
+              className="text-3xl font-semibold tracking-tight md:text-4xl"
+              style={{
+                color: "var(--color-foreground, hsl(var(--foreground)))",
+              }}
+            >
               {heading}
             </h2>
             {subheading ? (
-              <p className="mt-3 text-muted-foreground">{subheading}</p>
+              <p
+                className="mt-3"
+                style={{
+                  color:
+                    "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                }}
+              >
+                {subheading}
+              </p>
             ) : null}
           </div>
         ) : null}
@@ -91,14 +104,33 @@ export function BentoGridSection({
                   ) : null}
                   <div className="flex flex-1 flex-col p-5">
                     {item.icon ? (
-                      <div className="mb-3 text-neutral-300" aria-hidden="true">
+                      <div
+                        className="mb-3"
+                        style={{
+                          color:
+                            "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                        }}
+                        aria-hidden="true"
+                      >
                         {item.icon}
                       </div>
                     ) : null}
-                    <h3 className="text-lg font-medium text-neutral-100">
+                    <h3
+                      className="text-lg font-medium"
+                      style={{
+                        color:
+                          "var(--color-foreground, hsl(var(--foreground)))",
+                      }}
+                    >
                       {item.title}
                     </h3>
-                    <p className="mt-2 flex-1 text-sm leading-6 text-neutral-400">
+                    <p
+                      className="mt-2 flex-1 text-sm leading-6"
+                      style={{
+                        color:
+                          "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                      }}
+                    >
                       {item.description}
                     </p>
                     {item.cta ? (
@@ -115,10 +147,16 @@ export function BentoGridSection({
               <article
                 key={item.id}
                 className={cx(
-                  "overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 dark:bg-neutral-900 shadow-sm transition-colors flex flex-col",
+                  "overflow-hidden rounded-xl shadow-sm transition-colors flex flex-col",
                   item.colSpan === 2 && "md:col-span-2",
                   item.rowSpan === 2 && "md:row-span-2",
                 )}
+                style={{
+                  backgroundColor: "var(--color-card, hsl(var(--card)))",
+                  borderWidth: "1px",
+                  borderStyle: "solid",
+                  borderColor: "var(--color-border, hsl(var(--border)))",
+                }}
               >
                 {item.illustration ? (
                   <div
@@ -133,14 +171,32 @@ export function BentoGridSection({
                 ) : null}
                 <div className="flex flex-1 flex-col p-5">
                   {item.icon ? (
-                    <div className="mb-3 text-neutral-300" aria-hidden="true">
+                    <div
+                      className="mb-3"
+                      style={{
+                        color:
+                          "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                      }}
+                      aria-hidden="true"
+                    >
                       {item.icon}
                     </div>
                   ) : null}
-                  <h3 className="text-lg font-medium text-neutral-100">
+                  <h3
+                    className="text-lg font-medium"
+                    style={{
+                      color: "var(--color-foreground, hsl(var(--foreground)))",
+                    }}
+                  >
                     {item.title}
                   </h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-neutral-400">
+                  <p
+                    className="mt-2 flex-1 text-sm leading-6"
+                    style={{
+                      color:
+                        "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                    }}
+                  >
                     {item.description}
                   </p>
                   {item.cta ? (
