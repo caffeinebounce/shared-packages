@@ -46,15 +46,15 @@ export const CardSpotlight = ({
   const handleMouseEnter = () => setIsHovering(true);
   const handleMouseLeave = () => setIsHovering(false);
 
-  const resolvedColor = color ?? (isDark ? "#262626" : "#e5e5e5");
+  const resolvedColor = color ?? (isDark ? "#262626" : "#f5f5f5");
   const dotColors: [number, number, number][] = isDark
     ? [
         [59, 130, 246],
         [139, 92, 246],
       ]
     : [
-        [99, 102, 241],
-        [168, 85, 247],
+        [209, 213, 219],
+        [229, 231, 235],
       ];
 
   return (
