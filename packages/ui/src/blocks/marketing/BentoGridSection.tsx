@@ -69,8 +69,7 @@ export function BentoGridSection({
               <p
                 className="mt-3"
                 style={{
-                  color:
-                    "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                  color: "var(--color-foreground, hsl(var(--foreground)))",
                 }}
               >
                 {subheading}
@@ -108,7 +107,7 @@ export function BentoGridSection({
                         className="mb-3"
                         style={{
                           color:
-                            "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                            "var(--color-foreground, hsl(var(--foreground)))",
                         }}
                         aria-hidden="true"
                       >
@@ -125,10 +124,10 @@ export function BentoGridSection({
                       {item.title}
                     </h3>
                     <p
-                      className="mt-2 flex-1 text-sm leading-6"
+                      className="mt-2 flex-1 text-sm leading-6 opacity-75"
                       style={{
                         color:
-                          "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                          "var(--color-foreground, hsl(var(--foreground)))",
                       }}
                     >
                       {item.description}
@@ -175,7 +174,7 @@ export function BentoGridSection({
                       className="mb-3"
                       style={{
                         color:
-                          "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                          "var(--color-foreground, hsl(var(--foreground)))",
                       }}
                       aria-hidden="true"
                     >
@@ -191,10 +190,9 @@ export function BentoGridSection({
                     {item.title}
                   </h3>
                   <p
-                    className="mt-2 flex-1 text-sm leading-6"
+                    className="mt-2 flex-1 text-sm leading-6 opacity-75"
                     style={{
-                      color:
-                        "var(--color-muted-foreground, hsl(var(--muted-foreground)))",
+                      color: "var(--color-foreground, hsl(var(--foreground)))",
                     }}
                   >
                     {item.description}
