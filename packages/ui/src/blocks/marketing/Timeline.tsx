@@ -13,6 +13,8 @@ export interface TimelineItem {
   subtitle?: string;
   /** Small pill badge (e.g. industry label) shown above the description */
   badge?: string;
+  /** Location shown next to badge (e.g. "New York, NY") */
+  location?: string;
   description?: string;
   /** Second paragraph describing your personal role/contribution — rendered with slightly higher emphasis */
   role?: string;
@@ -188,17 +190,45 @@ export function Timeline({
                   </p>
                 ) : null}
 
-                {item.badge ? (
-                  <span
-                    className="mt-3 inline-block rounded-full px-3 py-0.5 text-xs font-medium"
-                    style={{
-                      backgroundColor:
-                        "color-mix(in oklch, var(--color-primary, #6366f1) 15%, transparent)",
-                      color: "var(--color-primary, #6366f1)",
-                    }}
-                  >
-                    {item.badge}
-                  </span>
+                {item.badge || item.location ? (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {item.badge ? (
+                      <span
+                        className="inline-block rounded-full px-3 py-0.5 text-xs font-medium"
+                        style={{
+                          backgroundColor:
+                            "color-mix(in oklch, var(--color-primary, #6366f1) 15%, transparent)",
+                          color: "var(--color-primary, #6366f1)",
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                    ) : null}
+                    {item.location ? (
+                      <span
+                        className="inline-flex items-center gap-1 text-xs"
+                        style={{ color: "var(--color-muted-foreground)" }}
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          style={{ opacity: 0.7 }}
+                          aria-label="Location"
+                          role="img"
+                        >
+                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        {item.location}
+                      </span>
+                    ) : null}
+                  </div>
                 ) : null}
 
                 {item.description ? (
