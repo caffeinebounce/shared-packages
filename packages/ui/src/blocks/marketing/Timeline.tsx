@@ -250,15 +250,6 @@ export function Timeline({
                   {item.title}
                 </h3>
 
-                {item.subtitle ? (
-                  <p
-                    className="mt-3 text-sm leading-relaxed"
-                    style={{ color: "var(--color-muted-foreground)" }}
-                  >
-                    {item.subtitle}
-                  </p>
-                ) : null}
-
                 {item.badge || item.location ? (
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     {item.badge ? (
@@ -309,6 +300,15 @@ export function Timeline({
                     }}
                   >
                     {item.description}
+                  </p>
+                ) : null}
+
+                {item.subtitle ? (
+                  <p
+                    className="mt-3 text-sm font-medium leading-relaxed"
+                    style={{ color: "var(--color-foreground)", opacity: 0.9 }}
+                  >
+                    {item.subtitle}
                   </p>
                 ) : null}
 
