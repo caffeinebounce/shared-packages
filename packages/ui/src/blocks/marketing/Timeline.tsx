@@ -222,7 +222,7 @@ export function Timeline({
                 }}
                 data-slot="timeline-card"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <span
                       className={cn(
@@ -237,20 +237,9 @@ export function Timeline({
                     >
                       {period}
                     </p>
-                  </div>
-
-                  {item.logo ? (
-                    <div className="shrink-0" data-slot="timeline-logo">
-                      {item.logo}
-                    </div>
-                  ) : null}
-                </div>
-
-                {item.badge || item.location ? (
-                  <div className="mt-2.5 flex flex-wrap items-center justify-end gap-2">
                     {item.badge ? (
                       <span
-                        className="inline-block rounded-full px-3 py-0.5 text-xs font-medium"
+                        className="inline-block rounded-full px-2.5 py-0.5 text-[0.65rem] font-medium"
                         style={{
                           backgroundColor:
                             "color-mix(in oklch, var(--color-primary, #6366f1) 15%, transparent)",
@@ -262,12 +251,12 @@ export function Timeline({
                     ) : null}
                     {item.location ? (
                       <span
-                        className="inline-flex items-center gap-1 text-xs"
+                        className="inline-flex items-center gap-1 text-[0.65rem]"
                         style={{ color: "var(--color-muted-foreground)" }}
                       >
                         <svg
-                          width="12"
-                          height="12"
+                          width="11"
+                          height="11"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -285,7 +274,13 @@ export function Timeline({
                       </span>
                     ) : null}
                   </div>
-                ) : null}
+
+                  {item.logo ? (
+                    <div className="shrink-0" data-slot="timeline-logo">
+                      {item.logo}
+                    </div>
+                  ) : null}
+                </div>
 
                 <h3 className="mt-3 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
                   {item.title}
