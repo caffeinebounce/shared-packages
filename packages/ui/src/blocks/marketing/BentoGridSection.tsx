@@ -124,10 +124,11 @@ export function BentoGridSection({
                       {item.title}
                     </h3>
                     <p
-                      className="mt-2 flex-1 text-sm leading-6 opacity-75"
+                      className="mt-2 flex-1 text-sm leading-6"
                       style={{
                         color:
                           "var(--color-foreground, hsl(var(--foreground)))",
+                        opacity: 0.75,
                       }}
                     >
                       {item.description}
@@ -190,9 +191,10 @@ export function BentoGridSection({
                     {item.title}
                   </h3>
                   <p
-                    className="mt-2 flex-1 text-sm leading-6 opacity-75"
+                    className="mt-2 flex-1 text-sm leading-6"
                     style={{
                       color: "var(--color-foreground, hsl(var(--foreground)))",
+                      opacity: 0.75,
                     }}
                   >
                     {item.description}
