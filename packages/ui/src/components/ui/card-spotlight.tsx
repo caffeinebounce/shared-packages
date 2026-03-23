@@ -93,6 +93,7 @@ export const CardSpotlight = ({
             containerClassName="bg-transparent absolute inset-0 pointer-events-none"
             colors={dotColors}
             dotSize={3}
+            showGradient={false}
           />
         )}
       </motion.div>
