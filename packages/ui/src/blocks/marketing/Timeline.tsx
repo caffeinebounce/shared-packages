@@ -222,28 +222,36 @@ export function Timeline({
                 }}
                 data-slot="timeline-card"
               >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={cn(
-                      "h-px w-8 shrink-0 rounded-full opacity-80",
-                      dotClassName,
-                    )}
-                    data-slot="timeline-accent-rule"
-                  />
-                  <p
-                    className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
-                    data-slot="timeline-period"
-                  >
-                    {period}
-                  </p>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={cn(
+                        "h-px w-8 shrink-0 rounded-full opacity-80",
+                        dotClassName,
+                      )}
+                      data-slot="timeline-accent-rule"
+                    />
+                    <p
+                      className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground"
+                      data-slot="timeline-period"
+                    >
+                      {period}
+                    </p>
+                  </div>
+
+                  {item.logo ? (
+                    <div className="shrink-0" data-slot="timeline-logo">
+                      {item.logo}
+                    </div>
+                  ) : null}
                 </div>
 
-                <div className="mt-4 flex items-center justify-between gap-4">
-                  <h3 className="font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
-                    {item.title}
-                  </h3>
+                <h3 className="mt-4 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
+                  {item.title}
+                </h3>
 
-                  <div className="flex shrink-0 items-center gap-2.5">
+                {item.badge || item.location ? (
+                  <div className="mt-2.5 flex flex-wrap items-center gap-2">
                     {item.badge ? (
                       <span
                         className="inline-block rounded-full px-2.5 py-0.5 text-[0.65rem] font-medium"
@@ -280,13 +288,8 @@ export function Timeline({
                         {item.location}
                       </span>
                     ) : null}
-                    {item.logo ? (
-                      <div className="shrink-0" data-slot="timeline-logo">
-                        {item.logo}
-                      </div>
-                    ) : null}
                   </div>
-                </div>
+                ) : null}
 
                 {item.description ? (
                   <p
