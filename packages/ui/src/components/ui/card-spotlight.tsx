@@ -36,10 +36,13 @@ export const CardSpotlight = ({
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: spotlight effect requires mouse tracking on the card container
     <div
-      className={cn(
-        "group/spotlight p-10 rounded-md relative border border-neutral-800 bg-black dark:border-neutral-800",
-        className,
-      )}
+      className={cn("group/spotlight p-10 rounded-md relative", className)}
+      style={{
+        backgroundColor: "var(--color-card, hsl(var(--card)))",
+        borderWidth: "1px",
+        borderStyle: "solid",
+        borderColor: "var(--color-border, hsl(var(--border)))",
+      }}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
