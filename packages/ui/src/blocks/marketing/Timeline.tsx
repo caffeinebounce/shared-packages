@@ -118,7 +118,11 @@ export function Timeline({
             <div className={cn("relative", hoverEffect && "p-2")}>
               {hoverEffect && hoveredIndex === index && (
                 <motion.span
-                  className="absolute inset-0 block h-full w-full rounded-2xl bg-neutral-200 dark:bg-slate-800/[0.8]"
+                  className="absolute inset-0 block h-full w-full rounded-2xl"
+                  style={{
+                    backgroundColor:
+                      "color-mix(in oklch, var(--color-primary, #6366f1) 15%, var(--color-muted, #f5f5f5))",
+                  }}
                   layoutId="timelineHoverBackground"
                   transition={{
                     type: "spring",

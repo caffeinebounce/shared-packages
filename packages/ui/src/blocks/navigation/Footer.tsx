@@ -189,13 +189,21 @@ function BrandFooter({
 
   return (
     <footer
-      className={cn(
-        "bg-gradient-to-b from-muted/60 to-muted dark:from-black/50 dark:to-black/90 backdrop-blur-2xl border-t border-border",
-        className,
-      )}
+      className={cn("backdrop-blur-2xl", className)}
+      style={{
+        background:
+          "linear-gradient(to bottom, color-mix(in oklch, var(--color-primary, #6366f1) 4%, var(--color-background, #fff)), color-mix(in oklch, var(--color-primary, #6366f1) 8%, var(--color-muted, #f5f5f5)))",
+        borderTop: "1px solid var(--color-border, hsl(var(--border)))",
+      }}
     >
       {/* Decorative gradient border-top */}
-      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div
+        style={{
+          height: "1px",
+          background:
+            "linear-gradient(to right, transparent, color-mix(in oklch, var(--color-primary, #6366f1) 30%, transparent), transparent)",
+        }}
+      />
 
       <Container
         data-slot="footer-container"
