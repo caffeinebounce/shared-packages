@@ -246,7 +246,7 @@ export function Timeline({
                   ) : null}
                 </div>
 
-                <div className="mt-4 flex items-baseline justify-between gap-3">
+                <div className="mt-4 flex items-center justify-between gap-3">
                   <h3 className="font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
                     {item.title}
                   </h3>
