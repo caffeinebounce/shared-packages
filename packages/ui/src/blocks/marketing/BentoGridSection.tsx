@@ -18,7 +18,7 @@ export interface BentoGridItem {
   headerClassName?: string;
   cta?: {
     href: string;
-    label: string;
+    label: ReactNode;
   };
   colSpan?: 1 | 2;
   rowSpan?: 1 | 2;
