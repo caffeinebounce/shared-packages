@@ -46,15 +46,17 @@ export const CardSpotlight = ({
   const handleMouseEnter = () => setIsHovering(true);
   const handleMouseLeave = () => setIsHovering(false);
 
-  const resolvedColor = color ?? (isDark ? "#262626" : "#f5f5f5");
+  // Default spotlight tint: indigo glow matching LampHero default (rgba(129,140,248,...))
+  const resolvedColor =
+    color ?? (isDark ? "#262626" : "rgba(129,140,248,0.08)");
   const dotColors: [number, number, number][] = isDark
     ? [
         [59, 130, 246],
         [139, 92, 246],
       ]
     : [
-        [209, 213, 219],
-        [229, 231, 235],
+        [129, 140, 248],
+        [165, 148, 249],
       ];
 
   return (
