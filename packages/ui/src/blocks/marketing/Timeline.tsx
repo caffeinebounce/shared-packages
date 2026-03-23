@@ -20,6 +20,8 @@ export interface TimelineItem {
   role?: string;
   /** Education-specific: list of degrees rendered as individual lines */
   degrees?: Array<{ name: string; honors?: string }>;
+  /** Education-specific: expandable accordion of internships/experiences */
+  internships?: Array<{ company: string; role?: string }>;
 }
 
 export interface TimelineProps {
@@ -29,6 +31,73 @@ export interface TimelineProps {
   className?: string;
   /** Enable the sliding hover highlight between cards */
   hoverEffect?: boolean;
+}
+
+function InternshipsAccordion({
+  internships,
+}: {
+  internships: Array<{ company: string; role?: string }>;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1.5 text-xs font-medium"
+        style={{ color: "var(--color-muted-foreground)" }}
+      >
+        <motion.span
+          animate={{ rotate: open ? 90 : 0 }}
+          transition={{ duration: 0.15 }}
+          style={{ display: "inline-block", fontSize: "0.6rem" }}
+        >
+          ▶
+        </motion.span>
+        Internships
+      </button>
+      <motion.div
+        initial={false}
+        animate={{
+          height: open ? "auto" : 0,
+          opacity: open ? 1 : 0,
+        }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+        style={{ overflow: "hidden" }}
+      >
+        <ul className="mt-2 space-y-1 pl-3.5">
+          {internships.map((item, i) => (
+            <li key={i} className="flex items-baseline gap-2 text-sm">
+              <span
+                className="shrink-0"
+                style={{
+                  color: "var(--color-muted-foreground)",
+                  fontSize: "0.35rem",
+                  lineHeight: 1,
+                }}
+              >
+                ●
+              </span>
+              <span style={{ color: "var(--color-foreground)", opacity: 0.8 }}>
+                {item.company}
+                {item.role ? (
+                  <span
+                    className="ml-1.5"
+                    style={{
+                      color: "var(--color-muted-foreground)",
+                      opacity: 0.9,
+                    }}
+                  >
+                    — {item.role}
+                  </span>
+                ) : null}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </motion.div>
+    </div>
+  );
 }
 
 function getTimelinePeriod(item: TimelineItem, index: number) {
@@ -294,6 +363,10 @@ export function Timeline({
                       </li>
                     ))}
                   </ul>
+                ) : null}
+
+                {item.internships && item.internships.length > 0 ? (
+                  <InternshipsAccordion internships={item.internships} />
                 ) : null}
               </div>
             </div>
