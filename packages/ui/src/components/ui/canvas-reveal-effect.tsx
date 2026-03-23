@@ -24,7 +24,10 @@ export const CanvasRevealEffect = ({
   showGradient?: boolean;
 }) => {
   return (
-    <div className={cn("h-full relative bg-white w-full", containerClassName)}>
+    <div
+      className={cn("h-full relative w-full", containerClassName)}
+      style={{ backgroundColor: "transparent" }}
+    >
       <div className="h-full w-full">
         <DotMatrix
           colors={colors ?? [[0, 255, 255]]}
@@ -42,7 +45,13 @@ export const CanvasRevealEffect = ({
         />
       </div>
       {showGradient && (
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-[84%]" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to top, var(--color-card, hsl(var(--card))), transparent 84%)",
+          }}
+        />
       )}
     </div>
   );
@@ -296,7 +305,11 @@ const ShaderMaterial = ({
 
 const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => {
   return (
-    <Canvas className="absolute inset-0  h-full w-full">
+    <Canvas
+      className="absolute inset-0  h-full w-full"
+      gl={{ alpha: true }}
+      style={{ background: "transparent" }}
+    >
       <ShaderMaterial source={source} uniforms={uniforms} maxFps={maxFps} />
     </Canvas>
   );
