@@ -84,14 +84,14 @@ export function Timeline({
           >
             {!isLast ? (
               <span
-                className="pointer-events-none absolute left-[0.9375rem] top-[2.05rem] bottom-0 z-10 w-px md:left-[1.09375rem] md:top-[2.4rem]"
+                className="pointer-events-none absolute left-[0.9375rem] top-[3.125rem] bottom-0 z-10 w-px md:left-[1.09375rem] md:top-[3.5rem]"
                 style={{ backgroundColor: borderColor }}
                 data-slot="timeline-connector"
               />
             ) : null}
 
             <span
-              className="pointer-events-none absolute left-0 top-1 flex h-8 w-8 items-center justify-center md:top-1.5 md:h-9 md:w-9"
+              className="pointer-events-none absolute left-0 top-[1.125rem] flex h-8 w-8 items-center justify-center md:top-[1.25rem] md:h-9 md:w-9"
               data-slot="timeline-node"
             >
               <span
