@@ -31,6 +31,18 @@ function getTimelinePeriod(item: TimelineItem, index: number) {
   return String(index + 1).padStart(2, "0");
 }
 
+/**
+ * Inline style helpers — Tailwind v4 can't scan compiled npm packages
+ * for semantic token classes like bg-border, bg-card, border-border, etc.
+ * We use CSS variables directly via inline styles to guarantee rendering.
+ */
+const borderColor = "var(--color-border, hsl(var(--border)))";
+const cardBg = "var(--color-card, hsl(var(--card)))";
+const mutedBg30 =
+  "color-mix(in srgb, var(--color-muted, hsl(var(--muted))) 30%, transparent)";
+const mutedBg50 =
+  "color-mix(in srgb, var(--color-muted, hsl(var(--muted))) 50%, transparent)";
+
 export function Timeline({
   items,
   dotClassName = "bg-primary",
@@ -73,9 +85,7 @@ export function Timeline({
             {!isLast ? (
               <span
                 className="pointer-events-none absolute left-[0.9375rem] top-[2.05rem] bottom-0 z-10 w-px md:left-[1.09375rem] md:top-[2.4rem]"
-                style={{
-                  backgroundColor: "var(--color-border, hsl(var(--border)))",
-                }}
+                style={{ backgroundColor: borderColor }}
                 data-slot="timeline-connector"
               />
             ) : null}
@@ -84,8 +94,17 @@ export function Timeline({
               className="pointer-events-none absolute left-0 top-1 flex h-8 w-8 items-center justify-center md:top-1.5 md:h-9 md:w-9"
               data-slot="timeline-node"
             >
-              <span className="absolute inset-0 rounded-full border border-border bg-muted/30 shadow-sm" />
-              <span className="absolute inset-[0.52rem] rounded-full bg-muted/50 md:inset-[0.62rem]" />
+              <span
+                className="absolute inset-0 rounded-full shadow-sm"
+                style={{
+                  border: `1px solid ${borderColor}`,
+                  backgroundColor: mutedBg30,
+                }}
+              />
+              <span
+                className="absolute inset-[0.52rem] rounded-full md:inset-[0.62rem]"
+                style={{ backgroundColor: mutedBg50 }}
+              />
               <span
                 className={cn(
                   "absolute inset-[0.74rem] rounded-full opacity-90 md:inset-[0.84rem]",
@@ -111,11 +130,15 @@ export function Timeline({
 
               <div
                 className={cn(
-                  "relative z-20 rounded-xl border bg-card px-5 py-5 shadow-sm md:px-6 md:py-6",
+                  "relative z-20 rounded-xl px-5 py-5 shadow-sm md:px-6 md:py-6",
                   hoverEffect
-                    ? "border-transparent dark:border-white/[0.2] transition-colors duration-300 group-hover:border-slate-300 dark:group-hover:border-slate-700"
-                    : "border-border transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:border-border/80 group-hover:shadow-md",
+                    ? "transition-colors duration-300"
+                    : "transition-[transform,background-color,border-color,box-shadow] duration-300 group-hover:-translate-y-0.5 group-hover:shadow-md",
                 )}
+                style={{
+                  border: `1px solid ${hoverEffect ? "transparent" : borderColor}`,
+                  backgroundColor: cardBg,
+                }}
                 data-slot="timeline-card"
               >
                 <div className="flex items-start justify-between gap-4">
