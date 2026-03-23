@@ -11,6 +11,8 @@ export interface TimelineItem {
   logo?: ReactNode;
   title: string;
   subtitle?: string;
+  /** Small pill badge (e.g. industry label) shown above the description */
+  badge?: string;
   description?: string;
 }
 
@@ -174,13 +176,35 @@ export function Timeline({
                 </h3>
 
                 {item.subtitle ? (
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  <p
+                    className="mt-3 text-sm leading-relaxed"
+                    style={{ color: "var(--color-muted-foreground)" }}
+                  >
                     {item.subtitle}
                   </p>
                 ) : null}
 
+                {item.badge ? (
+                  <span
+                    className="mt-3 inline-block rounded-full px-3 py-0.5 text-xs font-medium"
+                    style={{
+                      backgroundColor:
+                        "color-mix(in oklch, var(--color-primary, #6366f1) 12%, var(--color-muted, #f5f5f5))",
+                      color: "var(--color-primary, #6366f1)",
+                    }}
+                  >
+                    {item.badge}
+                  </span>
+                ) : null}
+
                 {item.description ? (
-                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground/90 md:text-[0.95rem]">
+                  <p
+                    className="mt-3 text-sm leading-relaxed md:text-[0.95rem]"
+                    style={{
+                      color: "var(--color-muted-foreground)",
+                      opacity: 0.9,
+                    }}
+                  >
                     {item.description}
                   </p>
                 ) : null}
