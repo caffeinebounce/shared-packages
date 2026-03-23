@@ -193,7 +193,7 @@ export function Timeline({
                     className="mt-3 inline-block rounded-full px-3 py-0.5 text-xs font-medium"
                     style={{
                       backgroundColor:
-                        "color-mix(in oklch, var(--color-primary, #6366f1) 12%, var(--color-muted, #f5f5f5))",
+                        "color-mix(in oklch, var(--color-primary, #6366f1) 15%, transparent)",
                       color: "var(--color-primary, #6366f1)",
                     }}
                   >
