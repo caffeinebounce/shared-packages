@@ -247,7 +247,7 @@ export function Timeline({
                 </div>
 
                 {item.badge || item.location ? (
-                  <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                  <div className="mt-2.5 flex flex-wrap items-center justify-end gap-2">
                     {item.badge ? (
                       <span
                         className="inline-block rounded-full px-3 py-0.5 text-xs font-medium"
