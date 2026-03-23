@@ -262,7 +262,7 @@ export function Timeline({
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <h3
                     className="font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] md:text-[1.85rem]"
-                    style={{ color: "var(--color-primary, #6366f1)" }}
+                    style={{ color: "var(--color-foreground)" }}
                   >
                     {item.title}
                   </h3>
@@ -324,7 +324,7 @@ export function Timeline({
                 {item.subtitle ? (
                   <p
                     className="mt-3 text-sm font-medium leading-relaxed"
-                    style={{ color: "var(--color-foreground)", opacity: 0.9 }}
+                    style={{ color: "var(--color-primary, #6366f1)" }}
                   >
                     {item.subtitle}
                   </p>
