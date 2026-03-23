@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/logger",
-  "version": "0.9.114",
+  "version": "0.9.115",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
