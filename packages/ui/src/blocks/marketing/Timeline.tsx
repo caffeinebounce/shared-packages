@@ -246,12 +246,8 @@ export function Timeline({
                   ) : null}
                 </div>
 
-                <h3 className="mt-4 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
-                  {item.title}
-                </h3>
-
                 {item.badge || item.location ? (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="mt-2.5 flex flex-wrap items-center gap-2">
                     {item.badge ? (
                       <span
                         className="inline-block rounded-full px-3 py-0.5 text-xs font-medium"
@@ -290,6 +286,10 @@ export function Timeline({
                     ) : null}
                   </div>
                 ) : null}
+
+                <h3 className="mt-3 font-serif text-[1.65rem] leading-[0.95] tracking-[-0.04em] text-foreground md:text-[1.85rem]">
+                  {item.title}
+                </h3>
 
                 {item.description ? (
                   <p
