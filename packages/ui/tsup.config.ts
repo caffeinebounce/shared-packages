@@ -15,6 +15,7 @@ export default defineConfig({
     hooks: "src/entries/hooks.ts",
     navigation: "src/entries/navigation.ts",
     marketing: "src/entries/marketing.ts",
+    "marketing-3d": "src/entries/marketing-3d.ts",
     forms: "src/entries/forms.ts",
     settings: "src/entries/settings.ts",
     blog: "src/entries/blog.ts",
