@@ -46,6 +46,11 @@
       "import": "./dist/marketing.mjs",
       "require": "./dist/marketing.js"
     },
+    "./marketing-3d": {
+      "types": "./dist/marketing-3d.d.ts",
+      "import": "./dist/marketing-3d.mjs",
+      "require": "./dist/marketing-3d.js"
+    },
     "./navigation": {
       "types": "./dist/navigation.d.ts",
       "import": "./dist/navigation.mjs",

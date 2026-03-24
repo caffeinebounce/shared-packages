@@ -1,5 +1,3 @@
-export { CanvasRevealEffect } from "../../components/ui/canvas-reveal-effect";
-export { CardSpotlight } from "../../components/ui/card-spotlight";
 export {
   EncryptedText,
   type EncryptedTextProps,
@@ -23,11 +21,6 @@ export {
   type BenefitsSectionProps,
   type Outcome,
 } from "./BenefitsSection";
-export {
-  type BentoGridItem,
-  BentoGridSection,
-  type BentoGridSectionProps,
-} from "./BentoGridSection";
 export {
   BlurLogoCloud,
   type BlurLogoCloudItem,

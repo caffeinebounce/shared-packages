@@ -1,5 +1,5 @@
 /**
- * Marketing page components like HeroSection, BenefitsSection, etc.
+ * Marketing page components that do not require the optional 3D stack.
  *
  * @example
  * ```tsx
