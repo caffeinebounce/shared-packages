@@ -21,7 +21,7 @@ export interface ProfileSectionProps {
   /** Section content */
   children: React.ReactNode;
   /** Icon to display before title */
-  icon?: React.ElementType;
+  icon?: React.ComponentType<{ className?: string }>;
   /** Whether section is in editing mode */
   isEditing?: boolean;
   /** Edit button click handler - shows edit button if provided */

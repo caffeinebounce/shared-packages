@@ -1,6 +1,6 @@
 "use client";
 
-import { useErrorLogger } from "@caffeinebounce/logger";
+import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
 import { Check, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";

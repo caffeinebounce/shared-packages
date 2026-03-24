@@ -1,6 +1,6 @@
 "use client";
 
-import { useErrorLogger } from "@caffeinebounce/logger";
+import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
 import type { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
 import {

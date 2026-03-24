@@ -17,7 +17,7 @@ export interface DisplayFieldProps {
   /** Opens link in new tab (default: true for external links) */
   external?: boolean;
   /** Icon component to show before the value */
-  icon?: React.ElementType;
+  icon?: React.ComponentType<{ className?: string }>;
   /** Social platform icon (overrides icon prop) */
   platform?: SocialPlatform;
   /** Allows multiline value display with whitespace preservation */

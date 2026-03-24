@@ -60,13 +60,13 @@ describe("PixelatedCanvas", () => {
     };
 
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(
-      (contextId) => {
+      ((contextId: string) => {
         if (contextId === "2d") {
           return mockContext as unknown as CanvasRenderingContext2D;
         }
 
         return null;
-      },
+      }) as typeof HTMLCanvasElement.prototype.getContext,
     );
 
     vi.stubGlobal("Image", MockImage);

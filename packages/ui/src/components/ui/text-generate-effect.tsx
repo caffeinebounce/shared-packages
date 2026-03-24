@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, stagger, useAnimate } from "motion/react";
-import type { ElementType } from "react";
+import type { ElementType, ReactNode } from "react";
 import { useEffect } from "react";
 
 import { cn } from "../../utils";
@@ -13,7 +13,7 @@ export interface TextGenerateEffectProps {
   duration?: number;
   staggerDelay?: number;
   /** HTML element to render – defaults to div; use "h1" or "h2" for headings */
-  as?: ElementType;
+  as?: ElementType<{ className?: string; children?: ReactNode }>;
 }
 
 export function TextGenerateEffect({
