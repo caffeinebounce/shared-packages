@@ -139,7 +139,7 @@ export function BentoGridSection({
                           asChild
                           variant="outline"
                           size="sm"
-                          hoverEffect="slide"
+                          
                         >
                           <a href={item.cta.href}>{item.cta.label}</a>
                         </Button>
@@ -210,7 +210,7 @@ export function BentoGridSection({
                         asChild
                         variant="outline"
                         size="sm"
-                        hoverEffect="slide"
+                        
                       >
                         <a href={item.cta.href}>{item.cta.label}</a>
                       </Button>
