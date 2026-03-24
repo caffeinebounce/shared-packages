@@ -135,7 +135,12 @@ export function BentoGridSection({
                     </p>
                     {item.cta ? (
                       <div className="mt-4">
-                        <Button asChild variant="outline" size="sm" hoverEffect="slide">
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="sm"
+                          hoverEffect="slide"
+                        >
                           <a href={item.cta.href}>{item.cta.label}</a>
                         </Button>
                       </div>
@@ -201,7 +206,12 @@ export function BentoGridSection({
                   </p>
                   {item.cta ? (
                     <div className="mt-4">
-                      <Button asChild variant="outline" size="sm" hoverEffect="slide">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        hoverEffect="slide"
+                      >
                         <a href={item.cta.href}>{item.cta.label}</a>
                       </Button>
                     </div>
