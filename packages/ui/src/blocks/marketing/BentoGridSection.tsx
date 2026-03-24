@@ -84,7 +84,7 @@ export function BentoGridSection({
               <CardSpotlight
                 key={item.id}
                 className={cx(
-                  "group rounded-xl p-0 flex flex-col",
+                  "rounded-xl p-0 flex flex-col",
                   item.colSpan === 2 && "md:col-span-2",
                   item.rowSpan === 2 && "md:row-span-2",
                 )}
@@ -134,8 +134,8 @@ export function BentoGridSection({
                       {item.description}
                     </p>
                     {item.cta ? (
-                      <div className="mt-4 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-                        <Button asChild variant="outline" size="sm">
+                      <div className="mt-4">
+                        <Button asChild variant="outline" size="sm" hoverEffect="slide">
                           <a href={item.cta.href}>{item.cta.label}</a>
                         </Button>
                       </div>
@@ -147,7 +147,7 @@ export function BentoGridSection({
               <article
                 key={item.id}
                 className={cx(
-                  "group overflow-hidden rounded-xl shadow-sm transition-colors flex flex-col",
+                  "overflow-hidden rounded-xl shadow-sm transition-colors flex flex-col",
                   item.colSpan === 2 && "md:col-span-2",
                   item.rowSpan === 2 && "md:row-span-2",
                 )}
@@ -200,8 +200,8 @@ export function BentoGridSection({
                     {item.description}
                   </p>
                   {item.cta ? (
-                    <div className="mt-4 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-                      <Button asChild variant="outline" size="sm">
+                    <div className="mt-4">
+                      <Button asChild variant="outline" size="sm" hoverEffect="slide">
                         <a href={item.cta.href}>{item.cta.label}</a>
                       </Button>
                     </div>
