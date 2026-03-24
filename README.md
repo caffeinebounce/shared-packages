@@ -1,11 +1,3 @@
-yarn build
-yarn dev
-yarn lint
-echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
-direnv allow
-yarn changeset
-yarn version-packages
-yarn release
 # Shared Packages
 
 Reusable packages for Capital Collective projects published to GitHub Packages under the `@caffeinebounce/*` scope. The monorepo uses Turborepo, React 19, TypeScript (strict), Tailwind CSS v4, Biome, Vitest, Tsup, and Changesets.
@@ -19,10 +11,13 @@ Reusable packages for Capital Collective projects published to GitHub Packages u
 | `@caffeinebounce/email` | Email templates and Resend client |
 | `@caffeinebounce/ai-assistant` | AI chat panel components |
 | `@caffeinebounce/logger` | Structured logging utilities |
+| `@caffeinebounce/shared-utils` | Common utilities and formatters |
+| `@caffeinebounce/commerce` | Checkout and Stripe helpers |
+| `@caffeinebounce/notifications` | Shared notification UI and hooks |
 
 ## Requirements & Registry
 
-- Node.js 20.9+, Yarn 4.11 (Berry)
+- Node.js 25+, Yarn 4.12.0 (Berry)
 - `GITHUB_TOKEN` with `read:packages` and `write:packages`
 - `.npmrc` (or user-level config):
 
@@ -37,8 +32,11 @@ Reusable packages for Capital Collective projects published to GitHub Packages u
 cd shared-packages
 yarn install          # Installs deps and runs ./scripts/setup-hooks.sh via prepare
 yarn dev              # Watch mode for all packages
-yarn build            # Type-check & build
-yarn lint             # Biome lint/format check
+yarn build            # Build all packages
+yarn typecheck        # Type-check all packages
+yarn lint             # Non-mutating lint check
+yarn test             # Run package tests
+yarn validate:packages # Verify published package contracts after build
 ```
 
 ### Day-to-day workflow
@@ -68,12 +66,11 @@ They check and auto-fix:
 1. Create a changeset with `yarn changeset` (choose patch/minor/major).
 2. Merge feature PRs; Changesets action opens a version-bump PR.
 3. Merge the version-bump PR; `publish.yml` builds and publishes to GitHub Packages.
-4. After publish, `publish.yml` dispatches to Compass; Compass `update-shared-packages.yml` updates dependencies, runs lint/build, and opens an update PR.
+4. After publish, `publish.yml` dispatches `update-shared-packages` to consumer apps such as Compass.
 
 Manual publishing (maintainers):
 
 ```bash
-
 yarn release
 ```
 
@@ -127,6 +124,6 @@ Examples:
 ## Support
 
 - Re-run hooks: `./scripts/setup-hooks.sh`
+- Auto-fix linting: `yarn lint:fix`
 - Auto-fix formatting: `yarn format`
-- Type errors: `yarn build`
-
+- Type errors: `yarn typecheck`

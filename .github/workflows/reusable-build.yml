@@ -18,7 +18,7 @@
 #     build:
 #       uses: caffeinebounce/shared-packages/.github/workflows/reusable-build.yml@main
 #       with:
-#         node-version: '24'
+#         node-version: '25'
 #         yarn-version: '4.12.0'
 #       secrets:
 #         GH_PAT: ${{ secrets.GH_PAT }}
@@ -33,7 +33,7 @@ on:
       node-version:
         description: 'Node.js version'
         required: false
-        default: '24'
+        default: '25'
         type: string
       yarn-version:
         description: 'Yarn version'
@@ -242,4 +242,3 @@ jobs:
           name: web-build
           path: web-build.tgz
           retention-days: 3
-

@@ -534,17 +534,17 @@ function extractErrorCause(
  * );
  * ```
  */
-// Overload for handlers with context parameter (dynamic routes)
-export function withErrorLogging<TContext extends NonNullable<unknown>>(
-  handler: ApiHandler<TContext>,
-  context: ErrorLoggingContext,
-): ApiHandler<TContext>;
-
 // Overload for handlers without context parameter (simple routes)
 export function withErrorLogging(
   handler: ApiHandler<undefined>,
   context: ErrorLoggingContext,
 ): ApiHandler<undefined>;
+
+// Overload for handlers with context parameter (dynamic routes)
+export function withErrorLogging<TContext extends NonNullable<unknown>>(
+  handler: ApiHandler<TContext>,
+  context: ErrorLoggingContext,
+): ApiHandler<TContext>;
 
 // Implementation
 export function withErrorLogging<TContext = undefined>(

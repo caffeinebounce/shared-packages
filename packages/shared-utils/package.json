@@ -45,6 +45,7 @@
     "dev": "tsup --watch",
     "test": "yarn run -T vitest run",
     "test:watch": "yarn run -T vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "clean": "rm -rf dist",
     "lint": "biome check src/"
   },
@@ -53,6 +54,6 @@
   },
   "devDependencies": {
     "tsup": "^8.5.1",
-    "typescript": "^5.9.0-beta"
+    "typescript": "^5.9.3"
   }
 }

@@ -608,6 +608,13 @@ describe("Environment Detection", () => {
   describe("getClientOrigin", () => {
     let originalWindow: typeof globalThis.window;
     let originalEnv: NodeJS.ProcessEnv;
+    const setMockWindowLocation = (
+      location: Pick<Location, "origin" | "hostname">,
+    ) => {
+      globalThis.window = {
+        location: location as Location,
+      } as Window & typeof globalThis;
+    };
 
     beforeEach(() => {
       // Store original window
@@ -619,8 +626,7 @@ describe("Environment Detection", () => {
     afterEach(() => {
       // Restore original window
       if (originalWindow === undefined) {
-        // @ts-expect-error - cleaning up mock
-        delete globalThis.window;
+        Reflect.deleteProperty(globalThis, "window");
       } else {
         globalThis.window = originalWindow;
       }
@@ -629,51 +635,40 @@ describe("Environment Detection", () => {
     });
 
     it("returns empty string in SSR context when no env var set", () => {
-      // @ts-expect-error - simulating SSR
-      delete globalThis.window;
+      Reflect.deleteProperty(globalThis, "window");
       delete process.env.NEXT_PUBLIC_SITE_URL;
       expect(getClientOrigin()).toBe("");
     });
 
     it("returns env var in SSR context when env var is set", () => {
-      // @ts-expect-error - simulating SSR
-      delete globalThis.window;
+      Reflect.deleteProperty(globalThis, "window");
       process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai";
       expect(getClientOrigin()).toBe("https://thecapitalcompass.ai");
     });
 
     it("returns window.location.origin in preview environment", () => {
-      // @ts-expect-error - mocking window
-      globalThis.window = {
-        location: {
-          origin: "https://compass-pr-194.onrender.com",
-          hostname: "compass-pr-194.onrender.com",
-        },
-      };
+      setMockWindowLocation({
+        origin: "https://compass-pr-194.onrender.com",
+        hostname: "compass-pr-194.onrender.com",
+      });
       expect(getClientOrigin()).toBe("https://compass-pr-194.onrender.com");
     });
 
     it("returns window.location.origin in preview even when env var is set to production", () => {
       process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai";
-      // @ts-expect-error - mocking window
-      globalThis.window = {
-        location: {
-          origin: "https://compass-pr-194.onrender.com",
-          hostname: "compass-pr-194.onrender.com",
-        },
-      };
+      setMockWindowLocation({
+        origin: "https://compass-pr-194.onrender.com",
+        hostname: "compass-pr-194.onrender.com",
+      });
       // Preview environment should use actual origin, ignoring env var
       expect(getClientOrigin()).toBe("https://compass-pr-194.onrender.com");
     });
 
     it("returns window.location.origin for localhost", () => {
-      // @ts-expect-error - mocking window
-      globalThis.window = {
-        location: {
-          origin: "http://localhost:3000",
-          hostname: "localhost",
-        },
-      };
+      setMockWindowLocation({
+        origin: "http://localhost:3000",
+        hostname: "localhost",
+      });
       expect(getClientOrigin()).toBe("http://localhost:3000");
     });
 
@@ -693,47 +688,37 @@ describe("Environment Detection", () => {
       ];
 
       for (const testCase of cases) {
-        // @ts-expect-error - mocking window
-        globalThis.window = { location: testCase };
+        setMockWindowLocation(testCase);
         expect(getClientOrigin()).toBe(testCase.origin);
       }
     });
 
     it("returns env var in production when env var is set", () => {
       process.env.NEXT_PUBLIC_SITE_URL = "https://thecapitalcompass.ai/";
-      // @ts-expect-error - mocking window
-      globalThis.window = {
-        location: {
-          origin: "https://app.thecapitalcompass.ai",
-          hostname: "app.thecapitalcompass.ai",
-        },
-      };
+      setMockWindowLocation({
+        origin: "https://app.thecapitalcompass.ai",
+        hostname: "app.thecapitalcompass.ai",
+      });
       // Production should use env var (with trailing slash removed)
       expect(getClientOrigin()).toBe("https://thecapitalcompass.ai");
     });
 
     it("returns window.location.origin in production when no env var", () => {
       delete process.env.NEXT_PUBLIC_SITE_URL;
-      // @ts-expect-error - mocking window
-      globalThis.window = {
-        location: {
-          origin: "https://thecapitalcompass.ai",
-          hostname: "thecapitalcompass.ai",
-        },
-      };
+      setMockWindowLocation({
+        origin: "https://thecapitalcompass.ai",
+        hostname: "thecapitalcompass.ai",
+      });
       // Without env var set, falls back to window.location.origin
       expect(getClientOrigin()).toBe("https://thecapitalcompass.ai");
     });
 
     it("uses custom env var name when specified", () => {
       process.env.CUSTOM_APP_URL = "https://custom.example.com";
-      // @ts-expect-error - mocking window
-      globalThis.window = {
-        location: {
-          origin: "https://production.example.com",
-          hostname: "production.example.com",
-        },
-      };
+      setMockWindowLocation({
+        origin: "https://production.example.com",
+        hostname: "production.example.com",
+      });
       expect(getClientOrigin("CUSTOM_APP_URL")).toBe(
         "https://custom.example.com",
       );

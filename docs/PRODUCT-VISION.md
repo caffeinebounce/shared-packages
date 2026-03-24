@@ -86,6 +86,8 @@ development across the portfolio.
 | `@caffeinebounce/ai-assistant` | AI chat panel components | Active |
 | `@caffeinebounce/logger` | Structured logging utilities | Active |
 | `@caffeinebounce/shared-utils` | Common utilities | Active |
+| `@caffeinebounce/commerce` | Checkout and Stripe helpers | Active |
+| `@caffeinebounce/notifications` | Shared notification UI and hooks | Active |
 
 ---
 

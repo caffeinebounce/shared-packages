@@ -45,6 +45,8 @@ Run from your app's root directory:
 
 Create `devops.config.json` in your app root:
 
+`portalPackages` is the default portal-linked subset for app development. It is intentionally narrower than the full shared-packages workspace inventory.
+
 ```json
 {
   "portalPackages": [
@@ -124,8 +126,9 @@ This installs:
 ### Publishing Workflow
 
 1. Make changes and commit
-2. When pushing to main, you'll be prompted to publish
-3. Or run manually: `./scripts/publish-local.sh`
+2. Create a changeset for publishable package changes
+3. Merge to `main` and let `publish.yml` handle release automation
+4. Or run manually for local-only publishing: `./scripts/publish-local.sh`
 
 ## Git Hooks
 

@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createAuthCallbackHandler } from "./callback";
 
@@ -26,7 +27,9 @@ describe("createAuthCallbackHandler", () => {
     })),
   };
 
-  const mockCreateClient = vi.fn(() => Promise.resolve(mockSupabase));
+  const mockCreateClient = vi.fn(
+    async () => mockSupabase as unknown as SupabaseClient,
+  );
 
   beforeEach(() => {
     vi.clearAllMocks();

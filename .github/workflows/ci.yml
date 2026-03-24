@@ -72,24 +72,14 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: Typecheck
+        run: yarn typecheck
+
       - name: Test
         run: yarn test
 
       - name: Build
         run: yarn build
 
-      - name: UI Quality Gate
-        working-directory: packages/ui
-        run: |
-          yarn typecheck
-          yarn lint
-          yarn test
-          yarn build
-
-      - name: Publish UI package
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        working-directory: packages/ui
-        continue-on-error: true
-        run: yarn npm publish
-        env:
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Validate package contracts
+        run: yarn validate:packages

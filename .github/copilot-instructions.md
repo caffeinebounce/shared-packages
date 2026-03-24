@@ -6,7 +6,7 @@
 
 **Tech Stack**: React 19, TypeScript 5.9 (strict), Tailwind CSS v4, Biome (lint/format), Vitest, Tsup (bundler), Changesets (versioning).
 
-**Runtime Requirements**: Node.js 20.9+, Yarn 4.11.0 (Berry).
+**Runtime Requirements**: Node.js 25+, Yarn 4.12.0 (Berry).
 
 **Publishing**: All packages published to GitHub Packages registry (`@npm.pkg.github.com`) as `@caffeinebounce/*` scoped packages.
 
@@ -47,13 +47,10 @@ shared-packages/
 │   │       ├── context.tsx      # AI conversation context & state management
 │   │       ├── use-ai-capability.ts # Hook for AI capabilities
 │   │       └── types.ts         # AI types & interfaces
-│   └── logger/                  # @caffeinebounce/logger - Structured logging
-│       └── src/
-│           ├── index.ts         # Main export
-│           ├── logger.ts        # Standard logger with Logtail integration
-│           ├── admin-logger.ts  # Admin-specific logging
-│           ├── auth-logger.ts   # Auth event logging
-│           └── types.ts         # Logger types & configuration
+│   ├── logger/                  # @caffeinebounce/logger - Structured logging
+│   ├── shared-utils/            # @caffeinebounce/shared-utils - Shared utilities
+│   ├── commerce/                # @caffeinebounce/commerce - Checkout and Stripe helpers
+│   └── notifications/           # @caffeinebounce/notifications - Shared notification UI/hooks
 ├── .changeset/                  # Changeset entries for version management
 ├── biome.json                   # Linting and formatting config (shared)
 ├── turbo.json                   # Turborepo task configuration
@@ -70,25 +67,27 @@ shared-packages/
 | Install dependencies | `yarn install` | Required before any build/test |
 | Setup git hooks | `./scripts/setup-hooks.sh` | One-time setup, runs automatically on `yarn install` |
 | Build (all packages) | `yarn build` | Runs Turbo, builds all packages in order |
-| Lint | `yarn lint` | Uses Biome via Turbo |
+| Lint | `yarn lint` | Non-mutating Biome + package lint checks |
+| Lint fix | `yarn lint:fix` | Auto-fix root files, then run package lint checks |
 | Format | `yarn format` | Auto-fix with Biome |
 | Format check | `yarn format:check` | Check without fixing |
-| Run tests | `vitest run` | Vitest - run from individual package or root |
-| Watch tests | `vitest` | Continuous test mode |
+| Run tests | `yarn test` | Turbo test run across packages |
+| Watch tests | `vitest` | Continuous test mode from root or package |
 | Dev (watch) | `yarn dev` | Runs all packages in watch mode with Tsup |
 | Clean | `yarn clean` | Remove dist folders and node_modules |
 | Create changeset | `yarn changeset` | Track version changes for release |
 | Version packages | `yarn version-packages` | Update versions based on changesets |
-| Release/Publish | `yarn release` | Build + publish to GitHub Packages |
+| Release/Publish | `yarn release` | Publish updated packages to GitHub Packages |
+| Validate package contracts | `yarn validate:packages` | Check scripts, publish metadata, and built export targets |
 
 ### Validation Before PR
 
 **Always run in this order:**
 ```bash
-yarn build && yarn lint && yarn test
+yarn lint && yarn typecheck && yarn test && yarn build && yarn validate:packages
 ```
 
-All three must pass. Each package is independently tested and built.
+All five must pass. Each package is independently type-checked, tested, and built.
 
 ### Pre-Commit Hooks
 
@@ -252,12 +251,15 @@ All packages are published to **GitHub Packages** as `@caffeinebounce/*`:
 3. Version bump is applied and committed
 4. `yarn release` publishes all updated packages
 
-**Current Versions** (check package.json for latest):
-- `@caffeinebounce/ui`: 0.1.3
-- `@caffeinebounce/identity`: 0.1.1
-- `@caffeinebounce/email`: 0.1.0
-- `@caffeinebounce/ai-assistant`: 0.1.2
-- `@caffeinebounce/logger`: 0.1.0
+**Workspace Packages**:
+- `@caffeinebounce/ui`
+- `@caffeinebounce/identity`
+- `@caffeinebounce/email`
+- `@caffeinebounce/ai-assistant`
+- `@caffeinebounce/logger`
+- `@caffeinebounce/shared-utils`
+- `@caffeinebounce/commerce`
+- `@caffeinebounce/notifications`
 
 Consumers should use `@latest` tag: `yarn add @caffeinebounce/ui@latest`
 
@@ -583,14 +585,18 @@ import "@caffeinebounce/ui/styles.css";
 **`ci.yml`** - Quality checks (on push to main or PR):
 1. Install dependencies
 2. Lint (Biome)
-3. Build packages
+3. Type-check packages
+4. Test packages
+5. Build packages
+6. Validate package contracts
 
 **`publish.yml`** - Release & notify consumers (on push to main with changeset changes):
 1. Install dependencies
-2. Lint & build
+2. Lint, type-check, test, and build
 3. Use Changesets to version packages
-4. Publish to GitHub Packages
-5. Trigger consumer repos (Compass, etc.) to auto-update
+4. Validate package contracts
+5. Publish to GitHub Packages
+6. Trigger consumer repos (Compass, etc.) to auto-update
 
 ### How Packages Get to Consumers
 
@@ -639,11 +645,9 @@ yarn changeset status
 # Update versions in package.json files
 yarn version-packages
 
-# Publish to GitHub Packages
+# Validate and publish to GitHub Packages
+yarn validate:packages
 yarn release
-
-# Or manually with npm/yarn
-npm publish --registry https://npm.pkg.github.com
 ```
 
 ### Monitoring Releases

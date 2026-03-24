@@ -211,10 +211,22 @@ describe("buildOAuthRedirectTo", () => {
 describe("clearStalePKCEState", () => {
   let mockLocalStorage: { [key: string]: string };
   let originalWindow: typeof globalThis.window;
+  let originalLocalStorageDescriptor: PropertyDescriptor | undefined;
+  const assignMockStorage = (storage: Storage) => {
+    globalThis.window = { localStorage: storage } as Window & typeof globalThis;
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      value: storage,
+    });
+  };
 
   beforeEach(() => {
     mockLocalStorage = {};
     originalWindow = globalThis.window;
+    originalLocalStorageDescriptor = Object.getOwnPropertyDescriptor(
+      globalThis,
+      "localStorage",
+    );
 
     // Mock localStorage
     const localStorageMock = {
@@ -234,16 +246,22 @@ describe("clearStalePKCEState", () => {
       get length() {
         return Object.keys(mockLocalStorage).length;
       },
-    };
+    } as Storage;
 
-    // @ts-expect-error - mocking window for tests
-    globalThis.window = { localStorage: localStorageMock };
-    // @ts-expect-error - mocking localStorage for tests
-    globalThis.localStorage = localStorageMock;
+    assignMockStorage(localStorageMock);
   });
 
   afterEach(() => {
     globalThis.window = originalWindow;
+    if (originalLocalStorageDescriptor) {
+      Object.defineProperty(
+        globalThis,
+        "localStorage",
+        originalLocalStorageDescriptor,
+      );
+    } else {
+      Reflect.deleteProperty(globalThis, "localStorage");
+    }
     vi.restoreAllMocks();
   });
 
@@ -295,12 +313,9 @@ describe("clearStalePKCEState", () => {
       get length(): number {
         throw new Error("Storage access denied");
       },
-    };
+    } as Storage;
 
-    // @ts-expect-error - mocking localStorage for tests
-    globalThis.localStorage = errorMock;
-    // @ts-expect-error - mocking window.localStorage for tests
-    globalThis.window = { localStorage: errorMock };
+    assignMockStorage(errorMock);
 
     expect(() => clearStalePKCEState()).not.toThrow();
   });

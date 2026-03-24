@@ -34,11 +34,13 @@
     "dev": "tsup --watch",
     "test": "yarn run -T vitest run",
     "test:watch": "yarn run -T vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "clean": "rm -rf dist",
     "lint": "biome check src/"
   },
   "peerDependencies": {
     "react": "^18 || ^19",
+    "react-dom": "^18 || ^19",
     "stripe": "^17.0.0"
   },
   "peerDependenciesMeta": {
@@ -49,6 +51,7 @@
   "devDependencies": {
     "@types/react": "^19.2.14",
     "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "stripe": "^17.5.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"

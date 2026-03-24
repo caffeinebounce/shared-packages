@@ -7,7 +7,7 @@ This document describes the automated system for publishing shared packages and 
 The system has three main components:
 
 1. **Changesets** - Tracks version changes locally and generates changelogs
-2. **GitHub Actions (shared-packages)** - Publishes to GitHub Packages and notifies consumers
+2. **GitHub Actions (shared-packages)** - Validates in `ci.yml`, publishes in `publish.yml`, and notifies consumers
 3. **GitHub Actions (Compass & others)** - Automatically updates to latest versions with PR review
 
 ## Workflow
@@ -97,9 +97,10 @@ When your PR is merged to `main`:
 2. You (or maintainer) review and merge the version bump PR
 
 3. **Publish workflow** immediately:
-   - Runs `yarn build`
+   - Runs `yarn lint`, `yarn typecheck`, `yarn test`, `yarn build`
+   - Runs `yarn validate:packages`
    - Runs `yarn release` → publishes to GitHub Packages
-   - Triggers consumer repos (Compass, etc.)
+   - Triggers consumer repos (Compass, etc.) through `repository_dispatch`
 
 ### 5. Consumer Apps Auto-Update
 
@@ -241,11 +242,11 @@ npm view @caffeinebounce/ui@0.1.4
 
 #### `ci.yml`
 - Runs on: push to `main` or PR
-- Steps: Install → Lint → Build
+- Steps: Install → Lint → Typecheck → Test → Build → Validate package contracts
 
 #### `publish.yml`
-- Runs on: push to `main` with changes to `packages/` or `.changeset/`
-- Steps: Install → Lint → Build → Version & Publish → Notify consumers
+- Runs on: push to `main` or manual dispatch
+- Steps: Install → Lint → Typecheck → Test → Build → Validate package contracts → Version & Publish → Notify consumers
 - Outputs: published packages list
 
 ### Compass Workflows
