@@ -120,6 +120,7 @@ Examples:
 - Conventional commits: `type(scope): description` (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
 - Strict TypeScript; export new public APIs from package entry points
 - Prefer server-safe code by default; mark client components with `"use client"`
+- `@caffeinebounce/ui` uses colocated `.test.ts(x)` files alongside the source they cover
 - Internal `@caffeinebounce/*` dependencies that refer to packages in this workspace must use `^<current workspace version>` in published package manifests; this is enforced by `yarn validate:packages`
 
 ## Support

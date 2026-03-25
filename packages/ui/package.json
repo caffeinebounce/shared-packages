@@ -97,6 +97,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "NODE_OPTIONS='--max-old-space-size=4096 --localstorage-file=.vitest-localstorage' yarn run -T vitest run",
+    "test:coverage": "NODE_OPTIONS='--max-old-space-size=4096 --localstorage-file=.vitest-localstorage-coverage' yarn run -T vitest run --coverage",
     "test:watch": "NODE_OPTIONS='--localstorage-file=.vitest-localstorage' vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "clean": "rm -rf dist",

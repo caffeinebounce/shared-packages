@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { Badge, badgeVariants } from "../badge";
+import { Badge, badgeVariants } from "./badge";
 
 describe("Badge", () => {
   describe("rendering", () => {
