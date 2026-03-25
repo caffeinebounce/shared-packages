@@ -29,23 +29,8 @@ function createLocalStorageMock(): Storage {
 	};
 }
 
-function ensureLocalStorageMock() {
+function installLocalStorageMock() {
 	if (typeof window === "undefined") {
-		return;
-	}
-
-	let needsMock = false;
-	try {
-		needsMock =
-			!window.localStorage ||
-			typeof window.localStorage.clear !== "function" ||
-			typeof window.localStorage.getItem !== "function" ||
-			typeof window.localStorage.setItem !== "function";
-	} catch {
-		needsMock = true;
-	}
-
-	if (!needsMock) {
 		return;
 	}
 
@@ -60,7 +45,9 @@ function ensureLocalStorageMock() {
 	});
 }
 
-ensureLocalStorageMock();
+// Always use an in-memory localStorage mock in tests so parallel workers don't
+// share state through the file-backed localStorage configured in NODE_OPTIONS.
+installLocalStorageMock();
 
 if (typeof globalThis.ResizeObserver === "undefined") {
 	class ResizeObserverMock {

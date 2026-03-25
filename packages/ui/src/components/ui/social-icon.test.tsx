@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { SocialPlatform } from "../social-icon";
-import { SocialIcon, socialPlatforms } from "../social-icon";
+import type { SocialPlatform } from "./social-icon";
+import { SocialIcon, socialPlatforms } from "./social-icon";
 
 describe("SocialIcon", () => {
   it("renders an SVG icon", () => {

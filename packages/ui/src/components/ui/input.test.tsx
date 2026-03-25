@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { Input, inputVariants } from "../input";
+import { Input, inputVariants } from "./input";
 
 describe("Input", () => {
   describe("rendering", () => {

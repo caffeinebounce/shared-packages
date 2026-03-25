@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getColorScheme, getDefaultTheme } from "../../../config/themes";
+import { getColorScheme, getDefaultTheme } from "../../config/themes";
 
 describe("theme utility functions", () => {
   describe("getDefaultTheme", () => {

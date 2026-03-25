@@ -126,7 +126,7 @@ Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
 
 ### Changelog Management with Changesets
 
-Changesets track which packages changed and what version bump is needed:
+Changesets track which packages changed and what version bump is needed for published package changes:
 
 **Workflow:**
 1. Make code changes
@@ -136,6 +136,8 @@ Changesets track which packages changed and what version bump is needed:
 5. Merge version bump PR
 6. Publish workflow releases to GitHub Packages
 7. Consumer apps (Compass) automatically get update PRs
+
+You can skip a changeset for docs-only, test-only, and internal tooling changes that do not alter published package contents or consumer-facing behavior. When you do, state that exception clearly in the PR body.
 
 **Changeset file format** (`.changeset/*.md`):
 ```markdown
@@ -157,7 +159,7 @@ Can span multiple lines with details.
 
 ### Before Creating a PR
 
-**Always include a changeset:**
+**Include a changeset for published package changes:**
 ```bash
 # Make your changes
 echo "new code" >> packages/ui/src/components/Button.tsx
@@ -187,7 +189,7 @@ git push origin feat/my-feature
 **Standard workflow:**
 1. Create feature branch: `git checkout -b feat/new-feature`
 2. Make changes and commit (conventional format)
-3. Create changeset: `yarn changeset`
+3. Create changeset: `yarn changeset` when the change affects published package behavior or contents
 4. Push branch and create PR
 5. CI must pass before merge
 6. Squash merge to `main`
@@ -669,7 +671,7 @@ npm view @caffeinebounce/ui versions
 3. Implement component with Tailwind classes
 4. Write tests: `MyComponent.test.tsx`
 5. Export from package index: `export { MyComponent } from "./components/MyComponent";`
-6. Create Changeset: `yarn changeset` (select patch/minor/major)
+6. Create Changeset: `yarn changeset` (select patch/minor/major) when the new component changes the published package
 7. Commit with conventional message: `feat(ui): add MyComponent`
 
 ### Adding a New Package

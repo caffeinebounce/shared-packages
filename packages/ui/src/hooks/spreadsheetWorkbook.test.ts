@@ -3,7 +3,7 @@ import {
   buildSpreadsheetWorkbookXml,
   excelCellRef,
   excelColumnName,
-} from "../spreadsheetWorkbook";
+} from "./spreadsheetWorkbook";
 
 describe("spreadsheetWorkbook", () => {
   it("builds stable excel column names and refs", () => {

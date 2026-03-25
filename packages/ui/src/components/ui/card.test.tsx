@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
   cardVariants,
-} from "../card";
+} from "./card";
 
 describe("Card", () => {
   describe("rendering", () => {
