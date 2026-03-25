@@ -23,6 +23,7 @@ import { KeyRound, Loader2, Smartphone } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import type { CreateClientFn } from "../../types";
+import { createMfaChallenge, verifyMfaChallenge } from "../mfa/supabase-mfa";
 
 export type VerificationMethod = "mfa" | "password" | "both";
 
@@ -140,15 +141,8 @@ export function ConfirmAccessDialog({
     setError("");
     try {
       const supabase = createClient();
-      const { data, error: challengeError } = await supabase.auth.mfa.challenge(
-        {
-          factorId: mfaFactor.id,
-        },
-      );
-
-      if (challengeError) throw challengeError;
-
-      setChallengeId(data.id);
+      const nextChallengeId = await createMfaChallenge(supabase, mfaFactor.id);
+      setChallengeId(nextChallengeId);
       setCodeSent(true);
     } catch (err) {
       setError(
@@ -169,25 +163,12 @@ export function ConfirmAccessDialog({
       setError("");
       try {
         const supabase = createClient();
-
-        // Create challenge if not already created (for TOTP)
-        let currentChallengeId = challengeId;
-        if (!currentChallengeId) {
-          const { data, error: challengeError } =
-            await supabase.auth.mfa.challenge({
-              factorId: mfaFactor.id,
-            });
-          if (challengeError) throw challengeError;
-          currentChallengeId = data.id;
-        }
-
-        const { error: verifyError } = await supabase.auth.mfa.verify({
+        const currentChallengeId = await verifyMfaChallenge(supabase, {
           factorId: mfaFactor.id,
-          challengeId: currentChallengeId,
+          challengeId,
           code: verifyCode,
         });
-
-        if (verifyError) throw verifyError;
+        setChallengeId(currentChallengeId);
 
         // Success - call the confirm callback
         await onConfirm();

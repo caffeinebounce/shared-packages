@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import type { CreateClientFn } from "../../types";
+import { createMfaChallenge, verifyMfaChallenge } from "./supabase-mfa";
 
 type SupabaseMFAFactor = Factor & { phone?: string };
 
@@ -73,14 +74,9 @@ export function MFAChallenge({
     async (factorId: string) => {
       try {
         const supabase = createClient();
-        const { data, error: challengeError } =
-          await supabase.auth.mfa.challenge({
-            factorId,
-          });
-
-        if (challengeError) throw challengeError;
-
-        setChallengeId(data.id);
+        const nextChallengeId = await createMfaChallenge(supabase, factorId);
+        setChallengeId(nextChallengeId);
+        return nextChallengeId;
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to create challenge",
@@ -145,24 +141,12 @@ export function MFAChallenge({
     const email = user?.email || "";
 
     try {
-      // Create challenge if not already created
-      let currentChallengeId = challengeId;
-      if (!currentChallengeId) {
-        const { data, error: challengeError } =
-          await supabase.auth.mfa.challenge({
-            factorId,
-          });
-        if (challengeError) throw challengeError;
-        currentChallengeId = data.id;
-      }
-
-      const { error: verifyError } = await supabase.auth.mfa.verify({
+      const currentChallengeId = await verifyMfaChallenge(supabase, {
         factorId,
-        challengeId: currentChallengeId,
+        challengeId,
         code,
       });
-
-      if (verifyError) throw verifyError;
+      setChallengeId(currentChallengeId);
 
       // Log MFA success
       onAuthEvent?.onMFASuccess?.(userId, email);
