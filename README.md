@@ -45,7 +45,7 @@ yarn validate:packages # Verify published package contracts after build
 git checkout -b feat/my-change
 # edit code
 git commit -m "feat(ui): add Button variant"   # Hooks validate & auto-fix
-yarn changeset                                  # Track version bump
+yarn changeset                                  # Track version bump for published package changes
 git commit -m "chore: add changeset"           # Commit the changeset
 git push && open PR                             # CI builds, publish flows after merge
 ```
@@ -63,10 +63,12 @@ They check and auto-fix:
 
 ## Versioning, Publishing, and Consumer Updates
 
-1. Create a changeset with `yarn changeset` (choose patch/minor/major).
+1. Create a changeset with `yarn changeset` (choose patch/minor/major) for published package changes.
 2. Merge feature PRs; Changesets action opens a version-bump PR.
 3. Merge the version-bump PR; `publish.yml` builds and publishes to GitHub Packages.
 4. After publish, `publish.yml` dispatches `update-shared-packages` to consumer apps such as Compass.
+
+Docs-only, test-only, and internal tooling changes that do not alter published package contents or consumer-facing behavior can skip a changeset. Note that exception in the PR body when you use it.
 
 Manual publishing (maintainers):
 
