@@ -54,6 +54,7 @@ describe("MFAConfirmDialog", () => {
       confirmText: "Remove",
       confirmLoading: true,
       destructive: true,
+      dialogContentClassName: "sm:max-w-md",
     });
   });
 });

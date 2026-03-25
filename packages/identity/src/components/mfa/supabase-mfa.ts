@@ -32,7 +32,9 @@ export async function createMfaChallenge(
   }
 
   if (!data?.id) {
-    throw new Error("Failed to create challenge");
+    throw new Error(
+      `Failed to create MFA challenge: missing challenge id in response for factor "${factorId}"`,
+    );
   }
 
   return data.id;

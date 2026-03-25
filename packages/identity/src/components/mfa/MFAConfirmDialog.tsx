@@ -70,6 +70,7 @@ export function MFAConfirmDialog({
       confirmText={confirmText}
       confirmLoading={confirmLoading}
       destructive={true}
+      dialogContentClassName="sm:max-w-md"
     />
   );
 }

@@ -57,6 +57,8 @@ export interface ConfirmAccessDialogProps {
   confirmLoading?: boolean;
   /** Use destructive styling for confirm button */
   destructive?: boolean;
+  /** Optional DialogContent className override */
+  dialogContentClassName?: string;
 }
 
 /**
@@ -95,6 +97,7 @@ export function ConfirmAccessDialog({
   confirmText = "Continue",
   confirmLoading = false,
   destructive = false,
+  dialogContentClassName,
 }: ConfirmAccessDialogProps) {
   const [activeTab, setActiveTab] = useState<"mfa" | "password">("mfa");
   const [code, setCode] = useState("");
@@ -326,7 +329,11 @@ export function ConfirmAccessDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent
+        className={["sm:max-w-sm", dialogContentClassName]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <DialogHeader className="text-left">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
