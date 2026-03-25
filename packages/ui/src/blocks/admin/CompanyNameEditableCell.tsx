@@ -1,12 +1,12 @@
 "use client";
 
-import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../utils";
 import { useDataTableContext } from "../data-table";
+import { useEditableCellSave } from "./useEditableCellSave";
 
 interface CompanyNameEditableCellProps {
   name: string;
@@ -26,11 +26,10 @@ export function CompanyNameEditableCell({
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(initialName || "");
   const [dbaName, setDbaName] = useState(initialDbaName || "");
-  const [isLoading, setIsLoading] = useState(false);
   const firstInputRef = useRef<HTMLInputElement>(null);
   const context = useDataTableContext();
   const isCompact = context?.density === "compact";
-  const { logError } = useErrorLogger();
+  const { isLoading, save } = useEditableCellSave();
 
   useEffect(() => {
     if (isEditing && firstInputRef.current) {
@@ -49,35 +48,20 @@ export function CompanyNameEditableCell({
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${endpoint}/${rowId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, dbaName: dbaName || null }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to update");
-      }
-
-      toast.success("Updated successfully");
-      setIsEditing(false);
-      onSuccess?.(name, dbaName || null);
-    } catch (error) {
-      logError(error, {
-        component: "CompanyNameEditableCell",
-        action: "handleSave",
-        metadata: { rowId },
-      });
-      toast.error(error instanceof Error ? error.message : "Failed to update");
-      // Revert on error
-      setName(initialName || "");
-      setDbaName(initialDbaName || "");
-    } finally {
-      setIsLoading(false);
-    }
+    await save({
+      component: "CompanyNameEditableCell",
+      endpoint,
+      rowId,
+      payload: { name, dbaName: dbaName || null },
+      onError: () => {
+        setName(initialName || "");
+        setDbaName(initialDbaName || "");
+      },
+      onSuccess: () => {
+        setIsEditing(false);
+        onSuccess?.(name, dbaName || null);
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -150,7 +134,7 @@ export function CompanyNameEditableCell({
             size="sm"
             variant="ghost"
             className="h-7 px-2 text-green-600 hover:text-green-700 hover:bg-green-50"
-            onClick={handleSave}
+            onClick={() => void handleSave()}
             disabled={isLoading}
           >
             Save

@@ -1,6 +1,5 @@
 "use client";
 
-import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
 import { Check, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -18,6 +17,7 @@ import { Switch } from "../../components/ui/switch";
 import { Textarea } from "../../components/ui/textarea";
 import { cn } from "../../utils";
 import { useDataTableContext } from "../data-table";
+import { useEditableCellSave } from "./useEditableCellSave";
 
 interface BaseEditableCellProps {
   value: string | number | boolean | null | undefined;
@@ -54,12 +54,11 @@ export function EditableCell({
   const [value, setValue] = useState<string | number | boolean>(
     initialValue ?? (type === "boolean" ? false : ""),
   );
-  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const context = useDataTableContext();
   const isCompact = context?.density === "compact";
-  const { logError } = useErrorLogger();
+  const { isLoading, save } = useEditableCellSave();
 
   useEffect(() => {
     if (isEditing) {
@@ -99,33 +98,20 @@ export function EditableCell({
       }
     }
 
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${endpoint}/${rowId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [columnId]: valueToSave }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to update");
-      }
-
-      toast.success("Updated successfully");
-      setIsEditing(false);
-      onSuccess?.(valueToSave);
-    } catch (error) {
-      logError(error, {
-        component: "EditableCell",
-        action: "handleSave",
-        metadata: { columnId, rowId },
-      });
-      toast.error(error instanceof Error ? error.message : "Failed to update");
-      setValue(initialValue ?? (type === "boolean" ? false : "")); // Revert on error
-    } finally {
-      setIsLoading(false);
-    }
+    await save({
+      component: "EditableCell",
+      endpoint,
+      rowId,
+      payload: { [columnId]: valueToSave },
+      metadata: { columnId },
+      onError: () => {
+        setValue(initialValue ?? (type === "boolean" ? false : ""));
+      },
+      onSuccess: () => {
+        setIsEditing(false);
+        onSuccess?.(valueToSave);
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -148,7 +134,7 @@ export function EditableCell({
           checked={!!value}
           onCheckedChange={(checked) => {
             setValue(checked);
-            handleSave(checked);
+            void handleSave(checked);
           }}
           disabled={isLoading}
         />
@@ -172,7 +158,7 @@ export function EditableCell({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                handleSave();
+                void handleSave();
               } else if (e.key === "Escape") {
                 handleCancel();
               }
@@ -185,7 +171,7 @@ export function EditableCell({
             value={value as string}
             onValueChange={(val) => {
               setValue(val);
-              handleSave(val);
+              void handleSave(val);
             }}
             disabled={isLoading}
           >
@@ -226,7 +212,7 @@ export function EditableCell({
             size="icon"
             variant="ghost"
             className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-            onClick={() => handleSave()}
+            onClick={() => void handleSave()}
             disabled={isLoading}
           >
             <Check className="h-4 w-4" />
