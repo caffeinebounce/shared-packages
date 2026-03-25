@@ -42,3 +42,6 @@ repo-backup-*.git
 
 # Test coverage
 coverage/
+
+# UI test localStorage artifacts
+packages/ui/.vitest-localstorage*
