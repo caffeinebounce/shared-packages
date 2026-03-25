@@ -52,8 +52,16 @@ for (const dir of packageDirs) {
   });
 }
 
+const workspacePackageNames = new Set(workspacePackages.map(({ pkgName }) => pkgName));
 const workspaceVersions = new Map(
-  workspacePackages.map(({ manifest, pkgName }) => [pkgName, manifest.version]),
+  workspacePackages.flatMap(({ manifest, pkgName }) => {
+    if (typeof manifest.version !== "string" || manifest.version.trim() === "") {
+      failures.push(`${pkgName}: missing valid version`);
+      return [];
+    }
+
+    return [[pkgName, manifest.version]];
+  }),
 );
 
 for (const { packageDir, manifest, pkgName } of workspacePackages) {
@@ -66,6 +74,11 @@ for (const { packageDir, manifest, pkgName } of workspacePackages) {
       const workspaceVersion = workspaceVersions.get(dependencyName);
 
       if (!workspaceVersion) {
+        if (workspacePackageNames.has(dependencyName)) {
+          failures.push(
+            `${pkgName}: ${field}.${dependencyName} points to a workspace package without a readable version`,
+          );
+        }
         continue;
       }
 
