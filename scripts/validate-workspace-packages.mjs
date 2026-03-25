@@ -5,11 +5,19 @@ const REQUIRED_SCRIPTS = ["build", "lint", "typecheck", "test", "clean"];
 const REQUIRED_FIELDS = ["main", "module", "types", "exports", "files"];
 const REQUIRED_PUBLISH_CONFIG_FIELDS = ["registry", "access"];
 const REQUIRED_REPOSITORY_FIELDS = ["type", "url", "directory"];
+const INTERNAL_DEPENDENCY_FIELDS = [
+  "dependencies",
+  "peerDependencies",
+  "devDependencies",
+  "optionalDependencies",
+];
+const INTERNAL_SCOPE = "@caffeinebounce/";
 
 const repoRoot = process.cwd();
 const packagesDir = path.join(repoRoot, "packages");
 const packageDirs = readdirSync(packagesDir).sort();
 const failures = [];
+const workspacePackages = [];
 
 function walkExportTargets(value, targets = []) {
   if (typeof value === "string") {
@@ -35,7 +43,54 @@ for (const dir of packageDirs) {
   }
 
   const manifest = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-  const pkgName = manifest.name ?? dir;
+  workspacePackages.push({
+    dir,
+    packageDir,
+    packageJsonPath,
+    manifest,
+    pkgName: manifest.name ?? dir,
+  });
+}
+
+const workspacePackageNames = new Set(workspacePackages.map(({ pkgName }) => pkgName));
+const workspaceVersions = new Map(
+  workspacePackages.flatMap(({ manifest, pkgName }) => {
+    if (typeof manifest.version !== "string" || manifest.version.trim() === "") {
+      failures.push(`${pkgName}: missing valid version`);
+      return [];
+    }
+
+    return [[pkgName, manifest.version]];
+  }),
+);
+
+for (const { packageDir, manifest, pkgName } of workspacePackages) {
+  for (const field of INTERNAL_DEPENDENCY_FIELDS) {
+    for (const [dependencyName, dependencyRange] of Object.entries(manifest[field] ?? {})) {
+      if (!dependencyName.startsWith(INTERNAL_SCOPE) || dependencyName === pkgName) {
+        continue;
+      }
+
+      const workspaceVersion = workspaceVersions.get(dependencyName);
+
+      if (!workspaceVersion) {
+        if (workspacePackageNames.has(dependencyName)) {
+          failures.push(
+            `${pkgName}: ${field}.${dependencyName} points to a workspace package without a readable version`,
+          );
+        }
+        continue;
+      }
+
+      const expectedRange = `^${workspaceVersion}`;
+
+      if (dependencyRange !== expectedRange) {
+        failures.push(
+          `${pkgName}: ${field}.${dependencyName} should be "${expectedRange}" (found "${dependencyRange}")`,
+        );
+      }
+    }
+  }
 
   for (const script of REQUIRED_SCRIPTS) {
     if (!manifest.scripts?.[script]) {
@@ -88,4 +143,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Validated ${packageDirs.length} workspace packages.`);
+console.log(`Validated ${workspacePackages.length} workspace packages.`);
