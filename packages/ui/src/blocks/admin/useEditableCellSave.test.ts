@@ -63,9 +63,8 @@ describe("useEditableCellSave", () => {
 
     expect(result.current.isLoading).toBe(true);
 
-    deferred.resolve({ ok: true } as Response);
-
     await act(async () => {
+      deferred.resolve({ ok: true } as Response);
       await savePromise;
     });
 
@@ -114,6 +113,34 @@ describe("useEditableCellSave", () => {
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
+    });
+  });
+
+  it("keeps the actual rowId authoritative in logged metadata", async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      json: vi.fn().mockResolvedValue({ error: "Nope" }),
+      ok: false,
+    } as unknown as Response);
+
+    const { result } = renderHook(() => useEditableCellSave());
+
+    await act(async () => {
+      await result.current.save({
+        component: "EditableCell",
+        endpoint: "/api/rows",
+        rowId: "row-actual",
+        payload: { name: "Updated" },
+        metadata: { columnId: "name", rowId: "row-override" },
+      });
+    });
+
+    expect(logErrorMock).toHaveBeenCalledWith(expect.any(Error), {
+      action: "handleSave",
+      component: "EditableCell",
+      metadata: {
+        columnId: "name",
+        rowId: "row-actual",
+      },
     });
   });
 });

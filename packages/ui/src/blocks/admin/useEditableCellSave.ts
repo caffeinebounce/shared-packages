@@ -71,8 +71,8 @@ export function useEditableCellSave() {
         component,
         action,
         metadata: {
-          rowId,
           ...metadata,
+          rowId,
         },
       });
       toast.error(error instanceof Error ? error.message : "Failed to update");
