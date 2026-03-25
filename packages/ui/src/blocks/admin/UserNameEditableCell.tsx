@@ -1,12 +1,11 @@
 "use client";
 
-import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
 import { Check, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../utils";
+import { useEditableCellSave } from "./useEditableCellSave";
 
 interface UserNameEditableCellProps {
   firstName: string | null | undefined;
@@ -26,9 +25,8 @@ export function UserNameEditableCell({
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState(initialFirstName || "");
   const [lastName, setLastName] = useState(initialLastName || "");
-  const [isLoading, setIsLoading] = useState(false);
   const firstInputRef = useRef<HTMLInputElement>(null);
-  const { logError } = useErrorLogger();
+  const { isLoading, save } = useEditableCellSave();
 
   useEffect(() => {
     if (isEditing && firstInputRef.current) {
@@ -45,35 +43,20 @@ export function UserNameEditableCell({
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${endpoint}/${rowId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to update");
-      }
-
-      toast.success("Updated successfully");
-      setIsEditing(false);
-      onSuccess?.(firstName, lastName);
-    } catch (error) {
-      logError(error, {
-        component: "UserNameEditableCell",
-        action: "handleSave",
-        metadata: { rowId },
-      });
-      toast.error(error instanceof Error ? error.message : "Failed to update");
-      // Revert on error
-      setFirstName(initialFirstName || "");
-      setLastName(initialLastName || "");
-    } finally {
-      setIsLoading(false);
-    }
+    await save({
+      component: "UserNameEditableCell",
+      endpoint,
+      rowId,
+      payload: { firstName, lastName },
+      onError: () => {
+        setFirstName(initialFirstName || "");
+        setLastName(initialLastName || "");
+      },
+      onSuccess: () => {
+        setIsEditing(false);
+        onSuccess?.(firstName, lastName);
+      },
+    });
   };
 
   const handleCancel = () => {
@@ -118,7 +101,7 @@ export function UserNameEditableCell({
           size="icon"
           variant="ghost"
           className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-          onClick={handleSave}
+          onClick={() => void handleSave()}
           disabled={isLoading}
         >
           <Check className="h-4 w-4" />
