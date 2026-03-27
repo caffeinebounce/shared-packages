@@ -2,6 +2,7 @@
 
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import { cn } from "../../utils";
 
 export interface MediaItem {
@@ -24,71 +25,94 @@ export interface MediaCardProps {
 }
 
 function ClippingCard({ item, className }: MediaCardProps) {
+  const [expanded, setExpanded] = useState(false);
   const formattedDate = new Date(item.date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 
-  const Wrapper = item.url
-    ? ({ children, ...props }: React.ComponentPropsWithoutRef<"a">) => (
-        <a href={item.url} target="_blank" rel="noopener noreferrer" {...props}>
-          {children}
-        </a>
-      )
-    : ({ children, ...props }: React.ComponentPropsWithoutRef<"div">) => (
-        <div {...props}>{children}</div>
-      );
-
   return (
-    <Wrapper
-      className={cn(
-        "group relative flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white/50 p-6 backdrop-blur transition-all duration-300",
-        "dark:border-white/10 dark:bg-white/[0.03]",
-        item.url &&
-          "hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-lg dark:hover:border-white/20 dark:hover:shadow-2xl dark:hover:shadow-indigo-500/5",
-        className,
-      )}
-    >
-      {item.clippingImageUrl && (
-        <div className="relative overflow-hidden rounded-lg ring-1 ring-zinc-200 dark:ring-white/10">
-          <div className="rotate-[-0.5deg] transform">
+    <>
+      <div
+        className={cn(
+          "group relative flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white/50 p-6 backdrop-blur transition-all duration-300",
+          "dark:border-white/10 dark:bg-white/[0.03]",
+          className,
+        )}
+      >
+        {item.clippingImageUrl && (
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="relative max-w-[200px] cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-zinc-200 transition-transform hover:scale-[1.02] dark:ring-white/10"
+          >
+            <div className="rotate-[-0.5deg] transform">
+              <Image
+                src={item.clippingImageUrl}
+                alt={item.title}
+                width={400}
+                height={300}
+                className="w-full rounded-lg object-cover"
+                style={{ filter: "sepia(0.08) contrast(1.02)" }}
+              />
+            </div>
+          </button>
+        )}
+
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+              {item.publication}
+            </p>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              {formattedDate}
+            </p>
+          </div>
+          {item.url && (
+            <ExternalLink className="h-3.5 w-3.5 shrink-0 text-zinc-300 transition-colors group-hover:text-zinc-500 dark:text-zinc-600 dark:group-hover:text-zinc-300" />
+          )}
+        </div>
+
+        <h3 className="text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+          {item.title}
+        </h3>
+
+        {item.highlight ? (
+          <blockquote className="border-l-2 border-indigo-400/50 pl-3 text-sm italic text-zinc-500 dark:border-indigo-400/40 dark:text-zinc-300">
+            {item.highlight}
+          </blockquote>
+        ) : null}
+      </div>
+
+      {/* Lightbox overlay */}
+      {expanded && item.clippingImageUrl && (
+        <button
+          type="button"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+          onClick={() => setExpanded(false)}
+          onKeyDown={(e) => e.key === "Escape" && setExpanded(false)}
+        >
+          <div className="relative max-h-[90vh] max-w-[90vw]">
             <Image
               src={item.clippingImageUrl}
               alt={item.title}
-              width={800}
-              height={600}
-              className="w-full rounded-lg object-cover"
-              style={{ filter: "sepia(0.08) contrast(1.02)" }}
+              width={1200}
+              height={900}
+              className="max-h-[85vh] w-auto rounded-lg object-contain shadow-2xl"
+              style={{ filter: "sepia(0.05) contrast(1.02)" }}
             />
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              className="absolute -right-3 -top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
+            >
+              ✕
+            </button>
           </div>
-        </div>
+        </button>
       )}
-
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-            {item.publication}
-          </p>
-          <p className="text-xs text-zinc-400 dark:text-zinc-500">
-            {formattedDate}
-          </p>
-        </div>
-        {item.url && (
-          <ExternalLink className="h-3.5 w-3.5 shrink-0 text-zinc-300 transition-colors group-hover:text-zinc-500 dark:text-zinc-600 dark:group-hover:text-zinc-300" />
-        )}
-      </div>
-
-      <h3 className="text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
-        {item.title}
-      </h3>
-
-      {item.highlight ? (
-        <blockquote className="border-l-2 border-indigo-400/50 pl-3 text-sm italic text-zinc-500 dark:border-indigo-400/40 dark:text-zinc-300">
-          {item.highlight}
-        </blockquote>
-      ) : null}
-    </Wrapper>
+    </>
   );
 }
 

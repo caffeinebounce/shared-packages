@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/email",
-  "version": "0.6.116",
+  "version": "0.6.118",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
