@@ -61,13 +61,26 @@ function ClippingCard({ item, className }: MediaCardProps) {
         )}
 
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-              {item.publication}
-            </p>
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              {formattedDate}
-            </p>
+          <div className="flex items-center gap-3">
+            {item.imageUrl ? (
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+                <Image
+                  src={item.imageUrl}
+                  alt={item.publication}
+                  width={32}
+                  height={32}
+                  className="object-contain dark:brightness-150 dark:contrast-125"
+                />
+              </div>
+            ) : null}
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+                {item.publication}
+              </p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                {formattedDate}
+              </p>
+            </div>
           </div>
           {item.url && (
             <ExternalLink className="h-3.5 w-3.5 shrink-0 text-zinc-300 transition-colors group-hover:text-zinc-500 dark:text-zinc-600 dark:group-hover:text-zinc-300" />
