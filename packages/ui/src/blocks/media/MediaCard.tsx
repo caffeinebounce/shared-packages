@@ -36,61 +36,63 @@ function ClippingCard({ item, className }: MediaCardProps) {
     <>
       <div
         className={cn(
-          "group relative flex gap-4 rounded-xl border border-zinc-200 bg-white/50 p-4 backdrop-blur transition-all duration-300",
+          "group relative flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white/50 p-6 backdrop-blur transition-all duration-300",
           "dark:border-white/10 dark:bg-white/[0.03]",
           className,
         )}
       >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            {item.imageUrl ? (
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+                <Image
+                  src={item.imageUrl}
+                  alt={item.publication}
+                  width={32}
+                  height={32}
+                  className="object-contain dark:brightness-150 dark:contrast-125"
+                />
+              </div>
+            ) : null}
+            <div>
+              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-300">
+                {item.publication}
+              </p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-400">
+                {formattedDate}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <h3 className="text-lg font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+          {item.title}
+        </h3>
+
         {item.clippingImageUrl && (
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            className="relative w-[120px] shrink-0 cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-zinc-200 transition-transform hover:scale-[1.02] dark:ring-white/10"
+            className="relative max-w-[180px] cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-zinc-200 transition-transform hover:scale-[1.02] dark:ring-white/10"
           >
             <div className="rotate-[-0.5deg] transform">
               <Image
                 src={item.clippingImageUrl}
                 alt={item.title}
-                width={240}
-                height={180}
-                className="h-full w-full rounded-lg object-cover"
+                width={360}
+                height={270}
+                className="w-full rounded-lg object-cover"
                 style={{ filter: "sepia(0.08) contrast(1.02)" }}
               />
             </div>
           </button>
         )}
 
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
-          <div className="flex items-center gap-2">
-            {item.imageUrl ? (
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.publication}
-                  width={20}
-                  height={20}
-                  className="object-contain dark:brightness-150 dark:contrast-125"
-                />
-              </div>
-            ) : null}
-            <span className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-              {item.publication}
-            </span>
-            <span className="text-xs text-zinc-400 dark:text-zinc-500">
-              · {formattedDate}
-            </span>
-          </div>
-
-          <h3 className="text-sm font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
-            {item.title}
-          </h3>
-
-          {item.highlight ? (
-            <blockquote className="border-l-2 border-indigo-400/50 pl-2 text-xs italic text-zinc-500 dark:border-indigo-400/40 dark:text-zinc-300">
-              {item.highlight}
-            </blockquote>
-          ) : null}
-        </div>
+        {item.highlight ? (
+          <blockquote className="border-l-2 border-indigo-400/50 pl-3 text-sm italic text-zinc-500 dark:border-indigo-400/40 dark:text-zinc-300">
+            {item.highlight}
+          </blockquote>
+        ) : null}
       </div>
 
       {/* Lightbox overlay */}
