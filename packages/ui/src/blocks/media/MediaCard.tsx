@@ -36,7 +36,7 @@ function ClippingCard({ item, className }: MediaCardProps) {
     <>
       <div
         className={cn(
-          "group relative flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white/50 p-6 backdrop-blur transition-all duration-300",
+          "group relative flex gap-4 rounded-xl border border-zinc-200 bg-white/50 p-4 backdrop-blur transition-all duration-300",
           "dark:border-white/10 dark:bg-white/[0.03]",
           className,
         )}
@@ -45,57 +45,52 @@ function ClippingCard({ item, className }: MediaCardProps) {
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            className="relative max-w-[200px] cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-zinc-200 transition-transform hover:scale-[1.02] dark:ring-white/10"
+            className="relative w-[120px] shrink-0 cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-zinc-200 transition-transform hover:scale-[1.02] dark:ring-white/10"
           >
             <div className="rotate-[-0.5deg] transform">
               <Image
                 src={item.clippingImageUrl}
                 alt={item.title}
-                width={400}
-                height={300}
-                className="w-full rounded-lg object-cover"
+                width={240}
+                height={180}
+                className="h-full w-full rounded-lg object-cover"
                 style={{ filter: "sepia(0.08) contrast(1.02)" }}
               />
             </div>
           </button>
         )}
 
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
+          <div className="flex items-center gap-2">
             {item.imageUrl ? (
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded">
                 <Image
                   src={item.imageUrl}
                   alt={item.publication}
-                  width={32}
-                  height={32}
+                  width={20}
+                  height={20}
                   className="object-contain dark:brightness-150 dark:contrast-125"
                 />
               </div>
             ) : null}
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-                {item.publication}
-              </p>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500">
-                {formattedDate}
-              </p>
-            </div>
+            <span className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+              {item.publication}
+            </span>
+            <span className="text-xs text-zinc-400 dark:text-zinc-500">
+              · {formattedDate}
+            </span>
           </div>
-          {item.url && (
-            <ExternalLink className="h-3.5 w-3.5 shrink-0 text-zinc-300 transition-colors group-hover:text-zinc-500 dark:text-zinc-600 dark:group-hover:text-zinc-300" />
-          )}
+
+          <h3 className="text-sm font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+            {item.title}
+          </h3>
+
+          {item.highlight ? (
+            <blockquote className="border-l-2 border-indigo-400/50 pl-2 text-xs italic text-zinc-500 dark:border-indigo-400/40 dark:text-zinc-300">
+              {item.highlight}
+            </blockquote>
+          ) : null}
         </div>
-
-        <h3 className="text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
-          {item.title}
-        </h3>
-
-        {item.highlight ? (
-          <blockquote className="border-l-2 border-indigo-400/50 pl-3 text-sm italic text-zinc-500 dark:border-indigo-400/40 dark:text-zinc-300">
-            {item.highlight}
-          </blockquote>
-        ) : null}
       </div>
 
       {/* Lightbox overlay */}
