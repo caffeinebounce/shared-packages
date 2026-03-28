@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@caffeinebounce/shared-utils";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "../../components/ui/badge";
@@ -24,14 +25,6 @@ export interface BlogPost {
 export interface BlogCardGridProps {
   posts: BlogPost[];
   basePath?: string;
-}
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }
 
 export function BlogCardGrid({ posts, basePath = "/blog" }: BlogCardGridProps) {
@@ -72,7 +65,13 @@ export function BlogCardGrid({ posts, basePath = "/blog" }: BlogCardGridProps) {
 
             <CardContent className="pb-3">
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                <time>{formatDate(post.date)}</time>
+                <time>
+                  {formatDate(post.date, {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </time>
                 {post.readingTime && (
                   <>
                     <span>·</span>

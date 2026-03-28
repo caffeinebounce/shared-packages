@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@caffeinebounce/shared-utils";
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -26,10 +27,10 @@ export interface MediaCardProps {
 
 function ClippingCard({ item, className }: MediaCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const formattedDate = new Date(item.date).toLocaleDateString("en-US", {
-    year: "numeric",
+  const formattedDate = formatDate(item.date, {
     month: "long",
     day: "numeric",
+    year: "numeric",
   });
 
   return (
@@ -148,10 +149,10 @@ export function MediaCard({ item, className }: MediaCardProps) {
     return <ClippingCard item={item} className={className} />;
   }
 
-  const formattedDate = new Date(item.date).toLocaleDateString("en-US", {
-    year: "numeric",
+  const formattedDate = formatDate(item.date, {
     month: "long",
     day: "numeric",
+    year: "numeric",
   });
 
   return (

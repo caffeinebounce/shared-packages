@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { formatDate } from "@caffeinebounce/shared-utils";
 import { Badge } from "../../components/ui/badge";
 
 export interface BlogPostHeaderProps {
@@ -8,14 +9,6 @@ export interface BlogPostHeaderProps {
   cover?: string;
   readingTime?: string;
   tags?: string[];
-}
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }
 
 export function BlogPostHeader({
@@ -53,7 +46,13 @@ export function BlogPostHeader({
             <span>·</span>
           </>
         )}
-        <time>{formatDate(date)}</time>
+        <time>
+          {formatDate(date, {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </time>
         {readingTime && (
           <>
             <span>·</span>
