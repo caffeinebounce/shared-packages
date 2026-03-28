@@ -20,6 +20,7 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { AlertTriangle, Check, Copy, Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { CreateClientFn } from "../../../types";
+import { downloadBackupCodesFile } from "../../../utils/backup-code-download";
 import { generateRecoveryCodes } from "../../../utils";
 import { ConfirmAccessDialog } from "../../security/ConfirmAccessDialog";
 
@@ -244,16 +245,7 @@ export function TOTPEnrollmentDialog({
   };
 
   const downloadBackupCodes = () => {
-    const content = `Compass Backup Codes\n${"-".repeat(30)}\n\nKeep these codes in a safe place.\nEach code can only be used once.\n\n${backupCodes.join("\n")}\n\nGenerated: ${new Date().toLocaleString()}`;
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "compass-backup-codes.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadBackupCodesFile(backupCodes);
     setBackupCodesCopied(true);
   };
 
