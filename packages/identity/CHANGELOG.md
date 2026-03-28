@@ -1,5 +1,15 @@
 # @caffeinebounce/identity
 
+## 0.10.83
+
+### Patch Changes
+
+- a40f7ce: Refactor package builds to share a common postbuild helper for injecting `use client` directives into client entry outputs.
+- 3992dd8: Refactor backup-code downloads to use a shared helper so identity MFA and recovery flows stay aligned.
+- Updated dependencies [a40f7ce]
+- Updated dependencies [32032e8]
+  - @caffeinebounce/ui@0.55.1
+
 ## 0.10.82
 
 ### Patch Changes

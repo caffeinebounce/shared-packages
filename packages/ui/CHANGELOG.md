@@ -1,5 +1,12 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.55.1
+
+### Patch Changes
+
+- a40f7ce: Refactor package builds to share a common postbuild helper for injecting `use client` directives into client entry outputs.
+- 32032e8: Replace local blog and media date formatters with the shared utility formatter and add fallback coverage for invalid or empty dates.
+
 ## 0.55.0
 
 ### Minor Changes
