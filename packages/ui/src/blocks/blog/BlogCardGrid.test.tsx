@@ -29,9 +29,7 @@ describe("BlogCardGrid", () => {
 
   it("renders long-form valid dates via shared utils", () => {
     render(
-      <BlogCardGrid
-        posts={[{ ...basePost, date: "2024-01-15T12:00:00.000Z" }]}
-      />,
+      <BlogCardGrid posts={[{ ...basePost, date: "2024-01-15T12:00:00" }]} />,
     );
 
     expect(screen.getByText("January 15, 2024")).toBeInTheDocument();

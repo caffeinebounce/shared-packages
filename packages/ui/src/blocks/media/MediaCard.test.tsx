@@ -17,9 +17,7 @@ describe("MediaCard", () => {
   };
 
   it("renders long-form valid dates via shared utils", () => {
-    render(
-      <MediaCard item={{ ...baseItem, date: "2024-01-15T12:00:00.000Z" }} />,
-    );
+    render(<MediaCard item={{ ...baseItem, date: "2024-01-15T12:00:00" }} />);
 
     expect(screen.getByText("January 15, 2024")).toBeInTheDocument();
   });
