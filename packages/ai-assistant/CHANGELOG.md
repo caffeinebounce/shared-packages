@@ -1,5 +1,14 @@
 # @caffeinebounce/ai-assistant
 
+## 0.5.52
+
+### Patch Changes
+
+- a40f7ce: Refactor package builds to share a common postbuild helper for injecting `use client` directives into client entry outputs.
+- Updated dependencies [a40f7ce]
+- Updated dependencies [32032e8]
+  - @caffeinebounce/ui@0.55.1
+
 ## 0.5.51
 
 ### Patch Changes
