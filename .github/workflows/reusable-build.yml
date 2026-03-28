@@ -85,20 +85,22 @@ jobs:
       artifact-name: ${{ steps.artifact.outputs.name }}
 
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       GITHUB_TOKEN: ${{ secrets.GH_PAT || github.token }}
       NODE_AUTH_TOKEN: ${{ secrets.GH_PAT || github.token }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.GH_PAT || github.token }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ inputs.node-version }}
+          package-manager-cache: false
 
       - name: Enable Corepack
         run: corepack enable && corepack prepare yarn@${{ inputs.yarn-version }} --activate
@@ -116,7 +118,7 @@ jobs:
         run: echo "dir=$(yarn config get cacheFolder | tail -n1)" >> $GITHUB_OUTPUT
 
       - name: Restore yarn cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: yarn-cache-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
@@ -124,7 +126,7 @@ jobs:
             yarn-cache-${{ runner.os }}-
 
       - name: Restore Turborepo Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .turbo/cache
           key: turbo-cache-${{ runner.os }}-build-${{ hashFiles('**/yarn.lock') }}
@@ -215,7 +217,7 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
 
       - name: Save Turborepo cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .turbo/cache
           key: turbo-cache-${{ runner.os }}-build-${{ hashFiles('**/yarn.lock') }}
@@ -237,7 +239,7 @@ jobs:
 
       - name: Upload build artifact
         if: inputs.upload-build-artifacts && steps.artifact.outputs.packed == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: web-build
           path: web-build.tgz
