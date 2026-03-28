@@ -39,8 +39,20 @@ export function downloadBackupCodesFile(
   const anchor = documentRef.createElement("a");
   anchor.href = url;
   anchor.download = BACKUP_CODES_FILE_NAME;
-  documentRef.body.appendChild(anchor);
-  anchor.click();
-  documentRef.body.removeChild(anchor);
-  urlRef.revokeObjectURL(url);
+
+  let anchorAppended = false;
+  try {
+    documentRef.body.appendChild(anchor);
+    anchorAppended = true;
+    anchor.click();
+  } finally {
+    if (anchorAppended) {
+      try {
+        documentRef.body.removeChild(anchor);
+      } catch {
+        // Ignore cleanup errors during best-effort teardown.
+      }
+    }
+    urlRef.revokeObjectURL(url);
+  }
 }

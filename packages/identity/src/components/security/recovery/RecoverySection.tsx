@@ -37,8 +37,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { CreateClientFn } from "../../../types";
-import { downloadBackupCodesFile } from "../../../utils/backup-code-download";
-import { generateRecoveryCodes } from "../../../utils";
+import { downloadBackupCodesFile, generateRecoveryCodes } from "../../../utils";
 import { ConfirmAccessDialog, type MFAFactor } from "../ConfirmAccessDialog";
 
 export interface RecoverySectionProps {
