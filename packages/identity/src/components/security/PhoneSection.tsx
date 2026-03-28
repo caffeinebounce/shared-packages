@@ -15,10 +15,11 @@ import {
   VerificationCodeInput,
 } from "@caffeinebounce/ui";
 import { AlertCircle, CheckCircle2, Loader2, Phone } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import type { CreateClientFn } from "../../types";
+import { useVerificationFlow } from "./useVerificationFlow";
 
 export interface PhoneSectionProps {
   /** Function to create a Supabase client */
@@ -58,47 +59,40 @@ export function PhoneSection({
   verifyEndpoint = "/api/phone/verify",
 }: PhoneSectionProps) {
   const { logError } = useErrorLogger();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [step, setStep] = useState<ChangeStep>("idle");
   const [newPhone, setNewPhone] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [resendTimer, setResendTimer] = useState(0);
-
-  useEffect(() => {
-    if (resendTimer <= 0) return;
-
-    const interval = setInterval(() => {
-      setResendTimer((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [resendTimer]);
-
-  const handleOpenChange = (open: boolean) => {
-    setDialogOpen(open);
-    if (!open) {
-      setStep("idle");
+  const {
+    completeSuccess,
+    dialogOpen,
+    error,
+    goToVerification,
+    handleOpenChange,
+    loading,
+    openEntryStep,
+    resendTimer,
+    runAction,
+    setError,
+    setStep,
+    startResendCooldown,
+    step,
+  } = useVerificationFlow<Exclude<ChangeStep, "idle" | "success">>({
+    entryStep: "enter-phone",
+    onReset: () => {
       setNewPhone("");
       setVerificationCode("");
-      setError("");
-    }
-  };
+    },
+  });
 
   const handleStartChange = () => {
-    setStep("enter-phone");
-    setDialogOpen(true);
+    openEntryStep();
   };
 
   const handleVerifyExisting = async () => {
     if (!phone) return;
 
-    setLoading(true);
-    setError("");
     setNewPhone(formatPhoneInput(phone.replace("+1", "")));
 
-    try {
+    await runAction(async () => {
       const response = await fetch(verifyEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -115,15 +109,11 @@ export function PhoneSection({
         return;
       }
 
-      setStep("verify-code");
-      setResendTimer(30);
-      setDialogOpen(true);
+      goToVerification({ openDialog: true, resendCooldownSeconds: 30 });
       toast.success("Verification code sent!");
-    } catch {
+    }).catch(() => {
       toast.error("Failed to send verification code");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,10 +135,7 @@ export function PhoneSection({
       return;
     }
 
-    setLoading(true);
-    setError("");
-
-    try {
+    await runAction(async () => {
       const response = await fetch(verifyEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -165,23 +152,17 @@ export function PhoneSection({
         return;
       }
 
-      setStep("verify-code");
-      setResendTimer(30);
+      goToVerification({ resendCooldownSeconds: 30 });
       toast.success("Verification code sent!");
-    } catch {
+    }).catch(() => {
       setError("Failed to send verification code");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const handleVerifyCode = async (code: string) => {
     if (code.length !== 6) return;
 
-    setLoading(true);
-    setError("");
-
-    try {
+    await runAction(async () => {
       const cleanedPhone = cleanPhoneNumber(newPhone);
 
       const response = await fetch(verifyEndpoint, {
@@ -214,26 +195,19 @@ export function PhoneSection({
         });
       }
 
-      setStep("success");
       onPhoneChanged(cleanedPhone);
       toast.success("Phone number verified successfully!");
-      setTimeout(() => {
-        handleOpenChange(false);
-      }, 1500);
-    } catch {
+      completeSuccess();
+    }).catch(() => {
       setError("Verification failed. Please try again.");
       setVerificationCode("");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const handleResendCode = async () => {
-    setLoading(true);
     setVerificationCode("");
-    setError("");
 
-    try {
+    await runAction(async () => {
       const cleanedPhone = cleanPhoneNumber(newPhone);
       const response = await fetch(verifyEndpoint, {
         method: "POST",
@@ -251,13 +225,11 @@ export function PhoneSection({
         return;
       }
 
-      setResendTimer(30);
+      startResendCooldown(30);
       toast.success("Verification code resent!");
-    } catch {
+    }).catch(() => {
       toast.error("Failed to resend code");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const displayPhone = phone
