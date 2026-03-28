@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const USE_CLIENT_BANNER = '"use client";\n';
+const USE_CLIENT_DIRECTIVE_PREFIX = /^['"]use client['"];?\s*/;
 
 type OutputFiles = string[] | (() => string[]);
 
@@ -17,7 +18,7 @@ export function listBuiltJavaScriptFiles(distDir = "dist"): string[] {
 
 export function prependUseClientDirective(filePath: string): boolean {
   const content = readFileSync(filePath, "utf-8");
-  if (content.startsWith(USE_CLIENT_BANNER)) {
+  if (USE_CLIENT_DIRECTIVE_PREFIX.test(content)) {
     return false;
   }
 
