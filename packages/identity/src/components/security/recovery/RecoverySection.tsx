@@ -37,7 +37,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { CreateClientFn } from "../../../types";
-import { generateRecoveryCodes } from "../../../utils";
+import { downloadBackupCodesFile, generateRecoveryCodes } from "../../../utils";
 import { ConfirmAccessDialog, type MFAFactor } from "../ConfirmAccessDialog";
 
 export interface RecoverySectionProps {
@@ -396,16 +396,7 @@ function BackupCodesDialog({
   };
 
   const downloadCodes = () => {
-    const content = `Compass Backup Codes\n${"-".repeat(30)}\n\nKeep these codes in a safe place.\nEach code can only be used once.\n\n${codes.join("\n")}\n\nGenerated: ${new Date().toLocaleString()}`;
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "compass-backup-codes.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadBackupCodesFile(codes);
     setDownloaded(true);
   };
 
