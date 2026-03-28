@@ -31,8 +31,6 @@ export interface EmailSectionProps {
   onEmailChanged: (newEmail: string) => void;
 }
 
-type ChangeStep = "idle" | "enter-email" | "verify-code" | "success";
-
 export function EmailSection({
   createClient,
   userId: _userId,
@@ -52,7 +50,7 @@ export function EmailSection({
     runAction,
     setError,
     step,
-  } = useVerificationFlow<Exclude<ChangeStep, "idle" | "success">>({
+  } = useVerificationFlow({
     entryStep: "enter-email",
     onReset: () => {
       setNewEmail("");

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ChangeEvent, MouseEventHandler, ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -124,12 +124,37 @@ vi.mock("sonner", () => ({
   },
 }));
 
+vi.mock("./useVerificationFlow", async () => {
+  const actual =
+    await vi.importActual<typeof import("./useVerificationFlow")>(
+      "./useVerificationFlow",
+    );
+
+  return {
+    ...actual,
+    useVerificationFlow: (
+      options: Parameters<typeof actual.useVerificationFlow>[0],
+    ) =>
+      actual.useVerificationFlow({
+        ...options,
+        successCloseDelayMs: 0,
+      }),
+  };
+});
+
 function createMockSupabase() {
   return {
     auth: {
       updateUser: vi.fn(),
     },
   };
+}
+
+async function flushAsyncWork() {
+  await act(async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+  });
 }
 
 describe("PhoneSection", () => {
@@ -172,37 +197,33 @@ describe("PhoneSection", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "Verify" }));
+    await flushAsyncWork();
 
-    await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith("/api/phone/verify", {
-        body: JSON.stringify({
-          phone: "+15551234567",
-          action: "send",
-        }),
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
-      });
+    expect(fetch).toHaveBeenCalledWith("/api/phone/verify", {
+      body: JSON.stringify({
+        phone: "+15551234567",
+        action: "send",
+      }),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
     });
 
     expect(screen.getByText("Enter Verification Code")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Resend (30s)" })).toBeDisabled();
 
     await user.type(screen.getByLabelText("Verification code"), "123456");
+    await flushAsyncWork();
 
-    await waitFor(() => {
-      expect(fetch).toHaveBeenLastCalledWith("/api/phone/verify", {
-        body: JSON.stringify({
-          phone: "+15551234567",
-          action: "verify",
-          code: "123456",
-        }),
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
-      });
+    expect(fetch).toHaveBeenLastCalledWith("/api/phone/verify", {
+      body: JSON.stringify({
+        phone: "+15551234567",
+        action: "verify",
+        code: "123456",
+      }),
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
     });
-    await waitFor(() => {
-      expect(onPhoneChanged).toHaveBeenCalledWith("+15551234567");
-    });
+    expect(onPhoneChanged).toHaveBeenCalledWith("+15551234567");
 
     expect(supabase.auth.updateUser).toHaveBeenCalledWith({
       phone: "+15551234567",
@@ -212,11 +233,8 @@ describe("PhoneSection", () => {
       "Phone number verified successfully!",
     );
 
-    await waitFor(
-      () => {
-        expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-      },
-      { timeout: 2500 },
-    );
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
   });
 });

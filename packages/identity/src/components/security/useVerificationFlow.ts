@@ -28,22 +28,35 @@ export function useVerificationFlow<EntryStep extends string>({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
+  const resendIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (resendTimer <= 0) {
+    if (resendTimer <= 0 || resendIntervalRef.current) {
       return;
     }
 
-    const interval = setInterval(() => {
-      setResendTimer((current) => Math.max(0, current - 1));
-    }, 1000);
+    resendIntervalRef.current = setInterval(() => {
+      setResendTimer((current) => {
+        if (current <= 1) {
+          if (resendIntervalRef.current) {
+            clearInterval(resendIntervalRef.current);
+            resendIntervalRef.current = null;
+          }
 
-    return () => clearInterval(interval);
+          return 0;
+        }
+
+        return current - 1;
+      });
+    }, 1000);
   }, [resendTimer]);
 
   useEffect(() => {
     return () => {
+      if (resendIntervalRef.current) {
+        clearInterval(resendIntervalRef.current);
+      }
       if (successTimeoutRef.current) {
         clearTimeout(successTimeoutRef.current);
       }
@@ -61,6 +74,10 @@ export function useVerificationFlow<EntryStep extends string>({
 
   const resetState = () => {
     clearSuccessTimeout();
+    if (resendIntervalRef.current) {
+      clearInterval(resendIntervalRef.current);
+      resendIntervalRef.current = null;
+    }
     setStep("idle");
     setLoading(false);
     setError("");

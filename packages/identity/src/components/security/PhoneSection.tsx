@@ -36,8 +36,6 @@ export interface PhoneSectionProps {
   verifyEndpoint?: string;
 }
 
-type ChangeStep = "idle" | "enter-phone" | "verify-code" | "success";
-
 // Clean phone number for API
 function cleanPhoneNumber(value: string): string {
   const numbers = value.replace(/\D/g, "");
@@ -75,7 +73,7 @@ export function PhoneSection({
     setStep,
     startResendCooldown,
     step,
-  } = useVerificationFlow<Exclude<ChangeStep, "idle" | "success">>({
+  } = useVerificationFlow({
     entryStep: "enter-phone",
     onReset: () => {
       setNewPhone("");

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ChangeEvent, MouseEventHandler, ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -93,6 +93,24 @@ vi.mock("sonner", () => ({
   },
 }));
 
+vi.mock("./useVerificationFlow", async () => {
+  const actual =
+    await vi.importActual<typeof import("./useVerificationFlow")>(
+      "./useVerificationFlow",
+    );
+
+  return {
+    ...actual,
+    useVerificationFlow: (
+      options: Parameters<typeof actual.useVerificationFlow>[0],
+    ) =>
+      actual.useVerificationFlow({
+        ...options,
+        successCloseDelayMs: 0,
+      }),
+  };
+});
+
 function createMockSupabase() {
   return {
     auth: {
@@ -100,6 +118,13 @@ function createMockSupabase() {
       updateUser: vi.fn(),
     },
   };
+}
+
+async function flushAsyncWork() {
+  await act(async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+  });
 }
 
 describe("EmailSection", () => {
@@ -137,11 +162,10 @@ describe("EmailSection", () => {
       "updated@example.com",
     );
     await user.click(screen.getByRole("button", { name: "Send Verification" }));
+    await flushAsyncWork();
 
-    await waitFor(() => {
-      expect(supabase.auth.updateUser).toHaveBeenCalledWith({
-        email: "updated@example.com",
-      });
+    expect(supabase.auth.updateUser).toHaveBeenCalledWith({
+      email: "updated@example.com",
     });
     expect(toastSuccess).toHaveBeenCalledWith(
       "Verification email sent! Check your inbox.",
@@ -149,19 +173,14 @@ describe("EmailSection", () => {
     expect(screen.getByText("Check Your Email")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "I've Verified" }));
+    await flushAsyncWork();
 
-    await waitFor(() => {
-      expect(onEmailChanged).toHaveBeenCalledWith("updated@example.com");
-    });
+    expect(onEmailChanged).toHaveBeenCalledWith("updated@example.com");
     expect(supabase.auth.refreshSession).toHaveBeenCalledTimes(1);
     expect(toastSuccess).toHaveBeenCalledWith("Email updated successfully!");
-    expect(screen.getByText("Email Updated!")).toBeInTheDocument();
 
-    await waitFor(
-      () => {
-        expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-      },
-      { timeout: 2500 },
-    );
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
   });
 });
