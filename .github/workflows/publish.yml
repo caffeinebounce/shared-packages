@@ -19,20 +19,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 25
+          package-manager-cache: false
           registry-url: "https://npm.pkg.github.com"
           scope: "@caffeinebounce"
 
@@ -82,7 +84,7 @@ jobs:
 
       - name: Notify Compass about published packages
         if: steps.changesets.outputs.published == 'true' && steps.compass_dispatch_token.outputs.available == 'true'
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.GH_PAT }}
           repository: caffeinebounce/compass
