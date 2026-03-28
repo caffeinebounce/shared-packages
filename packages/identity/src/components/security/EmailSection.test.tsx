@@ -94,10 +94,9 @@ vi.mock("sonner", () => ({
 }));
 
 vi.mock("./useVerificationFlow", async () => {
-  const actual =
-    await vi.importActual<typeof import("./useVerificationFlow")>(
-      "./useVerificationFlow",
-    );
+  const actual = await vi.importActual<typeof import("./useVerificationFlow")>(
+    "./useVerificationFlow",
+  );
 
   return {
     ...actual,
