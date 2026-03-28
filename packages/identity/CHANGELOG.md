@@ -1,5 +1,11 @@
 # @caffeinebounce/identity
 
+## 0.10.82
+
+### Patch Changes
+
+- e97fe75: Refactor email and phone verification flows to share internal dialog state, cooldown, and success handling.
+
 ## 0.10.81
 
 ### Patch Changes
