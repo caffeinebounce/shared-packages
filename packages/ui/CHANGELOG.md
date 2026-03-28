@@ -1,5 +1,26 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.55.0
+
+### Minor Changes
+
+- 40c5a14: Make the optional 3D marketing peers opt-in for consumers, route UI client
+  components through the logger client entrypoint, and move 3D marketing exports
+  to `@caffeinebounce/ui/marketing-3d` to avoid root and non-3D marketing import
+  edges pulling in `three`.
+
+  This is a behavior change for consumers using `CanvasRevealEffect`,
+  `CardSpotlight`, or `BentoGridSection`: import them from
+  `@caffeinebounce/ui/marketing-3d` and add explicit dependencies on `three` and
+  `@react-three/fiber` in your application.
+
+### Patch Changes
+
+- 353191b: Align internal workspace dependency ranges with current published package versions and validate them in CI.
+- 234523f: Update internal workspace dependency ranges to match the latest published shared package versions.
+- fb9cfba: Refactor admin editable cells to share a common save helper without changing their update behavior.
+- 35d1eea: Address PR #251 follow-up comments by aligning CTA root exports, fixing dark `data-theme` outline tokens, improving StackedIsometricFeatures label formatting, and hardening PixelatedCanvas performance/CORS/test coverage.
+
 ## 0.54.0
 
 ### Minor Changes

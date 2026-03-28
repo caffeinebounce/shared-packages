@@ -1,5 +1,18 @@
 # @caffeinebounce/ai-assistant
 
+## 0.5.51
+
+### Patch Changes
+
+- 353191b: Align internal workspace dependency ranges with current published package versions and validate them in CI.
+- 234523f: Update internal workspace dependency ranges to match the latest published shared package versions.
+- Updated dependencies [353191b]
+- Updated dependencies [234523f]
+- Updated dependencies [fb9cfba]
+- Updated dependencies [35d1eea]
+- Updated dependencies [40c5a14]
+  - @caffeinebounce/ui@0.55.0
+
 ## 0.5.43
 
 ### Patch Changes
