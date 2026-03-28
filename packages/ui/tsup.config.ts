@@ -1,7 +1,9 @@
-import { copyFileSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync } from "node:fs";
 import { defineConfig } from "tsup";
-
-const USE_CLIENT_BANNER = '"use client";\n';
+import {
+  createUseClientOnSuccess,
+  listBuiltJavaScriptFiles,
+} from "../../scripts/tsup/use-client";
 
 export default defineConfig({
   entry: {
@@ -47,32 +49,11 @@ export default defineConfig({
       js: format === "esm" ? ".mjs" : ".js",
     };
   },
-  async onSuccess() {
-    // Add "use client" directive to all ESM and CJS output files
-    const distFiles = readdirSync("dist").filter(
-      (f) => f.endsWith(".mjs") || f.endsWith(".js"),
-    );
-
-    for (const file of distFiles) {
-      const filePath = `dist/${file}`;
-      try {
-        const content = readFileSync(filePath, "utf-8");
-        // Skip if already has "use client" directive
-        if (!content.startsWith('"use client"')) {
-          writeFileSync(filePath, USE_CLIENT_BANNER + content);
-          console.log(`Added "use client" to ${filePath}`);
-        }
-      } catch (e) {
-        throw new Error(`Failed to add "use client" to ${filePath}: ${String(e)}`);
-      }
-    }
-
-    // Copy base CSS to dist/styles.css
-    try {
+  onSuccess: createUseClientOnSuccess({
+    files: () => listBuiltJavaScriptFiles("dist"),
+    afterSuccess: () => {
       copyFileSync("src/styles/base.css", "dist/styles.css");
       console.log("Copied styles.css to dist/");
-    } catch (e) {
-      throw new Error(`Failed to copy styles.css to dist/: ${String(e)}`);
-    }
-  },
+    },
+  }),
 });
