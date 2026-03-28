@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { formatDate } from "@caffeinebounce/shared-utils";
+import Image from "next/image";
 import { Badge } from "../../components/ui/badge";
 
 export interface BlogPostHeaderProps {

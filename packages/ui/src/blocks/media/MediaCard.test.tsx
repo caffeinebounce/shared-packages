@@ -4,9 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { MediaCard } from "./MediaCard";
 
 vi.mock("next/image", () => ({
-  default: (props: ImgHTMLAttributes<HTMLImageElement>) => (
-    // eslint-disable-next-line jsx-a11y/alt-text
-    <img {...props} />
+  default: ({ alt, ...props }: ImgHTMLAttributes<HTMLImageElement>) => (
+    <img alt={alt ?? ""} {...props} />
   ),
 }));
 
@@ -26,9 +25,7 @@ describe("MediaCard", () => {
   });
 
   it("renders an em dash for empty or invalid dates", () => {
-    const { rerender } = render(
-      <MediaCard item={{ ...baseItem, date: "" }} />,
-    );
+    const { rerender } = render(<MediaCard item={{ ...baseItem, date: "" }} />);
 
     expect(screen.getByText("—")).toBeInTheDocument();
 

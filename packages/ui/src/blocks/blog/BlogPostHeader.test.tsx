@@ -4,9 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { BlogPostHeader } from "./BlogPostHeader";
 
 vi.mock("next/image", () => ({
-  default: (props: ImgHTMLAttributes<HTMLImageElement>) => (
-    // eslint-disable-next-line jsx-a11y/alt-text
-    <img {...props} />
+  default: ({ alt, ...props }: ImgHTMLAttributes<HTMLImageElement>) => (
+    <img alt={alt ?? ""} {...props} />
   ),
 }));
 
