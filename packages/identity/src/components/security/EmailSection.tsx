@@ -16,6 +16,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import type { CreateClientFn } from "../../types";
+import { useVerificationFlow } from "./useVerificationFlow";
 
 export interface EmailSectionProps {
   /** Function to create a Supabase client */
@@ -30,8 +31,6 @@ export interface EmailSectionProps {
   onEmailChanged: (newEmail: string) => void;
 }
 
-type ChangeStep = "idle" | "enter-email" | "verify-code" | "success";
-
 export function EmailSection({
   createClient,
   userId: _userId,
@@ -39,26 +38,27 @@ export function EmailSection({
   isVerified,
   onEmailChanged,
 }: EmailSectionProps) {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [step, setStep] = useState<ChangeStep>("idle");
   const [newEmail, setNewEmail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleOpenChange = (open: boolean) => {
-    setDialogOpen(open);
-    if (!open) {
-      setStep("idle");
+  const {
+    completeSuccess,
+    dialogOpen,
+    error,
+    goToVerification,
+    handleOpenChange,
+    loading,
+    openEntryStep,
+    runAction,
+    setError,
+    step,
+  } = useVerificationFlow({
+    entryStep: "enter-email",
+    onReset: () => {
       setNewEmail("");
-      setVerificationCode("");
-      setError("");
-    }
-  };
+    },
+  });
 
   const handleStartChange = () => {
-    setStep("enter-email");
-    setDialogOpen(true);
+    openEntryStep();
   };
 
   const handleSendCode = async () => {
@@ -72,10 +72,7 @@ export function EmailSection({
       return;
     }
 
-    setLoading(true);
-    setError("");
-
-    try {
+    await runAction(async () => {
       const supabase = createClient();
 
       const { error } = await supabase.auth.updateUser({
@@ -91,20 +88,15 @@ export function EmailSection({
         return;
       }
 
-      setStep("verify-code");
+      goToVerification();
       toast.success("Verification email sent! Check your inbox.");
-    } catch {
+    }).catch(() => {
       setError("Failed to send verification email");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
-  const handleVerifyCode = async (_code: string) => {
-    setLoading(true);
-    setError("");
-
-    try {
+  const handleVerifyCode = async () => {
+    await runAction(async () => {
       const supabase = createClient();
 
       const { data, error } = await supabase.auth.refreshSession();
@@ -115,35 +107,33 @@ export function EmailSection({
       }
 
       if (data.user?.email === newEmail) {
-        setStep("success");
         onEmailChanged(newEmail);
         toast.success("Email updated successfully!");
-        setTimeout(() => {
-          handleOpenChange(false);
-        }, 1500);
+        completeSuccess();
       } else {
         setError(
           "Please click the verification link sent to your new email address",
         );
       }
-    } catch {
+    }).catch(() => {
       setError("Verification failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const handleResendCode = async () => {
-    setLoading(true);
-    try {
+    await runAction(async () => {
       const supabase = createClient();
-      await supabase.auth.updateUser({ email: newEmail });
+
+      const { error } = await supabase.auth.updateUser({ email: newEmail });
+      if (error) {
+        toast.error("Failed to resend verification email");
+        return;
+      }
+
       toast.success("Verification email resent!");
-    } catch {
+    }).catch(() => {
       toast.error("Failed to resend verification email");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   return (
@@ -262,10 +252,7 @@ export function EmailSection({
                 >
                   Resend Email
                 </Button>
-                <Button
-                  onClick={() => handleVerifyCode(verificationCode)}
-                  disabled={loading}
-                >
+                <Button onClick={handleVerifyCode} disabled={loading}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
