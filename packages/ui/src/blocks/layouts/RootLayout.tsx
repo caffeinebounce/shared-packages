@@ -13,9 +13,11 @@ export const themeScript = `
   (function() {
     try {
       var theme = localStorage.getItem('theme');
-      if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      }
+      var isDark =
+        theme === 'dark' ||
+        ((theme === 'system' || !theme) &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.classList.toggle('dark', isDark);
     } catch (e) {}
   })();
 `;
