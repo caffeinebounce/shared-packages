@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { type LucideIcon, Monitor, Moon, Sun } from "lucide-react";
 import { useTheme as useNextTheme } from "next-themes";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import {
@@ -11,6 +11,70 @@ import {
 import { KeyboardShortcut } from "../keyboard/KeyboardShortcut";
 
 export type ThemeMode = "light" | "dark";
+type ThemeSelection = ThemeMode | "system";
+
+function getResolvedTheme(resolvedTheme: string | undefined): ThemeMode {
+  return resolvedTheme === "dark" ? "dark" : "light";
+}
+
+function getDocumentTheme(): ThemeMode {
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
+function prefersDarkMode(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+}
+
+function getCurrentSelection(
+  includeSystem: boolean,
+  theme: string | undefined,
+  resolvedTheme: ThemeMode,
+): ThemeSelection {
+  if (includeSystem && theme === "system") {
+    return "system";
+  }
+
+  return resolvedTheme;
+}
+
+function getNextThemeSelection(
+  currentSelection: ThemeSelection,
+  includeSystem: boolean,
+): ThemeSelection {
+  if (!includeSystem) {
+    return currentSelection === "dark" ? "light" : "dark";
+  }
+
+  if (currentSelection === "light") {
+    return "dark";
+  }
+
+  if (currentSelection === "dark") {
+    return "system";
+  }
+
+  return "light";
+}
+
+function getThemeToggleLabel(nextTheme: ThemeSelection): string {
+  return `Switch theme to ${nextTheme}`;
+}
+
+function getThemeIcon(nextTheme: ThemeSelection): LucideIcon {
+  if (nextTheme === "light") {
+    return Sun;
+  }
+
+  if (nextTheme === "dark") {
+    return Moon;
+  }
+
+  return Monitor;
+}
 
 /**
  * Hook to get the current theme.
@@ -40,6 +104,8 @@ export interface ShortcutDefinition {
 }
 
 export interface ThemeToggleProps {
+  /** Whether to include a system theme option in the toggle cycle */
+  includeSystem?: boolean;
   /** Keyboard shortcut definition */
   shortcut?: ShortcutDefinition;
   /** Display string for the keyboard shortcut (e.g., "⌃⇧L") */
@@ -71,10 +137,11 @@ function matchesShortcut(
 }
 
 /**
- * Theme toggle component with light/dark mode switching.
+ * Theme toggle component with light/dark switching, plus optional system mode.
  * Uses next-themes for persistence and DOM updates.
  */
 export function ThemeToggle({
+  includeSystem = false,
   shortcut,
   shortcutDisplay,
   showShortcut = true,
@@ -82,40 +149,43 @@ export function ThemeToggle({
   tooltip,
   className,
 }: ThemeToggleProps) {
-  const { resolvedTheme, setTheme } = useNextTheme();
+  const { resolvedTheme, setTheme, theme } = useNextTheme();
   const [mounted, setMounted] = useState(false);
 
   // Determine if shortcut should be shown: shortcutsVisible overrides showShortcut when provided
   const shouldShowShortcut = shortcutsVisible ?? showShortcut;
 
-  const theme: ThemeMode =
+  const renderedTheme: ThemeMode =
     mounted && typeof document !== "undefined"
-      ? document.documentElement.classList.contains("dark")
-        ? "dark"
-        : "light"
-      : resolvedTheme === "dark"
-        ? "dark"
-        : "light";
+      ? getDocumentTheme()
+      : getResolvedTheme(resolvedTheme);
+
+  const currentSelection = getCurrentSelection(
+    includeSystem,
+    theme,
+    renderedTheme,
+  );
+  const nextTheme = getNextThemeSelection(currentSelection, includeSystem);
+  const ariaLabel = getThemeToggleLabel(nextTheme);
+  const Icon = getThemeIcon(nextTheme);
 
   const toggleTheme = useCallback(() => {
-    const currentlyDark =
-      typeof document !== "undefined" &&
-      document.documentElement.classList.contains("dark");
-    const nextTheme: ThemeMode = currentlyDark ? "light" : "dark";
-
     // Primary path: next-themes
     setTheme(nextTheme);
 
     // Fallback path: direct DOM/localStorage update to avoid no-op toggles
     if (typeof document !== "undefined") {
-      document.documentElement.classList.toggle("dark", nextTheme === "dark");
+      const nextIsDark =
+        nextTheme === "dark" || (nextTheme === "system" && prefersDarkMode());
+
+      document.documentElement.classList.toggle("dark", nextIsDark);
       try {
         localStorage.setItem("theme", nextTheme);
       } catch {
         // Ignore storage errors
       }
     }
-  }, [setTheme]);
+  }, [nextTheme, setTheme]);
 
   useEffect(() => {
     setMounted(true);
@@ -136,10 +206,22 @@ export function ThemeToggle({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [shortcut, toggleTheme]);
 
-  // Prevent hydration mismatch by not rendering until mounted
-  // Use CSS-based icons so the correct icon shows immediately via the `dark`
-  // class set by next-themes' script before paint — no JS state needed.
+  // Prevent hydration mismatch by not rendering the interactive state until mounted.
+  // The opt-in system variant uses a neutral placeholder icon before mount so it
+  // doesn't guess whether the saved preference was explicitly "system".
   if (!mounted) {
+    if (includeSystem) {
+      return (
+        <button
+          type="button"
+          className={`inline-flex h-8 w-8 items-center justify-center text-icon transition-colors ${className ?? ""}`}
+          aria-label="Toggle theme"
+        >
+          <Monitor className="h-4 w-4" />
+        </button>
+      );
+    }
+
     return (
       <button
         type="button"
@@ -156,7 +238,7 @@ export function ThemeToggle({
 
   const tooltipContent = tooltip ?? (
     <>
-      <span>Toggle theme</span>
+      <span>{ariaLabel}</span>
       {shouldShowShortcut && shortcutDisplay && (
         <KeyboardShortcut className="ml-2 text-xs">
           {shortcutDisplay}
@@ -172,24 +254,9 @@ export function ThemeToggle({
           type="button"
           onClick={toggleTheme}
           className={`group inline-flex h-8 w-8 items-center justify-center text-icon hover:text-icon-hover transition-colors ${className ?? ""}`}
-          aria-label="Toggle theme"
+          aria-label={ariaLabel}
         >
-          <div className="relative h-4 w-4">
-            <Sun
-              className={`absolute inset-0 h-4 w-4 transition-all duration-150 group-hover:rotate-12 ${
-                theme === "dark"
-                  ? "rotate-0 scale-100 opacity-100"
-                  : "rotate-90 scale-0 opacity-0"
-              }`}
-            />
-            <Moon
-              className={`absolute inset-0 h-4 w-4 transition-all duration-150 group-hover:-rotate-12 ${
-                theme === "light"
-                  ? "rotate-0 scale-100 opacity-100"
-                  : "-rotate-90 scale-0 opacity-0"
-              }`}
-            />
-          </div>
+          <Icon className="h-4 w-4 transition-transform duration-150 group-hover:rotate-12" />
         </button>
       </TooltipTrigger>
       <TooltipContent side="bottom">{tooltipContent}</TooltipContent>
