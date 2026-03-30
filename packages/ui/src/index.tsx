@@ -241,8 +241,6 @@ export { ContactInfo, DisclosureFootnotes } from "./blocks/legal";
 export type {
   ActionCard,
   Benefit,
-  BentoGridItem,
-  BentoGridSectionProps,
   BenefitsSectionProps,
   CTAWithDashedGridLinesProps,
   CtaWithDashedGridLinesProps,
@@ -266,7 +264,6 @@ export type {
   TestimonialsSectionProps,
 } from "./blocks/marketing";
 export {
-  BentoGridSection,
   BenefitsSection,
   CTAWithDashedGridLines,
   CtaWithDashedGridLines,

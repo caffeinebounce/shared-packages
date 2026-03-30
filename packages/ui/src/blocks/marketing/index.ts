@@ -22,11 +22,6 @@ export {
   type Outcome,
 } from "./BenefitsSection";
 export {
-  type BentoGridItem,
-  BentoGridSection,
-  type BentoGridSectionProps,
-} from "./BentoGridSection";
-export {
   BlurLogoCloud,
   type BlurLogoCloudItem,
   type BlurLogoCloudProps,
