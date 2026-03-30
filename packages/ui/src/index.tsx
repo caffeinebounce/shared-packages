@@ -241,6 +241,8 @@ export { ContactInfo, DisclosureFootnotes } from "./blocks/legal";
 export type {
   ActionCard,
   Benefit,
+  BentoGridItem,
+  BentoGridSectionProps,
   BenefitsSectionProps,
   CTAWithDashedGridLinesProps,
   CtaWithDashedGridLinesProps,
@@ -251,6 +253,7 @@ export type {
   LampHeroProps,
   LampHeroSocialLink,
   LocationCard,
+  MediaTextHeroProps,
   MissionSectionProps,
   NewsletterSignupProps,
   NextStepsSectionProps,
@@ -263,6 +266,7 @@ export type {
   TestimonialsSectionProps,
 } from "./blocks/marketing";
 export {
+  BentoGridSection,
   BenefitsSection,
   CTAWithDashedGridLines,
   CtaWithDashedGridLines,
@@ -271,6 +275,7 @@ export {
   HeroSectionWithRipple,
   ImpactSection,
   LampHero,
+  MediaTextHero,
   MissionSection,
   NewsletterSignup,
   NextStepsSection,

@@ -23,7 +23,7 @@ afterEach(() => {
 });
 
 describe("FocalMediaFrame", () => {
-  it("does not render the plain image fallback when pixelated canvas is enabled", () => {
+  it("renders a static fallback image while the pixelated canvas is preparing", () => {
     const { container } = render(
       <FocalMediaFrame
         alt="Keenan portrait"
@@ -35,10 +35,7 @@ describe("FocalMediaFrame", () => {
     );
 
     expect(
-      container.querySelector('[data-slot="focal-media-image"]'),
-    ).toBeNull();
-    expect(
-      container.querySelector('[data-slot="focal-media-placeholder"]'),
+      container.querySelector('[data-slot="focal-media-fallback-image"]'),
     ).not.toBeNull();
   });
 
@@ -55,5 +52,8 @@ describe("FocalMediaFrame", () => {
     expect(
       container.querySelector('[data-slot="focal-media-image"]'),
     ).not.toBeNull();
+    expect(
+      container.querySelector('[data-slot="focal-media-fallback-image"]'),
+    ).toBeNull();
   });
 });

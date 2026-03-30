@@ -22,6 +22,11 @@ export {
   type Outcome,
 } from "./BenefitsSection";
 export {
+  type BentoGridItem,
+  BentoGridSection,
+  type BentoGridSectionProps,
+} from "./BentoGridSection";
+export {
   BlurLogoCloud,
   type BlurLogoCloudItem,
   type BlurLogoCloudProps,
@@ -62,6 +67,10 @@ export {
   type LampHeroSocialLink,
 } from "./LampHero";
 export { LogoGrid, type LogoGridItem, type LogoGridProps } from "./LogoGrid";
+export {
+  MediaTextHero,
+  type MediaTextHeroProps,
+} from "./MediaTextHero";
 export {
   MissionSection,
   type MissionSectionProps,
