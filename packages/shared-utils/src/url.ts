@@ -631,6 +631,61 @@ export function getServerOrigin(
   return `${protocol}://${host}`;
 }
 
+type RequestLike = {
+  headers: { get: (name: string) => string | null };
+};
+
+function getOriginFromRequest(
+  request: RequestLike,
+  envVarName: string,
+): string {
+  const host = request.headers.get("host") || "";
+  const hostWithoutPort = host.split(":")[0] || "";
+  const isPreviewLikeHost =
+    isPreviewEnvironment(host) || isDevLikeHost(hostWithoutPort);
+
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  const protocol = forwardedProto || (isPreviewLikeHost ? "http" : "https");
+
+  if (isPreviewLikeHost) {
+    return `${protocol}://${host}`;
+  }
+
+  return getServerOrigin(host, protocol, envVarName);
+}
+
+/**
+ * Get the marketing/site origin for the current runtime.
+ *
+ * - On the server with a request object: uses the actual request origin for
+ *   preview/dev-like hosts, otherwise falls back to NEXT_PUBLIC_SITE_URL.
+ * - On the client (or SSR without a request): uses getClientOrigin with
+ *   NEXT_PUBLIC_SITE_URL.
+ */
+export function getSiteOrigin(request?: RequestLike): string {
+  if (request) {
+    return getOriginFromRequest(request, "NEXT_PUBLIC_SITE_URL");
+  }
+
+  return getClientOrigin("NEXT_PUBLIC_SITE_URL");
+}
+
+/**
+ * Get the app origin for the current runtime.
+ *
+ * - On the server with a request object: uses the actual request origin for
+ *   preview/dev-like hosts, otherwise falls back to NEXT_PUBLIC_APP_URL.
+ * - On the client (or SSR without a request): uses getClientOrigin with
+ *   NEXT_PUBLIC_APP_URL.
+ */
+export function getAppOrigin(request?: RequestLike): string {
+  if (request) {
+    return getOriginFromRequest(request, "NEXT_PUBLIC_APP_URL");
+  }
+
+  return getClientOrigin("NEXT_PUBLIC_APP_URL");
+}
+
 /**
  * Resolve admin redirect target for a given origin/host.
  *

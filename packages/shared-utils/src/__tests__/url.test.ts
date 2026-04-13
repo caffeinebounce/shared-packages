@@ -4,8 +4,10 @@ import {
   createSocialUrlSchema,
   createUrlSchema,
   facebookUrlSchema,
+  getAppOrigin,
   getClientOrigin,
   getServerOrigin,
+  getSiteOrigin,
   getSupabaseRedirectUrls,
   instagramHandleSchema,
   isDevLikeHost,
@@ -722,6 +724,136 @@ describe("Environment Detection", () => {
       expect(getClientOrigin("CUSTOM_APP_URL")).toBe(
         "https://custom.example.com",
       );
+    });
+  });
+
+  describe("getSiteOrigin", () => {
+    let originalWindow: typeof globalThis.window;
+    let originalEnv: NodeJS.ProcessEnv;
+
+    beforeEach(() => {
+      originalWindow = globalThis.window;
+      originalEnv = { ...process.env };
+    });
+
+    afterEach(() => {
+      if (originalWindow === undefined) {
+        Reflect.deleteProperty(globalThis, "window");
+      } else {
+        globalThis.window = originalWindow;
+      }
+      process.env = originalEnv;
+    });
+
+    it("uses request origin for preview-like hosts", () => {
+      process.env.NEXT_PUBLIC_SITE_URL = "https://zenbid.com";
+
+      expect(
+        getSiteOrigin({
+          headers: {
+            get: (name: string) =>
+              name === "host"
+                ? "preview-123.onrender.com"
+                : name === "x-forwarded-proto"
+                  ? "https"
+                  : null,
+          },
+        }),
+      ).toBe("https://preview-123.onrender.com");
+    });
+
+    it("uses production env for non-preview request hosts", () => {
+      process.env.NEXT_PUBLIC_SITE_URL = "https://zenbid.com/";
+
+      expect(
+        getSiteOrigin({
+          headers: {
+            get: (name: string) =>
+              name === "host"
+                ? "app.zenbid.com"
+                : name === "x-forwarded-proto"
+                  ? "https"
+                  : null,
+          },
+        }),
+      ).toBe("https://zenbid.com");
+    });
+
+    it("falls back to client origin behavior when request is omitted", () => {
+      process.env.NEXT_PUBLIC_SITE_URL = "https://zenbid.com/";
+      globalThis.window = {
+        location: {
+          origin: "https://preview-123.onrender.com",
+          hostname: "preview-123.onrender.com",
+        } as Location,
+      } as Window & typeof globalThis;
+
+      expect(getSiteOrigin()).toBe("https://preview-123.onrender.com");
+    });
+  });
+
+  describe("getAppOrigin", () => {
+    let originalWindow: typeof globalThis.window;
+    let originalEnv: NodeJS.ProcessEnv;
+
+    beforeEach(() => {
+      originalWindow = globalThis.window;
+      originalEnv = { ...process.env };
+    });
+
+    afterEach(() => {
+      if (originalWindow === undefined) {
+        Reflect.deleteProperty(globalThis, "window");
+      } else {
+        globalThis.window = originalWindow;
+      }
+      process.env = originalEnv;
+    });
+
+    it("uses request origin for dev-like hosts", () => {
+      process.env.NEXT_PUBLIC_APP_URL = "https://app.zenbid.com";
+
+      expect(
+        getAppOrigin({
+          headers: {
+            get: (name: string) =>
+              name === "host"
+                ? "100.107.35.36:3011"
+                : name === "x-forwarded-proto"
+                  ? "http"
+                  : null,
+          },
+        }),
+      ).toBe("http://100.107.35.36:3011");
+    });
+
+    it("uses production app env for non-preview request hosts", () => {
+      process.env.NEXT_PUBLIC_APP_URL = "https://app.zenbid.com/";
+
+      expect(
+        getAppOrigin({
+          headers: {
+            get: (name: string) =>
+              name === "host"
+                ? "app.zenbid.com"
+                : name === "x-forwarded-proto"
+                  ? "https"
+                  : null,
+          },
+        }),
+      ).toBe("https://app.zenbid.com");
+    });
+
+    it("falls back to client origin behavior when request is omitted", () => {
+      process.env.NEXT_PUBLIC_APP_URL = "https://app.zenbid.com/";
+      globalThis.window = {
+        location: {
+          origin: "http://localhost:3000",
+          hostname: "localhost",
+        } as Location,
+      } as Window & typeof globalThis;
+
+      expect(getAppOrigin()).toBe("http://localhost:3000");
     });
   });
 
