@@ -22,16 +22,15 @@ Default lane mapping:
 
 ### `pr-fast`
 
-1. `yarn format:check`
-2. `yarn lint`
-3. `yarn validate:packages`
+1. `yarn lint`
+2. `yarn typecheck`
 
 ### `branch-full`
 
 1. everything in `pr-fast`
-2. `yarn typecheck`
-3. `yarn test`
-4. `yarn build`
+2. `yarn test`
+3. `yarn build`
+4. `yarn validate:packages`
 
 ### `heavy-full`
 

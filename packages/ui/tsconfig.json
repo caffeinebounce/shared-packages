@@ -3,7 +3,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@react-three/fiber": ["src/types/react-three-fiber-stub.d.ts"],
+      "three": ["src/types/three-stub.d.ts"]
+    }
   },
   "include": ["src"],
   "exclude": [

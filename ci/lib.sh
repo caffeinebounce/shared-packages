@@ -12,8 +12,20 @@ LOCAL_CI_FAILED_STEP=""
 LOCAL_CI_START_TS=""
 LOCAL_CI_GIT_SHA=""
 LOCAL_CI_COVERAGE_DIR=""
-LOCAL_CI_NODE_AUTH_TOKEN="${NODE_AUTH_TOKEN:-${GITHUB_TOKEN:-${LOCAL_CI_GITHUB_TOKEN:-}}}"
+LOCAL_CI_NODE_AUTH_TOKEN=""
 LOCAL_CI_YARN_VERSION="4.12.0"
+
+local_ci_load_env() {
+  local env_file="$LOCAL_CI_ROOT_DIR/.local-ci/local-ci.env"
+  if [[ -f "$env_file" ]]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$env_file"
+    set +a
+  fi
+
+  LOCAL_CI_NODE_AUTH_TOKEN="${NODE_AUTH_TOKEN:-${GITHUB_TOKEN:-${LOCAL_CI_GITHUB_TOKEN:-local-ci-placeholder}}}"
+}
 
 local_ci_init() {
   LOCAL_CI_LANE="${1:?lane required}"
@@ -27,6 +39,7 @@ local_ci_init() {
   rm -f "$LOCAL_CI_SUMMARY_TXT"
   LOCAL_CI_START_TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   LOCAL_CI_GIT_SHA="$(git -C "$LOCAL_CI_ROOT_DIR" rev-parse HEAD)"
+  local_ci_load_env
   local_ci_prepare_node
 }
 
@@ -47,8 +60,8 @@ npmScopes:
 EOF
   fi
 
-  if [[ ! -d "$LOCAL_CI_ROOT_DIR/node_modules" ]]; then
-    (cd "$LOCAL_CI_ROOT_DIR" && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install --immutable)
+  if [[ -n "$LOCAL_CI_NODE_AUTH_TOKEN" || ! -d "$LOCAL_CI_ROOT_DIR/node_modules" || ! -f "$LOCAL_CI_ROOT_DIR/.yarn/install-state.gz" ]]; then
+    (cd "$LOCAL_CI_ROOT_DIR" && yarn install --immutable)
   fi
 }
 
