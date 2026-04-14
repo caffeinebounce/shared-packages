@@ -57,6 +57,7 @@ function Input({ className, type, variant, ...props }: InputProps) {
     <input
       type={type}
       data-slot="input"
+      data-autofill-aware="true"
       className={cn(inputVariants({ variant, className }))}
       {...props}
     />
