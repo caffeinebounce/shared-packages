@@ -96,12 +96,18 @@ export function FocalMediaFrame({
     return () => observer.disconnect();
   }, []);
 
-  let imageStyle: CSSProperties = {
+  let fallbackImageStyle: CSSProperties = {
     backgroundImage: `url("${src}")`,
     backgroundPosition: `${focalPoint.x * 100}% ${focalPoint.y * 100}%`,
     backgroundSize: "cover",
   };
-  let computedImageClassName =
+  let fallbackImageClassName =
+    "absolute inset-0 bg-cover bg-no-repeat select-none";
+  let canvasFrameStyle: CSSProperties = {
+    backgroundPosition: `${focalPoint.x * 100}% ${focalPoint.y * 100}%`,
+    backgroundSize: "cover",
+  };
+  let computedCanvasFrameClassName =
     "absolute inset-0 bg-cover bg-no-repeat select-none";
   let renderedImageWidth = width;
   let renderedImageHeight = height;
@@ -123,11 +129,18 @@ export function FocalMediaFrame({
       0,
     );
 
-    computedImageClassName = "absolute bg-no-repeat select-none";
-    imageStyle = {
-      backgroundImage: pixelatedCanvas ? undefined : `url("${src}")`,
-      backgroundPosition: pixelatedCanvas ? undefined : "center",
-      backgroundSize: pixelatedCanvas ? undefined : "100% 100%",
+    fallbackImageClassName = "absolute bg-no-repeat select-none";
+    computedCanvasFrameClassName = "absolute bg-no-repeat select-none";
+    fallbackImageStyle = {
+      backgroundImage: `url("${src}")`,
+      backgroundPosition: "center",
+      backgroundSize: "100% 100%",
+      height: renderedImageHeight,
+      left,
+      top,
+      width: renderedImageWidth,
+    };
+    canvasFrameStyle = {
       height: renderedImageHeight,
       left,
       top,
@@ -148,26 +161,29 @@ export function FocalMediaFrame({
           <div
             aria-hidden="true"
             className={cn(
-              "absolute inset-0 bg-black/30 transition-opacity duration-300",
+              fallbackImageClassName,
+              "transition-opacity duration-300",
               isCanvasReady && frameSize ? "opacity-0" : "opacity-100",
+              imageClassName,
             )}
-            data-slot="focal-media-placeholder"
+            data-slot="focal-media-fallback-image"
+            style={fallbackImageStyle}
           />
           {frameSize ? (
             <div
               aria-hidden="true"
               className={cn(
-                computedImageClassName,
+                computedCanvasFrameClassName,
                 "transition-opacity duration-300",
                 isCanvasReady ? "opacity-100" : "opacity-0",
                 imageClassName,
               )}
               data-slot="focal-media-canvas-frame"
-              style={imageStyle}
+              style={canvasFrameStyle}
             >
               <PixelatedCanvas
                 alt={alt}
-                aria-hidden="true"
+                aria-hidden={true}
                 backgroundColor="transparent"
                 className={cn("block h-full w-full", pixelatedCanvasClassName)}
                 data-slot="focal-media-canvas"
@@ -185,9 +201,9 @@ export function FocalMediaFrame({
       ) : (
         <div
           aria-hidden="true"
-          className={cn(computedImageClassName, imageClassName)}
+          className={cn(fallbackImageClassName, imageClassName)}
           data-slot="focal-media-image"
-          style={imageStyle}
+          style={fallbackImageStyle}
         />
       )}
       {children}

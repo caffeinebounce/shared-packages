@@ -728,7 +728,7 @@ export function PixelatedCanvas({
   ]);
 
   const accessibilityProps =
-    canvasProps["aria-hidden"] === true
+    canvasProps["aria-hidden"] === true || canvasProps["aria-hidden"] === "true"
       ? {}
       : {
           role: canvasProps.role ?? "img",

@@ -63,6 +63,10 @@ export {
 } from "./LampHero";
 export { LogoGrid, type LogoGridItem, type LogoGridProps } from "./LogoGrid";
 export {
+  MediaTextHero,
+  type MediaTextHeroProps,
+} from "./MediaTextHero";
+export {
   MissionSection,
   type MissionSectionProps,
   type Program,

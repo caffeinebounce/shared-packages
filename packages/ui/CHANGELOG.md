@@ -1,5 +1,30 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.56.3
+
+### Patch Changes
+
+- Give `MediaTextHero` a stable intrinsic media-column width on desktop while still shrinking gracefully on narrow screens, preventing the hero image from collapsing out of the side-by-side layout.
+
+## 0.56.2
+
+### Patch Changes
+
+- Preserve the media column width in `MediaTextHero` on desktop so image-and-copy heroes keep the intended side-by-side layout instead of collapsing the media frame.
+
+## 0.56.1
+
+### Patch Changes
+
+- Restore the `BentoGridSection` marketing exports in the published `@caffeinebounce/ui/marketing` entrypoint so existing marketing consumers continue to compile.
+
+## 0.56.0
+
+### Minor Changes
+
+- Add a reusable `MediaTextHero` marketing block for image-and-copy hero layouts, including mobile top inset support and an immediate fallback image while pixelated media prepares.
+- fac07b5: Add optional system mode support to `ThemeToggle`, including correct persisted first-paint theme handling when `theme` is set to `system`.
+
 ## 0.55.1
 
 ### Patch Changes
