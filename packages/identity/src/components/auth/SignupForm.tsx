@@ -553,7 +553,9 @@ export function SignupForm({
           </FieldLabel>
           <Input
             id="email"
+            name="email"
             type="email"
+            autoComplete="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -569,15 +571,22 @@ export function SignupForm({
           )}
         </div>
 
-        {/* Password Fields - Show after valid email */}
-        {isEmailValid && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="space-y-4">
+          <div
+            className={cn(
+              "space-y-4 transition-all duration-300",
+              isEmailValid && "animate-in fade-in slide-in-from-top-2",
+              !isEmailValid && "hidden",
+            )}
+          >
             <div className="space-y-2">
               <FieldLabel htmlFor="password" className="text-muted-foreground">
                 Password
               </FieldLabel>
               <PasswordInput
                 id="password"
+                name="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onBlur={() => setPasswordTouched(true)}
@@ -601,6 +610,8 @@ export function SignupForm({
               </FieldLabel>
               <PasswordInput
                 id="confirm-password"
+                name="confirmPassword"
+                autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onBlur={() => setConfirmPasswordTouched(true)}
@@ -679,7 +690,7 @@ export function SignupForm({
               </div>
             )}
           </div>
-        )}
+        </div>
 
         <Button
           type="submit"
