@@ -35,13 +35,13 @@ public struct SettingsWindowChromeConfigurator: NSViewRepresentable {
         self.sidebarColor = sidebarColor
     }
 
-    public func makeNSView(context: Context) -> SettingsWindowObserverView {
+    public func makeNSView(context: Context) -> NSView {
         let view = SettingsWindowObserverView()
         view.onWindowAvailable = configure(window:)
         return view
     }
 
-    public func updateNSView(_ nsView: SettingsWindowObserverView, context: Context) {
+    public func updateNSView(_ nsView: NSView, context: Context) {
         configure(window: nsView.window)
     }
 
@@ -75,7 +75,9 @@ public struct SettingsWindowChromeConfigurator: NSViewRepresentable {
             height: constrainedHeight
         )
 
-        if window.contentLayoutRect.width != SettingsChromeMetrics.windowWidth {
+        let currentContentSize = window.contentLayoutRect.size
+        if currentContentSize.width != constrainedContentSize.width ||
+            currentContentSize.height != constrainedContentSize.height {
             window.setContentSize(constrainedContentSize)
         }
 
@@ -142,7 +144,7 @@ public struct SettingsWindowChromeConfigurator: NSViewRepresentable {
     }
 }
 
-public final class SettingsWindowObserverView: NSView {
+private final class SettingsWindowObserverView: NSView {
     var onWindowAvailable: ((NSWindow?) -> Void)?
 
     public override func viewDidMoveToWindow() {
