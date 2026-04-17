@@ -39,6 +39,25 @@ describe("FocalMediaFrame", () => {
     ).not.toBeNull();
   });
 
+  it("uses the supplied pixelated fallback image before the canvas is ready", () => {
+    const { container } = render(
+      <FocalMediaFrame
+        alt="Keenan portrait"
+        height={625}
+        pixelatedCanvas
+        pixelatedFallbackSrc="/images/hero-1-pixelated.webp"
+        src="/images/hero-1.webp"
+        width={1500}
+      />,
+    );
+
+    expect(
+      container
+        .querySelector('[data-slot="focal-media-fallback-image"]')
+        ?.getAttribute("style"),
+    ).toContain('background-image: url("/images/hero-1-pixelated.webp")');
+  });
+
   it("renders the plain image fallback when pixelated canvas is disabled", () => {
     const { container } = render(
       <FocalMediaFrame

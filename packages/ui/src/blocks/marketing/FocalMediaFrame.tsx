@@ -20,6 +20,7 @@ interface FocalMediaFrameProps {
   height: number;
   imageClassName?: string;
   pixelatedCanvas?: boolean;
+  pixelatedFallbackSrc?: string;
   pixelatedCanvasProps?: Partial<
     Omit<PixelatedCanvasProps, "alt" | "height" | "src" | "width">
   >;
@@ -39,6 +40,7 @@ export function FocalMediaFrame({
   height,
   imageClassName,
   pixelatedCanvas = false,
+  pixelatedFallbackSrc,
   pixelatedCanvasProps,
   src,
   width,
@@ -147,6 +149,12 @@ export function FocalMediaFrame({
       width: renderedImageWidth,
     };
   }
+
+  const fallbackImageSrc = pixelatedCanvas
+    ? (pixelatedFallbackSrc ?? src)
+    : src;
+
+  fallbackImageStyle.backgroundImage = `url("${fallbackImageSrc}")`;
 
   return (
     <div

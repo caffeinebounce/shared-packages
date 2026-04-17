@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.56.4
+
+### Patch Changes
+
+- Add `pixelatedFallbackSrc` to shared marketing hero media so pixel-canvas experiences can render a matching fallback image before the interactive canvas is ready.
+
 ## 0.56.3
 
 ### Patch Changes

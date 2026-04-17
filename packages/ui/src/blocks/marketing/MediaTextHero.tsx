@@ -15,6 +15,7 @@ interface MediaTextHeroMedia {
   };
   height: number;
   pixelatedCanvas?: boolean;
+  pixelatedFallbackSrc?: string;
   pixelatedCanvasProps?: Partial<
     Omit<PixelatedCanvasProps, "alt" | "height" | "src" | "width">
   >;
@@ -101,6 +102,7 @@ export function MediaTextHero({
           focalPoint={media.focalPoint}
           height={media.height}
           pixelatedCanvas={media.pixelatedCanvas ?? false}
+          pixelatedFallbackSrc={media.pixelatedFallbackSrc}
           pixelatedCanvasProps={media.pixelatedCanvasProps}
           src={media.src}
           width={media.width}

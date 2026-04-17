@@ -175,4 +175,26 @@ describe("MediaTextHero", () => {
       container.querySelector('[data-slot="focal-media-canvas"]'),
     ).toBeInTheDocument();
   });
+
+  it("passes a pixelated fallback source through to the shared media frame", () => {
+    const { container } = render(
+      <MediaTextHero
+        heading="Douglas Ebanks"
+        media={{
+          src: "/doug-hero.png",
+          alt: "Douglas Ebanks portrait",
+          width: 320,
+          height: 500,
+          pixelatedCanvas: true,
+          pixelatedFallbackSrc: "/doug-hero-pixelated.png",
+        }}
+      />,
+    );
+
+    expect(
+      container
+        .querySelector('[data-slot="focal-media-fallback-image"]')
+        ?.getAttribute("style"),
+    ).toContain('background-image: url("/doug-hero-pixelated.png")');
+  });
 });
