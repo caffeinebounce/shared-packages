@@ -16,4 +16,16 @@ final class CaffeineNativeUITests: XCTestCase {
             "CaffeineNativeUI.SettingsWindow"
         )
     }
+
+    func testSettingsAboutLinkUsesDestinationAsIdentifier() {
+        let link = SettingsAboutLink(
+            title: "GitHub",
+            systemImage: "chevron.left.forwardslash.chevron.right",
+            destination: URL(string: "https://github.com/caffeinebounce/warehouse")!
+        )
+
+        XCTAssertEqual(link.id, "https://github.com/caffeinebounce/warehouse")
+        XCTAssertEqual(link.title, "GitHub")
+        XCTAssertEqual(link.systemImage, "chevron.left.forwardslash.chevron.right")
+    }
 }
