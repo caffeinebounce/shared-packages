@@ -26,8 +26,10 @@ public struct SettingsAboutPane<Controls: View, Footer: View>: View {
     public let summary: String?
     public let links: [SettingsAboutLink]
 
-    private let controls: AnyView?
-    private let footer: AnyView?
+    private let controls: Controls
+    private let footer: Footer
+    private let showsControls: Bool
+    private let showsFooter: Bool
 
     public init(
         title: String = "About",
@@ -47,8 +49,10 @@ public struct SettingsAboutPane<Controls: View, Footer: View>: View {
         self.buildDescription = buildDescription
         self.summary = summary
         self.links = links
-        self.controls = nil
-        self.footer = nil
+        self.controls = EmptyView()
+        self.footer = EmptyView()
+        self.showsControls = false
+        self.showsFooter = false
     }
 
     public init(
@@ -70,8 +74,10 @@ public struct SettingsAboutPane<Controls: View, Footer: View>: View {
         self.buildDescription = buildDescription
         self.summary = summary
         self.links = links
-        self.controls = AnyView(controls())
-        self.footer = nil
+        self.controls = controls()
+        self.footer = EmptyView()
+        self.showsControls = true
+        self.showsFooter = false
     }
 
     public init(
@@ -94,8 +100,10 @@ public struct SettingsAboutPane<Controls: View, Footer: View>: View {
         self.buildDescription = buildDescription
         self.summary = summary
         self.links = links
-        self.controls = AnyView(controls())
-        self.footer = AnyView(footer())
+        self.controls = controls()
+        self.footer = footer()
+        self.showsControls = true
+        self.showsFooter = true
     }
 
     public var body: some View {
@@ -155,14 +163,14 @@ public struct SettingsAboutPane<Controls: View, Footer: View>: View {
                     .frame(maxWidth: .infinity)
                 }
 
-                if let controls {
+                if showsControls {
                     Divider()
 
                     controls
                         .frame(maxWidth: .infinity)
                 }
 
-                if let footer {
+                if showsFooter {
                     Divider()
 
                     footer
