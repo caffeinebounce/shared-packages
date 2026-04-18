@@ -2,9 +2,9 @@ import SwiftUI
 
 public enum AuthPanelMetrics {
     public static let windowWidth: CGFloat = 492
-    public static let windowHeight: CGFloat = 440
-    public static let windowEdgePadding: CGFloat = 10
-    public static let titlebarClearance: CGFloat = 22
+    public static let windowHeight: CGFloat = 432
+    public static let windowEdgePadding: CGFloat = 8
+    public static let titlebarClearance: CGFloat = 16
     public static let cardWidth: CGFloat = 448
     public static let cardCornerRadius: CGFloat = 26
     public static let cardPadding: CGFloat = 24
@@ -96,7 +96,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
                 colors: [
                     Color.accentColor.opacity(colorScheme == .dark ? 0.18 : 0.08),
                     Color.clear,
-                    Color.primary.opacity(colorScheme == .dark ? 0.06 : 0.025),
+                    Color.primary.opacity(colorScheme == .dark ? 0.025 : 0.012),
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -114,7 +114,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .padding(.horizontal, AuthPanelMetrics.windowEdgePadding)
             .padding(.top, AuthPanelMetrics.windowEdgePadding)
-            .padding(.bottom, 8)
+            .padding(.bottom, 2)
         }
         .frame(width: AuthPanelMetrics.windowWidth, height: AuthPanelMetrics.windowHeight)
         .ignoresSafeArea()
@@ -166,9 +166,9 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
         .frame(maxWidth: AuthPanelMetrics.cardWidth)
         .background(AuthPanelSurface())
         .shadow(
-            color: Color.black.opacity(colorScheme == .dark ? 0.34 : 0.12),
-            radius: colorScheme == .dark ? 30 : 18,
-            y: 12
+            color: Color.black.opacity(colorScheme == .dark ? 0.26 : 0.1),
+            radius: colorScheme == .dark ? 24 : 16,
+            y: 8
         )
     }
 
