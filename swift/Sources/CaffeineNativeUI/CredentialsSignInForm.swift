@@ -154,11 +154,11 @@ public struct CredentialsSignInForm: View {
                         .controlSize(.small)
                 }
                 Text(submitTitle)
-                    .frame(maxWidth: .infinity)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.regular)
+        .buttonStyle(AuthPrimaryButtonStyle())
+        .frame(height: AuthPanelMetrics.fieldHeight)
         .keyboardShortcut(.defaultAction)
         .disabled(email.isEmpty || password.isEmpty || isLoading)
     }
@@ -211,5 +211,47 @@ private struct AuthFieldStyle: ViewModifier {
                     lineWidth: 1
                 )
             )
+    }
+}
+
+private struct AuthPrimaryButtonStyle: ButtonStyle {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.semibold))
+            .foregroundStyle(.white.opacity(isEnabled ? 0.95 : 0.72))
+            .background(
+                RoundedRectangle(
+                    cornerRadius: AuthPanelMetrics.fieldCornerRadius,
+                    style: .continuous
+                )
+                .fill(backgroundFill(isPressed: configuration.isPressed))
+            )
+            .overlay(
+                RoundedRectangle(
+                    cornerRadius: AuthPanelMetrics.fieldCornerRadius,
+                    style: .continuous
+                )
+                .strokeBorder(
+                    Color.white.opacity(colorScheme == .dark ? 0.1 : 0.22),
+                    lineWidth: 1
+                )
+            )
+            .opacity(isEnabled ? 1 : 0.6)
+            .scaleEffect(configuration.isPressed ? 0.995 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+
+    private func backgroundFill(isPressed: Bool) -> some ShapeStyle {
+        LinearGradient(
+            colors: [
+                Color.accentColor.opacity(isPressed ? 0.8 : 0.92),
+                Color.accentColor.opacity(isPressed ? 0.62 : 0.76),
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
 }

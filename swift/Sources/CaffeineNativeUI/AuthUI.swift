@@ -2,10 +2,10 @@ import SwiftUI
 
 public enum AuthPanelMetrics {
     public static let windowWidth: CGFloat = 492
-    public static let windowHeight: CGFloat = 524
-    public static let windowEdgePadding: CGFloat = 18
-    public static let titlebarClearance: CGFloat = 34
-    public static let cardWidth: CGFloat = 434
+    public static let windowHeight: CGFloat = 492
+    public static let windowEdgePadding: CGFloat = 12
+    public static let titlebarClearance: CGFloat = 24
+    public static let cardWidth: CGFloat = 448
     public static let cardCornerRadius: CGFloat = 26
     public static let cardPadding: CGFloat = 24
     public static let headerImageSize: CGFloat = 76
@@ -104,13 +104,14 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
             .allowsHitTesting(false)
 
             VStack(spacing: 0) {
-                Spacer(minLength: AuthPanelMetrics.titlebarClearance)
+                Color.clear
+                    .frame(height: AuthPanelMetrics.titlebarClearance)
 
                 authCard
 
-                Spacer(minLength: AuthPanelMetrics.windowEdgePadding)
+                Spacer(minLength: 0)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .padding(.horizontal, AuthPanelMetrics.windowEdgePadding)
             .padding(.top, AuthPanelMetrics.windowEdgePadding)
             .padding(.bottom, AuthPanelMetrics.windowEdgePadding)
@@ -159,7 +160,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
             }
 
             primaryAction
-                .padding(.top, 18)
+                .padding(.top, 14)
         }
         .padding(AuthPanelMetrics.cardPadding)
         .frame(maxWidth: AuthPanelMetrics.cardWidth)
