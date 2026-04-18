@@ -32,9 +32,9 @@ final class CaffeineNativeUITests: XCTestCase {
 
     func testAuthPanelMetricsExposeMediumWindowSize() {
         XCTAssertEqual(AuthPanelMetrics.windowWidth, 492)
-        XCTAssertEqual(AuthPanelMetrics.windowHeight, 492)
-        XCTAssertEqual(AuthPanelMetrics.windowEdgePadding, 12)
-        XCTAssertEqual(AuthPanelMetrics.titlebarClearance, 24)
+        XCTAssertEqual(AuthPanelMetrics.windowHeight, 440)
+        XCTAssertEqual(AuthPanelMetrics.windowEdgePadding, 10)
+        XCTAssertEqual(AuthPanelMetrics.titlebarClearance, 22)
         XCTAssertEqual(AuthPanelMetrics.cardWidth, 448)
         XCTAssertEqual(AuthPanelMetrics.cardCornerRadius, 26)
     }

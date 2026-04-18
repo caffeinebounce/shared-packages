@@ -2,9 +2,9 @@ import SwiftUI
 
 public enum AuthPanelMetrics {
     public static let windowWidth: CGFloat = 492
-    public static let windowHeight: CGFloat = 492
-    public static let windowEdgePadding: CGFloat = 12
-    public static let titlebarClearance: CGFloat = 24
+    public static let windowHeight: CGFloat = 440
+    public static let windowEdgePadding: CGFloat = 10
+    public static let titlebarClearance: CGFloat = 22
     public static let cardWidth: CGFloat = 448
     public static let cardCornerRadius: CGFloat = 26
     public static let cardPadding: CGFloat = 24
@@ -89,7 +89,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
             SettingsMaterialBackground(material: .underWindowBackground)
 
             Color.white
-                .opacity(colorScheme == .dark ? 0.035 : 0.62)
+                .opacity(colorScheme == .dark ? 0.06 : 0.62)
                 .allowsHitTesting(false)
 
             LinearGradient(
@@ -114,7 +114,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .padding(.horizontal, AuthPanelMetrics.windowEdgePadding)
             .padding(.top, AuthPanelMetrics.windowEdgePadding)
-            .padding(.bottom, AuthPanelMetrics.windowEdgePadding)
+            .padding(.bottom, 8)
         }
         .frame(width: AuthPanelMetrics.windowWidth, height: AuthPanelMetrics.windowHeight)
         .ignoresSafeArea()
