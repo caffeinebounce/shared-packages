@@ -5,10 +5,13 @@ public struct CredentialsSignInForm: View {
     private let title: String
     private let subtitle: String
     private let submitTitle: String
+    private let headerImage: Image?
     @Binding private var email: String
     @Binding private var password: String
     private let isLoading: Bool
     private let errorMessage: String?
+    private let auxiliaryMessage: String?
+    private let secondaryAction: AnyView?
     private let onSubmit: () async -> Void
 
     public init(
@@ -26,65 +29,187 @@ public struct CredentialsSignInForm: View {
         self.title = title
         self.subtitle = subtitle
         self.submitTitle = submitTitle
+        self.headerImage = nil
         _email = email
         _password = password
         self.isLoading = isLoading
         self.errorMessage = errorMessage
+        self.auxiliaryMessage = nil
+        self.secondaryAction = nil
+        self.onSubmit = onSubmit
+    }
+
+    public init(
+        symbolName: String,
+        title: String,
+        subtitle: String,
+        submitTitle: String = "Sign In",
+        headerImage: Image?,
+        email: Binding<String>,
+        password: Binding<String>,
+        isLoading: Bool,
+        errorMessage: String?,
+        auxiliaryMessage: String? = nil,
+        onSubmit: @escaping () async -> Void
+    ) {
+        self.symbolName = symbolName
+        self.title = title
+        self.subtitle = subtitle
+        self.submitTitle = submitTitle
+        self.headerImage = headerImage
+        _email = email
+        _password = password
+        self.isLoading = isLoading
+        self.errorMessage = errorMessage
+        self.auxiliaryMessage = auxiliaryMessage
+        self.secondaryAction = nil
+        self.onSubmit = onSubmit
+    }
+
+    public init<SecondaryAction: View>(
+        symbolName: String,
+        title: String,
+        subtitle: String,
+        submitTitle: String = "Sign In",
+        headerImage: Image?,
+        email: Binding<String>,
+        password: Binding<String>,
+        isLoading: Bool,
+        errorMessage: String?,
+        auxiliaryMessage: String? = nil,
+        onSubmit: @escaping () async -> Void,
+        @ViewBuilder secondaryAction: () -> SecondaryAction
+    ) {
+        self.symbolName = symbolName
+        self.title = title
+        self.subtitle = subtitle
+        self.submitTitle = submitTitle
+        self.headerImage = headerImage
+        _email = email
+        _password = password
+        self.isLoading = isLoading
+        self.errorMessage = errorMessage
+        self.auxiliaryMessage = auxiliaryMessage
+        self.secondaryAction = AnyView(secondaryAction())
         self.onSubmit = onSubmit
     }
 
     public var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 8) {
-                Image(systemName: symbolName)
-                    .font(.system(size: 48))
-                    .foregroundStyle(Color.accentColor)
-                Text(title)
-                    .font(.title)
-                    .fontWeight(.bold)
-                Text(subtitle)
-                    .foregroundStyle(.secondary)
-            }
+        formShell
+    }
 
-            VStack(spacing: 12) {
+    @ViewBuilder
+    private var formShell: some View {
+        if let secondaryAction {
+            AuthPanelShell(
+                title: title,
+                subtitle: subtitle,
+                symbolName: symbolName,
+                headerImage: headerImage,
+                messages: statusMessages
+            ) {
+                fields
+            } primaryAction: {
+                primaryButton
+            } secondaryAction: {
+                secondaryAction
+            }
+        } else {
+            AuthPanelShell(
+                title: title,
+                subtitle: subtitle,
+                symbolName: symbolName,
+                headerImage: headerImage,
+                messages: statusMessages
+            ) {
+                fields
+            } primaryAction: {
+                primaryButton
+            }
+        }
+    }
+
+    private var fields: some View {
+        VStack(spacing: 14) {
+            Group {
                 TextField("Email", text: $email)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
                     .disableAutocorrection(true)
+                    .modifier(AuthFieldStyle())
                     .onSubmit { submit() }
 
                 SecureField("Password", text: $password)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
+                    .modifier(AuthFieldStyle())
                     .onSubmit { submit() }
-
-                if let errorMessage, !errorMessage.isEmpty {
-                    Text(errorMessage)
-                        .foregroundStyle(.red)
-                        .font(.caption)
-                        .multilineTextAlignment(.center)
-                }
             }
-
-            Button(action: submit) {
-                HStack {
-                    if isLoading {
-                        ProgressView()
-                            .controlSize(.small)
-                            .padding(.trailing, 4)
-                    }
-                    Text(submitTitle)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(email.isEmpty || password.isEmpty || isLoading)
         }
-        .padding(40)
-        .frame(width: 360)
+    }
+
+    private var primaryButton: some View {
+        Button(action: submit) {
+            HStack(spacing: 8) {
+                if isLoading {
+                    ProgressView()
+                        .controlSize(.small)
+                }
+                Text(submitTitle)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .keyboardShortcut(.defaultAction)
+        .disabled(email.isEmpty || password.isEmpty || isLoading)
+    }
+
+    private var statusMessages: [AuthPanelMessage] {
+        var messages: [AuthPanelMessage] = []
+
+        if let errorMessage, !errorMessage.isEmpty {
+            messages.append(AuthPanelMessage(errorMessage, tone: .error))
+        }
+
+        if let auxiliaryMessage, !auxiliaryMessage.isEmpty {
+            messages.append(AuthPanelMessage(auxiliaryMessage, tone: .success))
+        }
+
+        return messages
     }
 
     private func submit() {
         Task {
             await onSubmit()
         }
+    }
+}
+
+private struct AuthFieldStyle: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        content
+            .font(.body)
+            .padding(.horizontal, 14)
+            .frame(height: AuthPanelMetrics.fieldHeight)
+            .background(
+                RoundedRectangle(
+                    cornerRadius: AuthPanelMetrics.fieldCornerRadius,
+                    style: .continuous
+                )
+                .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.04))
+            )
+            .overlay(
+                RoundedRectangle(
+                    cornerRadius: AuthPanelMetrics.fieldCornerRadius,
+                    style: .continuous
+                )
+                .strokeBorder(
+                    colorScheme == .dark
+                        ? Color.white.opacity(0.08)
+                        : Color.black.opacity(0.08),
+                    lineWidth: 1
+                )
+            )
     }
 }
