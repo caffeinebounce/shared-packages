@@ -4,7 +4,7 @@ public enum AuthPanelMetrics {
     public static let windowWidth: CGFloat = 492
     public static let windowHeight: CGFloat = 432
     public static let windowEdgePadding: CGFloat = 8
-    public static let titlebarClearance: CGFloat = 16
+    public static let titlebarClearance: CGFloat = 24
     public static let windowCornerRadius: CGFloat = 18
     public static let cardWidth: CGFloat = 448
     public static let cardCornerRadius: CGFloat = 26

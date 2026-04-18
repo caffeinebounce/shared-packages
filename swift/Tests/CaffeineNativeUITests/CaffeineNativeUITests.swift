@@ -34,7 +34,7 @@ final class CaffeineNativeUITests: XCTestCase {
         XCTAssertEqual(AuthPanelMetrics.windowWidth, 492)
         XCTAssertEqual(AuthPanelMetrics.windowHeight, 432)
         XCTAssertEqual(AuthPanelMetrics.windowEdgePadding, 8)
-        XCTAssertEqual(AuthPanelMetrics.titlebarClearance, 16)
+        XCTAssertEqual(AuthPanelMetrics.titlebarClearance, 24)
         XCTAssertEqual(AuthPanelMetrics.windowCornerRadius, 18)
         XCTAssertEqual(AuthPanelMetrics.cardWidth, 448)
         XCTAssertEqual(AuthPanelMetrics.cardCornerRadius, 26)
