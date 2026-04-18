@@ -34,7 +34,7 @@ public struct AuthPanelMessage: Identifiable, Equatable {
     }
 }
 
-public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
+public struct AuthPanelShell<Fields: View, PrimaryAction: View, SecondaryAction: View>: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private let title: String
@@ -44,7 +44,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
     private let messages: [AuthPanelMessage]
     private let fields: Fields
     private let primaryAction: PrimaryAction
-    private let secondaryAction: AnyView?
+    private let secondaryAction: SecondaryAction?
 
     public init(
         title: String,
@@ -54,7 +54,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
         messages: [AuthPanelMessage] = [],
         @ViewBuilder fields: () -> Fields,
         @ViewBuilder primaryAction: () -> PrimaryAction
-    ) {
+    ) where SecondaryAction == EmptyView {
         self.title = title
         self.subtitle = subtitle
         self.symbolName = symbolName
@@ -65,7 +65,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
         self.secondaryAction = nil
     }
 
-    public init<SecondaryAction: View>(
+    public init(
         title: String,
         subtitle: String,
         symbolName: String? = nil,
@@ -82,7 +82,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
         self.messages = messages
         self.fields = fields()
         self.primaryAction = primaryAction()
-        self.secondaryAction = AnyView(secondaryAction())
+        self.secondaryAction = secondaryAction()
     }
 
     public var body: some View {
@@ -165,8 +165,8 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
 
             if !messages.isEmpty {
                 VStack(spacing: 10) {
-                    ForEach(messages) { message in
-                        AuthPanelMessageRow(message: message)
+                    ForEach(Array(messages.indices), id: \.self) { index in
+                        AuthPanelMessageRow(message: messages[index])
                     }
                 }
                 .padding(.top, 14)

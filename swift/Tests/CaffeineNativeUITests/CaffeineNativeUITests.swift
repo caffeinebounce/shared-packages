@@ -49,7 +49,7 @@ final class CaffeineNativeUITests: XCTestCase {
     }
 
     func testLegacyCredentialsSignInFormInitializerStillBuilds() {
-        let view = CredentialsSignInForm(
+        _ = CredentialsSignInForm(
             symbolName: "building.2.fill",
             title: "WarehouseSync",
             subtitle: "Sign in to your account",
@@ -58,12 +58,10 @@ final class CaffeineNativeUITests: XCTestCase {
             isLoading: false,
             errorMessage: nil
         ) { }
-
-        XCTAssertNotNil(view)
     }
 
     func testExtendedCredentialsSignInFormInitializerBuilds() {
-        let view = CredentialsSignInForm(
+        _ = CredentialsSignInForm(
             symbolName: "building.2.fill",
             title: "WarehouseSync",
             subtitle: "Sign in to your account",
@@ -76,7 +74,5 @@ final class CaffeineNativeUITests: XCTestCase {
         ) { } secondaryAction: {
             Text("Forgot Password?")
         }
-
-        XCTAssertNotNil(view)
     }
 }

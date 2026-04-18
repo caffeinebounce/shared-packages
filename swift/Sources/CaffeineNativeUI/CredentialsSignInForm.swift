@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct CredentialsSignInForm: View {
+public struct CredentialsSignInForm<SecondaryAction: View>: View {
     private enum FieldFocusTarget: Hashable {
         case email
         case password
@@ -16,7 +16,7 @@ public struct CredentialsSignInForm: View {
     private let isLoading: Bool
     private let errorMessage: String?
     private let auxiliaryMessage: String?
-    private let secondaryAction: AnyView?
+    private let secondaryAction: SecondaryAction?
     private let onSubmit: () async -> Void
     @State private var isPasswordVisible = false
     @FocusState private var focusedField: FieldFocusTarget?
@@ -31,7 +31,7 @@ public struct CredentialsSignInForm: View {
         isLoading: Bool,
         errorMessage: String?,
         onSubmit: @escaping () async -> Void
-    ) {
+    ) where SecondaryAction == EmptyView {
         self.symbolName = symbolName
         self.title = title
         self.subtitle = subtitle
@@ -58,7 +58,7 @@ public struct CredentialsSignInForm: View {
         errorMessage: String?,
         auxiliaryMessage: String? = nil,
         onSubmit: @escaping () async -> Void
-    ) {
+    ) where SecondaryAction == EmptyView {
         self.symbolName = symbolName
         self.title = title
         self.subtitle = subtitle
@@ -73,7 +73,7 @@ public struct CredentialsSignInForm: View {
         self.onSubmit = onSubmit
     }
 
-    public init<SecondaryAction: View>(
+    public init(
         symbolName: String,
         title: String,
         subtitle: String,
@@ -97,7 +97,7 @@ public struct CredentialsSignInForm: View {
         self.isLoading = isLoading
         self.errorMessage = errorMessage
         self.auxiliaryMessage = auxiliaryMessage
-        self.secondaryAction = AnyView(secondaryAction())
+        self.secondaryAction = secondaryAction()
         self.onSubmit = onSubmit
     }
 
@@ -265,12 +265,12 @@ private struct AuthInputField<Content: View, TrailingAccessory: View>: View {
         }
         .padding(.horizontal, 14)
         .frame(height: AuthPanelMetrics.fieldHeight)
-            .background(fieldShape.fill(backgroundColor))
-            .overlay(fieldShape.strokeBorder(borderColor, lineWidth: borderWidth))
-            .shadow(color: shadowColor, radius: shadowRadius)
-            .contentShape(fieldShape)
-            .onTapGesture(perform: onActivate)
-            .animation(.easeOut(duration: 0.14), value: isFocused)
+        .background(fieldShape.fill(backgroundColor))
+        .overlay(fieldShape.strokeBorder(borderColor, lineWidth: borderWidth))
+        .shadow(color: shadowColor, radius: shadowRadius)
+        .contentShape(fieldShape)
+        .onTapGesture(perform: onActivate)
+        .animation(.easeOut(duration: 0.14), value: isFocused)
     }
 
     private var fieldShape: RoundedRectangle {
