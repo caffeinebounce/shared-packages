@@ -18,6 +18,7 @@ public struct CredentialsSignInForm: View {
     private let auxiliaryMessage: String?
     private let secondaryAction: AnyView?
     private let onSubmit: () async -> Void
+    @State private var isPasswordVisible = false
     @FocusState private var focusedField: FieldFocusTarget?
 
     public init(
@@ -152,10 +153,29 @@ public struct CredentialsSignInForm: View {
                 isFocused: focusedField == .password,
                 onActivate: { focusedField = .password }
             ) {
-                SecureField("Password", text: $password)
-                    .textFieldStyle(.plain)
-                    .focused($focusedField, equals: .password)
-                    .onSubmit { submit() }
+                Group {
+                    if isPasswordVisible {
+                        TextField("Password", text: $password)
+                            .textFieldStyle(.plain)
+                    } else {
+                        SecureField("Password", text: $password)
+                            .textFieldStyle(.plain)
+                    }
+                }
+                .focused($focusedField, equals: .password)
+                .onSubmit { submit() }
+            } trailingAccessory: {
+                Button {
+                    isPasswordVisible.toggle()
+                    focusedField = .password
+                } label: {
+                    Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                        .font(.system(size: 14, weight: .semibold))
+                        .frame(width: 18, height: 18)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .accessibilityLabel(isPasswordVisible ? "Hide password" : "Show password")
             }
         }
     }
@@ -198,29 +218,49 @@ public struct CredentialsSignInForm: View {
     }
 }
 
-private struct AuthInputField<Content: View>: View {
+private struct AuthInputField<Content: View, TrailingAccessory: View>: View {
     @Environment(\.colorScheme) private var colorScheme
 
     let isFocused: Bool
     let onActivate: () -> Void
     let content: Content
+    let trailingAccessory: TrailingAccessory?
 
     init(
         isFocused: Bool,
         onActivate: @escaping () -> Void,
         @ViewBuilder content: () -> Content
+    ) where TrailingAccessory == EmptyView {
+        self.isFocused = isFocused
+        self.onActivate = onActivate
+        self.content = content()
+        self.trailingAccessory = nil
+    }
+
+    init(
+        isFocused: Bool,
+        onActivate: @escaping () -> Void,
+        @ViewBuilder content: () -> Content,
+        @ViewBuilder trailingAccessory: () -> TrailingAccessory
     ) {
         self.isFocused = isFocused
         self.onActivate = onActivate
         self.content = content()
+        self.trailingAccessory = trailingAccessory()
     }
 
     var body: some View {
-        content
-            .font(.body)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .padding(.horizontal, 14)
-            .frame(height: AuthPanelMetrics.fieldHeight)
+        HStack(spacing: 10) {
+            content
+                .font(.body)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+
+            if let trailingAccessory {
+                trailingAccessory
+            }
+        }
+        .padding(.horizontal, 14)
+        .frame(height: AuthPanelMetrics.fieldHeight)
             .background(fieldShape.fill(backgroundColor))
             .overlay(fieldShape.strokeBorder(borderColor, lineWidth: borderWidth))
             .shadow(color: shadowColor, radius: shadowRadius)
