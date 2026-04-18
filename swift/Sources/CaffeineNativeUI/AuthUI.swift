@@ -104,14 +104,13 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
             .allowsHitTesting(false)
 
             VStack(spacing: 0) {
-                Color.clear
-                    .frame(height: AuthPanelMetrics.titlebarClearance)
+                Spacer(minLength: AuthPanelMetrics.titlebarClearance)
 
                 authCard
 
-                Spacer(minLength: 0)
+                Spacer(minLength: AuthPanelMetrics.windowEdgePadding)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, AuthPanelMetrics.windowEdgePadding)
             .padding(.top, AuthPanelMetrics.windowEdgePadding)
             .padding(.bottom, AuthPanelMetrics.windowEdgePadding)
