@@ -2,7 +2,7 @@ import SwiftUI
 
 public enum AuthPanelMetrics {
     public static let windowWidth: CGFloat = 492
-    public static let windowHeight: CGFloat = 432
+    public static let windowHeight: CGFloat = 448
     public static let windowEdgePadding: CGFloat = 8
     public static let titlebarClearance: CGFloat = 24
     public static let windowCornerRadius: CGFloat = 18
