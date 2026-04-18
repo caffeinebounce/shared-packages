@@ -2,13 +2,15 @@ import SwiftUI
 
 public enum AuthPanelMetrics {
     public static let windowWidth: CGFloat = 492
-    public static let windowHeight: CGFloat = 548
-    public static let cardWidth: CGFloat = 420
-    public static let cardCornerRadius: CGFloat = 28
-    public static let cardPadding: CGFloat = 28
-    public static let headerImageSize: CGFloat = 88
-    public static let symbolBadgeSize: CGFloat = 72
-    public static let fieldHeight: CGFloat = 46
+    public static let windowHeight: CGFloat = 524
+    public static let windowEdgePadding: CGFloat = 18
+    public static let titlebarClearance: CGFloat = 34
+    public static let cardWidth: CGFloat = 434
+    public static let cardCornerRadius: CGFloat = 26
+    public static let cardPadding: CGFloat = 24
+    public static let headerImageSize: CGFloat = 76
+    public static let symbolBadgeSize: CGFloat = 64
+    public static let fieldHeight: CGFloat = 44
     public static let fieldCornerRadius: CGFloat = 14
 }
 
@@ -86,6 +88,10 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
         ZStack {
             SettingsMaterialBackground(material: .underWindowBackground)
 
+            Color.white
+                .opacity(colorScheme == .dark ? 0.035 : 0.62)
+                .allowsHitTesting(false)
+
             LinearGradient(
                 colors: [
                     Color.accentColor.opacity(colorScheme == .dark ? 0.18 : 0.08),
@@ -97,22 +103,31 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
             )
             .allowsHitTesting(false)
 
-            VStack {
+            VStack(spacing: 0) {
+                Color.clear
+                    .frame(height: AuthPanelMetrics.titlebarClearance)
+
                 authCard
+
+                Spacer(minLength: 0)
             }
-            .padding(24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .padding(.horizontal, AuthPanelMetrics.windowEdgePadding)
+            .padding(.top, AuthPanelMetrics.windowEdgePadding)
+            .padding(.bottom, AuthPanelMetrics.windowEdgePadding)
         }
         .frame(width: AuthPanelMetrics.windowWidth, height: AuthPanelMetrics.windowHeight)
+        .ignoresSafeArea()
     }
 
     private var authCard: some View {
-        VStack(spacing: 22) {
+        VStack(spacing: 0) {
             VStack(spacing: 16) {
                 headerVisual
 
-                VStack(spacing: 6) {
+                VStack(spacing: 4) {
                     Text(title)
-                        .font(.system(size: 32, weight: .semibold))
+                        .font(.system(size: 30, weight: .semibold))
                         .multilineTextAlignment(.center)
 
                     Text(subtitle)
@@ -121,8 +136,9 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
                         .multilineTextAlignment(.center)
                 }
             }
+            .padding(.bottom, 22)
 
-            VStack(spacing: 14) {
+            VStack(spacing: 12) {
                 fields
             }
 
@@ -131,6 +147,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
                     Spacer(minLength: 0)
                     secondaryAction
                 }
+                .padding(.top, 10)
             }
 
             if !messages.isEmpty {
@@ -139,9 +156,11 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
                         AuthPanelMessageRow(message: message)
                     }
                 }
+                .padding(.top, 14)
             }
 
             primaryAction
+                .padding(.top, 18)
         }
         .padding(AuthPanelMetrics.cardPadding)
         .frame(maxWidth: AuthPanelMetrics.cardWidth)
@@ -248,12 +267,12 @@ private struct AuthPanelSurface: View {
     }
 
     private var surfaceFill: some ShapeStyle {
-        Color.white.opacity(colorScheme == .dark ? 0.08 : 0.84)
+        Color.white.opacity(colorScheme == .dark ? 0.11 : 0.84)
     }
 
     private var surfaceStroke: Color {
         colorScheme == .dark
-            ? Color.white.opacity(0.08)
+            ? Color.white.opacity(0.1)
             : Color.black.opacity(0.08)
     }
 }

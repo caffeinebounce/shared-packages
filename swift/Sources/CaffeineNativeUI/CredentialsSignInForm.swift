@@ -130,7 +130,7 @@ public struct CredentialsSignInForm: View {
     }
 
     private var fields: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             Group {
                 TextField("Email", text: $email)
                     .textFieldStyle(.plain)
@@ -158,7 +158,7 @@ public struct CredentialsSignInForm: View {
             }
         }
         .buttonStyle(.borderedProminent)
-        .controlSize(.large)
+        .controlSize(.regular)
         .keyboardShortcut(.defaultAction)
         .disabled(email.isEmpty || password.isEmpty || isLoading)
     }
