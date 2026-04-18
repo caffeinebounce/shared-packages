@@ -5,6 +5,7 @@ public enum AuthPanelMetrics {
     public static let windowHeight: CGFloat = 432
     public static let windowEdgePadding: CGFloat = 8
     public static let titlebarClearance: CGFloat = 16
+    public static let windowCornerRadius: CGFloat = 18
     public static let cardWidth: CGFloat = 448
     public static let cardCornerRadius: CGFloat = 26
     public static let cardPadding: CGFloat = 24
@@ -86,22 +87,7 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
 
     public var body: some View {
         ZStack {
-            SettingsMaterialBackground(material: .underWindowBackground)
-
-            Color.white
-                .opacity(colorScheme == .dark ? 0.06 : 0.62)
-                .allowsHitTesting(false)
-
-            LinearGradient(
-                colors: [
-                    Color.accentColor.opacity(colorScheme == .dark ? 0.18 : 0.08),
-                    Color.clear,
-                    Color.primary.opacity(colorScheme == .dark ? 0.025 : 0.012),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .allowsHitTesting(false)
+            windowBackdrop
 
             VStack(spacing: 0) {
                 Color.clear
@@ -118,6 +104,33 @@ public struct AuthPanelShell<Fields: View, PrimaryAction: View>: View {
         }
         .frame(width: AuthPanelMetrics.windowWidth, height: AuthPanelMetrics.windowHeight)
         .ignoresSafeArea()
+    }
+
+    private var windowBackdrop: some View {
+        ZStack {
+            SettingsMaterialBackground(material: .underWindowBackground)
+
+            Color.white
+                .opacity(colorScheme == .dark ? 0.06 : 0.62)
+                .allowsHitTesting(false)
+
+            LinearGradient(
+                colors: [
+                    Color.accentColor.opacity(colorScheme == .dark ? 0.18 : 0.08),
+                    Color.clear,
+                    Color.primary.opacity(colorScheme == .dark ? 0.025 : 0.012),
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .allowsHitTesting(false)
+        }
+        .clipShape(
+            RoundedRectangle(
+                cornerRadius: AuthPanelMetrics.windowCornerRadius,
+                style: .continuous
+            )
+        )
     }
 
     private var authCard: some View {
