@@ -1,6 +1,11 @@
 import SwiftUI
 
 public struct CredentialsSignInForm: View {
+    private enum FieldFocusTarget: Hashable {
+        case email
+        case password
+    }
+
     private let symbolName: String
     private let title: String
     private let subtitle: String
@@ -13,6 +18,7 @@ public struct CredentialsSignInForm: View {
     private let auxiliaryMessage: String?
     private let secondaryAction: AnyView?
     private let onSubmit: () async -> Void
+    @FocusState private var focusedField: FieldFocusTarget?
 
     public init(
         symbolName: String,
@@ -131,16 +137,24 @@ public struct CredentialsSignInForm: View {
 
     private var fields: some View {
         VStack(spacing: 12) {
-            Group {
+            AuthInputField(
+                isFocused: focusedField == .email,
+                onActivate: { focusedField = .email }
+            ) {
                 TextField("Email", text: $email)
                     .textFieldStyle(.plain)
                     .disableAutocorrection(true)
-                    .modifier(AuthFieldStyle())
+                    .focused($focusedField, equals: .email)
                     .onSubmit { submit() }
+            }
 
+            AuthInputField(
+                isFocused: focusedField == .password,
+                onActivate: { focusedField = .password }
+            ) {
                 SecureField("Password", text: $password)
                     .textFieldStyle(.plain)
-                    .modifier(AuthFieldStyle())
+                    .focused($focusedField, equals: .password)
                     .onSubmit { submit() }
             }
         }
@@ -184,33 +198,78 @@ public struct CredentialsSignInForm: View {
     }
 }
 
-private struct AuthFieldStyle: ViewModifier {
+private struct AuthInputField<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    func body(content: Content) -> some View {
+    let isFocused: Bool
+    let onActivate: () -> Void
+    let content: Content
+
+    init(
+        isFocused: Bool,
+        onActivate: @escaping () -> Void,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.isFocused = isFocused
+        self.onActivate = onActivate
+        self.content = content()
+    }
+
+    var body: some View {
         content
             .font(.body)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .padding(.horizontal, 14)
             .frame(height: AuthPanelMetrics.fieldHeight)
-            .background(
-                RoundedRectangle(
-                    cornerRadius: AuthPanelMetrics.fieldCornerRadius,
-                    style: .continuous
-                )
-                .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.04))
-            )
-            .overlay(
-                RoundedRectangle(
-                    cornerRadius: AuthPanelMetrics.fieldCornerRadius,
-                    style: .continuous
-                )
-                .strokeBorder(
-                    colorScheme == .dark
-                        ? Color.white.opacity(0.08)
-                        : Color.black.opacity(0.08),
-                    lineWidth: 1
-                )
-            )
+            .background(fieldShape.fill(backgroundColor))
+            .overlay(fieldShape.strokeBorder(borderColor, lineWidth: borderWidth))
+            .shadow(color: shadowColor, radius: shadowRadius)
+            .contentShape(fieldShape)
+            .onTapGesture(perform: onActivate)
+            .animation(.easeOut(duration: 0.14), value: isFocused)
+    }
+
+    private var fieldShape: RoundedRectangle {
+        RoundedRectangle(
+            cornerRadius: AuthPanelMetrics.fieldCornerRadius,
+            style: .continuous
+        )
+    }
+
+    private var backgroundColor: Color {
+        if isFocused {
+            return colorScheme == .dark
+                ? Color.white.opacity(0.10)
+                : Color.white.opacity(0.96)
+        }
+
+        return colorScheme == .dark
+            ? Color.white.opacity(0.06)
+            : Color.black.opacity(0.04)
+    }
+
+    private var borderColor: Color {
+        if isFocused {
+            return Color.accentColor.opacity(colorScheme == .dark ? 0.95 : 0.78)
+        }
+
+        return colorScheme == .dark
+            ? Color.white.opacity(0.08)
+            : Color.black.opacity(0.08)
+    }
+
+    private var borderWidth: CGFloat {
+        isFocused ? 2 : 1
+    }
+
+    private var shadowColor: Color {
+        isFocused
+            ? Color.accentColor.opacity(colorScheme == .dark ? 0.30 : 0.16)
+            : .clear
+    }
+
+    private var shadowRadius: CGFloat {
+        isFocused ? 10 : 0
     }
 }
 
