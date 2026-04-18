@@ -145,6 +145,7 @@ public struct CredentialsSignInForm: View {
                 TextField("Email", text: $email)
                     .textFieldStyle(.plain)
                     .disableAutocorrection(true)
+                    .textContentType(.username)
                     .focused($focusedField, equals: .email)
                     .onSubmit { submit() }
             }
@@ -157,11 +158,14 @@ public struct CredentialsSignInForm: View {
                     if isPasswordVisible {
                         TextField("Password", text: $password)
                             .textFieldStyle(.plain)
+                            .disableAutocorrection(true)
                     } else {
                         SecureField("Password", text: $password)
                             .textFieldStyle(.plain)
                     }
                 }
+                .textContentType(.password)
+                .privacySensitive()
                 .focused($focusedField, equals: .password)
                 .onSubmit { submit() }
             } trailingAccessory: {
