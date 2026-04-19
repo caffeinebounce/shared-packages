@@ -36,6 +36,7 @@ import {
   buildOAuthRedirectTo,
   clearStalePKCEState,
   sanitizeSignupError,
+  warnAboutSupabaseRedirectAllowlist,
 } from "./utils";
 
 /**
@@ -252,6 +253,8 @@ export function SignupForm({
       setOauthLoading(null);
     }, 5000);
 
+    warnAboutSupabaseRedirectAllowlist(siteUrl);
+
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
@@ -296,6 +299,8 @@ export function SignupForm({
 
     // Log sign-up attempt
     onAuthEvent?.onSignUpAttempt?.(email.trim(), "email");
+
+    warnAboutSupabaseRedirectAllowlist(siteUrl);
 
     const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({

@@ -1,3 +1,7 @@
+import { isPreviewEnvironment } from "@caffeinebounce/shared-utils";
+
+const warnedSupabaseRedirectOrigins = new Set<string>();
+
 /**
  * Sanitize error messages to hide internal/technical details from users.
  * Returns a user-friendly message for known error patterns.
@@ -95,6 +99,35 @@ export function sanitizeSigninError(message: string): string {
 export function buildOAuthRedirectTo(origin: string, nextPath: string): string {
   const siteUrl = origin.replace(/\/$/, "");
   return `${siteUrl}/callback?next=${encodeURIComponent(nextPath)}`;
+}
+
+/**
+ * Warn once per origin when preview/local auth redirects also need a Supabase
+ * redirect allowlist entry.
+ */
+export function warnAboutSupabaseRedirectAllowlist(origin: string): void {
+  const normalizedOrigin = origin.replace(/\/$/, "");
+
+  let hostname = "";
+  try {
+    hostname = new URL(normalizedOrigin).host;
+  } catch {
+    return;
+  }
+
+  if (!isPreviewEnvironment(hostname)) {
+    return;
+  }
+
+  if (warnedSupabaseRedirectOrigins.has(normalizedOrigin)) {
+    return;
+  }
+
+  warnedSupabaseRedirectOrigins.add(normalizedOrigin);
+
+  console.warn(
+    `[identity] Supabase redirect allowlist reminder: add "${normalizedOrigin}/**" to Supabase Auth > URL Configuration > Additional Redirect URLs. The auth components already use the active origin for callbacks, but Supabase must allow that origin too or OAuth/email flows can bounce to another host.`,
+  );
 }
 
 /**

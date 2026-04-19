@@ -10,6 +10,7 @@ import type { AuthFormConfig, AuthLinks } from "../../types";
 import { defaultAuthLinks } from "../../types";
 import { AuthFormLayout } from "../shared/AuthFormLayout";
 import { AuthHeader } from "../shared/AuthHeader";
+import { warnAboutSupabaseRedirectAllowlist } from "./utils";
 
 /**
  * Password reset event logging callbacks
@@ -82,6 +83,7 @@ export function ForgotPasswordForm({
     const supabase = createClient();
     // Get the appropriate origin for this environment (handles preview vs production)
     const siteUrl = getClientOrigin("NEXT_PUBLIC_SITE_URL");
+    warnAboutSupabaseRedirectAllowlist(siteUrl);
     // Use callback route with next parameter for PKCE flow code exchange
     const callbackUrl = `${siteUrl}${mergedLinks.callback}?next=${encodeURIComponent(mergedLinks.resetPassword)}`;
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(

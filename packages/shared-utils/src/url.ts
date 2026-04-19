@@ -717,6 +717,12 @@ export function resolveAdminRedirectTarget(params: {
 
 /**
  * Generate canonical Supabase redirect URL variants for a base app origin.
+ *
+ * Copy these into Supabase Auth > URL Configuration > Additional Redirect URLs
+ * for each active environment. The wildcard entry is intentional: preview,
+ * localhost, and callback flows with dynamic query strings often need
+ * `${origin}/**` or Supabase may reject the callback and fall back to another
+ * configured host.
  */
 export function getSupabaseRedirectUrls(baseOrigin: string): string[] {
   const origin = baseOrigin.replace(/\/$/, "");
