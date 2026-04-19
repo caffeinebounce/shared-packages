@@ -16,6 +16,7 @@ import { AlertCircle, Check, KeyRound, Link2, Unlink } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import type { CreateClientFn } from "../../types";
+import { warnAboutSupabaseRedirectAllowlist } from "../auth/utils";
 import { ConfirmAccessDialog, type MFAFactor } from "./ConfirmAccessDialog";
 
 type Provider = "azure" | "google";
@@ -188,6 +189,7 @@ export function LinkedAccountsSection({
       const supabase = createClient();
       // Get the appropriate origin for this environment (handles preview vs production)
       const origin = getClientOrigin("NEXT_PUBLIC_SITE_URL");
+      warnAboutSupabaseRedirectAllowlist(origin);
       const { error } = await supabase.auth.linkIdentity({
         provider,
         options: {

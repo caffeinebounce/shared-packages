@@ -127,6 +127,7 @@ Examples:
 
 ## Support
 
+- Supabase auth redirects: for localhost, preview, Tailscale, or any dynamic callback host, add `origin/**` to Supabase Auth > URL Configuration > Additional Redirect URLs. `@caffeinebounce/identity` builds callbacks from the active origin, and `@caffeinebounce/shared-utils` exposes `getSupabaseRedirectUrls(origin)` to generate the canonical entries.
 - Re-run hooks: `./scripts/setup-hooks.sh`
 - Auto-fix linting: `yarn lint:fix`
 - Auto-fix formatting: `yarn format`

@@ -208,6 +208,49 @@ describe("buildOAuthRedirectTo", () => {
   });
 });
 
+describe("warnAboutSupabaseRedirectAllowlist", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.restoreAllMocks();
+  });
+
+  it("warns for localhost origins", async () => {
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { warnAboutSupabaseRedirectAllowlist: warn } = await import(
+      "./utils"
+    );
+
+    warn("http://localhost:3000");
+
+    expect(consoleWarn).toHaveBeenCalledWith(
+      expect.stringContaining("http://localhost:3000/**"),
+    );
+  });
+
+  it("warns only once per origin", async () => {
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { warnAboutSupabaseRedirectAllowlist: warn } = await import(
+      "./utils"
+    );
+
+    warn("http://localhost:3000");
+    warn("http://localhost:3000/");
+
+    expect(consoleWarn).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not warn for production origins", async () => {
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { warnAboutSupabaseRedirectAllowlist: warn } = await import(
+      "./utils"
+    );
+
+    warn("https://zenbid.com");
+
+    expect(consoleWarn).not.toHaveBeenCalled();
+  });
+});
+
 describe("clearStalePKCEState", () => {
   let mockLocalStorage: { [key: string]: string };
   let originalWindow: typeof globalThis.window;

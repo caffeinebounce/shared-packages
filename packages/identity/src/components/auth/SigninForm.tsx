@@ -28,7 +28,11 @@ import { AuthHeader } from "../shared/AuthHeader";
 import { GoogleIcon, MicrosoftIcon } from "../shared/OAuthIcons";
 import { OrDivider } from "../shared/OrDivider";
 import { EmailVerificationPending } from "./EmailVerificationPending";
-import { buildOAuthRedirectTo, clearStalePKCEState } from "./utils";
+import {
+  buildOAuthRedirectTo,
+  clearStalePKCEState,
+  warnAboutSupabaseRedirectAllowlist,
+} from "./utils";
 
 /**
  * Authentication event logging callbacks
@@ -241,6 +245,7 @@ export function SigninForm({
     // Always use active browser origin so dev/preview/Tailscale callbacks return to the same environment.
     const siteUrl = window.location.origin.replace(/\/$/, "");
     const oauthRedirectTo = buildOAuthRedirectTo(siteUrl, redirectTo);
+    warnAboutSupabaseRedirectAllowlist(siteUrl);
     const startPayload = {
       provider,
       href: window.location.href,
