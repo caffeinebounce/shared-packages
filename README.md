@@ -1,6 +1,6 @@
 # Shared Packages
 
-Reusable packages for Capital Collective projects published to GitHub Packages under the `@caffeinebounce/*` scope. The monorepo uses Turborepo, React 19, TypeScript (strict), Tailwind CSS v4, Biome, Vitest, Tsup, and Changesets.
+Reusable packages for Capital Collective projects published to GitHub Packages under the `@caffeinebounce/*` scope, plus a shared Swift package for native macOS UI. The monorepo uses Turborepo, React 19, TypeScript (strict), Tailwind CSS v4, Biome, Vitest, Tsup, and Changesets.
 
 ## Packages
 
@@ -14,6 +14,12 @@ Reusable packages for Capital Collective projects published to GitHub Packages u
 | `@caffeinebounce/shared-utils` | Common utilities and formatters |
 | `@caffeinebounce/commerce` | Checkout and Stripe helpers |
 | `@caffeinebounce/notifications` | Shared notification UI and hooks |
+
+## Swift Package
+
+| Package | Description |
+|---------|-------------|
+| `CaffeineNativeUI` | Shared SwiftUI/AppKit primitives for native macOS surfaces, defined by [Package.swift](Package.swift) and sourced from `swift/` |
 
 ## Requirements & Registry
 
@@ -36,6 +42,7 @@ yarn build            # Build all packages
 yarn typecheck        # Type-check all packages
 yarn lint             # Non-mutating lint check
 yarn test             # Run package tests
+swift test            # Run CaffeineNativeUI tests
 yarn validate:packages # Verify published package contracts after build
 ```
 
