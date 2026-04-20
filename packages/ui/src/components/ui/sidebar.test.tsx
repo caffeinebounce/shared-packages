@@ -3,9 +3,14 @@
  * Tests #832: Sidebar has overflow-x-hidden to prevent horizontal scrollbar
  */
 
-import { render } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { Sidebar, SidebarContent, SidebarProvider } from "./sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarProvider,
+  SidebarTrigger,
+} from "./sidebar";
 
 // Mock window.matchMedia for responsive tests
 Object.defineProperty(window, "matchMedia", {
@@ -161,5 +166,35 @@ describe("Sidebar - Overflow Control", () => {
     // Should have overflow-x-hidden but allow vertical scroll (via SidebarContent)
     expect(sidebarContainer?.className).toContain("overflow-x-hidden");
     expect(sidebarContainer?.className).toContain("flex-col"); // vertical layout
+  });
+
+  it("allows the trigger to expand a sidebar that defaults to collapsed on medium screens", async () => {
+    const previousInnerWidth = window.innerWidth;
+    window.innerWidth = 900;
+
+    try {
+      const { container } = render(
+        <SidebarProvider>
+          <SidebarTrigger />
+          <Sidebar collapsible="icon">
+            <SidebarContent>
+              <div>Sidebar content</div>
+            </SidebarContent>
+          </Sidebar>
+        </SidebarProvider>,
+      );
+
+      await waitFor(() =>
+        expect(container.querySelector('[data-state="collapsed"]')).toBeTruthy(),
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /toggle sidebar/i }));
+
+      await waitFor(() =>
+        expect(container.querySelector('[data-state="expanded"]')).toBeTruthy(),
+      );
+    } finally {
+      window.innerWidth = previousInnerWidth;
+    }
   });
 });

@@ -205,7 +205,7 @@ export function EntitySwitcher<T extends Entity>({
             <div className="flex h-8 w-8 items-center justify-center">
               <Spinner size="sm" />
             </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
               <span className="truncate text-muted-foreground">Loading...</span>
             </div>
           </SidebarMenuButton>
@@ -227,7 +227,7 @@ export function EntitySwitcher<T extends Entity>({
             >
               <Plus className="h-4 w-4" />
             </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
               <span className="truncate font-semibold">{emptyTitle}</span>
               <span className="truncate text-xs text-muted-foreground">
                 {emptySubtitle}
