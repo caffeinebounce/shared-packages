@@ -185,7 +185,9 @@ describe("Sidebar - Overflow Control", () => {
       );
 
       await waitFor(() =>
-        expect(container.querySelector('[data-state="collapsed"]')).toBeTruthy(),
+        expect(
+          container.querySelector('[data-state="collapsed"]'),
+        ).toBeTruthy(),
       );
 
       fireEvent.click(screen.getByRole("button", { name: /toggle sidebar/i }));
