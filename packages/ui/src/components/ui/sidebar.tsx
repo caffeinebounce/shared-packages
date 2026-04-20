@@ -431,7 +431,7 @@ const SidebarTrigger = React.forwardRef<
       type="button"
       data-sidebar="trigger"
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center text-icon outline-none transition-colors hover:text-icon-hover focus-visible:ring-0",
+        "inline-flex h-8 w-8 items-center justify-center rounded-md text-icon transition-colors hover:text-icon-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         className,
       )}
       onClick={(event) => {

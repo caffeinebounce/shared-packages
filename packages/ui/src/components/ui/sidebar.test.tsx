@@ -169,27 +169,32 @@ describe("Sidebar - Overflow Control", () => {
   });
 
   it("allows the trigger to expand a sidebar that defaults to collapsed on medium screens", async () => {
+    const previousInnerWidth = window.innerWidth;
     window.innerWidth = 900;
 
-    const { container } = render(
-      <SidebarProvider>
-        <SidebarTrigger />
-        <Sidebar collapsible="icon">
-          <SidebarContent>
-            <div>Sidebar content</div>
-          </SidebarContent>
-        </Sidebar>
-      </SidebarProvider>,
-    );
+    try {
+      const { container } = render(
+        <SidebarProvider>
+          <SidebarTrigger />
+          <Sidebar collapsible="icon">
+            <SidebarContent>
+              <div>Sidebar content</div>
+            </SidebarContent>
+          </Sidebar>
+        </SidebarProvider>,
+      );
 
-    await waitFor(() =>
-      expect(container.querySelector('[data-state="collapsed"]')).toBeTruthy(),
-    );
+      await waitFor(() =>
+        expect(container.querySelector('[data-state="collapsed"]')).toBeTruthy(),
+      );
 
-    fireEvent.click(screen.getByRole("button", { name: /toggle sidebar/i }));
+      fireEvent.click(screen.getByRole("button", { name: /toggle sidebar/i }));
 
-    await waitFor(() =>
-      expect(container.querySelector('[data-state="expanded"]')).toBeTruthy(),
-    );
+      await waitFor(() =>
+        expect(container.querySelector('[data-state="expanded"]')).toBeTruthy(),
+      );
+    } finally {
+      window.innerWidth = previousInnerWidth;
+    }
   });
 });
