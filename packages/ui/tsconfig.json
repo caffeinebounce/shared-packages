@@ -6,8 +6,8 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@react-three/fiber": ["src/types/react-three-fiber-stub.d.ts"],
-      "three": ["src/types/three-stub.d.ts"]
+      "@react-three/fiber": ["types/react-three-fiber-stub.d.ts"],
+      "three": ["types/three-stub.d.ts"]
     }
   },
   "include": ["src"],
