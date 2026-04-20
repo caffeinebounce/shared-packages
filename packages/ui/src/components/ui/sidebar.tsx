@@ -57,8 +57,8 @@ function resolveSidebarMode(
   desktopPref?: DesktopPreference,
 ): SidebarMode {
   if (width < 768) return "hidden";
-  if (width < 1024) return "collapsed";
-  return desktopPref ?? "expanded";
+  if (desktopPref) return desktopPref;
+  return width < 1024 ? "collapsed" : "expanded";
 }
 
 function toDesktopPreference(open?: boolean): DesktopPreference | undefined {
@@ -88,11 +88,14 @@ function sidebarReducer(
       };
     }
     case "TOGGLE_DESKTOP": {
-      if (state.viewportWidth < 1024) return state;
+      if (state.viewportWidth < 768) return state;
+      const currentMode = resolveSidebarMode(
+        state.viewportWidth,
+        state.desktopPref,
+      );
       return {
         ...state,
-        desktopPref:
-          state.desktopPref === "collapsed" ? "expanded" : "collapsed",
+        desktopPref: currentMode === "expanded" ? "collapsed" : "expanded",
       };
     }
     case "OPEN_MOBILE": {
@@ -428,7 +431,7 @@ const SidebarTrigger = React.forwardRef<
       type="button"
       data-sidebar="trigger"
       className={cn(
-        "inline-flex h-8 w-8 items-center justify-center text-icon transition-colors hover:text-icon-hover",
+        "inline-flex h-8 w-8 items-center justify-center text-icon outline-none transition-colors hover:text-icon-hover focus-visible:ring-0",
         className,
       )}
       onClick={(event) => {
