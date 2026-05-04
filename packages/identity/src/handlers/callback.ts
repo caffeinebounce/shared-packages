@@ -47,6 +47,14 @@ export interface AuthCallbackConfig {
 
 const POST_AUTH_HOOK_ERROR_MESSAGE =
   "Authentication completed, but setup failed. Please try again.";
+const EMAIL_OTP_TYPES = [
+  "signup",
+  "invite",
+  "magiclink",
+  "recovery",
+  "email_change",
+  "email",
+] as const satisfies readonly EmailOtpType[];
 
 function getSafeRedirectPath(
   candidate: string | null | undefined,
@@ -57,6 +65,16 @@ function getSafeRedirectPath(
   }
 
   return fallback;
+}
+
+function getEmailOtpType(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  return (EMAIL_OTP_TYPES as readonly string[]).includes(value)
+    ? (value as EmailOtpType)
+    : null;
 }
 
 async function runPostAuthHook({
@@ -108,6 +126,95 @@ async function runPostAuthHook({
   }
 }
 
+async function redirectAfterSuccessfulAuth({
+  supabase,
+  request,
+  origin,
+  redirectPath,
+  flow,
+  otpType,
+  postAuthHook,
+  postAuthHookErrorMode,
+  signInPath,
+}: {
+  supabase: SupabaseClient;
+  request: Request;
+  origin: string;
+  redirectPath: string;
+  flow: AuthCallbackFlow;
+  otpType?: EmailOtpType;
+  postAuthHook?: AuthCallbackHook;
+  postAuthHookErrorMode: AuthCallbackHookErrorMode;
+  signInPath: string;
+}) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.redirect(`${origin}${redirectPath}`);
+  }
+
+  const postAuthHookRedirect = await runPostAuthHook({
+    postAuthHook,
+    postAuthHookErrorMode,
+    supabase,
+    user,
+    request,
+    origin,
+    redirectPath,
+    flow,
+    otpType,
+    signInPath,
+  });
+
+  if (postAuthHookRedirect) {
+    return postAuthHookRedirect;
+  }
+
+  // Fetch user's role and admin approval status from profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, admin_approval_status")
+    .eq("id", user.id)
+    .single();
+
+  // Check if user has an admin role (admin:super or admin:program)
+  const isAdmin = profile?.role?.startsWith("admin:");
+  const isPendingApproval = profile?.admin_approval_status === "pending";
+
+  if (isAdmin) {
+    // If admin is pending approval, redirect to pending page
+    if (isPendingApproval) {
+      return NextResponse.redirect(`${origin}/admin-pending`);
+    }
+
+    // Check if we should use admin subdomain
+    const url = new URL(origin);
+    const hostname = url.hostname;
+
+    // Only use admin subdomain on known production Compass domains.
+    // For local/Tailscale/dev hosts, keep same host and use /admin/dashboard.
+    const isCompassProductionHost =
+      hostname === "thecapitalcompass.ai" ||
+      hostname === "app.thecapitalcompass.ai" ||
+      hostname.endsWith(".thecapitalcompass.ai");
+
+    if (isCompassProductionHost) {
+      url.hostname = hostname.startsWith("admin.")
+        ? hostname
+        : "admin.thecapitalcompass.ai";
+      url.pathname = "/dashboard"; // On subdomain, we use /dashboard not /admin/dashboard
+      return NextResponse.redirect(url.toString());
+    }
+
+    // In development/non-prod hosts, use /admin/dashboard path
+    return NextResponse.redirect(`${origin}/admin/dashboard`);
+  }
+
+  return NextResponse.redirect(`${origin}${redirectPath}`);
+}
+
 /**
  * createAuthCallbackHandler - Factory for OAuth/email callback route handler
  *
@@ -145,7 +252,8 @@ export function createAuthCallbackHandler({
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
     const tokenHash = requestUrl.searchParams.get("token_hash");
-    const otpType = requestUrl.searchParams.get("type") as EmailOtpType | null;
+    const rawOtpType = requestUrl.searchParams.get("type");
+    const otpType = getEmailOtpType(rawOtpType);
     const next = getSafeRedirectPath(
       requestUrl.searchParams.get("next") ??
         requestUrl.searchParams.get("redirect_to"),
@@ -190,71 +298,16 @@ export function createAuthCallbackHandler({
         await supabase.auth.exchangeCodeForSession(code);
 
       if (!exchangeError) {
-        // Check if user is an admin and redirect accordingly
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (user) {
-          const postAuthHookRedirect = await runPostAuthHook({
-            postAuthHook,
-            postAuthHookErrorMode,
-            supabase,
-            user,
-            request,
-            origin,
-            redirectPath: next,
-            flow: "oauth",
-            signInPath,
-          });
-
-          if (postAuthHookRedirect) {
-            return postAuthHookRedirect;
-          }
-
-          // Fetch user's role and admin approval status from profiles
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("role, admin_approval_status")
-            .eq("id", user.id)
-            .single();
-
-          // Check if user has an admin role (admin:super or admin:program)
-          const isAdmin = profile?.role?.startsWith("admin:");
-          const isPendingApproval =
-            profile?.admin_approval_status === "pending";
-
-          if (isAdmin) {
-            // If admin is pending approval, redirect to pending page
-            if (isPendingApproval) {
-              return NextResponse.redirect(`${origin}/admin-pending`);
-            }
-
-            // Check if we should use admin subdomain
-            const url = new URL(origin);
-            const hostname = url.hostname;
-
-            // Only use admin subdomain on known production Compass domains.
-            // For local/Tailscale/dev hosts, keep same host and use /admin/dashboard.
-            const isCompassProductionHost =
-              hostname === "thecapitalcompass.ai" ||
-              hostname === "app.thecapitalcompass.ai" ||
-              hostname.endsWith(".thecapitalcompass.ai");
-
-            if (isCompassProductionHost) {
-              url.hostname = hostname.startsWith("admin.")
-                ? hostname
-                : "admin.thecapitalcompass.ai";
-              url.pathname = "/dashboard"; // On subdomain, we use /dashboard not /admin/dashboard
-              return NextResponse.redirect(url.toString());
-            }
-
-            // In development/non-prod hosts, use /admin/dashboard path
-            return NextResponse.redirect(`${origin}/admin/dashboard`);
-          }
-        }
-
-        return NextResponse.redirect(`${origin}${next}`);
+        return redirectAfterSuccessfulAuth({
+          supabase,
+          request,
+          origin,
+          redirectPath: next,
+          flow: "oauth",
+          postAuthHook,
+          postAuthHookErrorMode,
+          signInPath,
+        });
       }
 
       // Check if this is a linking error
@@ -284,7 +337,7 @@ export function createAuthCallbackHandler({
       );
     }
 
-    if (tokenHash || otpType) {
+    if (tokenHash || rawOtpType) {
       if (!tokenHash || !otpType) {
         return NextResponse.redirect(
           `${origin}${signInPath}?error=${encodeURIComponent("Invalid verification link")}`,
@@ -298,30 +351,17 @@ export function createAuthCallbackHandler({
       });
 
       if (!verifyError) {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (user) {
-          const postAuthHookRedirect = await runPostAuthHook({
-            postAuthHook,
-            postAuthHookErrorMode,
-            supabase,
-            user,
-            request,
-            origin,
-            redirectPath: next,
-            flow: "otp",
-            otpType,
-            signInPath,
-          });
-
-          if (postAuthHookRedirect) {
-            return postAuthHookRedirect;
-          }
-        }
-
-        return NextResponse.redirect(`${origin}${next}`);
+        return redirectAfterSuccessfulAuth({
+          supabase,
+          request,
+          origin,
+          redirectPath: next,
+          flow: "otp",
+          otpType,
+          postAuthHook,
+          postAuthHookErrorMode,
+          signInPath,
+        });
       }
 
       return NextResponse.redirect(

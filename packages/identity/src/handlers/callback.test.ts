@@ -102,6 +102,48 @@ describe("createAuthCallbackHandler", () => {
 
       expect(response.url).toBe("https://example.com/dashboard");
     });
+
+    it("allows relative redirect_to paths when next is not provided", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=abc&redirect_to=/welcome",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/welcome");
+    });
+
+    it("blocks protocol-relative redirect_to URLs", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=abc&redirect_to=//evil.com",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/dashboard");
+    });
+
+    it("blocks absolute redirect_to URLs", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=abc&redirect_to=https://evil.com",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/dashboard");
+    });
   });
 
   describe("error handling", () => {
@@ -376,6 +418,23 @@ describe("createAuthCallbackHandler", () => {
         "https://example.com/signin?error=Verification%20token%20expired",
       );
     });
+
+    it("rejects unsupported OTP verification types", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        signInPath: "/signin",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?token_hash=hash-123&type=not-real",
+      );
+      const response = await handler(request);
+
+      expect(mockSupabase.auth.verifyOtp).not.toHaveBeenCalled();
+      expect(response.url).toBe(
+        "https://example.com/signin?error=Invalid%20verification%20link",
+      );
+    });
   });
 
   describe("admin user handling", () => {
@@ -499,6 +558,37 @@ describe("createAuthCallbackHandler", () => {
       expect(response.url).toBe(
         "https://doogteams-mac-mini.tail535a4.ts.net/admin/dashboard",
       );
+    });
+
+    it("applies admin redirects after OTP verification", async () => {
+      const mockProfile = {
+        role: "admin:super",
+        admin_approval_status: "approved",
+      };
+      mockSupabase.auth.verifyOtp.mockResolvedValue({
+        error: null,
+      });
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "123" } },
+      });
+      mockSupabase.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: mockProfile }),
+          }),
+        }),
+      });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+      });
+
+      const request = new Request(
+        "http://localhost:3000/callback?token_hash=hash-123&type=magiclink",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("http://localhost:3000/admin/dashboard");
     });
   });
 
