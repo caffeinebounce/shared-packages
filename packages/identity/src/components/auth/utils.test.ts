@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildOAuthRedirectTo,
+  buildOAuthSignInOptions,
   clearStalePKCEState,
   sanitizeAuthError,
   sanitizeSigninError,
@@ -205,6 +206,37 @@ describe("buildOAuthRedirectTo", () => {
     ).toBe(
       "https://doogteams-mac-mini.tail535a4.ts.net/callback?next=%2Fadmin%2Fdashboard%3Ftab%3Dusers",
     );
+  });
+});
+
+describe("buildOAuthSignInOptions", () => {
+  it("requests the email scope for Microsoft OAuth", () => {
+    expect(
+      buildOAuthSignInOptions("azure", "http://localhost:3000/callback"),
+    ).toEqual({
+      redirectTo: "http://localhost:3000/callback",
+      scopes: "email",
+    });
+  });
+
+  it("does not add extra scopes for Google OAuth", () => {
+    expect(
+      buildOAuthSignInOptions("google", "http://localhost:3000/callback"),
+    ).toEqual({
+      redirectTo: "http://localhost:3000/callback",
+    });
+  });
+
+  it("preserves additional OAuth options", () => {
+    expect(
+      buildOAuthSignInOptions("azure", "http://localhost:3000/callback", {
+        skipBrowserRedirect: true,
+      }),
+    ).toEqual({
+      redirectTo: "http://localhost:3000/callback",
+      scopes: "email",
+      skipBrowserRedirect: true,
+    });
   });
 });
 

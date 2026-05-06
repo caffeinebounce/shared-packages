@@ -30,6 +30,7 @@ import { OrDivider } from "../shared/OrDivider";
 import { EmailVerificationPending } from "./EmailVerificationPending";
 import {
   buildOAuthRedirectTo,
+  buildOAuthSignInOptions,
   clearStalePKCEState,
   warnAboutSupabaseRedirectAllowlist,
 } from "./utils";
@@ -261,10 +262,9 @@ export function SigninForm({
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: {
-        redirectTo: oauthRedirectTo,
+      options: buildOAuthSignInOptions(provider, oauthRedirectTo, {
         skipBrowserRedirect: true,
-      },
+      }),
     });
 
     if (!error && data?.url) {
