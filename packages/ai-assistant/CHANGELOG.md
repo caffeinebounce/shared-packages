@@ -1,5 +1,13 @@
 # @caffeinebounce/ai-assistant
 
+## 0.5.53
+
+### Patch Changes
+
+- ebfe98d: Sync internal dependency ranges with the latest published workspace package versions.
+- Updated dependencies [ebfe98d]
+  - @caffeinebounce/ui@0.56.6
+
 ## 0.5.52
 
 ### Patch Changes

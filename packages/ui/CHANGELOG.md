@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.56.6
+
+### Patch Changes
+
+- ebfe98d: Sync internal dependency ranges with the latest published workspace package versions.
+
 ## 0.56.4
 
 ### Patch Changes
