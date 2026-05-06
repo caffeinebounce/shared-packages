@@ -1,6 +1,13 @@
 import { isPreviewEnvironment } from "@caffeinebounce/shared-utils";
+import type { OAuthProvider } from "../../types";
 
 const warnedSupabaseRedirectOrigins = new Set<string>();
+
+type OAuthSignInOptions = {
+  redirectTo: string;
+  scopes?: string;
+  skipBrowserRedirect?: boolean;
+};
 
 /**
  * Sanitize error messages to hide internal/technical details from users.
@@ -99,6 +106,18 @@ export function sanitizeSigninError(message: string): string {
 export function buildOAuthRedirectTo(origin: string, nextPath: string): string {
   const siteUrl = origin.replace(/\/$/, "");
   return `${siteUrl}/callback?next=${encodeURIComponent(nextPath)}`;
+}
+
+export function buildOAuthSignInOptions(
+  provider: OAuthProvider,
+  redirectTo: string,
+  options: Omit<OAuthSignInOptions, "redirectTo" | "scopes"> = {},
+): OAuthSignInOptions {
+  return {
+    redirectTo,
+    ...(provider === "azure" ? { scopes: "email" } : {}),
+    ...options,
+  };
 }
 
 /**
