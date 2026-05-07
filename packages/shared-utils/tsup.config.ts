@@ -3,6 +3,7 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: [
     "src/index.ts",
+    "src/analytics.ts",
     "src/formatters.ts",
     "src/string.ts",
     "src/image.ts",

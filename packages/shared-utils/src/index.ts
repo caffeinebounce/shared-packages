@@ -4,6 +4,12 @@
  * Shared utility functions for Capital Collective projects.
  */
 
+// Re-export analytics utilities
+export {
+  getMicrosoftClarityScript,
+  getMicrosoftClarityScriptUrl,
+  normalizeMicrosoftClarityProjectId,
+} from "./analytics";
 // Re-export auth utilities
 export {
   generateRecoveryCodes,

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
 import {
   getMicrosoftClarityScriptUrl,
   normalizeMicrosoftClarityProjectId,
-} from "./microsoftClarity";
+} from "@caffeinebounce/shared-utils";
+import { useEffect } from "react";
 
 declare global {
   interface Window {

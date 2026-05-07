@@ -9,13 +9,7 @@ export type {
   ClarityAnalyticsProps,
   GoogleAnalyticsProps,
 } from "./blocks/analytics";
-export {
-  ClarityAnalytics,
-  GoogleAnalytics,
-  getMicrosoftClarityScript,
-  getMicrosoftClarityScriptUrl,
-  normalizeMicrosoftClarityProjectId,
-} from "./blocks/analytics";
+export { ClarityAnalytics, GoogleAnalytics } from "./blocks/analytics";
 export type {
   DeviceInfo,
   MFAChallengeProps,

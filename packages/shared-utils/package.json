@@ -12,6 +12,11 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
+    "./analytics": {
+      "types": "./dist/analytics.d.ts",
+      "import": "./dist/analytics.mjs",
+      "require": "./dist/analytics.js"
+    },
     "./formatters": {
       "types": "./dist/formatters.d.ts",
       "import": "./dist/formatters.mjs",
