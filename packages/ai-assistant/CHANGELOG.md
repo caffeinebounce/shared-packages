@@ -1,5 +1,13 @@
 # @caffeinebounce/ai-assistant
 
+## 0.5.54
+
+### Patch Changes
+
+- 375de11: Align published internal dependency ranges with current workspace package versions.
+- Updated dependencies [375de11]
+  - @caffeinebounce/ui@0.56.7
+
 ## 0.5.53
 
 ### Patch Changes

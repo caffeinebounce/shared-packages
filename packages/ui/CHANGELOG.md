@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.56.7
+
+### Patch Changes
+
+- 375de11: Align published internal dependency ranges with current workspace package versions.
+
 ## 0.56.6
 
 ### Patch Changes
