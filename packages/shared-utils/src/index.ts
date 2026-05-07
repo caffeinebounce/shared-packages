@@ -6,8 +6,12 @@
 
 // Re-export analytics utilities
 export {
+  getGoogleTagManagerNoScriptUrl,
+  getGoogleTagManagerScript,
+  getGoogleTagManagerScriptUrl,
   getMicrosoftClarityScript,
   getMicrosoftClarityScriptUrl,
+  normalizeGoogleTagManagerContainerId,
   normalizeMicrosoftClarityProjectId,
 } from "./analytics";
 // Re-export auth utilities

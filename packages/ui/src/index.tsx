@@ -8,8 +8,13 @@ export { UserNameEditableCell } from "./blocks/admin/UserNameEditableCell";
 export type {
   ClarityAnalyticsProps,
   GoogleAnalyticsProps,
+  GoogleTagManagerProps,
 } from "./blocks/analytics";
-export { ClarityAnalytics, GoogleAnalytics } from "./blocks/analytics";
+export {
+  ClarityAnalytics,
+  GoogleAnalytics,
+  GoogleTagManager,
+} from "./blocks/analytics";
 export type {
   DeviceInfo,
   MFAChallengeProps,

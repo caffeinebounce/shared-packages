@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  getGoogleTagManagerNoScriptUrl,
+  getGoogleTagManagerScript,
+  getGoogleTagManagerScriptUrl,
   getMicrosoftClarityScript,
   getMicrosoftClarityScriptUrl,
+  normalizeGoogleTagManagerContainerId,
   normalizeMicrosoftClarityProjectId,
 } from "../analytics";
 
@@ -29,6 +33,50 @@ describe("Microsoft Clarity utilities", () => {
     );
     expect(() => getMicrosoftClarityScript("abc/123")).toThrow(
       "Invalid Microsoft Clarity project ID.",
+    );
+  });
+});
+
+describe("Google Tag Manager utilities", () => {
+  it("normalizes valid container IDs and rejects unsafe values", () => {
+    expect(normalizeGoogleTagManagerContainerId(" gtm-abc123 ")).toBe(
+      "GTM-ABC123",
+    );
+    expect(normalizeGoogleTagManagerContainerId("")).toBeNull();
+    expect(normalizeGoogleTagManagerContainerId("G-ABC123")).toBeNull();
+    expect(normalizeGoogleTagManagerContainerId("GTM-ABC/123")).toBeNull();
+  });
+
+  it("builds the GTM script and noscript URLs", () => {
+    expect(getGoogleTagManagerScriptUrl("GTM-ABC123")).toBe(
+      "https://www.googletagmanager.com/gtm.js?id=GTM-ABC123",
+    );
+    expect(getGoogleTagManagerNoScriptUrl("GTM-ABC123")).toBe(
+      "https://www.googletagmanager.com/ns.html?id=GTM-ABC123",
+    );
+  });
+
+  it("supports custom data layer names", () => {
+    expect(getGoogleTagManagerScriptUrl("GTM-ABC123", "customLayer")).toBe(
+      "https://www.googletagmanager.com/gtm.js?id=GTM-ABC123&l=customLayer",
+    );
+    expect(getGoogleTagManagerNoScriptUrl("GTM-ABC123", "customLayer")).toBe(
+      "https://www.googletagmanager.com/ns.html?id=GTM-ABC123&l=customLayer",
+    );
+    expect(getGoogleTagManagerScript("GTM-ABC123", "customLayer")).toContain(
+      '"customLayer", "GTM-ABC123"',
+    );
+  });
+
+  it("throws for invalid GTM container IDs", () => {
+    expect(() => getGoogleTagManagerScriptUrl("G-ABC123")).toThrow(
+      "Invalid Google Tag Manager container ID.",
+    );
+    expect(() => getGoogleTagManagerNoScriptUrl("GTM-ABC/123")).toThrow(
+      "Invalid Google Tag Manager container ID.",
+    );
+    expect(() => getGoogleTagManagerScript("GTM-ABC/123")).toThrow(
+      "Invalid Google Tag Manager container ID.",
     );
   });
 });
