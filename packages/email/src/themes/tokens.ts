@@ -6,6 +6,7 @@ export interface EmailThemeTokens {
   // Layout
   background: string;
   contentBackground: string;
+  boxRadius: string; // "0px" sharp, "8px" subtle, "12px" rounded
 
   // Typography
   headingColor: string;

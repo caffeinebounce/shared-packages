@@ -55,6 +55,7 @@ export function Footer({
   if (variant === "minimal") {
     return (
       <MinimalFooter
+        logo={logo}
         copyright={copyright}
         socialLinks={socialLinks}
         linkGroups={linkGroups}
@@ -319,6 +320,7 @@ function BrandFooter({
 // ── Minimal variant ────────────────────────────────────────────
 
 function MinimalFooter({
+  logo,
   copyright,
   socialLinks = [],
   linkGroups = [],
@@ -326,6 +328,7 @@ function MinimalFooter({
   containerClassName,
 }: Pick<
   FooterProps,
+  | "logo"
   | "copyright"
   | "socialLinks"
   | "linkGroups"
@@ -341,9 +344,18 @@ function MinimalFooter({
         data-slot="footer-container"
         className={cn("py-6", containerClassName)}
       >
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          {copyright && (
-            <p className="text-sm text-muted-foreground">{copyright}</p>
+        <div className="flex flex-col items-center gap-4 md:flex-row md:items-start md:justify-between">
+          {(copyright || logo) && (
+            <div className="flex flex-col items-center gap-3">
+              {copyright && (
+                <p className="text-sm text-muted-foreground">{copyright}</p>
+              )}
+              {logo && (
+                <div className="shrink-0" data-slot="footer-logo">
+                  {logo}
+                </div>
+              )}
+            </div>
           )}
 
           {socialLinks.length > 0 && (

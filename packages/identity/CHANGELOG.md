@@ -1,5 +1,17 @@
 # @caffeinebounce/identity
 
+## 0.11.0
+
+### Minor Changes
+
+- 375de11: Add a post-auth callback hook to `createAuthCallbackHandler`, including token-hash OTP verification support and configurable hook error handling.
+
+### Patch Changes
+
+- Release the post-auth callback hook together with the Microsoft OAuth email-scope update in a fresh package version.
+- Updated dependencies [375de11]
+  - @caffeinebounce/ui@0.56.7
+
 ## 0.10.85
 
 ### Patch Changes
