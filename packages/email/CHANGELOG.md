@@ -1,5 +1,11 @@
 # @caffeinebounce/email
 
+## 0.6.125
+
+### Patch Changes
+
+- Promote Factory portal legal layout, footer logo, and email card radius support into the published shared packages.
+
 ## 0.6.0
 
 ### Minor Changes

@@ -52,4 +52,18 @@ describe("Footer", () => {
 
     expect(footerContainer).toHaveClass("max-w-5xl");
   });
+
+  it("renders logo in the minimal variant", () => {
+    const { container } = render(
+      <Footer
+        variant="minimal"
+        logo={<span>Factory</span>}
+        copyright="Copyright"
+      />,
+    );
+
+    const logo = container.querySelector('[data-slot="footer-logo"]');
+
+    expect(logo).toHaveTextContent("Factory");
+  });
 });

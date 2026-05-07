@@ -4,6 +4,7 @@
 
 ### Patch Changes
 
+- Promote Factory portal legal layout, footer logo, and email card radius support into the published shared packages.
 - ebfe98d: Sync internal dependency ranges with the latest published workspace package versions.
 
 ## 0.56.4
