@@ -1,5 +1,14 @@
 # @caffeinebounce/identity
 
+## 0.10.85
+
+### Patch Changes
+
+- ebfe98d: Request the `email` scope for Microsoft OAuth sign-in and sign-up flows so Supabase can receive the user email claim from Azure.
+- fb91a15: Add a preview-environment console reminder to configure Supabase redirect allowlists with `origin/**` for shared auth flows.
+- Updated dependencies [ebfe98d]
+  - @caffeinebounce/ui@0.56.6
+
 ## 0.10.83
 
 ### Patch Changes
