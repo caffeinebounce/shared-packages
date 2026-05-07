@@ -50,6 +50,12 @@ export {
   type HoverBorderCTAGroupProps,
   type HoverBorderCTAItem,
 } from "./HoverBorderCTAGroup";
+export {
+  ImagesSlider,
+  type ImagesSliderDirection,
+  type ImagesSliderImage,
+  type ImagesSliderProps,
+} from "./ImagesSlider";
 export { ImpactSection, type ImpactSectionProps } from "./ImpactSection";
 export {
   type InfiniteTestimonialItem,
