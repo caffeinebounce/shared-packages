@@ -16,6 +16,7 @@ describe("createAuthCallbackHandler", () => {
   const mockSupabase = {
     auth: {
       exchangeCodeForSession: vi.fn(),
+      verifyOtp: vi.fn(),
       getUser: vi.fn(),
     },
     from: vi.fn(() => ({
@@ -34,7 +35,15 @@ describe("createAuthCallbackHandler", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({ error: null });
+    mockSupabase.auth.verifyOtp.mockResolvedValue({ error: null });
     mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null } });
+    mockSupabase.from.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: null }),
+        }),
+      }),
+    });
   });
 
   describe("open redirect prevention", () => {
@@ -89,6 +98,48 @@ describe("createAuthCallbackHandler", () => {
       });
 
       const request = new Request("https://example.com/callback?code=abc");
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/dashboard");
+    });
+
+    it("allows relative redirect_to paths when next is not provided", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=abc&redirect_to=/welcome",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/welcome");
+    });
+
+    it("blocks protocol-relative redirect_to URLs", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=abc&redirect_to=//evil.com",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/dashboard");
+    });
+
+    it("blocks absolute redirect_to URLs", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=abc&redirect_to=https://evil.com",
+      );
       const response = await handler(request);
 
       expect(response.url).toBe("https://example.com/dashboard");
@@ -231,6 +282,159 @@ describe("createAuthCallbackHandler", () => {
 
       expect(response.url).toBe("https://example.com/home");
     });
+
+    it("calls postAuthHook after OAuth success with the authenticated user", async () => {
+      const user = {
+        id: "user-1",
+        email: "maya@example.com",
+        user_metadata: { display_name: "Maya" },
+      };
+      const postAuthHook = vi.fn().mockResolvedValue(undefined);
+      mockSupabase.auth.getUser.mockResolvedValue({ data: { user } });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+        postAuthHook,
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=valid&next=/home",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/home");
+      expect(postAuthHook).toHaveBeenCalledWith(
+        expect.objectContaining({
+          supabase: mockSupabase,
+          user,
+          request,
+          origin: "https://example.com",
+          redirectPath: "/home",
+          flow: "oauth",
+        }),
+      );
+    });
+
+    it("calls postAuthHook after OTP verification success", async () => {
+      const user = {
+        id: "user-2",
+        email: "otp@example.com",
+        user_metadata: { display_name: "OTP User" },
+      };
+      const postAuthHook = vi.fn().mockResolvedValue(undefined);
+      mockSupabase.auth.getUser.mockResolvedValue({ data: { user } });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+        postAuthHook,
+      });
+
+      const request = new Request(
+        "https://example.com/callback?token_hash=hash-123&type=magiclink&redirect_to=/welcome",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/welcome");
+      expect(mockSupabase.auth.verifyOtp).toHaveBeenCalledWith({
+        token_hash: "hash-123",
+        type: "magiclink",
+      });
+      expect(postAuthHook).toHaveBeenCalledWith(
+        expect.objectContaining({
+          supabase: mockSupabase,
+          user,
+          request,
+          origin: "https://example.com",
+          redirectPath: "/welcome",
+          flow: "otp",
+          otpType: "magiclink",
+        }),
+      );
+    });
+
+    it("blocks the success redirect when postAuthHook fails by default", async () => {
+      const user = {
+        id: "user-3",
+        email: "blocked@example.com",
+        user_metadata: {},
+      };
+      mockSupabase.auth.getUser.mockResolvedValue({ data: { user } });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        postAuthHook: vi.fn().mockRejectedValue(new Error("sync failed")),
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=valid&next=/home",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe(
+        "https://example.com/signin?error=Authentication%20completed%2C%20but%20setup%20failed.%20Please%20try%20again.",
+      );
+    });
+
+    it("continues the success redirect when postAuthHookErrorMode is ignore", async () => {
+      const user = {
+        id: "user-4",
+        email: "ignored@example.com",
+        user_metadata: {},
+      };
+      mockSupabase.auth.getUser.mockResolvedValue({ data: { user } });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        postAuthHook: vi.fn().mockRejectedValue(new Error("sync failed")),
+        postAuthHookErrorMode: "ignore",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=valid&next=/home",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/home");
+    });
+
+    it("redirects to sign in when OTP verification fails", async () => {
+      mockSupabase.auth.verifyOtp.mockResolvedValue({
+        error: { message: "Verification token expired" },
+      });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        signInPath: "/signin",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?token_hash=hash-123&type=magiclink",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe(
+        "https://example.com/signin?error=Verification%20token%20expired",
+      );
+    });
+
+    it("rejects unsupported OTP verification types", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        signInPath: "/signin",
+      });
+
+      const request = new Request(
+        "https://example.com/callback?token_hash=hash-123&type=not-real",
+      );
+      const response = await handler(request);
+
+      expect(mockSupabase.auth.verifyOtp).not.toHaveBeenCalled();
+      expect(response.url).toBe(
+        "https://example.com/signin?error=Invalid%20verification%20link",
+      );
+    });
   });
 
   describe("admin user handling", () => {
@@ -354,6 +558,37 @@ describe("createAuthCallbackHandler", () => {
       expect(response.url).toBe(
         "https://doogteams-mac-mini.tail535a4.ts.net/admin/dashboard",
       );
+    });
+
+    it("applies admin redirects after OTP verification", async () => {
+      const mockProfile = {
+        role: "admin:super",
+        admin_approval_status: "approved",
+      };
+      mockSupabase.auth.verifyOtp.mockResolvedValue({
+        error: null,
+      });
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "123" } },
+      });
+      mockSupabase.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: mockProfile }),
+          }),
+        }),
+      });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+      });
+
+      const request = new Request(
+        "http://localhost:3000/callback?token_hash=hash-123&type=magiclink",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("http://localhost:3000/admin/dashboard");
     });
   });
 

@@ -1,5 +1,29 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { EmailOtpType, SupabaseClient, User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+
+export type AuthCallbackFlow = "oauth" | "otp";
+export type AuthCallbackHookErrorMode = "block" | "ignore";
+
+export interface AuthCallbackHookContext {
+  /** Resolved Supabase client after callback exchange/verification succeeds */
+  supabase: SupabaseClient;
+  /** Authenticated Supabase user returned by getUser() */
+  user: User;
+  /** Original callback request */
+  request: Request;
+  /** Request origin used for final redirects */
+  origin: string;
+  /** Safe relative redirect path selected for this callback */
+  redirectPath: string;
+  /** Callback flow that established the session */
+  flow: AuthCallbackFlow;
+  /** OTP verification type, present for token_hash callbacks */
+  otpType?: EmailOtpType;
+}
+
+export type AuthCallbackHook = (
+  context: AuthCallbackHookContext,
+) => void | Promise<void>;
 
 export interface AuthCallbackConfig {
   /** Async Supabase client factory (for server-side) */
@@ -8,12 +32,194 @@ export interface AuthCallbackConfig {
   defaultRedirect?: string;
   /** Sign-in page path for error redirects */
   signInPath?: string;
+  /**
+   * Optional hook that runs after a successful auth callback and getUser().
+   * Use this for app-local profile hydration or other session-adjacent setup.
+   */
+  postAuthHook?: AuthCallbackHook;
+  /**
+   * How to handle postAuthHook failures.
+   * "block" redirects to signInPath with a generic setup error.
+   * "ignore" allows the normal success redirect to continue.
+   */
+  postAuthHookErrorMode?: AuthCallbackHookErrorMode;
+}
+
+const POST_AUTH_HOOK_ERROR_MESSAGE =
+  "Authentication completed, but setup failed. Please try again.";
+const EMAIL_OTP_TYPES = [
+  "signup",
+  "invite",
+  "magiclink",
+  "recovery",
+  "email_change",
+  "email",
+] as const satisfies readonly EmailOtpType[];
+
+function getSafeRedirectPath(
+  candidate: string | null | undefined,
+  fallback: string,
+) {
+  if (candidate?.startsWith("/") && !candidate.startsWith("//")) {
+    return candidate;
+  }
+
+  return fallback;
+}
+
+function getEmailOtpType(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  return (EMAIL_OTP_TYPES as readonly string[]).includes(value)
+    ? (value as EmailOtpType)
+    : null;
+}
+
+async function runPostAuthHook({
+  postAuthHook,
+  postAuthHookErrorMode,
+  supabase,
+  user,
+  request,
+  origin,
+  redirectPath,
+  flow,
+  otpType,
+  signInPath,
+}: {
+  postAuthHook?: AuthCallbackHook;
+  postAuthHookErrorMode: AuthCallbackHookErrorMode;
+  supabase: SupabaseClient;
+  user: User;
+  request: Request;
+  origin: string;
+  redirectPath: string;
+  flow: AuthCallbackFlow;
+  otpType?: EmailOtpType;
+  signInPath: string;
+}) {
+  if (!postAuthHook) {
+    return null;
+  }
+
+  try {
+    await postAuthHook({
+      supabase,
+      user,
+      request,
+      origin,
+      redirectPath,
+      flow,
+      otpType,
+    });
+    return null;
+  } catch {
+    if (postAuthHookErrorMode === "ignore") {
+      return null;
+    }
+
+    return NextResponse.redirect(
+      `${origin}${signInPath}?error=${encodeURIComponent(POST_AUTH_HOOK_ERROR_MESSAGE)}`,
+    );
+  }
+}
+
+async function redirectAfterSuccessfulAuth({
+  supabase,
+  request,
+  origin,
+  redirectPath,
+  flow,
+  otpType,
+  postAuthHook,
+  postAuthHookErrorMode,
+  signInPath,
+}: {
+  supabase: SupabaseClient;
+  request: Request;
+  origin: string;
+  redirectPath: string;
+  flow: AuthCallbackFlow;
+  otpType?: EmailOtpType;
+  postAuthHook?: AuthCallbackHook;
+  postAuthHookErrorMode: AuthCallbackHookErrorMode;
+  signInPath: string;
+}) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.redirect(`${origin}${redirectPath}`);
+  }
+
+  const postAuthHookRedirect = await runPostAuthHook({
+    postAuthHook,
+    postAuthHookErrorMode,
+    supabase,
+    user,
+    request,
+    origin,
+    redirectPath,
+    flow,
+    otpType,
+    signInPath,
+  });
+
+  if (postAuthHookRedirect) {
+    return postAuthHookRedirect;
+  }
+
+  // Fetch user's role and admin approval status from profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, admin_approval_status")
+    .eq("id", user.id)
+    .single();
+
+  // Check if user has an admin role (admin:super or admin:program)
+  const isAdmin = profile?.role?.startsWith("admin:");
+  const isPendingApproval = profile?.admin_approval_status === "pending";
+
+  if (isAdmin) {
+    // If admin is pending approval, redirect to pending page
+    if (isPendingApproval) {
+      return NextResponse.redirect(`${origin}/admin-pending`);
+    }
+
+    // Check if we should use admin subdomain
+    const url = new URL(origin);
+    const hostname = url.hostname;
+
+    // Only use admin subdomain on known production Compass domains.
+    // For local/Tailscale/dev hosts, keep same host and use /admin/dashboard.
+    const isCompassProductionHost =
+      hostname === "thecapitalcompass.ai" ||
+      hostname === "app.thecapitalcompass.ai" ||
+      hostname.endsWith(".thecapitalcompass.ai");
+
+    if (isCompassProductionHost) {
+      url.hostname = hostname.startsWith("admin.")
+        ? hostname
+        : "admin.thecapitalcompass.ai";
+      url.pathname = "/dashboard"; // On subdomain, we use /dashboard not /admin/dashboard
+      return NextResponse.redirect(url.toString());
+    }
+
+    // In development/non-prod hosts, use /admin/dashboard path
+    return NextResponse.redirect(`${origin}/admin/dashboard`);
+  }
+
+  return NextResponse.redirect(`${origin}${redirectPath}`);
 }
 
 /**
  * createAuthCallbackHandler - Factory for OAuth/email callback route handler
  *
- * Creates a GET handler that exchanges authorization codes for sessions.
+ * Creates a GET handler that exchanges authorization codes or verifies
+ * token_hash OTP links for sessions.
  *
  * @example
  * ```ts
@@ -24,6 +230,14 @@ export interface AuthCallbackConfig {
  * export const GET = createAuthCallbackHandler({
  *   createClient,
  *   defaultRedirect: "/dashboard",
+ *   postAuthHook: async ({ user }) => {
+ *     await ensureProfileRecord({
+ *       userId: user.id,
+ *       email: user.email ?? null,
+ *       metadata: user.user_metadata,
+ *     });
+ *   },
+ *   postAuthHookErrorMode: "ignore",
  * });
  * ```
  */
@@ -31,16 +245,20 @@ export function createAuthCallbackHandler({
   createClient,
   defaultRedirect = "/dashboard",
   signInPath = "/signin",
+  postAuthHook,
+  postAuthHookErrorMode = "block",
 }: AuthCallbackConfig) {
   return async function GET(request: Request) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
-    const nextParam = requestUrl.searchParams.get("next") ?? defaultRedirect;
-    // Validate that next is a relative path to prevent open redirect attacks
-    const next =
-      nextParam.startsWith("/") && !nextParam.startsWith("//")
-        ? nextParam
-        : defaultRedirect;
+    const tokenHash = requestUrl.searchParams.get("token_hash");
+    const rawOtpType = requestUrl.searchParams.get("type");
+    const otpType = getEmailOtpType(rawOtpType);
+    const next = getSafeRedirectPath(
+      requestUrl.searchParams.get("next") ??
+        requestUrl.searchParams.get("redirect_to"),
+      defaultRedirect,
+    );
     const origin = requestUrl.origin;
 
     // Handle OAuth error responses
@@ -80,55 +298,16 @@ export function createAuthCallbackHandler({
         await supabase.auth.exchangeCodeForSession(code);
 
       if (!exchangeError) {
-        // Check if user is an admin and redirect accordingly
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (user) {
-          // Fetch user's role and admin approval status from profiles
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("role, admin_approval_status")
-            .eq("id", user.id)
-            .single();
-
-          // Check if user has an admin role (admin:super or admin:program)
-          const isAdmin = profile?.role?.startsWith("admin:");
-          const isPendingApproval =
-            profile?.admin_approval_status === "pending";
-
-          if (isAdmin) {
-            // If admin is pending approval, redirect to pending page
-            if (isPendingApproval) {
-              return NextResponse.redirect(`${origin}/admin-pending`);
-            }
-
-            // Check if we should use admin subdomain
-            const url = new URL(origin);
-            const hostname = url.hostname;
-
-            // Only use admin subdomain on known production Compass domains.
-            // For local/Tailscale/dev hosts, keep same host and use /admin/dashboard.
-            const isCompassProductionHost =
-              hostname === "thecapitalcompass.ai" ||
-              hostname === "app.thecapitalcompass.ai" ||
-              hostname.endsWith(".thecapitalcompass.ai");
-
-            if (isCompassProductionHost) {
-              url.hostname = hostname.startsWith("admin.")
-                ? hostname
-                : "admin.thecapitalcompass.ai";
-              url.pathname = "/dashboard"; // On subdomain, we use /dashboard not /admin/dashboard
-              return NextResponse.redirect(url.toString());
-            }
-
-            // In development/non-prod hosts, use /admin/dashboard path
-            return NextResponse.redirect(`${origin}/admin/dashboard`);
-          }
-        }
-
-        return NextResponse.redirect(`${origin}${next}`);
+        return redirectAfterSuccessfulAuth({
+          supabase,
+          request,
+          origin,
+          redirectPath: next,
+          flow: "oauth",
+          postAuthHook,
+          postAuthHookErrorMode,
+          signInPath,
+        });
       }
 
       // Check if this is a linking error
@@ -155,6 +334,38 @@ export function createAuthCallbackHandler({
 
       return NextResponse.redirect(
         `${origin}${signInPath}?error=${encodeURIComponent(errorMessage)}`,
+      );
+    }
+
+    if (tokenHash || rawOtpType) {
+      if (!tokenHash || !otpType) {
+        return NextResponse.redirect(
+          `${origin}${signInPath}?error=${encodeURIComponent("Invalid verification link")}`,
+        );
+      }
+
+      const supabase = await createClient();
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: otpType,
+      });
+
+      if (!verifyError) {
+        return redirectAfterSuccessfulAuth({
+          supabase,
+          request,
+          origin,
+          redirectPath: next,
+          flow: "otp",
+          otpType,
+          postAuthHook,
+          postAuthHookErrorMode,
+          signInPath,
+        });
+      }
+
+      return NextResponse.redirect(
+        `${origin}${signInPath}?error=${encodeURIComponent(verifyError.message)}`,
       );
     }
 

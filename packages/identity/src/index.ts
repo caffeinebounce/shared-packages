@@ -45,7 +45,14 @@ export {
   useRequireMFA,
 } from "./components";
 // Handlers
-export { type AuthCallbackConfig, createAuthCallbackHandler } from "./handlers";
+export {
+  type AuthCallbackConfig,
+  type AuthCallbackFlow,
+  type AuthCallbackHook,
+  type AuthCallbackHookContext,
+  type AuthCallbackHookErrorMode,
+  createAuthCallbackHandler,
+} from "./handlers";
 // Hooks
 export {
   type LastSignInData,
