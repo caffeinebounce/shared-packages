@@ -1,5 +1,5 @@
 import { fireEvent, render } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LegalLayout } from "./LegalLayout";
 import { LegalSection } from "./LegalSection";
 
@@ -11,6 +11,11 @@ class MockIntersectionObserver {
 describe("LegalLayout", () => {
   beforeEach(() => {
     vi.stubGlobal("IntersectionObserver", MockIntersectionObserver);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it("renders a sticky legal header with back link and metadata", () => {
@@ -40,21 +45,13 @@ describe("LegalLayout", () => {
 
   it("smooth-scrolls table of contents links below the sticky header", () => {
     const scrollTo = vi.fn();
-    const pushState = vi.fn();
     const matchMedia = vi.fn().mockReturnValue({ matches: false });
+    const pushState = vi
+      .spyOn(window.history, "pushState")
+      .mockImplementation(() => undefined);
 
-    Object.defineProperty(window, "scrollTo", {
-      configurable: true,
-      value: scrollTo,
-    });
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      value: matchMedia,
-    });
-    Object.defineProperty(window.history, "pushState", {
-      configurable: true,
-      value: pushState,
-    });
+    vi.stubGlobal("scrollTo", scrollTo);
+    vi.stubGlobal("matchMedia", matchMedia);
 
     const { container, getAllByRole } = render(
       <LegalLayout
