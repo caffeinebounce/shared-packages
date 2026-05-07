@@ -6,6 +6,7 @@ import type { EmailThemeTokens } from "./tokens";
 export const compassThemeTokens: EmailThemeTokens = {
   background: "#f5f5f5",
   contentBackground: "#ffffff",
+  boxRadius: "8px",
   headingColor: "#1a1a1a",
   bodyColor: "#555555",
   mutedColor: "#999999",

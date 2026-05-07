@@ -86,7 +86,7 @@ export function ThemedLayout({
                 <div
                   style={{
                     backgroundColor: tokens.contentBackground,
-                    borderRadius: isDark ? "12px" : "8px",
+                    borderRadius: tokens.boxRadius,
                     padding: isDark ? "48px 44px 40px" : "40px 40px 32px",
                     ...(isDark
                       ? { border: `1px solid ${tokens.dividerColor}` }

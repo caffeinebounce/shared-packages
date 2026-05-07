@@ -3,6 +3,7 @@ import type { EmailThemeTokens } from "./tokens";
 export const factoryThemeTokens: EmailThemeTokens = {
   background: "#000000",
   contentBackground: "#0A0A0A",
+  boxRadius: "0px",
   headingColor: "#ffffff",
   bodyColor: "#AAAAAA",
   mutedColor: "#666666",
