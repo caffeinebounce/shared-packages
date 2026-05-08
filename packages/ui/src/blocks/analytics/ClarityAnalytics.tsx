@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  getMicrosoftClarityScriptUrl,
+  normalizeMicrosoftClarityProjectId,
+} from "@caffeinebounce/shared-utils";
 import { useEffect } from "react";
 
 declare global {
@@ -18,6 +22,11 @@ export interface ClarityAnalyticsProps {
    * Get your project ID from https://clarity.microsoft.com/
    */
   projectId?: string;
+  /**
+   * Whether the Clarity script should load.
+   * @default true
+   */
+  enabled?: boolean;
 }
 
 /**
@@ -36,10 +45,24 @@ export interface ClarityAnalyticsProps {
  * <ClarityAnalytics projectId={process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID} />
  * ```
  */
-export function ClarityAnalytics({ projectId }: ClarityAnalyticsProps) {
+export function ClarityAnalytics({
+  projectId,
+  enabled = true,
+}: ClarityAnalyticsProps) {
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const normalizedProjectId = normalizeMicrosoftClarityProjectId(projectId);
+
     // Only load Clarity if project ID is configured
-    if (!projectId) {
+    if (!normalizedProjectId) {
+      if (projectId?.trim()) {
+        console.warn(
+          `Invalid Microsoft Clarity project ID: ${projectId}. Expected letters, numbers, underscores, or dashes.`,
+        );
+      }
       return;
     }
 
@@ -58,12 +81,14 @@ export function ClarityAnalytics({ projectId }: ClarityAnalyticsProps) {
 
     const script = document.createElement("script");
     script.async = true;
-    script.src = `https://www.clarity.ms/tag/${projectId}`;
+    script.src = getMicrosoftClarityScriptUrl(normalizedProjectId);
     const firstScript = document.getElementsByTagName("script")[0];
     if (firstScript?.parentNode) {
       firstScript.parentNode.insertBefore(script, firstScript);
+    } else {
+      document.head.appendChild(script);
     }
-  }, [projectId]);
+  }, [enabled, projectId]);
 
   return null;
 }

@@ -4,6 +4,16 @@
  * Shared utility functions for Capital Collective projects.
  */
 
+// Re-export analytics utilities
+export {
+  getGoogleTagManagerNoScriptUrl,
+  getGoogleTagManagerScript,
+  getGoogleTagManagerScriptUrl,
+  getMicrosoftClarityScript,
+  getMicrosoftClarityScriptUrl,
+  normalizeGoogleTagManagerContainerId,
+  normalizeMicrosoftClarityProjectId,
+} from "./analytics";
 // Re-export auth utilities
 export {
   generateRecoveryCodes,
