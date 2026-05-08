@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.58.1
+
+### Patch Changes
+
+- d477c37: Prevent consumer CSS transitions from interrupting ImagesSlider motion exits.
+
 ## 0.58.0
 
 ### Minor Changes
