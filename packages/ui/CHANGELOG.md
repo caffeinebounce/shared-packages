@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.58.0
+
+### Minor Changes
+
+- ebbee1e: Add a reusable rich tooltip card component for inline contextual definitions and previews.
+
 ## 0.57.2
 
 ### Patch Changes
