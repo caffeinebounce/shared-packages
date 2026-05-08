@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/ui",
-  "version": "0.56.7",
+  "version": "0.56.8",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -144,7 +144,7 @@
   },
   "dependencies": {
     "@caffeinebounce/logger": "^0.9.130",
-    "@caffeinebounce/shared-utils": "^0.7.132",
+    "@caffeinebounce/shared-utils": "^0.7.133",
     "@grapesjs/studio-sdk": "^1.0.60",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-collapsible": "^1.1.12",
