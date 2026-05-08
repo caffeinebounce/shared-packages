@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.56.11
+
+### Patch Changes
+
+- bf02703: Publish a root styles.css shim so CSS tooling that resolves package files directly can import @caffeinebounce/ui/styles.css.
+
 ## 0.56.10
 
 ### Patch Changes
