@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.58.2
+
+### Patch Changes
+
+- e93774f: Make NewsletterSignup reusable with configurable endpoint, source attribution, labels, and success copy.
+
 ## 0.58.1
 
 ### Patch Changes
