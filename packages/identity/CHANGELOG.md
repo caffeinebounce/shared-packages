@@ -1,5 +1,11 @@
 # @caffeinebounce/identity
 
+## 0.11.1
+
+### Patch Changes
+
+- Publish the Azure OAuth email scope option in the built identity package.
+
 ## 0.11.0
 
 ### Minor Changes
