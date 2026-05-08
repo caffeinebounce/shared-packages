@@ -1,5 +1,13 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.56.8
+
+### Patch Changes
+
+- 358fe8a: Add an Aceternity-inspired images slider marketing component, shared Microsoft Clarity and Google Tag Manager utility helpers, and UI analytics wrapper hardening.
+- Updated dependencies [358fe8a]
+  - @caffeinebounce/shared-utils@0.7.133
+
 ## 0.56.7
 
 ### Patch Changes
