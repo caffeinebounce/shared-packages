@@ -1160,6 +1160,31 @@ textarea::placeholder {
 }
 
 /* ===========================================
+   Features Grid With Large Skeletons
+   =========================================== */
+
+[data-slot="feature-workflow-skeleton-panel"] {
+  transform: translate3d(1rem, -1rem, 0);
+  transition: transform 300ms ease;
+  will-change: transform;
+}
+
+[data-slot="feature-workflow-skeleton"]:hover
+  [data-slot="feature-workflow-skeleton-panel"],
+[data-slot="features-grid-large-skeleton-card"]:hover
+  [data-slot="feature-workflow-skeleton-panel"],
+[data-slot="features-grid-large-skeleton-card"]:focus-within
+  [data-slot="feature-workflow-skeleton-panel"] {
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="feature-workflow-skeleton-panel"] {
+    transition-duration: 0ms;
+  }
+}
+
+/* ===========================================
    Text Highlight Animation
    =========================================== */
 
