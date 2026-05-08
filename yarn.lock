@@ -359,7 +359,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@caffeinebounce/shared-utils@npm:^0.7.132, @caffeinebounce/shared-utils@workspace:packages/shared-utils":
+"@caffeinebounce/shared-utils@npm:^0.7.132, @caffeinebounce/shared-utils@npm:^0.7.133, @caffeinebounce/shared-utils@workspace:packages/shared-utils":
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/shared-utils@workspace:packages/shared-utils"
   dependencies:
@@ -375,7 +375,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:2.4.7"
     "@caffeinebounce/logger": "npm:^0.9.130"
-    "@caffeinebounce/shared-utils": "npm:^0.7.132"
+    "@caffeinebounce/shared-utils": "npm:^0.7.133"
     "@grapesjs/studio-sdk": "npm:^1.0.60"
     "@radix-ui/react-avatar": "npm:^1.1.11"
     "@radix-ui/react-collapsible": "npm:^1.1.12"
