@@ -1,10 +1,12 @@
 "use client";
 
 import { Check, Mail } from "lucide-react";
+import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import { cx } from "./aceternity/shared";
 
 // Inject shake keyframes once
 const SHAKE_STYLE_ID = "newsletter-shake-keyframes";
@@ -27,13 +29,51 @@ function injectShakeKeyframes() {
 export interface NewsletterSignupProps {
   /** Additional className */
   className?: string;
+  /** API endpoint that accepts a JSON POST body with an email address. */
+  endpoint?: string;
+  /** Optional source value included in the POST body for attribution. */
+  source?: string;
+  /** Email input placeholder. */
+  placeholder?: string;
+  /** Accessible label for the email input. */
+  inputLabel?: string;
+  /** Submit button text. */
+  buttonLabel?: string;
+  /** Submit button text while the request is in flight. */
+  submittingLabel?: string;
+  /** Success state title. */
+  successTitle?: string;
+  /** Success state supporting copy. */
+  successDescription?: string;
+  /** Fallback error copy used when the API does not provide one. */
+  errorMessage?: string;
+  /** Extra classes for the email input. */
+  inputClassName?: string;
+  /** Extra classes for the submit button. */
+  buttonClassName?: string;
+  /** Extra classes for the success state wrapper. */
+  successClassName?: string;
 }
 
 /**
  * NewsletterSignup - Newsletter signup form for marketing page
  * Errors are displayed via toasts for better UX
  */
-export function NewsletterSignup({ className }: NewsletterSignupProps) {
+export function NewsletterSignup({
+  className,
+  endpoint = "/api/newsletter/subscribe",
+  source,
+  placeholder = "Enter your email",
+  inputLabel = "Email address",
+  buttonLabel = "Subscribe",
+  submittingLabel = "Subscribing...",
+  successTitle = "You're subscribed!",
+  successDescription = "Check your email to confirm.",
+  errorMessage = "Something went wrong. Please try again.",
+  inputClassName,
+  buttonClassName,
+  successClassName,
+}: NewsletterSignupProps) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -43,7 +83,7 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
     injectShakeKeyframes();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
@@ -51,10 +91,10 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
     setHasError(false);
 
     try {
-      const response = await fetch("/api/newsletter/subscribe", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, source }),
       });
 
       if (response.ok) {
@@ -62,7 +102,7 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
         setEmail("");
       } else {
         const data = await response.json();
-        toast.error(data.error || "Something went wrong. Please try again.");
+        toast.error(data.error || errorMessage);
         setHasError(true);
         setTimeout(() => setHasError(false), 500);
       }
@@ -80,7 +120,11 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
   if (submitted) {
     return (
       <div
-        className={`flex items-center justify-center gap-3 rounded-box border border-border px-4 py-3 ${className || ""}`}
+        className={cx(
+          "flex items-center justify-center gap-3 rounded-box border border-border px-4 py-3",
+          className,
+          successClassName,
+        )}
       >
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground animate-in zoom-in duration-300">
           <Check
@@ -89,10 +133,8 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
           />
         </div>
         <div className="animate-in slide-in-from-left-2 fade-in duration-300 delay-100 text-left">
-          <p className="font-medium text-foreground">You&apos;re subscribed!</p>
-          <p className="text-sm text-muted-foreground">
-            Check your email to confirm.
-          </p>
+          <p className="font-medium text-foreground">{successTitle}</p>
+          <p className="text-sm text-muted-foreground">{successDescription}</p>
         </div>
       </div>
     );
@@ -101,24 +143,28 @@ export function NewsletterSignup({ className }: NewsletterSignupProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className={`flex ${hasError ? "animate-shake" : ""} ${className || ""}`}
+      className={cx("flex", hasError && "animate-shake", className)}
       style={hasError ? { animation: "shake 0.5s ease-in-out" } : undefined}
     >
       <Input
+        aria-label={inputLabel}
         type="email"
-        placeholder="Enter your email"
+        placeholder={placeholder}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className="flex-1 rounded-r-none border-r-0 focus-visible:z-10"
+        className={cx(
+          "flex-1 rounded-r-none border-r-0 focus-visible:z-10",
+          inputClassName,
+        )}
       />
       <Button
         type="submit"
         disabled={isSubmitting || !email}
-        className="rounded-l-none"
+        className={cx("rounded-l-none", buttonClassName)}
       >
         <Mail className="mr-2 h-4 w-4" />
-        {isSubmitting ? "Subscribing..." : "Subscribe"}
+        {isSubmitting ? submittingLabel : buttonLabel}
       </Button>
     </form>
   );
