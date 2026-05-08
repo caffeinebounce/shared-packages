@@ -9,6 +9,7 @@ import {
 
 const originalResizeObserver = globalThis.ResizeObserver;
 const originalIntersectionObserver = globalThis.IntersectionObserver;
+let animationFrameCallbacks: FrameRequestCallback[] = [];
 
 class ResizeObserverMock {
   observe = vi.fn();
@@ -44,6 +45,7 @@ function mockCanvasContext() {
 }
 
 beforeEach(() => {
+  animationFrameCallbacks = [];
   globalThis.ResizeObserver =
     ResizeObserverMock as unknown as typeof ResizeObserver;
   globalThis.IntersectionObserver =
@@ -58,10 +60,13 @@ beforeEach(() => {
     return null;
   }) as typeof HTMLCanvasElement.prototype.getContext);
   vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
-    return window.setTimeout(() => callback(performance.now()), 0);
+    animationFrameCallbacks.push(callback);
+    return animationFrameCallbacks.length;
   });
   vi.spyOn(window, "cancelAnimationFrame").mockImplementation((id) => {
-    window.clearTimeout(id);
+    animationFrameCallbacks = animationFrameCallbacks.filter(
+      (_callback, index) => index + 1 !== id,
+    );
   });
 });
 

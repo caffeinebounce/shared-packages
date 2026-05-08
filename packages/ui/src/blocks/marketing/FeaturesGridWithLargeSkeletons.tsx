@@ -653,6 +653,12 @@ export function DottedGlowBackground({
       attributes: true,
       attributeFilter: ["class", "style"],
     });
+    if (container !== document.documentElement) {
+      mutationObserver?.observe(container, {
+        attributes: true,
+        attributeFilter: ["class", "style"],
+      });
+    }
 
     return () => {
       mediaQuery?.removeEventListener?.("change", compute);
@@ -690,7 +696,7 @@ export function DottedGlowBackground({
     }
 
     const context = canvasContext;
-    let frame = 0;
+    let frame: number | null = null;
     let stopped = false;
     let isVisible = true;
     let dots: Array<{ x: number; y: number; phase: number; speed: number }> =
@@ -741,24 +747,31 @@ export function DottedGlowBackground({
         : null;
     resizeObserver?.observe(container);
 
-    const intersectionObserver =
-      typeof IntersectionObserver !== "undefined"
-        ? new IntersectionObserver(
-            (entries) => {
-              isVisible = entries[0]?.isIntersecting ?? true;
-            },
-            { threshold: 0.1 },
-          )
-        : null;
-    intersectionObserver?.observe(container);
+    const cancelFrame = () => {
+      if (frame === null) {
+        return;
+      }
+
+      cancelAnimationFrame(frame);
+      frame = null;
+    };
+
+    const scheduleFrame = () => {
+      if (stopped || !isVisible || frame !== null) {
+        return;
+      }
+
+      frame = requestAnimationFrame(draw);
+    };
 
     const draw = (now: number) => {
+      frame = null;
+
       if (stopped) {
         return;
       }
 
       if (!isVisible) {
-        frame = requestAnimationFrame(draw);
         return;
       }
 
@@ -805,15 +818,38 @@ export function DottedGlowBackground({
       }
 
       context.restore();
-      frame = requestAnimationFrame(draw);
+      scheduleFrame();
     };
 
+    const intersectionObserver =
+      typeof IntersectionObserver !== "undefined"
+        ? new IntersectionObserver(
+            (entries) => {
+              const nextIsVisible = entries[0]?.isIntersecting ?? true;
+
+              if (nextIsVisible === isVisible) {
+                return;
+              }
+
+              isVisible = nextIsVisible;
+
+              if (isVisible) {
+                scheduleFrame();
+              } else {
+                cancelFrame();
+              }
+            },
+            { threshold: 0.1 },
+          )
+        : null;
+    intersectionObserver?.observe(container);
+
     window.addEventListener("resize", handleResize);
-    frame = requestAnimationFrame(draw);
+    scheduleFrame();
 
     return () => {
       stopped = true;
-      cancelAnimationFrame(frame);
+      cancelFrame();
       window.removeEventListener("resize", handleResize);
       intersectionObserver?.disconnect();
       resizeObserver?.disconnect();
