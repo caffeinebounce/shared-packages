@@ -65,6 +65,7 @@ describe("ImagesSlider", () => {
     await user.click(screen.getByRole("button", { name: "Show image 2" }));
 
     expect(onIndexChange).toHaveBeenCalledWith(1);
+    expect(onIndexChange).toHaveBeenCalledTimes(1);
     expect(
       screen.getByRole("button", { name: "Show image 2" }),
     ).toHaveAttribute("aria-current", "true");
@@ -112,6 +113,9 @@ describe("ImagesSlider", () => {
       />,
     );
 
+    const slider = screen.getByRole("region", { name: "Image slider" });
+    slider.focus();
+
     await user.keyboard("{ArrowRight}");
 
     expect(
@@ -123,6 +127,80 @@ describe("ImagesSlider", () => {
     expect(
       screen.getByRole("img", { name: "Studio interior" }),
     ).toHaveAttribute("src", "/studio.jpg");
+  });
+
+  it("prevents page arrow-key behavior when keyboard controls handle navigation", () => {
+    render(
+      <ImagesSlider
+        autoplay={false}
+        images={[
+          { src: "/studio.jpg", alt: "Studio interior" },
+          { src: "/exterior.jpg", alt: "Building exterior" },
+        ]}
+      />,
+    );
+
+    const slider = screen.getByRole("region", { name: "Image slider" });
+    const event = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "ArrowRight",
+    });
+    const stopPropagation = vi.spyOn(event, "stopPropagation");
+
+    act(() => {
+      slider.dispatchEvent(event);
+    });
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(stopPropagation).toHaveBeenCalled();
+    expect(
+      screen.getByRole("img", { name: "Building exterior" }),
+    ).toHaveAttribute("src", "/exterior.jpg");
+  });
+
+  it("scopes arrow-key navigation to the focused slider", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <>
+        <ImagesSlider
+          ariaLabel="First image slider"
+          autoplay={false}
+          images={[
+            { src: "/first-studio.jpg", alt: "First studio" },
+            { src: "/first-exterior.jpg", alt: "First exterior" },
+          ]}
+        />
+        <ImagesSlider
+          ariaLabel="Second image slider"
+          autoplay={false}
+          images={[
+            { src: "/second-studio.jpg", alt: "Second studio" },
+            { src: "/second-exterior.jpg", alt: "Second exterior" },
+          ]}
+        />
+      </>,
+    );
+
+    screen.getByRole("region", { name: "First image slider" }).focus();
+    await user.keyboard("{ArrowRight}");
+
+    expect(screen.getByRole("img", { name: "First exterior" })).toHaveAttribute(
+      "src",
+      "/first-exterior.jpg",
+    );
+    expect(screen.getByRole("img", { name: "Second studio" })).toHaveAttribute(
+      "src",
+      "/second-studio.jpg",
+    );
+
+    screen.getByRole("region", { name: "Second image slider" }).focus();
+    await user.keyboard("{ArrowRight}");
+
+    expect(
+      screen.getByRole("img", { name: "Second exterior" }),
+    ).toHaveAttribute("src", "/second-exterior.jpg");
   });
 
   it("resets the autoplay timer after keyboard navigation", () => {
@@ -140,12 +218,14 @@ describe("ImagesSlider", () => {
       />,
     );
 
+    const slider = screen.getByRole("region", { name: "Image slider" });
+
     act(() => {
       vi.advanceTimersByTime(900);
     });
 
     act(() => {
-      window.dispatchEvent(
+      slider.dispatchEvent(
         new KeyboardEvent("keydown", { bubbles: true, key: "ArrowRight" }),
       );
     });
@@ -171,6 +251,7 @@ describe("ImagesSlider", () => {
     ).toHaveAttribute("src", "/studio.jpg");
     expect(onIndexChange).toHaveBeenCalledWith(1);
     expect(onIndexChange).toHaveBeenLastCalledWith(0);
+    expect(onIndexChange).toHaveBeenCalledTimes(2);
   });
 
   it("keeps the incoming image in place while the outgoing image slides away", async () => {
@@ -188,10 +269,12 @@ describe("ImagesSlider", () => {
 
     await user.click(screen.getByRole("button", { name: "Show image 2" }));
 
-    expect(screen.getByRole("img", { name: "Building exterior" })).toHaveStyle({
-      transform: "none",
-      zIndex: "0",
+    const incomingImage = screen.getByRole("img", {
+      name: "Building exterior",
     });
+
+    expect(incomingImage).toHaveStyle({ transform: "none" });
+    expect(incomingImage).toHaveClass("z-0");
   });
 
   it("can render without overlay or indicators", () => {
