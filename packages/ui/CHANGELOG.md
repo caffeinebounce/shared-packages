@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.57.0
+
+### Minor Changes
+
+- b7e3d3a: Add a reusable marketing features grid with large skeleton visuals.
+
 ## 0.56.11
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @caffeinebounce/identity
 
+## 0.11.2
+
+### Patch Changes
+
+- Updated dependencies [b7e3d3a]
+  - @caffeinebounce/ui@0.57.0
+
 ## 0.11.1
 
 ### Patch Changes

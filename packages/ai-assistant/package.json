@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/ai-assistant",
-  "version": "0.5.54",
+  "version": "0.5.55",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -47,7 +47,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@caffeinebounce/ui": "^0.56.11",
+    "@caffeinebounce/ui": "^0.57.0",
     "lucide-react": "^0.577.0"
   }
 }
