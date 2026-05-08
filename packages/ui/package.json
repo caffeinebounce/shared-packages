@@ -79,7 +79,8 @@
     "./styles.css": "./dist/styles.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "styles.css"
   ],
   "sideEffects": [
     "**/*.css"
