@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ImagesSlider } from "./ImagesSlider";
@@ -21,6 +21,7 @@ describe("ImagesSlider", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
   });
 
@@ -122,6 +123,75 @@ describe("ImagesSlider", () => {
     expect(
       screen.getByRole("img", { name: "Studio interior" }),
     ).toHaveAttribute("src", "/studio.jpg");
+  });
+
+  it("resets the autoplay timer after keyboard navigation", () => {
+    vi.useFakeTimers();
+    const onIndexChange = vi.fn();
+
+    render(
+      <ImagesSlider
+        images={[
+          { src: "/studio.jpg", alt: "Studio interior" },
+          { src: "/exterior.jpg", alt: "Building exterior" },
+        ]}
+        intervalMs={1000}
+        onIndexChange={onIndexChange}
+      />,
+    );
+
+    act(() => {
+      vi.advanceTimersByTime(900);
+    });
+
+    act(() => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { bubbles: true, key: "ArrowRight" }),
+      );
+    });
+
+    expect(
+      screen.getByRole("img", { name: "Building exterior" }),
+    ).toHaveAttribute("src", "/exterior.jpg");
+
+    act(() => {
+      vi.advanceTimersByTime(999);
+    });
+
+    expect(
+      screen.getByRole("img", { name: "Building exterior" }),
+    ).toHaveAttribute("src", "/exterior.jpg");
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(
+      screen.getByRole("img", { name: "Studio interior" }),
+    ).toHaveAttribute("src", "/studio.jpg");
+    expect(onIndexChange).toHaveBeenCalledWith(1);
+    expect(onIndexChange).toHaveBeenLastCalledWith(0);
+  });
+
+  it("keeps the incoming image in place while the outgoing image slides away", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ImagesSlider
+        autoplay={false}
+        images={[
+          { src: "/studio.jpg", alt: "Studio interior" },
+          { src: "/exterior.jpg", alt: "Building exterior" },
+        ]}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Show image 2" }));
+
+    expect(screen.getByRole("img", { name: "Building exterior" })).toHaveStyle({
+      transform: "none",
+      zIndex: "0",
+    });
   });
 
   it("can render without overlay or indicators", () => {
