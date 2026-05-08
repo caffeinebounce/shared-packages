@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.56.9
+
+### Patch Changes
+
+- ac72e96: Update ImagesSlider transitions so manual navigation resets autoplay timing and the next image is already in place behind the outgoing slide.
+
 ## 0.56.8
 
 ### Patch Changes
