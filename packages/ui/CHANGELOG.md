@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.57.2
+
+### Patch Changes
+
+- 4617e7e: Ship the features grid workflow skeleton hover transform in the shared stylesheet.
+
 ## 0.57.1
 
 ### Patch Changes

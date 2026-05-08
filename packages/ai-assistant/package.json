@@ -47,7 +47,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@caffeinebounce/ui": "^0.57.1",
+    "@caffeinebounce/ui": "^0.57.2",
     "lucide-react": "^0.577.0"
   }
 }
