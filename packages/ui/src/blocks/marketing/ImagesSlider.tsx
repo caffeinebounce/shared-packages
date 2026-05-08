@@ -82,7 +82,6 @@ export function ImagesSlider({
     [images],
   );
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [hasRendered, setHasRendered] = useState(false);
   const [activeDurationSeconds, setActiveDurationSeconds] =
     useState(durationSeconds);
   const currentImage = normalizedImages[currentIndex] ?? null;
@@ -150,10 +149,6 @@ export function ImagesSlider({
   );
 
   useEffect(() => {
-    setHasRendered(true);
-  }, []);
-
-  useEffect(() => {
     setCurrentIndex((current) =>
       getWrappedIndex(current, normalizedImages.length),
     );
@@ -175,10 +170,22 @@ export function ImagesSlider({
       return;
     }
 
-    const timer = window.setInterval(showNext, intervalMs);
+    const scheduledIndex = currentIndex;
+    const timer = window.setTimeout(() => {
+      if (scheduledIndex === currentIndex) {
+        showNext();
+      }
+    }, intervalMs);
 
-    return () => window.clearInterval(timer);
-  }, [autoplay, hasMultipleImages, intervalMs, motionEnabled, showNext]);
+    return () => window.clearTimeout(timer);
+  }, [
+    autoplay,
+    currentIndex,
+    hasMultipleImages,
+    intervalMs,
+    motionEnabled,
+    showNext,
+  ]);
 
   useEffect(() => {
     if (!keyboardControls || !hasWindow() || !hasMultipleImages) {
@@ -214,7 +221,6 @@ export function ImagesSlider({
     showPreviousWithDuration,
   ]);
 
-  const initialY = direction === "up" ? "100%" : "-100%";
   const exitY = direction === "up" ? "-100%" : "100%";
 
   return (
@@ -227,7 +233,7 @@ export function ImagesSlider({
         <AnimatePresence initial={false}>
           <motion.img
             alt={currentImage.alt ?? ""}
-            animate={{ opacity: 1, y: "0%" }}
+            animate={{ opacity: 1, y: "0%", zIndex: 0 }}
             className={cx(
               "absolute inset-0 h-full w-full object-cover",
               imageClassName,
@@ -236,21 +242,16 @@ export function ImagesSlider({
             exit={
               motionEnabled
                 ? {
-                    opacity: 0,
+                    opacity: 1,
                     y: exitY,
+                    zIndex: 1,
                   }
                 : undefined
             }
-            initial={
-              motionEnabled && hasRendered
-                ? {
-                    opacity: 0,
-                    y: initialY,
-                  }
-                : false
-            }
+            initial={false}
             key={`${currentImage.src}-${currentIndex}`}
             src={currentImage.src}
+            style={{ zIndex: 0 }}
             transition={{
               duration: motionEnabled ? activeDurationSeconds : 0,
               ease: "easeInOut",
