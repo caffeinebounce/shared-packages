@@ -675,6 +675,8 @@ export {
   TooltipProvider,
   TooltipTrigger,
 } from "./components/ui/tooltip";
+export type { TooltipCardProps } from "./components/ui/tooltip-card";
+export { TooltipCard } from "./components/ui/tooltip-card";
 export type { VerificationCodeInputProps } from "./components/ui/verification-code-input";
 export { VerificationCodeInput } from "./components/ui/verification-code-input";
 // Theme system types and configurations
