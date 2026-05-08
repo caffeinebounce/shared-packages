@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.57.1
+
+### Patch Changes
+
+- c9c5e8e: Trigger the features grid workflow skeleton hover effect from the full card.
+
 ## 0.57.0
 
 ### Minor Changes
