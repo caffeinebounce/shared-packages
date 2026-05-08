@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.56.10
+
+### Patch Changes
+
+- b45cb49: Resolve ImagesSlider review feedback by keeping index updates pure, scoping keyboard controls to the focused slider, preventing handled arrow-key defaults, and simplifying transition z-index ownership.
+
 ## 0.56.9
 
 ### Patch Changes
