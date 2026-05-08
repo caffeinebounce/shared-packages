@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import type { ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cx, hasWindow } from "./aceternity/shared";
 import { useMotionEnabled } from "./aceternity/useMotionEnabled";
 
@@ -84,68 +84,43 @@ export function ImagesSlider({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeDurationSeconds, setActiveDurationSeconds] =
     useState(durationSeconds);
+  const lastNotifiedIndexRef = useRef(currentIndex);
   const currentImage = normalizedImages[currentIndex] ?? null;
   const hasMultipleImages = normalizedImages.length > 1;
 
   const showIndex = useCallback(
     (index: number, nextDurationSeconds = durationSeconds) => {
       setActiveDurationSeconds(nextDurationSeconds);
-      setCurrentIndex((current) => {
-        const next = getWrappedIndex(index, normalizedImages.length);
-
-        if (next !== current) {
-          onIndexChange?.(next);
-        }
-
-        return next;
-      });
+      setCurrentIndex(getWrappedIndex(index, normalizedImages.length));
     },
-    [durationSeconds, normalizedImages.length, onIndexChange],
+    [durationSeconds, normalizedImages.length],
   );
 
   const showNext = useCallback(() => {
     setActiveDurationSeconds(durationSeconds);
-    setCurrentIndex((current) => {
-      const next = getWrappedIndex(current + 1, normalizedImages.length);
-
-      if (next !== current) {
-        onIndexChange?.(next);
-      }
-
-      return next;
-    });
-  }, [durationSeconds, normalizedImages.length, onIndexChange]);
+    setCurrentIndex((current) =>
+      getWrappedIndex(current + 1, normalizedImages.length),
+    );
+  }, [durationSeconds, normalizedImages.length]);
 
   const showNextWithDuration = useCallback(
     (nextDurationSeconds: number) => {
       setActiveDurationSeconds(nextDurationSeconds);
-      setCurrentIndex((current) => {
-        const next = getWrappedIndex(current + 1, normalizedImages.length);
-
-        if (next !== current) {
-          onIndexChange?.(next);
-        }
-
-        return next;
-      });
+      setCurrentIndex((current) =>
+        getWrappedIndex(current + 1, normalizedImages.length),
+      );
     },
-    [normalizedImages.length, onIndexChange],
+    [normalizedImages.length],
   );
 
   const showPreviousWithDuration = useCallback(
     (nextDurationSeconds: number) => {
       setActiveDurationSeconds(nextDurationSeconds);
-      setCurrentIndex((current) => {
-        const next = getWrappedIndex(current - 1, normalizedImages.length);
-
-        if (next !== current) {
-          onIndexChange?.(next);
-        }
-
-        return next;
-      });
+      setCurrentIndex((current) =>
+        getWrappedIndex(current - 1, normalizedImages.length),
+      );
     },
-    [normalizedImages.length, onIndexChange],
+    [normalizedImages.length],
   );
 
   useEffect(() => {
@@ -153,6 +128,15 @@ export function ImagesSlider({
       getWrappedIndex(current, normalizedImages.length),
     );
   }, [normalizedImages.length]);
+
+  useEffect(() => {
+    if (lastNotifiedIndexRef.current === currentIndex) {
+      return;
+    }
+
+    lastNotifiedIndexRef.current = currentIndex;
+    onIndexChange?.(currentIndex);
+  }, [currentIndex, onIndexChange]);
 
   useEffect(() => {
     if (!hasWindow()) {
@@ -165,17 +149,13 @@ export function ImagesSlider({
     }
   }, [normalizedImages]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: currentIndex intentionally restarts autoplay after any navigation.
   useEffect(() => {
     if (!autoplay || !motionEnabled || !hasMultipleImages) {
       return;
     }
 
-    const scheduledIndex = currentIndex;
-    const timer = window.setTimeout(() => {
-      if (scheduledIndex === currentIndex) {
-        showNext();
-      }
-    }, intervalMs);
+    const timer = window.setTimeout(showNext, intervalMs);
 
     return () => window.clearTimeout(timer);
   }, [
@@ -187,12 +167,36 @@ export function ImagesSlider({
     showNext,
   ]);
 
-  useEffect(() => {
-    if (!keyboardControls || !hasWindow() || !hasMultipleImages) {
-      return;
-    }
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      if (!keyboardControls || !hasMultipleImages) {
+        return;
+      }
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (event.key === "ArrowRight") {
+        showNextWithDuration(keyboardDurationSeconds);
+      } else {
+        showPreviousWithDuration(keyboardDurationSeconds);
+      }
+    },
+    [
+      hasMultipleImages,
+      keyboardControls,
+      keyboardDurationSeconds,
+      showNextWithDuration,
+      showPreviousWithDuration,
+    ],
+  );
+
+  const handleSectionKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
       const target = event.target;
       const isEditableTarget =
         target instanceof HTMLElement &&
@@ -203,23 +207,13 @@ export function ImagesSlider({
         return;
       }
 
-      if (event.key === "ArrowRight") {
-        showNextWithDuration(keyboardDurationSeconds);
-      } else if (event.key === "ArrowLeft") {
-        showPreviousWithDuration(keyboardDurationSeconds);
-      }
-    };
+      handleKeyDown(event);
+    },
+    [handleKeyDown],
+  );
 
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    hasMultipleImages,
-    keyboardControls,
-    keyboardDurationSeconds,
-    showNextWithDuration,
-    showPreviousWithDuration,
-  ]);
+  const keyboardTabIndex =
+    keyboardControls && hasMultipleImages ? 0 : undefined;
 
   const exitY = direction === "up" ? "-100%" : "100%";
 
@@ -228,14 +222,16 @@ export function ImagesSlider({
       aria-label={ariaLabel}
       className={cx("relative isolate overflow-hidden bg-black", className)}
       data-slot="images-slider"
+      onKeyDown={handleSectionKeyDown}
+      tabIndex={keyboardTabIndex}
     >
       {currentImage ? (
         <AnimatePresence initial={false}>
           <motion.img
             alt={currentImage.alt ?? ""}
-            animate={{ opacity: 1, y: "0%", zIndex: 0 }}
+            animate={{ opacity: 1, y: "0%" }}
             className={cx(
-              "absolute inset-0 h-full w-full object-cover",
+              "absolute inset-0 z-0 h-full w-full object-cover",
               imageClassName,
             )}
             data-slot="images-slider-image"
@@ -251,7 +247,6 @@ export function ImagesSlider({
             initial={false}
             key={`${currentImage.src}-${currentIndex}`}
             src={currentImage.src}
-            style={{ zIndex: 0 }}
             transition={{
               duration: motionEnabled ? activeDurationSeconds : 0,
               ease: "easeInOut",
