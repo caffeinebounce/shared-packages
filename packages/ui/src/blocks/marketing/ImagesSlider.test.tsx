@@ -277,6 +277,20 @@ describe("ImagesSlider", () => {
     expect(incomingImage).toHaveClass("z-0");
   });
 
+  it("prevents consumer CSS transitions from fighting the motion slide", () => {
+    render(
+      <ImagesSlider
+        autoplay={false}
+        imageClassName="transition duration-700"
+        images={[{ src: "/studio.jpg", alt: "Studio interior" }]}
+      />,
+    );
+
+    expect(screen.getByRole("img", { name: "Studio interior" })).toHaveStyle({
+      transition: "none",
+    });
+  });
+
   it("can render without overlay or indicators", () => {
     render(
       <ImagesSlider

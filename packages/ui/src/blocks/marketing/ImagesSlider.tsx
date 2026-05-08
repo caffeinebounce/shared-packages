@@ -247,6 +247,7 @@ export function ImagesSlider({
             initial={false}
             key={`${currentImage.src}-${currentIndex}`}
             src={currentImage.src}
+            style={{ transition: "none" }}
             transition={{
               duration: motionEnabled ? activeDurationSeconds : 0,
               ease: "easeInOut",
