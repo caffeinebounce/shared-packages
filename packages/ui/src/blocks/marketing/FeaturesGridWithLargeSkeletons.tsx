@@ -253,7 +253,7 @@ export function FeatureGridLargeSkeletonCard({
   return (
     <article
       className={cn(
-        "overflow-hidden rounded-lg bg-neutral-50 dark:bg-neutral-900",
+        "group/features-grid-card overflow-hidden rounded-lg bg-neutral-50 dark:bg-neutral-900",
         className,
       )}
       data-slot="features-grid-large-skeleton-card"
@@ -461,7 +461,10 @@ export function FeatureWorkflowSkeleton({
       </div>
       <div className="relative mt-4 flex-1 overflow-visible rounded-2xl border border-neutral-200 bg-neutral-200 dark:border-neutral-700 dark:bg-neutral-800">
         <FeatureSkeletonPattern />
-        <div className="absolute inset-0 h-full w-full translate-x-4 -translate-y-4 rounded-2xl bg-white transition-all duration-300 group-hover/bento-skeleton:translate-x-0 group-hover/bento-skeleton:translate-y-0 dark:bg-neutral-700">
+        <div
+          className="absolute inset-0 h-full w-full translate-x-4 -translate-y-4 rounded-2xl bg-white transition-all duration-300 group-hover/bento-skeleton:translate-x-0 group-hover/bento-skeleton:translate-y-0 group-hover/features-grid-card:translate-x-0 group-hover/features-grid-card:translate-y-0 group-focus-within/features-grid-card:translate-x-0 group-focus-within/features-grid-card:translate-y-0 dark:bg-neutral-700"
+          data-slot="feature-workflow-skeleton-panel"
+        >
           {rows.map((row, index) => (
             <div key={`${renderText(row.text)}-${index}`}>
               <FeatureWorkflowSkeletonRow {...row} />

@@ -121,6 +121,11 @@ describe("FeaturesGridWithLargeSkeletons", () => {
       ),
     ).toHaveLength(3);
     expect(
+      container.querySelector(
+        '[data-slot="features-grid-large-skeleton-card"]',
+      ),
+    ).toHaveClass("group/features-grid-card");
+    expect(
       container.querySelectorAll(
         '[data-slot="features-grid-large-skeleton-frame"]',
       ),
@@ -131,6 +136,9 @@ describe("FeaturesGridWithLargeSkeletons", () => {
     expect(
       container.querySelector('[data-slot="feature-workflow-skeleton"]'),
     ).toBeInTheDocument();
+    expect(
+      container.querySelector('[data-slot="feature-workflow-skeleton-panel"]'),
+    ).toHaveClass("group-hover/features-grid-card:translate-x-0");
     expect(
       container.querySelector('[data-slot="feature-shield-skeleton"]'),
     ).toBeInTheDocument();
