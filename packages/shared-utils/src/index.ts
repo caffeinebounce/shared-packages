@@ -60,7 +60,9 @@ export {
   ensureAbsoluteUrl,
   getInitials,
   normalizeEmail,
+  type PreventWidowsOptions,
   pluralize,
+  preventWidows,
   slugify,
   truncate,
 } from "./string";
