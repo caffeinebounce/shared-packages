@@ -2,7 +2,7 @@ import { copyFileSync } from "node:fs";
 import { defineConfig } from "tsup";
 import {
   createUseClientOnSuccess,
-  listBuiltJavaScriptFiles,
+  listBuiltClientJavaScriptFiles,
 } from "../../scripts/tsup/use-client";
 
 export default defineConfig({
@@ -50,7 +50,7 @@ export default defineConfig({
     };
   },
   onSuccess: createUseClientOnSuccess({
-    files: () => listBuiltJavaScriptFiles("dist"),
+    files: () => listBuiltClientJavaScriptFiles("dist"),
     afterSuccess: () => {
       copyFileSync("src/styles/base.css", "dist/styles.css");
       console.log("Copied styles.css to dist/");
