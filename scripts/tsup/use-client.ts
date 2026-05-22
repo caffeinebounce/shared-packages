@@ -44,8 +44,43 @@ function parseSourceMap(filePath: string): SourceMapLike | null {
   return null;
 }
 
+function getFirstStatementIndex(content: string): number {
+  let index = content.charCodeAt(0) === 0xfeff ? 1 : 0;
+
+  while (index < content.length) {
+    const character = content[index];
+    const nextCharacter = content[index + 1];
+
+    if (/\s/.test(character)) {
+      index += 1;
+      continue;
+    }
+
+    if (character === "/" && nextCharacter === "/") {
+      const nextLineIndex = content.indexOf("\n", index + 2);
+      index = nextLineIndex === -1 ? content.length : nextLineIndex + 1;
+      continue;
+    }
+
+    if (character === "/" && nextCharacter === "*") {
+      const commentEndIndex = content.indexOf("*/", index + 2);
+      if (commentEndIndex === -1) {
+        return index;
+      }
+      index = commentEndIndex + 2;
+      continue;
+    }
+
+    return index;
+  }
+
+  return index;
+}
+
 function hasUseClientDirective(content: string): boolean {
-  return USE_CLIENT_DIRECTIVE_PREFIX.test(content);
+  return USE_CLIENT_DIRECTIVE_PREFIX.test(
+    content.slice(getFirstStatementIndex(content)),
+  );
 }
 
 function outputHasUseClientSource(filePath: string): boolean {

@@ -23,7 +23,7 @@ function writeBuiltOutput(
   const filePath = path.join(dir, fileName);
   writeFileSync(
     filePath,
-    "export const value = 1;\n//# sourceMappingURL=output.map\n",
+    `export const value = 1;\n//# sourceMappingURL=${fileName}.map\n`,
   );
   writeFileSync(
     `${filePath}.map`,
@@ -82,5 +82,16 @@ describe("use-client build helper", () => {
 
     expect(readFileSync(clientFile, "utf8")).toMatch(/^"use client";\n/);
     expect(readFileSync(serverFile, "utf8")).not.toMatch(/^"use client";/);
+  });
+
+  it("detects client directives after leading comments and whitespace", () => {
+    const distDir = createTempDir();
+    const clientFile = writeBuiltOutput(
+      distDir,
+      "documented-client.mjs",
+      "\n/**\n * Client editor surface.\n */\n'use client';\n\nexport function ClientComponent() { return null; }\n",
+    );
+
+    expect(listBuiltClientJavaScriptFiles(distDir)).toEqual([clientFile]);
   });
 });
