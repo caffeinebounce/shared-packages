@@ -4,7 +4,7 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 const USE_CLIENT_BANNER = '"use client";\n';
 const USE_CLIENT_DIRECTIVE_PREFIX = /^['"]use client['"];?\s*/;
@@ -24,7 +24,7 @@ interface CreateUseClientOnSuccessOptions {
 export function listBuiltJavaScriptFiles(distDir = "dist"): string[] {
   return readdirSync(distDir)
     .filter((fileName) => fileName.endsWith(".mjs") || fileName.endsWith(".js"))
-    .map((fileName) => `${distDir}/${fileName}`);
+    .map((fileName) => join(distDir, fileName));
 }
 
 function isStringArray(value: unknown): value is string[] {
