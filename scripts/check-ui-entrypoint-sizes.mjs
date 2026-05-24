@@ -10,7 +10,7 @@ const budgets = new Map([
   [
     "./primitives",
     {
-      bytes: 50 * 1024,
+      bytes: 75 * 1024,
       reason: "Primitive-only consumers should not inherit heavy UI surfaces.",
     },
   ],
@@ -47,6 +47,70 @@ function formatBytes(bytes) {
   return `${(bytes / 1024).toFixed(2)} KB`;
 }
 
+function isJavaScriptTarget(target) {
+  return /\.(mjs|js)$/.test(target);
+}
+
+function toPackageTarget(absolutePath) {
+  return `./${path.relative(uiPackageDir, absolutePath).split(path.sep).join("/")}`;
+}
+
+function collectRelativeImports(source) {
+  const imports = new Set();
+  const patterns = [
+    /(?:import|export)\s+(?:[^'"]*?\s+from\s+)?["'](\.[^"']+)["']/g,
+    /import\(\s*["'](\.[^"']+)["']\s*\)/g,
+    /require\(\s*["'](\.[^"']+)["']\s*\)/g,
+  ];
+
+  for (const pattern of patterns) {
+    for (const match of source.matchAll(pattern)) {
+      imports.add(match[1]);
+    }
+  }
+
+  return imports;
+}
+
+function resolveJavaScriptImport(fromFile, specifier) {
+  const resolved = path.resolve(path.dirname(fromFile), specifier);
+  const candidates = path.extname(resolved)
+    ? [resolved]
+    : [`${resolved}.mjs`, `${resolved}.js`, path.join(resolved, "index.mjs"), path.join(resolved, "index.js")];
+
+  return candidates.find((candidate) => existsSync(candidate));
+}
+
+function traceJavaScriptFiles(target) {
+  const absoluteTarget = path.join(uiPackageDir, target.slice(2));
+  const files = new Set();
+  const stack = [absoluteTarget];
+
+  while (stack.length > 0) {
+    const current = stack.pop();
+
+    if (!current || files.has(current) || !existsSync(current)) {
+      continue;
+    }
+
+    files.add(current);
+
+    const source = readFileSync(current, "utf8");
+    for (const specifier of collectRelativeImports(source)) {
+      const imported = resolveJavaScriptImport(current, specifier);
+      if (imported?.startsWith(path.join(uiPackageDir, "dist"))) {
+        stack.push(imported);
+      }
+    }
+  }
+
+  return files;
+}
+
+function sumFileSizes(files) {
+  return [...files].reduce((total, file) => total + statSync(file).size, 0);
+}
+
 const failures = [];
 const rows = [];
 
@@ -65,9 +129,25 @@ for (const [exportPath, exportConfig] of Object.entries(uiPackageJson.exports)) 
     return { bytes, target };
   });
   const budget = budgets.get(exportPath);
-  const totalJavaScriptBytes = sizes
-    .filter(({ bytes, target }) => bytes != null && /\.(mjs|js)$/.test(target))
-    .reduce((total, { bytes }) => total + bytes, 0);
+  const transitiveJavaScriptFiles = new Set();
+  const traces = [];
+
+  for (const { bytes, target } of sizes) {
+    if (bytes != null && isJavaScriptTarget(target)) {
+      const files = traceJavaScriptFiles(target);
+      traces.push({
+        bytes: sumFileSizes(files),
+        files,
+        target,
+      });
+
+      for (const file of files) {
+        transitiveJavaScriptFiles.add(file);
+      }
+    }
+  }
+
+  const totalJavaScriptBytes = Math.max(0, ...traces.map((trace) => trace.bytes));
 
   rows.push({
     budget,
@@ -79,6 +159,8 @@ for (const [exportPath, exportConfig] of Object.entries(uiPackageJson.exports)) 
         : "reported",
     sizes,
     totalJavaScriptBytes,
+    traces,
+    transitiveJavaScriptFiles,
   });
 
   if (budget && totalJavaScriptBytes > budget.bytes) {
@@ -107,6 +189,18 @@ for (const row of rows) {
 
   for (const { bytes, target } of row.sizes) {
     console.log(`  ${target}: ${bytes == null ? "missing" : formatBytes(bytes)}`);
+  }
+
+  const transitiveTargets = [...row.transitiveJavaScriptFiles]
+    .map(toPackageTarget)
+    .sort();
+  for (const trace of row.traces) {
+    console.log(
+      `  ${trace.target} transitive runtime: ${formatBytes(trace.bytes)} (${trace.files.size} files)`,
+    );
+  }
+  if (transitiveTargets.length > 0) {
+    console.log(`  distinct transitive JS files: ${transitiveTargets.length}`);
   }
 }
 

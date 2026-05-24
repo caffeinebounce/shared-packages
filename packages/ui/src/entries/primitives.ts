@@ -96,4 +96,4 @@ export {
 } from "../components/ui/tooltip";
 export type { VerificationCodeInputProps } from "../components/ui/verification-code-input";
 export { VerificationCodeInput } from "../components/ui/verification-code-input";
-export { cn } from "../utils";
+export { cn } from "../utils/cn";
