@@ -1,5 +1,23 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.59.0
+
+### Minor Changes
+
+- db7c627: Add the ConnectedCards marketing section exports.
+- db7c627: Add a reusable Aceternity-inspired FAQ accordion for marketing pages.
+- db7c627: Add a reusable Aceternity-inspired feature pattern section with theme-aware box rounding.
+- db7c627: Add a reusable Aceternity-inspired minimal pricing section for marketing pages.
+- db7c627: Add a reusable Aceternity-inspired container text flip marketing component.
+
+### Patch Changes
+
+- c38c1d7: Use a lucide-animated-style hamburger as the default Navbar mobile menu toggle.
+- c38c1d7: Use the shared NewsletterSignup component for the brand Footer newsletter form.
+- e7295c9: Preserve client directives only for built outputs generated from client source modules.
+- 29084be: Add a reusable GooeyInput search component inspired by Aceternity UI.
+- 29084be: Add a reusable GlowingEffect primitive with shared box-radius corner controls.
+
 ## 0.58.2
 
 ### Patch Changes
