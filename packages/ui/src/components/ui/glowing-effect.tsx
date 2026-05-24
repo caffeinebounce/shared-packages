@@ -1,6 +1,6 @@
 "use client";
 
-import { animate } from "motion/react";
+import { animate, useReducedMotion } from "motion/react";
 import type * as React from "react";
 import { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "../../utils";
@@ -82,6 +82,8 @@ export const GlowingEffect = memo(function GlowingEffect({
   const containerRef = useRef<HTMLDivElement>(null);
   const lastPositionRef = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef<number>(0);
+  const angleAnimationRef = useRef<{ stop: () => void } | null>(null);
+  const reducedMotion = useReducedMotion() ?? false;
 
   const handleMove = useCallback(
     (event?: MouseEvent | { x: number; y: number }) => {
@@ -148,7 +150,8 @@ export const GlowingEffect = memo(function GlowingEffect({
           ((((targetAngle - currentAngle + 180) % 360) + 360) % 360) - 180;
         const nextAngle = currentAngle + angleDifference;
 
-        animate(currentAngle, nextAngle, {
+        angleAnimationRef.current?.stop();
+        angleAnimationRef.current = animate(currentAngle, nextAngle, {
           duration: movementDuration,
           ease: [0.16, 1, 0.3, 1],
           onUpdate: (value) => {
@@ -161,7 +164,7 @@ export const GlowingEffect = memo(function GlowingEffect({
   );
 
   useEffect(() => {
-    if (disabled) {
+    if (disabled || reducedMotion) {
       return;
     }
 
@@ -177,10 +180,12 @@ export const GlowingEffect = memo(function GlowingEffect({
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+      angleAnimationRef.current?.stop();
+      angleAnimationRef.current = null;
       window.removeEventListener("scroll", handleScroll);
       document.body.removeEventListener("pointermove", handlePointerMove);
     };
-  }, [disabled, handleMove]);
+  }, [disabled, handleMove, reducedMotion]);
 
   const colors = glowingEffectColors[variant];
   const effectStyle: GlowingEffectStyle = {
@@ -238,7 +243,6 @@ export const GlowingEffect = memo(function GlowingEffect({
       className={cn(
         "pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-100 transition-opacity",
         glowingEffectCornerClasses[corners],
-        blur > 0 && "blur-[var(--glowing-effect-blur)]",
         disabled && "hidden",
         className,
       )}
