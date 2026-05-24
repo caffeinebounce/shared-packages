@@ -3,6 +3,12 @@ export {
   type EncryptedTextProps,
 } from "../../components/ui/encrypted-text";
 export {
+  GlowingEffect,
+  type GlowingEffectCorners,
+  type GlowingEffectProps,
+  type GlowingEffectVariant,
+} from "../../components/ui/glowing-effect";
+export {
   PixelatedCanvas,
   type PixelatedCanvasProps,
 } from "../../components/ui/pixelated-canvas";
