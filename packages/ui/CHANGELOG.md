@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.59.1
+
+### Patch Changes
+
+- f14321a: Update vulnerable runtime dependency trees for email delivery and the Studio editor.
+
 ## 0.59.0
 
 ### Minor Changes
