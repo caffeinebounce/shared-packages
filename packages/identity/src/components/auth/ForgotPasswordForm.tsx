@@ -1,7 +1,7 @@
 "use client";
 
 import { getClientOrigin } from "@caffeinebounce/shared-utils";
-import { Button, FieldLabel, Input } from "@caffeinebounce/ui";
+import { Button, FieldLabel, Input } from "@caffeinebounce/ui/primitives";
 import { AlertCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { type ComponentType, useState } from "react";

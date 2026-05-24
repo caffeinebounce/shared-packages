@@ -17,7 +17,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { KeyRound, Loader2, Smartphone } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";

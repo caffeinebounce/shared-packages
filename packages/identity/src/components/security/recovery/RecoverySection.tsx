@@ -23,7 +23,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import {
   AlertTriangle,
   Check,

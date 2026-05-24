@@ -13,7 +13,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
   Label,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import type { Factor } from "@supabase/supabase-js";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Check, Loader2 } from "lucide-react";

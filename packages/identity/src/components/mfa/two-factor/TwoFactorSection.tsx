@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import type { Factor } from "@supabase/supabase-js";
 import {
   AlertTriangle,

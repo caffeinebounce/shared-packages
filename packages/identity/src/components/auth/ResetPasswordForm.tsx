@@ -1,7 +1,11 @@
 "use client";
 
 import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
-import { Button, FieldLabel, PasswordInput } from "@caffeinebounce/ui";
+import {
+  Button,
+  FieldLabel,
+  PasswordInput,
+} from "@caffeinebounce/ui/primitives";
 import { AlertCircle } from "lucide-react";
 import { type ComponentType, useEffect, useState } from "react";
 

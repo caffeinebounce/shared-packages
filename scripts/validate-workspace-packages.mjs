@@ -330,6 +330,7 @@ function runCli() {
       console.warn(
         `Falling back to git-based affected package detection: ${message}`,
       );
+      distPackageNames = getAffectedPackageNames({
         changedFiles: readChangedFiles(affectedBaseRef),
         workspacePackages,
       });

@@ -11,7 +11,7 @@ import {
   Input,
   PasswordInput,
   PasswordRequirements,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {

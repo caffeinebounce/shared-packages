@@ -22,6 +22,7 @@ export default defineConfig({
     "@supabase/ssr",
     "@supabase/supabase-js",
     "@caffeinebounce/ui",
+    "@caffeinebounce/ui/primitives",
   ],
   treeshake: true,
   minify: false,

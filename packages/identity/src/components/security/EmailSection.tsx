@@ -10,7 +10,7 @@ import {
   DialogTitle,
   Input,
   Label,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

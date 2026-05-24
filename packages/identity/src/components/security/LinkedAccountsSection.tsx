@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   Spinner,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import { AlertCircle, Check, KeyRound, Link2, Unlink } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
