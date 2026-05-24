@@ -129,4 +129,37 @@ describe("Footer", () => {
     });
     expect(screen.getByText("You're subscribed!")).toBeInTheDocument();
   });
+
+  it("applies newsletter customization props to callback submissions", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+
+    render(
+      <Footer
+        variant="brand"
+        logo={<span>Logo</span>}
+        newsletter={{
+          buttonClassName: "callback-button",
+          buttonText: "Request invite",
+          inputClassName: "callback-input",
+          inputLabel: "Work email",
+          onSubmit,
+          placeholder: "you@company.com",
+        }}
+      />,
+    );
+
+    const input = screen.getByLabelText("Work email");
+    const button = screen.getByRole("button", { name: "Request invite" });
+
+    expect(input).toHaveClass("callback-input");
+    expect(input).toHaveAttribute("placeholder", "you@company.com");
+    expect(button).toHaveClass("callback-button");
+
+    await user.type(input, "doug@example.com");
+    await user.click(button);
+
+    expect(onSubmit).toHaveBeenCalledWith("doug@example.com");
+    expect(input).toHaveValue("");
+  });
 });

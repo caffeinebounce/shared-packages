@@ -6,6 +6,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { Navbar } from "./Navbar";
 
+const animationStart = vi.fn();
+const animationControls = { start: animationStart };
+
 vi.mock("motion/react", () => {
   const MotionLine = ({
     animate: _animate,
@@ -20,7 +23,7 @@ vi.mock("motion/react", () => {
 
   return {
     motion: { line: MotionLine },
-    useAnimation: vi.fn(() => ({ start: vi.fn() })),
+    useAnimation: vi.fn(() => animationControls),
     useReducedMotion: vi.fn(() => false),
   };
 });
@@ -51,6 +54,7 @@ function TestLink({
 }
 
 afterEach(() => {
+  animationStart.mockClear();
   vi.mocked(useReducedMotion).mockReturnValue(false);
   vi.mocked(useScrollDirection).mockReturnValue({
     direction: "up",
@@ -151,6 +155,31 @@ describe("Navbar", () => {
       "open",
     );
     expect(toggleIcon).toHaveAttribute("data-state", "open");
+  });
+
+  it("restarts mobile icon animation when reduced-motion preference changes", () => {
+    const { rerender } = render(
+      <Navbar
+        logo={<span>Logo</span>}
+        links={[{ href: "/about", label: "About" }]}
+        LinkComponent={TestLink}
+      />,
+    );
+
+    expect(animationStart).toHaveBeenLastCalledWith("normal");
+
+    vi.mocked(useReducedMotion).mockReturnValue(true);
+
+    rerender(
+      <Navbar
+        logo={<span>Logo</span>}
+        links={[{ href: "/about", label: "About" }]}
+        LinkComponent={TestLink}
+      />,
+    );
+
+    expect(animationStart).toHaveBeenCalledTimes(2);
+    expect(animationStart).toHaveBeenLastCalledWith("normal");
   });
 
   it("uses custom mobile icons as an escape hatch", () => {

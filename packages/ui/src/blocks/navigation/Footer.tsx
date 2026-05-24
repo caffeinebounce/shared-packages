@@ -366,10 +366,14 @@ function FooterNewsletterCallbackForm({
         placeholder={newsletter.placeholder ?? "Enter your email"}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="flex-1"
+        className={cn("flex-1", newsletter.inputClassName)}
         required
       />
-      <Button type="submit" size="sm">
+      <Button
+        type="submit"
+        size="sm"
+        className={newsletter.buttonClassName}
+      >
         {newsletter.buttonText ?? "Subscribe"}
       </Button>
     </form>
