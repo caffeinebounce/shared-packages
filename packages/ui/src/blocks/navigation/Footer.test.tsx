@@ -1,9 +1,14 @@
-import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Footer } from "./Footer";
 
 describe("Footer", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("uses the shared container defaults in the default variant", () => {
     const { container } = render(
       <Footer logo={<span>Logo</span>} copyright="Copyright" />,
@@ -53,6 +58,27 @@ describe("Footer", () => {
     expect(footerContainer).toHaveClass("max-w-5xl");
   });
 
+  it("shows a brand newsletter signup by default", () => {
+    render(
+      <Footer variant="brand" logo={<span>Logo</span>} copyright="Copyright" />,
+    );
+
+    expect(screen.getByLabelText("Email address")).toBeInTheDocument();
+  });
+
+  it("allows brand newsletter signup to be disabled", () => {
+    render(
+      <Footer
+        variant="brand"
+        logo={<span>Logo</span>}
+        copyright="Copyright"
+        newsletter={false}
+      />,
+    );
+
+    expect(screen.queryByLabelText("Email address")).not.toBeInTheDocument();
+  });
+
   it("renders logo in the minimal variant", () => {
     const { container } = render(
       <Footer
@@ -65,5 +91,42 @@ describe("Footer", () => {
     const logo = container.querySelector('[data-slot="footer-logo"]');
 
     expect(logo).toHaveTextContent("Factory");
+  });
+
+  it("posts brand newsletter submissions to the configured endpoint", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ status: "subscribed" }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+      }),
+    );
+
+    render(
+      <Footer
+        variant="brand"
+        logo={<span>Logo</span>}
+        newsletter={{
+          endpoint: "/api/subscribe",
+          source: "footer-test",
+          buttonText: "Join",
+        }}
+      />,
+    );
+
+    await user.type(screen.getByLabelText("Email address"), "doug@example.com");
+    await user.click(screen.getByRole("button", { name: "Join" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith("/api/subscribe", {
+        body: JSON.stringify({
+          email: "doug@example.com",
+          source: "footer-test",
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
+    });
+    expect(screen.getByText("You're subscribed!")).toBeInTheDocument();
   });
 });

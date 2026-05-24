@@ -6,6 +6,10 @@ import { Container } from "../../components/ui/container";
 import { Input } from "../../components/ui/input";
 import { Separator } from "../../components/ui/separator";
 import { cn } from "../../utils";
+import {
+  NewsletterSignup,
+  type NewsletterSignupProps,
+} from "../marketing/NewsletterSignup";
 
 export interface FooterLinkGroup {
   /** Title of the link group */
@@ -33,11 +37,25 @@ export interface FooterProps {
   /** Tagline text (brand variant) */
   tagline?: string | ReactNode;
   /** Newsletter CTA config (brand variant) */
-  newsletter?: {
-    placeholder?: string;
-    buttonText?: string;
-    onSubmit?: (email: string) => void;
-  };
+  newsletter?:
+    | false
+    | ({
+        placeholder?: string;
+        buttonText?: string;
+        onSubmit?: (email: string) => void;
+      } & Pick<
+        NewsletterSignupProps,
+        | "buttonClassName"
+        | "endpoint"
+        | "errorMessage"
+        | "inputClassName"
+        | "inputLabel"
+        | "source"
+        | "submittingLabel"
+        | "successClassName"
+        | "successDescription"
+        | "successTitle"
+      >);
 }
 
 export function Footer({
@@ -70,7 +88,7 @@ export function Footer({
       <BrandFooter
         logo={logo}
         tagline={tagline}
-        newsletter={newsletter}
+        newsletter={newsletter === undefined ? {} : newsletter}
         linkGroups={linkGroups}
         socialLinks={socialLinks}
         copyright={copyright}
@@ -180,8 +198,8 @@ function BrandFooter({
   | "className"
   | "containerClassName"
 >) {
-  const [email, setEmail] = useState("");
   const [isDark, setIsDark] = useState(false);
+  const newsletterConfig = newsletter === false ? undefined : newsletter;
 
   useEffect(() => {
     const html = document.documentElement;
@@ -191,12 +209,6 @@ function BrandFooter({
     obs.observe(html, { attributes: true, attributeFilter: ["class"] });
     return () => obs.disconnect();
   }, []);
-
-  const handleNewsletterSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    newsletter?.onSubmit?.(email);
-    setEmail("");
-  };
 
   const footerBg = isDark
     ? "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.9))"
@@ -224,7 +236,7 @@ function BrandFooter({
         className={cn("py-16 md:py-20", containerClassName)}
       >
         {/* Top zone: logo + tagline / newsletter */}
-        {(logo || tagline || newsletter) && (
+        {(logo || tagline || newsletterConfig) && (
           <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
             <div className="space-y-3">
               {logo}
@@ -235,23 +247,8 @@ function BrandFooter({
               )}
             </div>
 
-            {newsletter && (
-              <form
-                onSubmit={handleNewsletterSubmit}
-                className="flex gap-2 w-full max-w-sm"
-              >
-                <Input
-                  type="email"
-                  placeholder={newsletter.placeholder ?? "Enter your email"}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1"
-                  required
-                />
-                <Button type="submit" size="sm">
-                  {newsletter.buttonText ?? "Subscribe"}
-                </Button>
-              </form>
+            {newsletterConfig && (
+              <FooterNewsletterForm newsletter={newsletterConfig} />
             )}
           </div>
         )}
@@ -314,6 +311,68 @@ function BrandFooter({
         </div>
       </Container>
     </footer>
+  );
+}
+
+function FooterNewsletterForm({
+  newsletter,
+}: {
+  newsletter: Exclude<NonNullable<FooterProps["newsletter"]>, false>;
+}) {
+  if (newsletter.onSubmit && !newsletter.endpoint) {
+    return <FooterNewsletterCallbackForm newsletter={newsletter} />;
+  }
+
+  return (
+    <NewsletterSignup
+      buttonClassName={cn("shrink-0", newsletter.buttonClassName)}
+      buttonLabel={newsletter.buttonText ?? "Subscribe"}
+      className="w-full max-w-sm"
+      endpoint={newsletter.endpoint}
+      errorMessage={newsletter.errorMessage}
+      inputClassName={newsletter.inputClassName}
+      inputLabel={newsletter.inputLabel}
+      placeholder={newsletter.placeholder}
+      source={newsletter.source}
+      submittingLabel={newsletter.submittingLabel}
+      successClassName={newsletter.successClassName}
+      successDescription={newsletter.successDescription}
+      successTitle={newsletter.successTitle}
+    />
+  );
+}
+
+function FooterNewsletterCallbackForm({
+  newsletter,
+}: {
+  newsletter: Exclude<NonNullable<FooterProps["newsletter"]>, false>;
+}) {
+  const [email, setEmail] = useState("");
+
+  const handleNewsletterSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    newsletter.onSubmit?.(email);
+    setEmail("");
+  };
+
+  return (
+    <form
+      onSubmit={handleNewsletterSubmit}
+      className="flex gap-2 w-full max-w-sm"
+    >
+      <Input
+        aria-label={newsletter.inputLabel ?? "Email address"}
+        type="email"
+        placeholder={newsletter.placeholder ?? "Enter your email"}
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="flex-1"
+        required
+      />
+      <Button type="submit" size="sm">
+        {newsletter.buttonText ?? "Subscribe"}
+      </Button>
+    </form>
   );
 }
 

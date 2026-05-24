@@ -1,14 +1,29 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useReducedMotion } from "motion/react";
-import type { ReactNode } from "react";
+import type { ReactNode, SVGProps } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { Navbar } from "./Navbar";
 
-vi.mock("motion/react", () => ({
-  useReducedMotion: vi.fn(() => false),
-}));
+vi.mock("motion/react", () => {
+  const MotionLine = ({
+    animate: _animate,
+    custom: _custom,
+    variants: _variants,
+    ...props
+  }: SVGProps<SVGLineElement> & {
+    animate?: unknown;
+    custom?: unknown;
+    variants?: unknown;
+  }) => <line {...props} />;
+
+  return {
+    motion: { line: MotionLine },
+    useAnimation: vi.fn(() => ({ start: vi.fn() })),
+    useReducedMotion: vi.fn(() => false),
+  };
+});
 
 vi.mock("../../hooks/useScrollDirection", () => ({
   useScrollDirection: vi.fn(() => ({
@@ -107,7 +122,7 @@ describe("Navbar", () => {
     expect(header).not.toHaveClass("shadow-[0_18px_48px_rgba(0,0,0,0.45)]");
   });
 
-  it("uses the animated default mobile toggle and updates its state on click", () => {
+  it("uses the lucide-animated-style default mobile toggle and updates its state on click", () => {
     const { container } = render(
       <Navbar
         logo={<span>Logo</span>}
@@ -123,6 +138,10 @@ describe("Navbar", () => {
 
     expect(menuButton).toHaveClass("rounded-box");
     expect(menuButton).toHaveAttribute("data-state", "closed");
+    expect(toggleIcon).toHaveAttribute(
+      "data-animation",
+      "lucide-animated-menu",
+    );
     expect(toggleIcon).toHaveAttribute("data-state", "closed");
 
     fireEvent.click(menuButton);
