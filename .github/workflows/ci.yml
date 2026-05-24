@@ -83,6 +83,12 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Consumer package smoke
+        run: yarn test:consumer-smoke
+
+      - name: UI entrypoint sizes
+        run: yarn size:ui
+
       - name: Validate package contracts
         run: yarn validate:packages
 

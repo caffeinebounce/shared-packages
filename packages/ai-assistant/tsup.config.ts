@@ -8,7 +8,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ["react", "react-dom", "@caffeinebounce/ui"],
+  external: ["react", "react-dom", "@caffeinebounce/ui", "@caffeinebounce/ui/primitives"],
   treeshake: true,
   minify: false,
   outExtension({ format }) {

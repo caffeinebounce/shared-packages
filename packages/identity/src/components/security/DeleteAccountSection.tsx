@@ -14,7 +14,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import { AlertTriangle, Info, Loader2, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";

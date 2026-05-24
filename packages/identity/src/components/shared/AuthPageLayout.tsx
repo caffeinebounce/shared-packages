@@ -62,6 +62,7 @@ export interface AuthPageLayoutProps {
     width: number;
     height: number;
     className?: string;
+    style?: CSSProperties;
   }>;
   /** Logo element for rolling variant background watermark */
   rollingLogo?: ReactNode;
@@ -116,6 +117,7 @@ export function AuthPageLayout({
       width: number;
       height: number;
       className?: string;
+      style?: CSSProperties;
     }>);
   const logoMaxWidth = externalLogoSizeMap[externalLogoSize];
 
@@ -174,7 +176,21 @@ export function AuthPageLayout({
       )}
 
       {/* Content */}
-      <div className="relative z-20 pointer-events-none">{children}</div>
+      <div className="relative z-20 pointer-events-none">
+        {externalLogo && (
+          <div className="pointer-events-auto flex justify-center px-6 pt-8 pb-6">
+            <ExternalImage
+              alt={externalLogo.alt}
+              className="h-auto w-full object-contain"
+              height={logoMaxWidth}
+              src={externalLogo.src}
+              style={{ maxWidth: logoMaxWidth }}
+              width={logoMaxWidth}
+            />
+          </div>
+        )}
+        {children}
+      </div>
     </div>
   );
 }
