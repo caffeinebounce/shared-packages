@@ -1,5 +1,11 @@
 # @caffeinebounce/logger
 
+## 0.9.130
+
+### Patch Changes
+
+- Sync the changelog header with the current package version so CI can enforce current changelog coverage going forward.
+
 ## 0.9.7
 
 ### Patch Changes

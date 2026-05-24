@@ -23,6 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
@@ -71,19 +72,44 @@ jobs:
           git commit -m "chore: update yarn.lock [skip ci]"
           git push
 
+      - name: Check changelog discipline
+        if: github.event_name == 'pull_request'
+        run: yarn check:changelog
+
+      - name: Root lint
+        if: github.event_name == 'pull_request'
+        run: yarn format:check
+
+      - name: Affected package checks
+        if: github.event_name == 'pull_request'
+        run: yarn ci:affected
+        env:
+          TURBO_SCM_BASE: origin/${{ github.base_ref }}
+
+      - name: Validate affected package contracts
+        if: github.event_name == 'pull_request'
+        run: yarn validate:packages:affected
+        env:
+          TURBO_SCM_BASE: origin/${{ github.base_ref }}
+
       - name: Lint
+        if: github.event_name == 'push'
         run: yarn lint
 
       - name: Typecheck
+        if: github.event_name == 'push'
         run: yarn typecheck
 
       - name: Test
+        if: github.event_name == 'push'
         run: yarn test
 
       - name: Build
+        if: github.event_name == 'push'
         run: yarn build
 
       - name: Validate package contracts
+        if: github.event_name == 'push'
         run: yarn validate:packages
 
   swift:
