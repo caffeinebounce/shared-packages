@@ -2,7 +2,7 @@
 
 import { Minus, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { type ReactNode, useId, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useId, useMemo, useState } from "react";
 import { cx } from "./aceternity/shared";
 import { useMotionEnabled } from "./aceternity/useMotionEnabled";
 
@@ -54,6 +54,20 @@ export function FrequentlyAskedQuestionsAccordion({
     [defaultOpenIndex, items.length],
   );
   const [openIndex, setOpenIndex] = useState<number | null>(initialOpenIndex);
+
+  useEffect(() => {
+    setOpenIndex((currentOpenIndex) => {
+      if (
+        currentOpenIndex !== null &&
+        currentOpenIndex >= 0 &&
+        currentOpenIndex < items.length
+      ) {
+        return currentOpenIndex;
+      }
+
+      return initialOpenIndex;
+    });
+  }, [initialOpenIndex, items.length]);
 
   return (
     <section

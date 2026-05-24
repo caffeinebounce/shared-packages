@@ -193,7 +193,7 @@ function ConnectedCardsVisualCard({
         data-slot="connected-cards-card-icon"
       >
         {item.icon ?? (
-          <span className="text-2xl font-semibold">
+          <span aria-hidden="true" className="text-2xl font-semibold">
             {getFallbackSymbol(item.title)}
           </span>
         )}

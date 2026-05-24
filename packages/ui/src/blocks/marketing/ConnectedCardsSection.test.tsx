@@ -74,6 +74,11 @@ describe("ConnectedCardsSection", () => {
     expect(
       screen.getByRole("link", { name: /Family Office/i }),
     ).toHaveAttribute("href", "/family-office");
+    expect(
+      screen.getByRole("link", {
+        name: "Family Office Private administration",
+      }),
+    ).toBeInTheDocument();
     expect(cards[0]).toHaveClass("border-border");
     expect(cards[0]).toHaveClass("bg-card");
     expect(cards[0]).toHaveClass("rounded-box");

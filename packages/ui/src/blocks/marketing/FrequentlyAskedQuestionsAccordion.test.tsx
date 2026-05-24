@@ -75,6 +75,31 @@ describe("FrequentlyAskedQuestionsAccordion", () => {
     ).toBeInTheDocument();
   });
 
+  it("opens the configured default item when items are populated after first render", () => {
+    const { rerender } = render(
+      <FrequentlyAskedQuestionsAccordion
+        heading="Frequently asked questions"
+        defaultOpenIndex={1}
+        items={[]}
+      />,
+    );
+
+    rerender(
+      <FrequentlyAskedQuestionsAccordion
+        heading="Frequently asked questions"
+        defaultOpenIndex={1}
+        items={items}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Is this investment advice only?" }),
+    ).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.getByRole("button", { name: "Can this stand alone?" }),
+    ).toHaveAttribute("aria-expanded", "true");
+  });
+
   it("opens one item at a time when a question is clicked", async () => {
     const user = userEvent.setup();
 
