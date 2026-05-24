@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import { execFileSync } from "node:child_process";
 
 const requirePackage = createRequire(import.meta.url);
 
@@ -40,9 +41,48 @@ const checks = [
   },
 ];
 
+function getWorkspacePackageName(packageName) {
+  const parts = packageName.split("/");
+  return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : packageName;
+}
+
+function parseTurboPackages(output) {
+  const jsonStart = output.indexOf("{");
+  if (jsonStart === -1) {
+    return null;
+  }
+
+  const dryRun = JSON.parse(output.slice(jsonStart));
+  return new Set((dryRun.packages ?? []).filter((packageName) => packageName !== "//"));
+}
+
+function getAffectedPackages() {
+  const baseRef = process.env.TURBO_SCM_BASE ?? "origin/main";
+  const output = execFileSync(
+    "yarn",
+    [
+      "turbo",
+      "run",
+      "build",
+      "--dry=json",
+      `--filter=...[${baseRef}]`,
+    ],
+    { encoding: "utf8" },
+  );
+
+  return parseTurboPackages(output);
+}
+
+const affectedPackages =
+  process.env.CONSUMER_SMOKE_SCOPE === "affected" ? getAffectedPackages() : null;
+const scopedChecks = affectedPackages
+  ? checks.filter(({ packageName }) =>
+      affectedPackages.has(getWorkspacePackageName(packageName)),
+    )
+  : checks;
 const failures = [];
 
-for (const { exportName, mode, packageName } of checks) {
+for (const { exportName, mode, packageName } of scopedChecks) {
   try {
     if (mode === "resolve") {
       import.meta.resolve(packageName);
@@ -69,4 +109,6 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Consumer package import smoke passed (${checks.length} checks).`);
+console.log(
+  `Consumer package import smoke passed (${scopedChecks.length}/${checks.length} checks).`,
+);

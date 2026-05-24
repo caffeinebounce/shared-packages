@@ -78,7 +78,11 @@ They check and auto-fix:
 3. Merge the version-bump PR; `publish.yml` builds and publishes to GitHub Packages.
 4. After publish, `publish.yml` dispatches `update-shared-packages` to consumer apps such as Compass.
 
-Docs-only, test-only, and internal tooling changes that do not alter published package contents or consumer-facing behavior can skip a changeset. Note that exception in the PR body when you use it.
+PR CI runs `yarn check:changelog` to enforce this. The check verifies every package changelog starts at its current `package.json` version, and source, package manifest, package build config, package CSS, and shared Tsup tooling changes require either a `.changeset/*.md` file or an explicit PR-body exception.
+
+Docs-only, test-only, changelog-only, and internal tooling changes that do not alter published package contents or consumer-facing behavior can skip a changeset. Use a PR body marker such as `Changelog: skip - docs-only update.` when you use that exception.
+
+PR CI economizes package checks with Turbo affected filtering: `yarn ci:affected` runs package lint, typecheck, test, and build only for packages changed since the base branch plus downstream dependents. `yarn validate:packages:affected` still validates every workspace manifest, but only checks built `dist` targets for affected packages. Pushes to `main` and publish workflows keep the full workspace validation.
 
 Manual publishing (maintainers):
 
