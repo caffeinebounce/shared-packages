@@ -511,6 +511,17 @@ export {
   FieldTitle,
 } from "./components/ui/field";
 export { FormDialog } from "./components/ui/form-dialog";
+export type {
+  GlowingEffectCorners,
+  GlowingEffectProps,
+  GlowingEffectVariant,
+} from "./components/ui/glowing-effect";
+export { GlowingEffect } from "./components/ui/glowing-effect";
+export type {
+  GooeyInputClassNames,
+  GooeyInputProps,
+} from "./components/ui/gooey-input";
+export { GooeyInput } from "./components/ui/gooey-input";
 export type { IconButtonProps } from "./components/ui/icon-button";
 export { IconButton, iconButtonVariants } from "./components/ui/icon-button";
 export type { InfoTooltipProps } from "./components/ui/info-tooltip";
