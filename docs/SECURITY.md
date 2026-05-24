@@ -1,260 +1,110 @@
-# Security Best Practices
+# Security Policy
 
-This guide covers security hardening recommendations for applications using
-`@caffeinebounce/identity` and related packages.
+This policy covers security reporting and maintenance for the
+`caffeinebounce/shared-packages` monorepo.
 
-## Rate Limiting for Auth Endpoints
+The repository contains shared TypeScript packages published under the
+`@caffeinebounce/*` scope, plus the `CaffeineNativeUI` Swift package. These
+packages are consumed by production applications, so vulnerability reports
+should be handled privately until a fix is available.
 
-The identity package provides auth handlers (`createAuthCallbackHandler`) and
-forms (`SigninForm`, `SignupForm`) that should be protected with rate limiting.
-While Supabase provides some built-in protections, defense in depth is
-recommended.
+## Supported Surfaces
 
-### Why Rate Limiting Matters
+Security reports may apply to:
 
-Auth endpoints are common targets for:
+- Published `@caffeinebounce/*` package code and package entry points
+- Shared Swift package code under `swift/`
+- Build, test, release, and publishing workflows
+- Package metadata that affects consumer install, runtime, or type safety
+- Documentation or examples that would lead consumers to deploy insecure
+  configurations
 
-- **Brute force attacks** - Attempting many password combinations
-- **Credential stuffing** - Using leaked credentials from other breaches
-- **Account enumeration** - Discovering valid accounts via timing attacks or
-  error messages
+Issues that are specific to one consuming application usually belong in that
+application's repository unless the root cause is in a shared package.
 
-### Supabase Built-in Protections
+## Reporting a Vulnerability
 
-Supabase Auth includes several built-in rate limits:
+Do not open a public GitHub issue for suspected vulnerabilities.
 
-| Endpoint | Default Limit | Notes |
-|----------|--------------|-------|
-| Sign up | 30 per hour per IP | Configurable in dashboard |
-| Sign in (password) | 30 per hour per IP | Configurable in dashboard |
-| Magic link / OTP | 30 per hour per IP | Configurable in dashboard |
-| OAuth | No specific limit | Relies on provider limits |
-| Password reset | 30 per hour per IP | Configurable in dashboard |
+Report privately through GitHub's private vulnerability reporting for this
+repository. If that is unavailable, contact a repository maintainer directly
+and include `SECURITY` in the subject.
 
-**To configure Supabase rate limits:**
+Include as much of the following as possible:
 
-1. Go to your Supabase Dashboard
-2. Navigate to **Authentication > Rate Limits**
-3. Adjust limits based on your application's needs
+- Affected package, version, branch, or commit
+- Clear reproduction steps or a proof of concept
+- Expected and actual impact
+- Whether the issue is already public or actively exploited
+- Any known mitigations or temporary workarounds
 
-> **Note:** These limits are per-IP. For applications behind a load balancer or
-> CDN, ensure the real client IP is forwarded correctly.
+Please do not access, modify, exfiltrate, or destroy data that does not belong
+to you while validating a report.
 
-### Infrastructure-Level Rate Limiting (Recommended)
+## What to Report
 
-For robust protection, configure rate limiting at the edge/infrastructure level.
+Examples of reportable vulnerabilities include:
 
-#### Vercel Edge Middleware
+- Authentication, authorization, or session handling flaws in shared identity
+  code
+- Cross-site scripting, injection, or unsafe rendering behavior in shared UI
+  components
+- Secret exposure in package code, published artifacts, examples, or workflows
+- Supply-chain risks in release automation, package exports, or dependency
+  configuration
+- Unsafe defaults that materially weaken consumer application security
 
-Create `middleware.ts` at your project root:
+The following usually do not require private security handling:
 
-```typescript
-import { NextResponse, type NextRequest } from "next/server";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+- General hardening suggestions without a concrete exploit path
+- Dependency bumps with no known exploitable impact on this repository
+- Documentation clarity issues that do not introduce unsafe behavior
+- Vulnerabilities that only apply to a consumer application's own configuration
 
-// Create rate limiter (requires Upstash Redis)
-const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(5, "15 m"), // 5 requests per 15 minutes
-  analytics: true,
-});
+When in doubt, report privately and the maintainers will route it.
 
-// Paths to rate limit
-const AUTH_PATHS = ["/signin", "/signup", "/forgot-password", "/callback"];
+## Maintainer Response
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+Maintainers will triage reports based on severity, exploitability, affected
+packages, and consumer exposure.
 
-  // Only rate limit auth paths
-  if (!AUTH_PATHS.some((path) => pathname.startsWith(path))) {
-    return NextResponse.next();
-  }
+Expected handling:
 
-  // Get client IP (handles proxies/CDN)
-  const ip = request.ip ?? request.headers.get("x-forwarded-for") ?? "unknown";
+1. Acknowledge the report within a reasonable timeframe.
+2. Reproduce and scope the issue.
+3. Prepare a fix, mitigation, or documented risk decision.
+4. Release patched packages when published artifacts are affected.
+5. Publicly disclose enough detail for consumers to understand impact and
+   update safely after the fix is available.
 
-  const { success, limit, remaining, reset } = await ratelimit.limit(
-    `auth:${ip}`
-  );
+Critical or actively exploited issues should be prioritized ahead of normal
+feature work.
 
-  if (!success) {
-    return new NextResponse("Too many requests. Please try again later.", {
-      status: 429,
-      headers: {
-        "X-RateLimit-Limit": limit.toString(),
-        "X-RateLimit-Remaining": remaining.toString(),
-        "X-RateLimit-Reset": reset.toString(),
-        "Retry-After": Math.ceil((reset - Date.now()) / 1000).toString(),
-      },
-    });
-  }
+## Disclosure
 
-  return NextResponse.next();
-}
+Security details should remain private until maintainers have had time to
+investigate and prepare a fix. After remediation, the repository may publish a
+GitHub Security Advisory, release notes, or other public notes depending on the
+scope and severity.
 
-export const config = {
-  matcher: ["/signin", "/signup", "/forgot-password", "/callback/:path*"],
-};
-```
+Reporters may be credited if they want attribution.
 
-#### Cloudflare Rate Limiting Rules
+## Security Maintenance
 
-If using Cloudflare:
+The repository uses automated checks to reduce security regressions, including
+dependency review, CodeQL, package contract validation, tests, type checks, and
+secret scanning hooks.
 
-1. Go to **Security > WAF > Rate limiting rules**
-2. Create a rule:
-   - **Name:** Auth endpoint protection
-   - **Expression:** `(http.request.uri.path contains "/signin") or
-     (http.request.uri.path contains "/signup") or
-     (http.request.uri.path contains "/callback")`
-   - **Characteristics:** IP
-   - **Rate:** 10 requests per 10 minutes
-   - **Action:** Block for 15 minutes
+Maintainers should:
 
-#### AWS WAF / CloudFront
+- Keep release automation and package exports reviewable and least-privileged.
+- Avoid publishing secrets, local configuration, or test credentials.
+- Prefer secure defaults in shared packages and document required consumer
+  configuration.
+- Treat changes to auth, checkout, notification, publishing, and package
+  boundary code as higher risk.
+- Add regression tests or package smoke coverage when fixing security-relevant
+  behavior.
 
-For AWS-hosted applications, use AWS WAF rate-based rules:
-
-```json
-{
-  "Name": "AuthEndpointRateLimit",
-  "Priority": 1,
-  "Statement": {
-    "RateBasedStatement": {
-      "Limit": 100,
-      "AggregateKeyType": "IP",
-      "ScopeDownStatement": {
-        "ByteMatchStatement": {
-          "FieldToMatch": { "UriPath": {} },
-          "PositionalConstraint": "STARTS_WITH",
-          "SearchString": "/signin"
-        }
-      }
-    }
-  },
-  "Action": { "Block": {} },
-  "VisibilityConfig": {
-    "SampledRequestsEnabled": true,
-    "CloudWatchMetricsEnabled": true,
-    "MetricName": "AuthRateLimit"
-  }
-}
-```
-
-### Client-Side Hardening (Optional)
-
-For additional UX-friendly protection, implement client-side attempt tracking:
-
-```typescript
-// utils/auth-attempts.ts
-const STORAGE_KEY = "auth_attempts";
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
-
-interface AttemptData {
-  count: number;
-  firstAttempt: number;
-  lockedUntil?: number;
-}
-
-export function recordFailedAttempt(): { locked: boolean; remaining: number } {
-  const data = getAttemptData();
-  const now = Date.now();
-
-  // Reset if lockout expired
-  if (data.lockedUntil && now > data.lockedUntil) {
-    clearAttempts();
-    return { locked: false, remaining: MAX_ATTEMPTS };
-  }
-
-  // Check if already locked
-  if (data.lockedUntil && now < data.lockedUntil) {
-    return { locked: true, remaining: 0 };
-  }
-
-  // Reset count if window expired (1 hour)
-  if (now - data.firstAttempt > 60 * 60 * 1000) {
-    data.count = 0;
-    data.firstAttempt = now;
-  }
-
-  data.count++;
-
-  // Lock if max attempts reached
-  if (data.count >= MAX_ATTEMPTS) {
-    data.lockedUntil = now + LOCKOUT_MS;
-    saveAttemptData(data);
-    return { locked: true, remaining: 0 };
-  }
-
-  saveAttemptData(data);
-  return { locked: false, remaining: MAX_ATTEMPTS - data.count };
-}
-
-export function clearAttempts(): void {
-  sessionStorage.removeItem(STORAGE_KEY);
-}
-
-function getAttemptData(): AttemptData {
-  const stored = sessionStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    return { count: 0, firstAttempt: Date.now() };
-  }
-  return JSON.parse(stored);
-}
-
-function saveAttemptData(data: AttemptData): void {
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-```
-
-Usage in your sign-in form:
-
-```typescript
-import { recordFailedAttempt, clearAttempts } from "@/utils/auth-attempts";
-
-// On failed login
-const { locked, remaining } = recordFailedAttempt();
-if (locked) {
-  setError("Too many failed attempts. Please try again in 15 minutes.");
-  return;
-}
-if (remaining < 3) {
-  setWarning(`${remaining} attempts remaining before temporary lockout.`);
-}
-
-// On successful login
-clearAttempts();
-```
-
-> **Note:** Client-side rate limiting is easily bypassed and should only be used
-> as a UX enhancement, not a security control. Always implement server-side
-> rate limiting.
-
-### Additional Security Recommendations
-
-1. **Use HTTPS everywhere** - Never transmit credentials over HTTP
-
-2. **Implement CAPTCHA** - Consider adding reCAPTCHA or hCaptcha after 2-3
-   failed attempts
-
-3. **Monitor auth logs** - Set up alerts for unusual patterns:
-   - Multiple failed logins from same IP
-   - Logins from new geographic locations
-   - Unusual time-of-day activity
-
-4. **Use MFA** - The identity package supports MFA via Supabase. Encourage or
-   require users to enable it.
-
-5. **Secure session configuration** - Ensure cookies use:
-   - `HttpOnly` flag
-   - `Secure` flag (HTTPS only)
-   - `SameSite=Lax` or `Strict`
-
-## Related Resources
-
-- [Supabase Auth Rate Limits](https://supabase.com/docs/guides/auth/rate-limits)
-- [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
-- [Vercel Edge Middleware](https://vercel.com/docs/functions/edge-middleware)
-- [Upstash Rate Limiting](https://upstash.com/docs/oss/sdks/ts/ratelimit/overview)
+Package-specific hardening guidance can live in separate implementation docs.
+This file should stay focused on the overarching reporting and response policy.
