@@ -1,7 +1,12 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
-import { useReducedMotion } from "motion/react";
+import { X } from "lucide-react";
+import {
+  motion,
+  useAnimation,
+  useReducedMotion,
+  type Variants,
+} from "motion/react";
 import type { ReactNode } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -75,43 +80,80 @@ function DefaultMobileMenuIcon({
   open: boolean;
   reducedMotion: boolean;
 }) {
-  const transition = reducedMotion
-    ? "none"
-    : "transform 300ms cubic-bezier(0.22, 1, 0.36, 1), opacity 300ms cubic-bezier(0.22, 1, 0.36, 1)";
-  const lineStyle = {
-    backgroundColor: "currentColor",
-    transition,
+  const controls = useAnimation();
+  const lineVariants: Variants = {
+    normal: {
+      opacity: 1,
+      rotate: 0,
+      y: 0,
+    },
+    animate: (line: number) => ({
+      opacity: line === 2 ? 0 : 1,
+      rotate: line === 1 ? 45 : line === 3 ? -45 : 0,
+      y: line === 1 ? 6 : line === 3 ? -6 : 0,
+      transition: reducedMotion
+        ? { duration: 0 }
+        : {
+            damping: 20,
+            stiffness: 260,
+            type: "spring",
+          },
+    }),
+  };
+
+  useEffect(() => {
+    controls.start(
+      open ? "animate" : "normal",
+      reducedMotion ? { duration: 0 } : undefined,
+    );
+  }, [controls, open, reducedMotion]);
+
+  const handleMouseEnter = () => {
+    if (!open) {
+      controls.start("animate");
+    }
+  };
+
+  const handleMouseLeave = () => {
+    controls.start(open ? "animate" : "normal");
   };
 
   return (
     <span
       aria-hidden="true"
+      data-animation="lucide-animated-menu"
       data-slot="navbar-mobile-menu-icon"
       data-state={open ? "open" : "closed"}
-      className="relative flex h-5 w-5 items-center justify-center"
+      className="relative flex h-9 w-9 items-center justify-center"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      <span
-        className="absolute h-0.5 w-5 rounded-full"
-        style={{
-          ...lineStyle,
-          transform: open ? "translateY(0) rotate(45deg)" : "translateY(-6px)",
-        }}
-      />
-      <span
-        className="absolute h-0.5 w-5 rounded-full"
-        style={{
-          ...lineStyle,
-          opacity: open ? 0 : 1,
-          transform: open ? "scaleX(0)" : "scaleX(1)",
-        }}
-      />
-      <span
-        className="absolute h-0.5 w-5 rounded-full"
-        style={{
-          ...lineStyle,
-          transform: open ? "translateY(0) rotate(-45deg)" : "translateY(6px)",
-        }}
-      />
+      <svg
+        aria-hidden="true"
+        fill="none"
+        focusable="false"
+        height="20"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        width="20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {[1, 2, 3].map((line) => (
+          <motion.line
+            animate={controls}
+            custom={line}
+            key={line}
+            variants={lineVariants}
+            x1="4"
+            x2="20"
+            y1={line === 1 ? "6" : line === 2 ? "12" : "18"}
+            y2={line === 1 ? "6" : line === 2 ? "12" : "18"}
+          />
+        ))}
+      </svg>
     </span>
   );
 }
@@ -333,7 +375,12 @@ export function Navbar({
                 mobileMenuOpen ? (
                   mobileMenuOpenIcon || <X className="h-5 w-5" />
                 ) : (
-                  mobileMenuClosedIcon || <Menu className="h-5 w-5" />
+                  mobileMenuClosedIcon || (
+                    <DefaultMobileMenuIcon
+                      open={false}
+                      reducedMotion={reducedMotion}
+                    />
+                  )
                 )
               ) : (
                 <DefaultMobileMenuIcon

@@ -1,14 +1,32 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useReducedMotion } from "motion/react";
-import type { ReactNode } from "react";
+import type { ReactNode, SVGProps } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { Navbar } from "./Navbar";
 
-vi.mock("motion/react", () => ({
-  useReducedMotion: vi.fn(() => false),
-}));
+const animationStart = vi.fn();
+const animationControls = { start: animationStart };
+
+vi.mock("motion/react", () => {
+  const MotionLine = ({
+    animate: _animate,
+    custom: _custom,
+    variants: _variants,
+    ...props
+  }: SVGProps<SVGLineElement> & {
+    animate?: unknown;
+    custom?: unknown;
+    variants?: unknown;
+  }) => <line {...props} />;
+
+  return {
+    motion: { line: MotionLine },
+    useAnimation: vi.fn(() => animationControls),
+    useReducedMotion: vi.fn(() => false),
+  };
+});
 
 vi.mock("../../hooks/useScrollDirection", () => ({
   useScrollDirection: vi.fn(() => ({
@@ -36,6 +54,7 @@ function TestLink({
 }
 
 afterEach(() => {
+  animationStart.mockClear();
   vi.mocked(useReducedMotion).mockReturnValue(false);
   vi.mocked(useScrollDirection).mockReturnValue({
     direction: "up",
@@ -107,7 +126,7 @@ describe("Navbar", () => {
     expect(header).not.toHaveClass("shadow-[0_18px_48px_rgba(0,0,0,0.45)]");
   });
 
-  it("uses the animated default mobile toggle and updates its state on click", () => {
+  it("uses the lucide-animated-style default mobile toggle and updates its state on click", () => {
     const { container } = render(
       <Navbar
         logo={<span>Logo</span>}
@@ -123,6 +142,10 @@ describe("Navbar", () => {
 
     expect(menuButton).toHaveClass("rounded-box");
     expect(menuButton).toHaveAttribute("data-state", "closed");
+    expect(toggleIcon).toHaveAttribute(
+      "data-animation",
+      "lucide-animated-menu",
+    );
     expect(toggleIcon).toHaveAttribute("data-state", "closed");
 
     fireEvent.click(menuButton);
@@ -132,6 +155,31 @@ describe("Navbar", () => {
       "open",
     );
     expect(toggleIcon).toHaveAttribute("data-state", "open");
+  });
+
+  it("restarts mobile icon animation when reduced-motion preference changes", () => {
+    const { rerender } = render(
+      <Navbar
+        logo={<span>Logo</span>}
+        links={[{ href: "/about", label: "About" }]}
+        LinkComponent={TestLink}
+      />,
+    );
+
+    expect(animationStart).toHaveBeenLastCalledWith("normal", undefined);
+
+    vi.mocked(useReducedMotion).mockReturnValue(true);
+
+    rerender(
+      <Navbar
+        logo={<span>Logo</span>}
+        links={[{ href: "/about", label: "About" }]}
+        LinkComponent={TestLink}
+      />,
+    );
+
+    expect(animationStart).toHaveBeenCalledTimes(2);
+    expect(animationStart).toHaveBeenLastCalledWith("normal", { duration: 0 });
   });
 
   it("uses custom mobile icons as an escape hatch", () => {
