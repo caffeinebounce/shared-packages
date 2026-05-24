@@ -4,23 +4,23 @@
 # Runs on every PR and comments on vulnerable or license-problematic new dependencies.
 #
 # This is a key part of the GitHub-centric security posture.
-# See: scripts/agents/STANDARDS.md §9
 
 name: "Dependency Review"
 
 on:
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [main]
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Dependency Review
         uses: actions/dependency-review-action@v4

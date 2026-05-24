@@ -3,11 +3,9 @@
 # Opinionated CodeQL security analysis workflow for Capital Collective projects.
 # Part of the central GitHub-centric security policy.
 #
-# See: scripts/agents/STANDARDS.md §9
-#
 # This workflow:
 # - Runs CodeQL analysis for the language used in this repo (JS/TS)
-# - Triggers on push to main branches + PRs + weekly schedule
+# - Triggers on push to main + PRs + weekly schedule
 # - Uses the latest CodeQL action
 # - Is safe for monorepos (scans the whole repo by default)
 
@@ -15,11 +13,11 @@ name: "CodeQL Security Analysis"
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [main]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [main]
   schedule:
-    # Run weekly on Sunday at 07:00 NY time to catch new vulnerabilities
+    # Run weekly on Sunday at 11:00 UTC to catch new vulnerabilities
     - cron: '0 11 * * 0'
   workflow_dispatch:
 
@@ -39,7 +37,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL

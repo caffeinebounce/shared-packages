@@ -2,11 +2,9 @@
 # Canonical opinionated Dependabot configuration for Capital Collective projects.
 #
 # This file is the single source of truth for dependency update behavior.
-# See scripts/agents/STANDARDS.md (section 9) for the full policy.
 #
 # Usage:
-#   - Copy or symlink into .github/dependabot.yml when scaffolding a repo.
-#   - Adjust the `directories` / update blocks for Turborepo monorepos as needed.
+#   - Keep update entries aligned with this repository's package manager and workflows.
 #   - Keep the private GitHub Packages registry registration when the project consumes @caffeinebounce/* packages.
 
 version: 2
