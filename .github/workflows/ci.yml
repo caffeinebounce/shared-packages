@@ -109,6 +109,14 @@ jobs:
         run: yarn build
 
       - name: Consumer package smoke
+        if: github.event_name == 'pull_request'
+        run: yarn test:consumer-smoke
+        env:
+          CONSUMER_SMOKE_SCOPE: affected
+          TURBO_SCM_BASE: origin/${{ github.base_ref }}
+
+      - name: Consumer package smoke
+        if: github.event_name == 'push'
         run: yarn test:consumer-smoke
 
       - name: UI entrypoint sizes
