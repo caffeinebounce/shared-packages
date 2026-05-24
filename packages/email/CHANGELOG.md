@@ -1,5 +1,11 @@
 # @caffeinebounce/email
 
+## 0.6.126
+
+### Patch Changes
+
+- f14321a: Update vulnerable runtime dependency trees for email delivery and the Studio editor.
+
 ## 0.6.125
 
 ### Patch Changes
