@@ -49,5 +49,8 @@
     "typescript": "^5.9.3",
     "vitest": "^4.1.1"
   },
+  "resolutions": {
+    "postcss@npm:8.4.31": "npm:8.5.15"
+  },
   "packageManager": "yarn@4.12.0"
 }

@@ -51,6 +51,6 @@
   "dependencies": {
     "@react-email/components": "^1.0.1",
     "nodemailer": "^8.0.8",
-    "resend": "^6.5.2"
+    "resend": "^6.12.3"
   }
 }

@@ -28,7 +28,11 @@
 
 import StudioEditorSDK from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
-import type { Editor } from "grapesjs";
+import type {
+  CommandEventBeforeData,
+  CommandEventData,
+  Editor,
+} from "grapesjs";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 /** Project types supported by the Studio SDK */
@@ -1475,9 +1479,9 @@ export function StudioEditor({
               if (lockPreview) {
                 editor.on(
                   "command:stop:before:core:preview",
-                  (options: { abort?: boolean }) => {
+                  (event: CommandEventBeforeData | CommandEventData) => {
                     // Prevent exiting preview mode
-                    options.abort = true;
+                    event.options.abort = true;
                   },
                 );
               }

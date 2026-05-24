@@ -146,7 +146,7 @@
   "dependencies": {
     "@caffeinebounce/logger": "^0.9.130",
     "@caffeinebounce/shared-utils": "^0.7.133",
-    "@grapesjs/studio-sdk": "^1.0.60",
+    "@grapesjs/studio-sdk": "^1.1.1",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
