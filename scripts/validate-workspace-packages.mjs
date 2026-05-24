@@ -326,10 +326,10 @@ function runCli() {
         workspacePackages,
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       console.warn(
-        `Falling back to git-based affected package detection: ${error.message}`,
+        `Falling back to git-based affected package detection: ${message}`,
       );
-      distPackageNames = getAffectedPackageNames({
         changedFiles: readChangedFiles(affectedBaseRef),
         workspacePackages,
       });
