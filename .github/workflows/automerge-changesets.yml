@@ -1,0 +1,76 @@
+name: Automerge Changesets Release
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  automerge:
+    if: >-
+      github.event.pull_request.user.login == 'github-actions[bot]' &&
+      github.event.pull_request.head.ref == 'changeset-release/main' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.title == 'chore: version packages' &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout release PR
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 25
+          package-manager-cache: false
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@caffeinebounce"
+
+      - name: Enable Corepack
+        run: corepack enable && corepack prepare yarn@4.12.0 --activate
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Test
+        run: yarn test
+
+      - name: Build
+        run: yarn build
+
+      - name: Validate package contracts
+        run: yarn validate:packages
+
+      - name: Merge release PR
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pull_number = context.payload.pull_request.number;
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number,
+              merge_method: "squash",
+              commit_title: context.payload.pull_request.title,
+              commit_message: "Automerge validated Changesets release PR.",
+            });
