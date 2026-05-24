@@ -27,6 +27,16 @@ export {
   type BlurLogoCloudProps,
 } from "./BlurLogoCloud";
 export {
+  ConnectedCardsSection,
+  type ConnectedCardsSectionItem,
+  type ConnectedCardsSectionProps,
+  ConnectedCardsVisual,
+} from "./ConnectedCardsSection";
+export {
+  ContainerTextFlip,
+  type ContainerTextFlipProps,
+} from "./ContainerTextFlip";
+export {
   CTAWithDashedGridLines,
   type CTAWithDashedGridLinesProps,
   CtaWithDashedGridLines,
@@ -62,6 +72,23 @@ export {
   FeatureWorkflowSkeletonRow,
   type FeatureWorkflowSkeletonRowData,
 } from "./FeaturesGridWithLargeSkeletons";
+export {
+  FeaturePatternBackground,
+  FeaturePatternCard,
+  type FeaturePatternCardProps,
+  FeaturePatternGrid,
+  type FeaturePatternGridProps,
+  FeaturesSectionPattern,
+  type FeaturesSectionPatternItem,
+  type FeaturesSectionPatternProps,
+  GridPattern,
+  type GridPatternProps,
+} from "./FeaturesSectionPattern";
+export {
+  FrequentlyAskedQuestionsAccordion,
+  type FrequentlyAskedQuestionsAccordionItem,
+  type FrequentlyAskedQuestionsAccordionProps,
+} from "./FrequentlyAskedQuestionsAccordion";
 export {
   type CarouselState,
   HeroSection,
@@ -114,6 +141,11 @@ export {
   NextStepsSection,
   type NextStepsSectionProps,
 } from "./NextStepsSection";
+export {
+  PricingMinimal,
+  type PricingMinimalProps,
+  type PricingMinimalTier,
+} from "./PricingMinimal";
 export { QuoteBlock, type QuoteBlockProps } from "./QuoteBlock";
 export {
   type SpotlightHeroAction,
