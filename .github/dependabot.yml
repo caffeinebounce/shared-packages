@@ -1,0 +1,106 @@
+# .github/dependabot.yml
+# Canonical opinionated Dependabot configuration for Capital Collective projects.
+#
+# This file is the single source of truth for dependency update behavior.
+# See scripts/agents/STANDARDS.md (section 9) for the full policy.
+#
+# Usage:
+#   - Copy or symlink into .github/dependabot.yml when scaffolding a repo.
+#   - Adjust the `directories` / update blocks for Turborepo monorepos as needed.
+#   - Keep the private GitHub Packages registry registration when the project consumes @caffeinebounce/* packages.
+
+version: 2
+
+registries:
+  caffeinebounce-github-packages:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{ secrets.CAFFEINEBOUNCE_PACKAGES_TOKEN }}
+
+updates:
+  # === GitHub Actions ===
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 8
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci(deps):"
+
+  # === NPM / Yarn (primary) ===
+  # Root-level (common for single-app repos and some Turborepo roots)
+  - package-ecosystem: "npm"
+    directory: "/"
+    registries:
+      - caffeinebounce-github-packages
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 12
+    groups:
+      security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Major version bumps require manual review and intentional upgrade work
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps):"
+    rebase-strategy: "auto"
+
+  # === Example for Turborepo monorepos ===
+  # Uncomment and adjust the directories below for repos like shared-packages, zenbid, douglasebanks.com, etc.
+  #
+  # - package-ecosystem: "npm"
+  #   directory: "/apps/web"
+  #   registries:
+  #     - caffeinebounce-github-packages
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "monday"
+  #     time: "06:00"
+  #     timezone: "America/New_York"
+  #   groups: ... (same grouping strategy)
+  #
+  # - package-ecosystem: "npm"
+  #   directory: "/packages/ui"
+  #   ... etc.
+
+  # === Optional ecosystems (enable as needed) ===
+  # - package-ecosystem: "docker"
+  #   directory: "/"
+  #   schedule: { interval: "weekly" }
+  #
+  # - package-ecosystem: "pip"
+  #   directory: "/"
+  #   schedule: { interval: "weekly" }
+
+# Notes for consumers of @caffeinebounce/* packages:
+#   - The CAFFEINEBOUNCE_PACKAGES_TOKEN secret must exist in the repository (or organization).
+#   - It needs `read:packages` scope.
+
+# Notes for the shared-packages repo itself (publisher):
+#   - You will likely want additional update entries for the packages/ directories.
+#   - Consider adding a post-update command or workflow to run `yarn changeset` when needed.

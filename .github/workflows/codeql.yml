@@ -1,0 +1,68 @@
+# .github/workflows/codeql.yml
+#
+# Opinionated CodeQL security analysis workflow for Capital Collective projects.
+# Part of the central GitHub-centric security policy.
+#
+# See: scripts/agents/STANDARDS.md §9
+#
+# This workflow:
+# - Runs CodeQL analysis for the language used in this repo (JS/TS)
+# - Triggers on push to main branches + PRs + weekly schedule
+# - Uses the latest CodeQL action
+# - Is safe for monorepos (scans the whole repo by default)
+
+name: "CodeQL Security Analysis"
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  schedule:
+    # Run weekly on Sunday at 07:00 NY time to catch new vulnerabilities
+    - cron: '0 11 * * 0'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript-typescript' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # Custom queries can be added here later if needed.
+          # queries: security-extended,security-and-quality
+
+      # For JavaScript/TypeScript projects (our primary stack), we sometimes
+      # need to build to get better results. For pure analysis this is often not required.
+      # If you have a build step that is cheap and improves results, uncomment:
+      #
+      # - name: Autobuild
+      #   uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+      # Optional: Upload SARIF results for better GitHub integration (usually automatic)
+      # - name: Upload SARIF
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: results.sarif
