@@ -1,4 +1,4 @@
-import { cn } from "@caffeinebounce/ui";
+import { cn } from "@caffeinebounce/ui/primitives";
 
 export interface OrDividerProps {
   /** Additional className */

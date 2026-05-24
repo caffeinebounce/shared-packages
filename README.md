@@ -7,6 +7,7 @@ Reusable packages for Capital Collective projects published to GitHub Packages u
 | Package | Description |
 |---------|-------------|
 | `@caffeinebounce/ui` | Shared UI primitives and blocks (Button, Card, Dialog, layouts) |
+| `@caffeinebounce/ui/primitives` | Lightweight UI primitives for packages that do not need composed blocks or Next-specific surfaces |
 | `@caffeinebounce/identity` | Auth components and handlers |
 | `@caffeinebounce/email` | Email templates and Resend client |
 | `@caffeinebounce/ai-assistant` | AI chat panel components |
@@ -43,6 +44,8 @@ yarn typecheck        # Type-check all packages
 yarn lint             # Non-mutating lint check
 yarn test             # Run package tests
 swift test            # Run CaffeineNativeUI tests
+yarn test:consumer-smoke # Verify built package imports the way consumers resolve them
+yarn size:ui          # Report UI public entrypoint sizes and enforce lightweight budgets
 yarn validate:packages # Verify published package contracts after build
 ```
 
@@ -129,6 +132,8 @@ Examples:
 - Conventional commits: `type(scope): description` (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
 - Strict TypeScript; export new public APIs from package entry points
 - Prefer server-safe code by default; mark client components with `"use client"`
+- Prefer `@caffeinebounce/ui/primitives` for primitive-only shared package imports. The root `@caffeinebounce/ui` entrypoint remains broad for backward compatibility.
+- Heavy optional UI surfaces such as editor, charts, 3D marketing, media, and the root compatibility entrypoint are intentional subpaths and are reported by `yarn size:ui`.
 - `@caffeinebounce/ui` uses colocated `.test.ts(x)` files alongside the source they cover
 - Internal `@caffeinebounce/*` dependencies that refer to packages in this workspace must use `^<current workspace version>` in published package manifests; this is enforced by `yarn validate:packages`
 

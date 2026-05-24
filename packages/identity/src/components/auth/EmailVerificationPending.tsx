@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, cn } from "@caffeinebounce/ui";
+import { Badge, cn } from "@caffeinebounce/ui/primitives";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import {

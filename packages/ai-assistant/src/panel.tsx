@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input } from "@caffeinebounce/ui";
+import { Button, Input } from "@caffeinebounce/ui/primitives";
 import { Globe, Loader2, Send, Sparkles, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";

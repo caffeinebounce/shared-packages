@@ -11,7 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CreateClientFn } from "../../types";
 import { ConfirmAccessDialog } from "./ConfirmAccessDialog";
 
-vi.mock("@caffeinebounce/ui", async () => {
+vi.mock("@caffeinebounce/ui/primitives", async () => {
   return {
     Button: ({
       children,

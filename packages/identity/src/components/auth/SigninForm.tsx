@@ -7,7 +7,7 @@ import {
   FieldLabel,
   Input,
   PasswordInput,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {

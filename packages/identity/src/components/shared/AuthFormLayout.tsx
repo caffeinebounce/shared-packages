@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@caffeinebounce/ui";
+import { cn } from "@caffeinebounce/ui/primitives";
 import { ArrowLeft } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 

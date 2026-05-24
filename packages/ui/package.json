@@ -11,6 +11,11 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
+    "./primitives": {
+      "types": "./dist/primitives.d.ts",
+      "import": "./dist/primitives.mjs",
+      "require": "./dist/primitives.js"
+    },
     "./charts": {
       "types": "./dist/charts.d.ts",
       "import": "./dist/charts.mjs",
