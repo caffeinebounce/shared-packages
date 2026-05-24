@@ -102,7 +102,10 @@ function DefaultMobileMenuIcon({
   };
 
   useEffect(() => {
-    controls.start(open ? "animate" : "normal");
+    controls.start(
+      open ? "animate" : "normal",
+      reducedMotion ? { duration: 0 } : undefined,
+    );
   }, [controls, open, reducedMotion]);
 
   const handleMouseEnter = () => {

@@ -369,11 +369,7 @@ function FooterNewsletterCallbackForm({
         className={cn("flex-1", newsletter.inputClassName)}
         required
       />
-      <Button
-        type="submit"
-        size="sm"
-        className={newsletter.buttonClassName}
-      >
+      <Button type="submit" size="sm" className={newsletter.buttonClassName}>
         {newsletter.buttonText ?? "Subscribe"}
       </Button>
     </form>

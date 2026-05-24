@@ -166,7 +166,7 @@ describe("Navbar", () => {
       />,
     );
 
-    expect(animationStart).toHaveBeenLastCalledWith("normal");
+    expect(animationStart).toHaveBeenLastCalledWith("normal", undefined);
 
     vi.mocked(useReducedMotion).mockReturnValue(true);
 
@@ -179,7 +179,7 @@ describe("Navbar", () => {
     );
 
     expect(animationStart).toHaveBeenCalledTimes(2);
-    expect(animationStart).toHaveBeenLastCalledWith("normal");
+    expect(animationStart).toHaveBeenLastCalledWith("normal", { duration: 0 });
   });
 
   it("uses custom mobile icons as an escape hatch", () => {
