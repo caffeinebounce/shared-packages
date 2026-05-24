@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.60.0
+
+### Minor Changes
+
+- e9878bb: Add the lightweight `@caffeinebounce/ui/primitives` entrypoint, render `AuthPageLayout` external logos, and migrate primitive-only internal consumers to the new UI subpath.
+
 ## 0.59.1
 
 ### Patch Changes

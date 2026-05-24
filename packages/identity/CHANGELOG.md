@@ -1,5 +1,13 @@
 # @caffeinebounce/identity
 
+## 0.11.5
+
+### Patch Changes
+
+- e9878bb: Add the lightweight `@caffeinebounce/ui/primitives` entrypoint, render `AuthPageLayout` external logos, and migrate primitive-only internal consumers to the new UI subpath.
+- Updated dependencies [e9878bb]
+  - @caffeinebounce/ui@0.60.0
+
 ## 0.11.4
 
 ### Patch Changes
