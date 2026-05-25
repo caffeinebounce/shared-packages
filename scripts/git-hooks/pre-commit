@@ -8,7 +8,7 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 MAX_RETRIES=2
 RETRY_COUNT=0
 
-bash "$REPO_ROOT/scripts/check-agent-docs-sync.sh"
+bash "$REPO_ROOT/scripts/check-agent-docs-sync.sh" --cached
 
 # Always verify lockfile is consistent before committing
 # This catches stale lockfiles when:

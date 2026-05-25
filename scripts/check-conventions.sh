@@ -10,10 +10,8 @@ bash scripts/check-agent-docs-sync.sh
 echo "==> Checking changelog discipline"
 corepack yarn check:changelog
 
-if [[ ! -f packages/ui/dist/index.mjs ]]; then
-  echo "==> Building packages for contract, smoke, and size checks"
-  corepack yarn build
-fi
+echo "==> Building packages for contract, smoke, and size checks"
+corepack yarn build
 
 if [[ -n "${TURBO_SCM_BASE:-}" ]]; then
   echo "==> Validating affected package contracts"
