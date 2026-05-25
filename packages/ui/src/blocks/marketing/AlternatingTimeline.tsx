@@ -1,3 +1,5 @@
+"use client";
+
 import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "../../utils";
@@ -47,7 +49,7 @@ export function AlternatingTimeline({
     >
       {items.map((item, index) => {
         const isReversed = alternate && index % 2 === 1;
-        const key = item.id ?? `${index}-${String(item.title)}`;
+        const key = item.id ?? index;
 
         return (
           <li
@@ -96,6 +98,14 @@ export function AlternatingTimeline({
               data-slot="alternating-timeline-content"
             >
               <div className="flex flex-wrap items-center gap-2">
+                {item.period ? (
+                  <p
+                    className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+                    data-slot="alternating-timeline-period"
+                  >
+                    {item.period}
+                  </p>
+                ) : null}
                 {item.eyebrow ? (
                   <p
                     className="text-xs font-semibold uppercase tracking-[0.2em] text-primary"

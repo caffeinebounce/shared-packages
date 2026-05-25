@@ -19,12 +19,14 @@ describe("AlternatingTimeline", () => {
             ),
             media: <img alt="Dinner table" src="/dinner.jpg" />,
             meta: "Los Angeles",
+            period: "Q2",
             title: "Private Investment Dinner",
           },
         ]}
       />,
     );
 
+    expect(screen.getByText("Q2")).toBeInTheDocument();
     expect(screen.getByText("June 2026")).toBeInTheDocument();
     expect(screen.getByText("Capital")).toBeInTheDocument();
     expect(screen.getByText("Private Investment Dinner")).toBeInTheDocument();
