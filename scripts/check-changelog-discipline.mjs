@@ -164,19 +164,40 @@ function readPullRequestBody() {
   return event.pull_request?.body ?? "";
 }
 
+export function mergeChangedFiles(...fileLists) {
+  return [
+    ...new Set(
+      fileLists
+        .flat()
+        .map((filePath) => filePath.trim())
+        .filter(Boolean)
+        .map(normalizeFilePath),
+    ),
+  ];
+}
+
+function readGitChangedFiles(args) {
+  const output = execFileSync("git", args, {
+    encoding: "utf8",
+  });
+
+  return output.split("\n");
+}
+
 function getChangedFiles() {
   const baseRef =
     process.env.CHANGELOG_BASE_REF ||
     (process.env.GITHUB_BASE_REF ? `origin/${process.env.GITHUB_BASE_REF}` : "origin/main");
   const diffRange = `${baseRef}...HEAD`;
-  const output = execFileSync("git", ["diff", "--name-only", diffRange], {
-    encoding: "utf8",
-  });
+  const branchFiles = readGitChangedFiles(["diff", "--name-only", diffRange]);
+  const stagedFiles = readGitChangedFiles([
+    "diff",
+    "--cached",
+    "--name-only",
+    "--diff-filter=ACMR",
+  ]);
 
-  return output
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
+  return mergeChangedFiles(branchFiles, stagedFiles);
 }
 
 function printFailure(result) {

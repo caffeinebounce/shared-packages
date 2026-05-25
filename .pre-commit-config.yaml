@@ -46,6 +46,14 @@ repos:
         types: [ts, tsx]
         stages: [pre-commit]
 
+      - id: changelog-discipline
+        name: check changelog discipline
+        entry: yarn check:changelog
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
   # ── Secrets scanning ──
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0

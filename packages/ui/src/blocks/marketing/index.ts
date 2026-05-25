@@ -18,6 +18,11 @@ export {
   type ThemeLogoVariant,
 } from "../../components/ui/theme-logo";
 export {
+  AlternatingTimeline,
+  type AlternatingTimelineItem,
+  type AlternatingTimelineProps,
+} from "./AlternatingTimeline";
+export {
   BackgroundBeamsCTASection,
   type BackgroundBeamsCTASectionProps,
 } from "./BackgroundBeamsCTASection";

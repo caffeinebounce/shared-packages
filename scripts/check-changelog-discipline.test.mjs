@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   assessChangelogDiscipline,
   hasSkipMarker,
+  mergeChangedFiles,
   validateCurrentChangelogs,
 } from "./check-changelog-discipline.mjs";
 
@@ -22,6 +23,19 @@ describe("changelog discipline policy", () => {
         "packages/ui/src/components/Button.tsx",
         ".changeset/fresh-buttons.md",
       ],
+      pullRequestBody: "",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.reason).toBe("changeset-present");
+  });
+
+  it("combines branch and staged files for pre-commit checks", () => {
+    const result = assessChangelogDiscipline({
+      changedFiles: mergeChangedFiles(
+        ["packages/ui/src/components/Button.tsx"],
+        [".changeset/fresh-buttons.md"],
+      ),
       pullRequestBody: "",
     });
 
