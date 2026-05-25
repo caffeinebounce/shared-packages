@@ -13,6 +13,7 @@
     "lint:fix": "biome check --write . && turbo run lint",
     "format": "biome check --write .",
     "format:check": "biome check .",
+    "check:conventions": "bash scripts/check-conventions.sh",
     "ci:affected": "turbo run lint typecheck test build --filter=\"...[${TURBO_SCM_BASE:-origin/main}]\" --output-logs=errors-only",
     "test:consumer-smoke": "node tests/consumer-smoke/package-imports.mjs",
     "size:ui": "node scripts/check-ui-entrypoint-sizes.mjs",
