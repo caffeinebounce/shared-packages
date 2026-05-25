@@ -77,23 +77,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           YARN_NPM_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check Compass dispatch token availability
-        id: compass_dispatch_token
+      - name: Check consumer dispatch configuration
+        id: consumer_dispatch_config
         run: |
-          if [ -n "${GH_PAT}" ]; then
+          if [ -n "${GH_PAT}" ] && [ -n "${CONSUMER_REPOSITORY}" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
             echo "available=false" >> "$GITHUB_OUTPUT"
           fi
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
+          CONSUMER_REPOSITORY: ${{ vars.SHARED_PACKAGES_CONSUMER_REPOSITORY }}
 
-      - name: Notify Compass about published packages
-        if: steps.changesets.outputs.published == 'true' && steps.compass_dispatch_token.outputs.available == 'true'
+      - name: Notify consumer about published packages
+        if: steps.changesets.outputs.published == 'true' && steps.consumer_dispatch_config.outputs.available == 'true'
         uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.GH_PAT }}
-          repository: caffeinebounce/compass
+          repository: ${{ vars.SHARED_PACKAGES_CONSUMER_REPOSITORY }}
           event-type: update-shared-packages
           client-payload: |
             {

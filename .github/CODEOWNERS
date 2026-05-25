@@ -1,0 +1,19 @@
+# Default owner for all changes.
+* @caffeinebounce
+
+# Release, dependency, and security-sensitive configuration.
+/.github/ @caffeinebounce
+/.changeset/ @caffeinebounce
+/package.json @caffeinebounce
+/yarn.lock @caffeinebounce
+/packages/*/package.json @caffeinebounce
+/packages/*/tsup.config.ts @caffeinebounce
+/scripts/ @caffeinebounce
+/ci/ @caffeinebounce
+/config/ @caffeinebounce
+
+# Public-readiness, contribution, and security policy.
+/LICENSE @caffeinebounce
+/CONTRIBUTING.md @caffeinebounce
+/docs/SECURITY.md @caffeinebounce
+/docs/PRE_PUBLIC_*.md @caffeinebounce

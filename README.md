@@ -1,6 +1,9 @@
 # Shared Packages
 
-Reusable packages published to GitHub Packages under the `@caffeinebounce/*` scope, plus a shared Swift package for native macOS UI. The monorepo uses Turborepo, React 19, TypeScript (strict), Tailwind CSS v4, Biome, Vitest, Tsup, and Changesets.
+Source-available reusable packages published to GitHub Packages under the
+`@caffeinebounce/*` scope, plus a shared Swift package for native macOS UI. The
+monorepo uses Turborepo, React 19, TypeScript (strict), Tailwind CSS v4, Biome,
+Vitest, Tsup, and Changesets.
 
 This repository keeps common product building blocks in one place so apps do not
 need to copy the same UI, auth, email, logging, commerce, notification, and
@@ -31,7 +34,8 @@ logic inside shared packages.
 ## Requirements & Registry
 
 - Node.js 25+, Yarn 4.12.0 (Berry)
-- `GITHUB_TOKEN` with `read:packages` and `write:packages`
+- `GITHUB_TOKEN` with `read:packages` for local installs and `write:packages`
+  for maintainers who publish releases
 - `.npmrc` (or user-level config):
 
 ```ini
@@ -54,6 +58,7 @@ yarn check:conventions # Fast agent-focused docs and package contract check
 yarn test:consumer-smoke # Verify built package imports the way consumers resolve them
 yarn size:ui          # Report UI public entrypoint sizes and enforce lightweight budgets
 yarn validate:packages # Verify published package contracts after build
+yarn verify:pre-public # Run the public-readiness proof set
 ```
 
 ### Day-to-day workflow
@@ -84,13 +89,19 @@ They check and auto-fix:
 1. Create a changeset with `yarn changeset` (choose patch/minor/major) for published package changes.
 2. Merge feature PRs; Changesets action opens a version-bump PR.
 3. Merge the version-bump PR; `publish.yml` builds and publishes to GitHub Packages.
-4. After publish, `publish.yml` dispatches `update-shared-packages` to consumer apps such as Compass.
+4. After publish, `publish.yml` can notify configured consumer repositories
+   through `update-shared-packages` dispatch events.
 
 PR CI runs `yarn check:changelog` to enforce this. The check verifies every package changelog starts at its current `package.json` version, and source, package manifest, package build config, package CSS, and shared Tsup tooling changes require either a `.changeset/*.md` file or an explicit PR-body exception.
 
-Docs-only, test-only, changelog-only, and internal tooling changes that do not alter published package contents or consumer-facing behavior can skip a changeset. Use a PR body marker such as `Changelog: skip - docs-only update.` when you use that exception.
+Docs-only, test-only, changelog-only, and repository tooling changes that do
+not alter published package contents or consumer-facing behavior can skip a
+changeset. Use a PR body marker such as
+`Changelog: skip - docs-only update.` when you use that exception.
 
-PR CI economizes package checks with Turbo affected filtering: `yarn ci:affected` runs package lint, typecheck, test, and build only for packages changed since the base branch plus downstream dependents. `yarn validate:packages:affected` still validates every workspace manifest, but only checks built `dist` targets for affected packages. Pushes to `main` and publish workflows keep the full workspace validation.
+PR CI runs the full package proof set: lint, typecheck, tests, build, consumer
+import smoke, UI size checks, and package contract validation. Pushes to `main`
+and publish workflows keep the same full workspace validation.
 
 Manual publishing (maintainers):
 
@@ -98,10 +109,10 @@ Manual publishing (maintainers):
 yarn release
 ```
 
-Compass manual update (if needed):
+Consumer manual update (if needed):
 
 ```bash
-gh workflow run update-shared-packages.yml --repo caffeinebounce/compass
+gh workflow run update-shared-packages.yml --repo <owner>/<consumer-repo>
 ```
 
 ## Docs
@@ -113,8 +124,10 @@ gh workflow run update-shared-packages.yml --repo caffeinebounce/compass
 - Package-specific context: each `packages/*/README.md`
 - Detailed system guides: [docs/auto-publish-system.md](docs/auto-publish-system.md), [docs/setup-hooks-and-publish.md](docs/setup-hooks-and-publish.md)
 - Visuals: [docs/ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)
-- Consumer guide (Compass): [../compass/docs/updating-shared-packages.md](../compass/docs/updating-shared-packages.md)
-- Agent/automation guidance: [.github/copilot-instructions.md](.github/copilot-instructions.md)
+- Public-readiness checklist: [docs/PRE_PUBLIC_CHECKLIST.md](docs/PRE_PUBLIC_CHECKLIST.md)
+- Consumer-specific guides live in the consuming app repositories.
+- Contributor guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Contributor automation guidance: [.github/copilot-instructions.md](.github/copilot-instructions.md)
 
 ## Reference Dev Scripts
 
@@ -154,12 +167,11 @@ Examples:
 - Internal `@caffeinebounce/*` dependencies that refer to packages in this workspace must use `^<current workspace version>` in published package manifests; this is enforced by `yarn validate:packages`
 - Keep `AGENTS.md` and `CLAUDE.md` byte-for-byte identical; `yarn check:conventions` verifies this.
 
-## License
-
-This repository is licensed under the [MIT License](LICENSE.md).
-
 ## Support
 
+- Source availability and rights: see [LICENSE](LICENSE).
+- Security reports: see [docs/SECURITY.md](docs/SECURITY.md).
+- Public-readiness status: see [docs/PRE_PUBLIC_CHECKLIST.md](docs/PRE_PUBLIC_CHECKLIST.md).
 - Supabase auth redirects: for localhost, preview, Tailscale, or any dynamic callback host, add `origin/**` to Supabase Auth > URL Configuration > Additional Redirect URLs. `@caffeinebounce/identity` builds callbacks from the active origin, and `@caffeinebounce/shared-utils` exposes `getSupabaseRedirectUrls(origin)` to generate the canonical entries.
 - Re-run hooks: `./scripts/setup-hooks.sh`
 - Auto-fix linting: `yarn lint:fix`

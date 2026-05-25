@@ -99,7 +99,7 @@ fi
 
 if [[ -z "$GITHUB_TOKEN" ]]; then
   log_error "GITHUB_TOKEN not set. Required for publishing to GitHub Packages."
-  log_info "Set it with: export GITHUB_TOKEN=ghp_..."
+  log_info "Set it with: export GITHUB_TOKEN=replace_with_github_token"
   exit 1
 fi
 

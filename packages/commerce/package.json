@@ -60,5 +60,6 @@
     "@stripe/react-stripe-js": "^3.5.0",
     "@stripe/stripe-js": "^5.8.0",
     "lucide-react": "^0.577.0"
-  }
+  },
+  "license": "UNLICENSED"
 }

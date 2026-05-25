@@ -23,6 +23,11 @@ This repository publishes reusable `@caffeinebounce/*` packages. Keep changes
 scoped, preserve package boundaries, add changesets for published package
 changes, and do not copy app-specific business logic into shared packages.
 
+This repository is source-available and all rights are reserved unless a
+separate license grant is made. Keep public-facing docs generic, route
+suspected vulnerabilities through [docs/SECURITY.md](../docs/SECURITY.md), and
+avoid publishing consumer-specific runbooks or private operational details.
+
 Do not add repo-local assistant runtime state such as `.claude/`, `.codex/`, or
 package-local agent instruction files unless the root docs explicitly call for
 them.
