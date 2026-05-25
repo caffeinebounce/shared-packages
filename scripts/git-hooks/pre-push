@@ -83,7 +83,7 @@ while read local_ref local_sha remote_ref remote_sha; do
           fi
           ;;
         2)
-          echo -e "${YELLOW}⚠${NC} Skipping publish. Compass CI may fail if packages aren't published."
+          echo -e "${YELLOW}⚠${NC} Skipping publish. Consumer CI may fail if packages aren't published."
           ;;
         3)
           echo -e "${RED}✗${NC} Push aborted"

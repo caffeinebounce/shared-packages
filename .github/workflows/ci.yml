@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
+  packages: read
 
 jobs:
   build:
@@ -50,27 +50,7 @@ jobs:
             yarn-cache-${{ runner.os }}-
 
       - name: Install dependencies
-        run: yarn install
-        env:
-          YARN_ENABLE_IMMUTABLE_INSTALLS: false
-
-      - name: Check for lockfile changes
-        id: lockfile-check
-        run: |
-          if [[ -n $(git status --porcelain yarn.lock) ]]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit lockfile changes
-        if: steps.lockfile-check.outputs.changed == 'true' && github.event_name == 'push'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add yarn.lock
-          git commit -m "chore: update yarn.lock [skip ci]"
-          git push
+        run: yarn install --immutable
 
       - name: Check changelog discipline
         if: github.event_name == 'pull_request'
@@ -80,17 +60,21 @@ jobs:
         if: github.event_name == 'pull_request'
         run: yarn format:check
 
-      - name: Affected package checks
+      - name: Lint
         if: github.event_name == 'pull_request'
-        run: yarn ci:affected
-        env:
-          TURBO_SCM_BASE: origin/${{ github.base_ref }}
+        run: timeout 5m yarn lint
 
-      - name: Validate affected package contracts
+      - name: Typecheck
         if: github.event_name == 'pull_request'
-        run: yarn validate:packages:affected
-        env:
-          TURBO_SCM_BASE: origin/${{ github.base_ref }}
+        run: timeout 5m yarn typecheck
+
+      - name: Test
+        if: github.event_name == 'pull_request'
+        run: timeout 5m yarn test
+
+      - name: Build
+        if: github.event_name == 'pull_request'
+        run: timeout 10m yarn build
 
       - name: Lint
         if: github.event_name == 'push'
@@ -110,10 +94,7 @@ jobs:
 
       - name: Consumer package smoke
         if: github.event_name == 'pull_request'
-        run: yarn test:consumer-smoke
-        env:
-          CONSUMER_SMOKE_SCOPE: affected
-          TURBO_SCM_BASE: origin/${{ github.base_ref }}
+        run: timeout 5m yarn test:consumer-smoke
 
       - name: Consumer package smoke
         if: github.event_name == 'push'
@@ -123,7 +104,6 @@ jobs:
         run: yarn size:ui
 
       - name: Validate package contracts
-        if: github.event_name == 'push'
         run: yarn validate:packages
 
   swift:

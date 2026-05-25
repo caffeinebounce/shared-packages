@@ -19,6 +19,8 @@
     "size:ui": "node scripts/check-ui-entrypoint-sizes.mjs",
     "validate:packages": "node ./scripts/validate-workspace-packages.mjs",
     "validate:packages:affected": "node ./scripts/validate-workspace-packages.mjs --affected ${TURBO_SCM_BASE:-origin/main}",
+    "verify:github-public-readiness": "./scripts/github-public-readiness-check.sh",
+    "verify:pre-public": "./scripts/pre-public-verify.sh",
     "check:changelog": "node ./scripts/check-changelog-discipline.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version",
@@ -58,5 +60,6 @@
   "resolutions": {
     "postcss@npm:8.4.31": "npm:8.5.15"
   },
-  "packageManager": "yarn@4.12.0"
+  "packageManager": "yarn@4.12.0",
+  "license": "UNLICENSED"
 }

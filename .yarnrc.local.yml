@@ -1,5 +1,0 @@
-npmScopes:
-  caffeinebounce:
-    npmAlwaysAuth: true
-    npmRegistryServer: "https://npm.pkg.github.com"
-    npmAuthToken: "local-ci-placeholder"

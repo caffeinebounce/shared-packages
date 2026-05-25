@@ -13,6 +13,13 @@ radius. Keep changes scoped, verified, and explicit about package boundaries.
   framework-specific integrations.
 - Read [docs/SECURITY.md](./docs/SECURITY.md) before reporting or handling
   security issues.
+- Read [LICENSE](./LICENSE) before assuming source availability grants usage,
+  redistribution, or sublicensing rights.
+
+This repository is source-available, not open-source. The code is visible for
+review and collaboration, but no license is granted to copy, modify, distribute,
+sublicense, or use it outside permissions separately granted by the copyright
+holder.
 
 ## Access
 
@@ -104,7 +111,8 @@ yarn size:ui
 swift test
 ```
 
-For PRs, affected checks are usually enough before broader CI:
+For narrow local iteration before broader CI, affected checks are usually
+enough:
 
 ```bash
 TURBO_SCM_BASE=origin/main yarn ci:affected
@@ -122,6 +130,16 @@ Before marking a PR ready:
 - Note any tests that were skipped and why.
 - Confirm package exports, peer dependencies, and consumer import paths still
   match the intended public contract.
+- Confirm no secrets, tokens, credentials, private data, token-shaped
+  placeholders, or consumer-specific runbooks are included.
+- Confirm public documentation remains source-available and does not imply an
+  open-source license.
+
+For the full public-readiness proof set, run:
+
+```bash
+yarn verify:pre-public
+```
 
 ## Release Flow
 

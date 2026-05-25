@@ -8,7 +8,7 @@ TOKEN_TO_REMOVE="${LEAKED_TOKEN:-}"  # Provide the leaked token via LEAKED_TOKEN
 TARGET_REPO_URL="$(git remote get-url origin)"
 
 if [[ -z "$TOKEN_TO_REMOVE" ]]; then
-  echo "ERROR: LEAKED_TOKEN is not set. Export LEAKED_TOKEN or run with: LEAKED_TOKEN=ghp_... ./scripts/purge-gh-token.sh" 
+  echo "ERROR: LEAKED_TOKEN is not set. Export LEAKED_TOKEN or run with: LEAKED_TOKEN=replace_with_leaked_token ./scripts/purge-gh-token.sh"
   exit 1
 fi
 

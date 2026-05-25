@@ -79,5 +79,6 @@
     "react-dom": "^19.2.4",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
-  }
+  },
+  "license": "UNLICENSED"
 }

@@ -1,6 +1,7 @@
 # Shared Scripts
 
-This directory contains reusable DevOps scripts for shared-packages and consuming apps (Compass, ZenBid).
+This directory contains reusable DevOps scripts for shared-packages and
+consuming apps.
 
 ## Directory Structure
 
@@ -27,7 +28,7 @@ scripts/
 └── README.md                   # This file
 ```
 
-## For Consuming Apps (Compass, ZenBid)
+## For Consuming Apps
 
 ### Quick Setup
 

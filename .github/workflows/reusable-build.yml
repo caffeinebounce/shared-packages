@@ -48,7 +48,7 @@ on:
       lockfile-auto-commit:
         description: 'Auto-commit lockfile changes on push'
         required: false
-        default: true
+        default: false
         type: boolean
       upload-build-artifacts:
         description: 'Upload build artifacts'
