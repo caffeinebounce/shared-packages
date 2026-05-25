@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.61.0
+
+### Minor Changes
+
+- 5aaf5a2: Add the alternating timeline marketing block.
+
 ## 0.60.0
 
 ### Minor Changes
