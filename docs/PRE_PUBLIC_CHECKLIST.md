@@ -50,13 +50,17 @@ GitHub Packages unless a separate package-publishing decision is made.
 
 - [x] Confirm Dependabot has no open alerts through the GitHub API.
 - [x] Enable Dependabot security updates.
-- [ ] Enable GitHub secret scanning for the repository. GitHub currently
-  reports secret scanning is unavailable while this repository is private.
+- [x] Enable GitHub secret scanning for the repository.
+- [x] Resolve post-public secret scanning alerts. Alert #1 was an old PR body
+  token exposure in PR #216; the PR body was sanitized and the alert was
+  resolved as revoked after `GH_PAT` rotation.
 - [x] Add a public-only CodeQL workflow so code scanning starts after the
   visibility flip without breaking private CI.
-- [ ] Confirm CodeQL/code scanning is enabled after the visibility flip.
-- [ ] Enable private vulnerability reporting if GitHub exposes it for this
-  repository after the visibility flip.
+- [x] Confirm CodeQL/code scanning is enabled after the visibility flip.
+- [x] Keep CodeQL default setup disabled while the checked-in CodeQL workflow
+  is active, so GitHub does not reject workflow SARIF as mixed default/advanced
+  configuration.
+- [x] Enable private vulnerability reporting after the visibility flip.
 - [x] Confirm default-branch rulesets prevent deletion and force pushes.
 - [x] Require `build` and `swift` status checks through the default-branch
   ruleset.
@@ -64,7 +68,7 @@ GitHub Packages unless a separate package-publishing decision is made.
   `pull_request` workflows use only the restricted `GITHUB_TOKEN`, and the
   `pull_request_target` automerge workflow is limited to the same-repository
   `github-actions[bot]` Changesets release branch.
-- [ ] Confirm public fork pull request settings after the visibility flip.
+- [x] Confirm public fork pull request settings after the visibility flip.
 - [x] Confirm Actions default workflow permissions are read-only.
 - [x] Add CODEOWNERS for default ownership plus release, workflow, package
   manifest, script, security, and public-readiness files.
@@ -166,7 +170,7 @@ GitHub Packages unless a separate package-publishing decision is made.
   permissions are read-only, default branch ruleset is active, no open
   Dependabot alerts, repository metadata/support settings are public-ready,
   and `SHARED_PACKAGES_CONSUMER_REPOSITORY` is configured.
-- [ ] Post-public GitHub API check: code scanning and secret scanning are
+- [x] Post-public GitHub API check: code scanning and secret scanning are
   available/enabled after the visibility flip.
 
 ## Flip Procedure
