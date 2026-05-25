@@ -50,3 +50,6 @@ packages/ui/.vitest-localstorage*
 
 # Local CI
 .local-ci/
+
+# Local Codex runtime/tool cache
+.codex/
