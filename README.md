@@ -1,6 +1,12 @@
 # Shared Packages
 
-Reusable packages for Capital Collective projects published to GitHub Packages under the `@caffeinebounce/*` scope, plus a shared Swift package for native macOS UI. The monorepo uses Turborepo, React 19, TypeScript (strict), Tailwind CSS v4, Biome, Vitest, Tsup, and Changesets.
+Reusable packages published to GitHub Packages under the `@caffeinebounce/*` scope, plus a shared Swift package for native macOS UI. The monorepo uses Turborepo, React 19, TypeScript (strict), Tailwind CSS v4, Biome, Vitest, Tsup, and Changesets.
+
+This repository keeps common product building blocks in one place so apps do not
+need to copy the same UI, auth, email, logging, commerce, notification, and
+utility code over and over. The intention is to make shared behavior easy to
+reuse, easy to test, and safe to publish without hiding app-specific business
+logic inside shared packages.
 
 ## Packages
 
@@ -44,6 +50,7 @@ yarn typecheck        # Type-check all packages
 yarn lint             # Non-mutating lint check
 yarn test             # Run package tests
 swift test            # Run CaffeineNativeUI tests
+yarn check:conventions # Fast agent-focused docs and package contract check
 yarn test:consumer-smoke # Verify built package imports the way consumers resolve them
 yarn size:ui          # Report UI public entrypoint sizes and enforce lightweight budgets
 yarn validate:packages # Verify published package contracts after build
@@ -65,6 +72,7 @@ git push && open PR                             # CI builds, publish flows after
 Hooks install automatically via the `prepare` script, or run `./scripts/setup-hooks.sh`.
 
 They check and auto-fix:
+- Agent docs sync between `AGENTS.md` and `CLAUDE.md`
 - File hygiene (trailing whitespace, EOF, conflict markers)
 - Biome lint/format (auto-fix + re-stage)
 - TypeScript type checks
@@ -99,6 +107,10 @@ gh workflow run update-shared-packages.yml --repo caffeinebounce/compass
 ## Docs
 
 - Repository overview, quick start, and workflows: this README
+- Agent context and working rules: [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md)
+- Contribution workflow: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Package ownership and export boundaries: [PACKAGE_BOUNDARIES.md](PACKAGE_BOUNDARIES.md)
+- Package-specific context: each `packages/*/README.md`
 - Detailed system guides: [docs/auto-publish-system.md](docs/auto-publish-system.md), [docs/setup-hooks-and-publish.md](docs/setup-hooks-and-publish.md)
 - Visuals: [docs/ARCHITECTURE_DIAGRAMS.md](docs/ARCHITECTURE_DIAGRAMS.md)
 - Consumer guide (Compass): [../compass/docs/updating-shared-packages.md](../compass/docs/updating-shared-packages.md)
@@ -140,6 +152,11 @@ Examples:
 - Heavy optional UI surfaces such as editor, charts, 3D marketing, media, and the root compatibility entrypoint are intentional subpaths and are reported by `yarn size:ui`.
 - `@caffeinebounce/ui` uses colocated `.test.ts(x)` files alongside the source they cover
 - Internal `@caffeinebounce/*` dependencies that refer to packages in this workspace must use `^<current workspace version>` in published package manifests; this is enforced by `yarn validate:packages`
+- Keep `AGENTS.md` and `CLAUDE.md` byte-for-byte identical; `yarn check:conventions` verifies this.
+
+## License
+
+This repository is licensed under the [MIT License](LICENSE.md).
 
 ## Support
 
