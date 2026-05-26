@@ -96,6 +96,42 @@ interface FinancialStatementControlsProps {
   showMobilePeriodStepper?: boolean;
 }
 
+function StatementFilterCombobox({
+  icon,
+  value,
+  onValueChange,
+  options,
+  placeholder,
+  searchPlaceholder,
+  emptyText,
+  className,
+}: {
+  icon: ReactNode;
+  value: string;
+  onValueChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  placeholder: string;
+  searchPlaceholder: string;
+  emptyText: string;
+  className?: string;
+}) {
+  return (
+    <Combobox
+      size="sm"
+      className={className}
+      icon={icon}
+      value={value}
+      disabled={false}
+      onValueChange={(nextValue) => onValueChange(nextValue || "")}
+      options={options}
+      placeholder={placeholder}
+      mutedPlaceholder={false}
+      searchPlaceholder={searchPlaceholder}
+      emptyText={emptyText}
+    />
+  );
+}
+
 export function FinancialStatementControls({
   granularity,
   periodStart,
@@ -253,30 +289,24 @@ export function FinancialStatementControls({
             />
           ) : null}
 
-          <Combobox
-            size="sm"
+          <StatementFilterCombobox
             className="w-auto min-w-[140px]"
             icon={classIcon ?? <Building2 className="h-4 w-4" />}
             value={selectedClass}
-            disabled={false}
-            onValueChange={(value) => onClassChange(value || "")}
+            onValueChange={onClassChange}
             options={classOptions}
             placeholder="Class"
-            mutedPlaceholder={false}
             searchPlaceholder="Search classes..."
             emptyText="No classes found"
           />
 
-          <Combobox
-            size="sm"
+          <StatementFilterCombobox
             className="w-auto min-w-[140px]"
             icon={departmentIcon ?? <MapPin className="h-4 w-4" />}
             value={selectedDepartment}
-            disabled={false}
-            onValueChange={(value) => onDepartmentChange(value || "")}
+            onValueChange={onDepartmentChange}
             options={departmentOptions}
             placeholder="Location"
-            mutedPlaceholder={false}
             searchPlaceholder="Search locations..."
             emptyText="No locations found"
           />
@@ -418,27 +448,21 @@ export function FinancialStatementControls({
                 <Fragment />
               )}
             </div>
-            <Combobox
-              size="sm"
+            <StatementFilterCombobox
               icon={classIcon ?? <Building2 className="h-4 w-4" />}
               value={selectedClass}
-              disabled={false}
-              onValueChange={(value) => onClassChange(value || "")}
+              onValueChange={onClassChange}
               options={classOptions}
               placeholder="Class"
-              mutedPlaceholder={false}
               searchPlaceholder="Search classes..."
               emptyText="No classes found"
             />
-            <Combobox
-              size="sm"
+            <StatementFilterCombobox
               icon={departmentIcon ?? <MapPin className="h-4 w-4" />}
               value={selectedDepartment}
-              disabled={false}
-              onValueChange={(value) => onDepartmentChange(value || "")}
+              onValueChange={onDepartmentChange}
               options={departmentOptions}
               placeholder="Location"
-              mutedPlaceholder={false}
               searchPlaceholder="Search locations..."
               emptyText="No locations found"
             />

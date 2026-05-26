@@ -17,7 +17,7 @@ export default defineConfig({
   minify: false,
   outExtension({ format }) {
     return {
-      js: format === "esm" ? ".mjs" : ".js",
+      js: format === "esm" ? ".mjs" : ".cjs",
     };
   },
 });

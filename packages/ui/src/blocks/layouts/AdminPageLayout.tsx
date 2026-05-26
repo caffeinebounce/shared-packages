@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { BackLink } from "../../components/ui/back-link";
-import { cn } from "../../utils";
+import { PageLayoutShell } from "./BasePageLayout";
 
 export interface AdminPageLayoutBackLink {
   /** URL to navigate back to */
@@ -67,28 +67,23 @@ export function AdminPageLayout({
   const showHeader = !backLink && Boolean(title || description || actions);
 
   return (
-    <div className={cn("flex flex-1 flex-col min-w-0 min-h-full", className)}>
-      <div className="flex flex-1 flex-col gap-4 p-4 min-w-0">
-        {/* Back link mode */}
-        {backLink && <BackLink href={backLink.href}>{backLink.label}</BackLink>}
-
-        {/* Standard header mode */}
-        {showHeader && (
-          <div className="flex items-center justify-between">
-            <div>
-              {title && <h1 className="text-2xl font-semibold">{title}</h1>}
-              {description && (
-                <p className="text-sm text-muted-foreground">{description}</p>
-              )}
-            </div>
-            {actions && (
-              <div className="flex items-center gap-2">{actions}</div>
-            )}
-          </div>
-        )}
-        <div className={cn("flex-1 min-w-0", contentClassName)}>{children}</div>
-      </div>
-      {footer}
-    </div>
+    <PageLayoutShell
+      title={title}
+      description={description}
+      actions={actions}
+      className={className}
+      contentClassName={contentClassName}
+      footer={footer}
+      showHeader={showHeader}
+      beforeHeader={
+        backLink ? (
+          <BackLink href={backLink.href}>{backLink.label}</BackLink>
+        ) : null
+      }
+      contentBaseClassName="flex-1 min-w-0"
+      innerClassName="min-w-0"
+    >
+      {children}
+    </PageLayoutShell>
   );
 }
