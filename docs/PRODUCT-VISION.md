@@ -1,6 +1,6 @@
 # Product Vision: shared-packages
 
-> Source-available shared packages for `@caffeinebounce/*` applications
+> MIT-licensed shared packages for `@caffeinebounce/*` applications
 
 ---
 
@@ -26,10 +26,10 @@ duplication, improves consistency, and accelerates development.
 
 ### Secondary: External Reader
 
-- **Who:** Developer reviewing the source-available repository or evaluating package behavior
+- **Who:** Developer reviewing the MIT-licensed repository or evaluating package behavior
 - **Goals:** Understand the package surface, release process, and support boundary
 - **Pain points:** Breaking changes, poor documentation, opaque dependencies
-- **Success looks like:** Clear rights notice, stable semver, clear changelogs, no surprises
+- **Success looks like:** Clear MIT license, stable semver, clear changelogs, no surprises
 
 ---
 
@@ -125,7 +125,6 @@ duplication, improves consistency, and accelerates development.
 
 Things we're explicitly NOT trying to do:
 
-- Grant open-source usage rights without an explicit license decision
 - Build a general-purpose public component library for external organizations
 - Support non-React frameworks
 - Provide theme customization beyond Tailwind

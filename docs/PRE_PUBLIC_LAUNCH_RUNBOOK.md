@@ -86,7 +86,7 @@ gh api 'repos/caffeinebounce/shared-packages/dependabot/alerts?state=open&per_pa
   --jq 'length'
 ```
 
-Expected result: repository is public, description is generic/source-available,
+Expected result: repository is public, description is generic/MIT-licensed,
 Issues are enabled, Wiki/Projects/Discussions are disabled, blank issues are
 disabled after the issue-template config lands on `main`, workflow permissions
 are read-only, and there are no open Dependabot alerts.
@@ -102,8 +102,7 @@ gh api -X PATCH repos/caffeinebounce/shared-packages \
   -F 'security_and_analysis[secret_scanning_push_protection][status]=enabled'
 gh api -X PUT repos/caffeinebounce/shared-packages/private-vulnerability-reporting
 gh api -X PATCH repos/caffeinebounce/shared-packages/code-scanning/default-setup \
-  -f state=configured \
-  -f query_suite=default
+  -f state=not-configured
 gh api -X PUT repos/caffeinebounce/shared-packages/actions/permissions/fork-pr-contributor-approval \
   -f approval_policy=first_time_contributors
 
@@ -114,7 +113,7 @@ gh api repos/caffeinebounce/shared-packages/actions/permissions/fork-pr-contribu
 ```
 
 If these still report disabled, enable them in repository settings and rerun the
-checks after the first CodeQL workflow completes.
+checks after the checked-in CodeQL workflow completes.
 
 GitHub references:
 
