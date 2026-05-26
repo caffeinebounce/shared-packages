@@ -11,6 +11,11 @@ export type SignInMethod = "email" | "google" | "azure";
 
 /** Valid sign-in methods for runtime validation */
 const VALID_METHODS: SignInMethod[] = ["email", "google", "azure"];
+const PENDING_OAUTH_KEYS = {
+  google: "pending_oauth_google",
+  azure: "pending_oauth_azure",
+} as const satisfies Record<Exclude<SignInMethod, "email">, string>;
+const LEGACY_PENDING_OAUTH_METHOD_KEY = "pending_oauth_method";
 
 /** Stored last sign-in data */
 export interface LastSignInData {
@@ -138,6 +143,25 @@ export function useLastSignIn(options: UseLastSignInOptions = {}) {
     setLastSignIn(null);
   }, [storageKey]);
 
+  const markPendingOAuthSignIn = useCallback(
+    (method: Exclude<SignInMethod, "email">) => {
+      try {
+        for (const key of Object.values(PENDING_OAUTH_KEYS)) {
+          sessionStorage.removeItem(key);
+        }
+        sessionStorage.removeItem(LEGACY_PENDING_OAUTH_METHOD_KEY);
+        if (method === "google") {
+          sessionStorage.setItem(PENDING_OAUTH_KEYS.google, "1");
+        } else {
+          sessionStorage.setItem(PENDING_OAUTH_KEYS.azure, "1");
+        }
+      } catch {
+        // Ignore sessionStorage errors
+      }
+    },
+    [],
+  );
+
   /**
    * Complete pending OAuth sign-in recording.
    * Call this after a successful OAuth callback to record the method.
@@ -157,17 +181,29 @@ export function useLastSignIn(options: UseLastSignInOptions = {}) {
   const completePendingOAuthSignIn = useCallback(
     (email: string) => {
       try {
-        const pendingMethodRaw = sessionStorage.getItem("pending_oauth_method");
-        // Validate the stored method is a valid SignInMethod
-        const pendingMethod =
-          pendingMethodRaw &&
-          VALID_METHODS.includes(pendingMethodRaw as SignInMethod)
-            ? (pendingMethodRaw as SignInMethod)
+        const legacyMethodRaw = sessionStorage.getItem(
+          LEGACY_PENDING_OAUTH_METHOD_KEY,
+        );
+        const legacyMethod =
+          legacyMethodRaw &&
+          VALID_METHODS.includes(legacyMethodRaw as SignInMethod) &&
+          legacyMethodRaw !== "email"
+            ? (legacyMethodRaw as Exclude<SignInMethod, "email">)
             : null;
+        const pendingMethod =
+          legacyMethod ??
+          (sessionStorage.getItem(PENDING_OAUTH_KEYS.google)
+            ? "google"
+            : sessionStorage.getItem(PENDING_OAUTH_KEYS.azure)
+              ? "azure"
+              : null);
 
         if (pendingMethod && email) {
           recordSignIn(pendingMethod, email);
-          sessionStorage.removeItem("pending_oauth_method");
+          for (const key of Object.values(PENDING_OAUTH_KEYS)) {
+            sessionStorage.removeItem(key);
+          }
+          sessionStorage.removeItem(LEGACY_PENDING_OAUTH_METHOD_KEY);
         }
       } catch {
         // Ignore sessionStorage errors
@@ -185,6 +221,8 @@ export function useLastSignIn(options: UseLastSignInOptions = {}) {
     recordSignIn,
     /** Clear stored sign-in data */
     clearLastSignIn,
+    /** Mark an OAuth method as pending before redirecting to the provider */
+    markPendingOAuthSignIn,
     /** Complete pending OAuth sign-in recording (call after OAuth callback) */
     completePendingOAuthSignIn,
   };

@@ -23,7 +23,6 @@ export interface BasePageLayoutProps {
 interface PageLayoutShellProps extends BasePageLayoutProps {
   beforeHeader?: ReactNode;
   showHeader?: boolean;
-  contentClassName?: string;
   contentBaseClassName?: string;
   innerClassName?: string;
 }

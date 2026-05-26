@@ -134,7 +134,7 @@ export function SigninForm({
   const Image = ImageComponent;
 
   // Last sign-in tracking
-  const { lastSignIn, recordSignIn } = useLastSignIn({
+  const { lastSignIn, recordSignIn, markPendingOAuthSignIn } = useLastSignIn({
     storageKey: lastSignInStorageKey,
   });
 
@@ -223,12 +223,8 @@ export function SigninForm({
       setOauthLoading(null);
     }, 5000);
 
-    // Store pending OAuth method for recording after successful callback
-    try {
-      sessionStorage.setItem("pending_oauth_method", provider);
-    } catch {
-      // Ignore sessionStorage errors
-    }
+    // Store a pending OAuth flag for recording after successful callback.
+    markPendingOAuthSignIn(provider);
 
     // Always use active browser origin so dev/preview/Tailscale callbacks return to the same environment.
     const siteUrl = window.location.origin.replace(/\/$/, "");
