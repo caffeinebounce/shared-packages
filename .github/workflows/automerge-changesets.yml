@@ -13,7 +13,7 @@ permissions:
 jobs:
   automerge:
     if: >-
-      github.event.pull_request.user.login == 'github-actions[bot]' &&
+      contains(fromJSON('["github-actions[bot]", "caffeinebounce"]'), github.event.pull_request.user.login) &&
       github.event.pull_request.head.ref == 'changeset-release/main' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.title == 'chore: version packages' &&
@@ -22,15 +22,15 @@ jobs:
     timeout-minutes: 15
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
+      NODE_AUTH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Checkout release PR
         uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v5

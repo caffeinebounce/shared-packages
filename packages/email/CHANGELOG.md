@@ -1,5 +1,14 @@
 # @caffeinebounce/email
 
+## 0.6.127
+
+### Patch Changes
+
+- f389e8e: Replace several regex-based helpers with bounded string logic to clear
+  post-public CodeQL alerts.
+- e3d1867: Disable published source maps and mark package metadata as source-available for
+  the public-readiness sweep.
+
 ## 0.6.126
 
 ### Patch Changes

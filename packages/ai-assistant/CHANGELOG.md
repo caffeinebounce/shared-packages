@@ -1,5 +1,15 @@
 # @caffeinebounce/ai-assistant
 
+## 0.5.60
+
+### Patch Changes
+
+- e3d1867: Disable published source maps and mark package metadata as source-available for
+  the public-readiness sweep.
+- Updated dependencies [f389e8e]
+- Updated dependencies [e3d1867]
+  - @caffeinebounce/ui@0.61.1
+
 ## 0.5.59
 
 ### Patch Changes

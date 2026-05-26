@@ -89,12 +89,39 @@ export function truncate(
  */
 export function slugify(text: string | null | undefined): string {
   if (!text) return "";
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "") // Remove special characters
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
-    .replace(/-+/g, "-") // Replace multiple hyphens with single
-    .replace(/^-+|-+$/g, ""); // Trim hyphens from start/end
+
+  const slugParts: string[] = [];
+  let previousWasSeparator = true;
+
+  for (const char of text.toLowerCase()) {
+    if (
+      (char >= "a" && char <= "z") ||
+      (char >= "0" && char <= "9") ||
+      char === "_"
+    ) {
+      slugParts.push(char);
+      previousWasSeparator = false;
+      continue;
+    }
+
+    if (
+      (char === " " ||
+        char === "\t" ||
+        char === "\n" ||
+        char === "\r" ||
+        char === "-") &&
+      !previousWasSeparator
+    ) {
+      slugParts.push("-");
+      previousWasSeparator = true;
+    }
+  }
+
+  if (slugParts.at(-1) === "-") {
+    slugParts.pop();
+  }
+
+  return slugParts.join("");
 }
 
 /**

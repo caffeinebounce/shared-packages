@@ -103,6 +103,11 @@ export function parseListUnsubscribeHeader(
   value?: string | null,
 ): string | undefined {
   if (!value) return undefined;
-  const match = value.match(/<([^>]+)>/);
-  return match?.[1];
+  const start = value.indexOf("<");
+  if (start === -1) return undefined;
+
+  const end = value.indexOf(">", start + 1);
+  if (end === -1 || end === start + 1) return undefined;
+
+  return value.slice(start + 1, end);
 }

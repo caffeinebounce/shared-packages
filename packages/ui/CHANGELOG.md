@@ -1,5 +1,18 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.61.1
+
+### Patch Changes
+
+- f389e8e: Replace several regex-based helpers with bounded string logic to clear
+  post-public CodeQL alerts.
+- e3d1867: Disable published source maps and mark package metadata as source-available for
+  the public-readiness sweep.
+- Updated dependencies [f389e8e]
+- Updated dependencies [e3d1867]
+  - @caffeinebounce/logger@0.9.131
+  - @caffeinebounce/shared-utils@0.7.134
+
 ## 0.61.0
 
 ### Minor Changes

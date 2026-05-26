@@ -55,8 +55,26 @@ export function detectDeploymentEnvironment(
     }
 
     // Netlify previews: deploy-preview-123--sitename.netlify.app
-    if (/deploy-preview-\d+--.*\.netlify\.app$/i.test(hostname)) {
-      return "preview";
+    const lowerHostname = hostname.toLowerCase();
+    const deployPreviewPrefix = "deploy-preview-";
+    if (
+      lowerHostname.endsWith(".netlify.app") &&
+      lowerHostname.startsWith(deployPreviewPrefix)
+    ) {
+      const separatorIndex = lowerHostname.indexOf(
+        "--",
+        deployPreviewPrefix.length,
+      );
+      const previewNumber = lowerHostname.slice(
+        deployPreviewPrefix.length,
+        separatorIndex === -1 ? undefined : separatorIndex,
+      );
+      if (
+        separatorIndex > deployPreviewPrefix.length &&
+        [...previewNumber].every((char) => char >= "0" && char <= "9")
+      ) {
+        return "preview";
+      }
     }
 
     // Generic preview pattern: any hostname containing "-pr-" or "-preview"

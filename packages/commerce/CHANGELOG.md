@@ -1,5 +1,12 @@
 # @caffeinebounce/commerce
 
+## 0.1.2
+
+### Patch Changes
+
+- e3d1867: Disable published source maps and mark package metadata as source-available for
+  the public-readiness sweep.
+
 ## 0.1.1
 
 ### Patch Changes

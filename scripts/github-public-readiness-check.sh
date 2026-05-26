@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify GitHub repository settings that matter before the visibility flip.
+# Verify GitHub repository settings that matter before and after public launch.
 
 set -euo pipefail
 
@@ -44,9 +44,22 @@ security_json="$(gh api "repos/$REPO" --jq '.security_and_analysis // {}')"
 automated_security_fixes="$(gh api "repos/$REPO/automated-security-fixes" --jq '.enabled')"
 remote_branches="$(gh api "repos/$REPO/git/matching-refs/heads" --paginate --jq '.[].ref' | sed 's#refs/heads/##' | sort | paste -sd ',' -)"
 consumer_repo="$(gh variable list --repo "$REPO" | awk '$1 == "SHARED_PACKAGES_CONSUMER_REPOSITORY" { print $2 }')"
+is_private="$(jq -r '.isPrivate' <<<"$repo_json")"
+visibility="$(jq -r '.visibility' <<<"$repo_json")"
 
-assert_eq "visibility" "$(jq -r '.visibility' <<<"$repo_json")" "PRIVATE"
-assert_eq "isPrivate" "$(jq -r '.isPrivate' <<<"$repo_json")" "true"
+case "$visibility:$is_private" in
+  PRIVATE:true)
+    echo "PASS visibility phase: private pre-public"
+    ;;
+  PUBLIC:false)
+    echo "PASS visibility phase: public"
+    ;;
+  *)
+    echo "FAIL visibility phase: unexpected visibility=$visibility isPrivate=$is_private" >&2
+    exit 1
+    ;;
+esac
+
 assert_eq "default branch" "$(jq -r '.defaultBranchRef.name' <<<"$repo_json")" "main"
 assert_eq "description" "$(jq -r '.description' <<<"$repo_json")" "$EXPECTED_DESCRIPTION"
 assert_eq "issues enabled" "$(jq -r '.hasIssuesEnabled' <<<"$repo_json")" "true"
@@ -78,19 +91,23 @@ assert_eq "unexpected remote branches" "$unexpected_remote_branches" ""
 echo "PASS remote branches: $remote_branches"
 assert_eq "consumer repository variable" "$consumer_repo" "caffeinebounce/compass"
 
-if [[ "$(jq -r '.isPrivate' <<<"$repo_json")" == "false" ]]; then
+if [[ "$is_private" == "false" ]]; then
   secret_scanning_status="$(jq -r '.secret_scanning.status // "unknown"' <<<"$security_json")"
   secret_push_status="$(jq -r '.secret_scanning_push_protection.status // "unknown"' <<<"$security_json")"
+  secret_scanning_open="$(gh api "repos/$REPO/secret-scanning/alerts?state=open&per_page=100" --jq 'length')"
+  code_scanning_open="$(gh api "repos/$REPO/code-scanning/alerts?state=open&per_page=100" --jq 'length')"
   private_vulnerability_reporting="$(gh api "repos/$REPO/private-vulnerability-reporting" --jq '.enabled')"
   fork_approval="$(gh api "repos/$REPO/actions/permissions/fork-pr-contributor-approval" --jq '.approval_policy')"
 
   assert_eq "secret scanning" "$secret_scanning_status" "enabled"
   assert_eq "secret scanning push protection" "$secret_push_status" "enabled"
+  assert_eq "open secret scanning alerts" "$secret_scanning_open" "0"
+  assert_eq "open code scanning alerts" "$code_scanning_open" "0"
   assert_eq "private vulnerability reporting" "$private_vulnerability_reporting" "true"
   assert_eq "fork PR approval policy" "$fork_approval" "first_time_contributors"
 
   if gh api "repos/$REPO/code-scanning/default-setup" --jq '.state' >/tmp/shared-packages-codeql-state 2>/dev/null; then
-    assert_eq "CodeQL default setup" "$(cat /tmp/shared-packages-codeql-state)" "configured"
+    assert_eq "CodeQL default setup" "$(cat /tmp/shared-packages-codeql-state)" "not-configured"
   else
     gh api "repos/$REPO/code-scanning/alerts" --jq 'length' >/dev/null
     echo "PASS CodeQL/code scanning: custom workflow is enabled"
