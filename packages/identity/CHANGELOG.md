@@ -1,5 +1,17 @@
 # @caffeinebounce/identity
 
+## 0.11.7
+
+### Patch Changes
+
+- e3d1867: Disable published source maps and mark package metadata as source-available for
+  the public-readiness sweep.
+- Updated dependencies [f389e8e]
+- Updated dependencies [e3d1867]
+  - @caffeinebounce/logger@0.9.131
+  - @caffeinebounce/shared-utils@0.7.134
+  - @caffeinebounce/ui@0.61.1
+
 ## 0.11.6
 
 ### Patch Changes
