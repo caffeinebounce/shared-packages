@@ -1,10 +1,29 @@
 import { describe, expect, it } from "vitest";
 import {
+  generateDeviceFingerprint,
   generateSecureToken,
   getClientIP,
   getGeolocationFromIP,
   hashString,
 } from "./device-fingerprint";
+
+describe("generateDeviceFingerprint", () => {
+  it("classifies Android before generic Linux platforms", () => {
+    const userAgentSpy = vi
+      .spyOn(window.navigator, "userAgent", "get")
+      .mockReturnValue("Mozilla/5.0 (Linux; Android 15)");
+    const platformSpy = vi
+      .spyOn(window.navigator, "platform", "get")
+      .mockReturnValue("Linux armv8l");
+
+    const fingerprint = generateDeviceFingerprint();
+
+    expect(fingerprint.osName).toBe("Android");
+
+    userAgentSpy.mockRestore();
+    platformSpy.mockRestore();
+  });
+});
 
 describe("getClientIP", () => {
   it("extracts IP from x-forwarded-for header (single IP)", () => {

@@ -177,6 +177,78 @@ function TrendBadge({ trend }: { trend: StatCardTrend }) {
   );
 }
 
+function StatCardValueContent({
+  isCompact,
+  displayValue,
+  description,
+  trend,
+  footer,
+}: {
+  isCompact: boolean;
+  displayValue: string;
+  description?: string;
+  trend?: StatCardTrend;
+  footer?: string;
+}) {
+  if (isCompact) {
+    return (
+      <>
+        <div className="mt-2 min-w-0">
+          <span className="block text-2xl md:text-3xl font-semibold tracking-tight tabular-nums leading-none md:leading-tight truncate">
+            {displayValue}
+          </span>
+        </div>
+        {(description || trend) && (
+          <div className="mt-1.5 flex items-center gap-2 min-w-0">
+            {trend && <TrendBadge trend={trend} />}
+            {description && (
+              <p className="text-xs text-muted-foreground truncate">
+                {description}
+              </p>
+            )}
+          </div>
+        )}
+        {trend?.label && (
+          <p className="text-xs text-muted-foreground mt-1 truncate">
+            {trend.label}
+          </p>
+        )}
+        {footer && (
+          <p className="text-xs text-muted-foreground mt-1 truncate">
+            {footer}
+          </p>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="relative overflow-hidden">
+        <span className="block text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10 truncate">
+          {displayValue}
+        </span>
+      </div>
+      {(description || trend) && (
+        <div className="-mt-6 flex items-center gap-2 min-w-0">
+          {trend && <TrendBadge trend={trend} />}
+          {description && (
+            <p className="text-xs text-foreground/80 truncate">{description}</p>
+          )}
+        </div>
+      )}
+      {footer && (
+        <p className="text-xs text-muted-foreground mt-1 truncate">{footer}</p>
+      )}
+      {trend?.label && (
+        <p className="text-xs text-muted-foreground mt-0.5 truncate">
+          {trend.label}
+        </p>
+      )}
+    </>
+  );
+}
+
 /** Navigation dots for flip card - visual indicator only, parent button handles click */
 function FlipIndicator({ activeSide }: { activeSide: "stat" | "chart" }) {
   return (
@@ -467,63 +539,13 @@ export function StatCard({
         <CardContent
           className={cn("relative py-0", isCompact ? "px-0" : "px-4")}
         >
-          {isCompact ? (
-            <>
-              <div className="mt-2 min-w-0">
-                <span className="block text-2xl md:text-3xl font-semibold tracking-tight tabular-nums leading-none md:leading-tight truncate">
-                  {displayValue}
-                </span>
-              </div>
-              {(description || trend) && (
-                <div className="mt-1.5 flex items-center gap-2 min-w-0">
-                  {trend && <TrendBadge trend={trend} />}
-                  {description && (
-                    <p className="text-xs text-muted-foreground truncate">
-                      {description}
-                    </p>
-                  )}
-                </div>
-              )}
-              {trend?.label && (
-                <p className="text-xs text-muted-foreground mt-1 truncate">
-                  {trend.label}
-                </p>
-              )}
-              {footer && (
-                <p className="text-xs text-muted-foreground mt-1 truncate">
-                  {footer}
-                </p>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="relative overflow-hidden">
-                <span className="block text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10 truncate">
-                  {displayValue}
-                </span>
-              </div>
-              {(description || trend) && (
-                <div className="-mt-6 flex items-center gap-2 min-w-0">
-                  {trend && <TrendBadge trend={trend} />}
-                  {description && (
-                    <p className="text-xs text-foreground/80 truncate">
-                      {description}
-                    </p>
-                  )}
-                </div>
-              )}
-              {footer && (
-                <p className="text-xs text-muted-foreground mt-1 truncate">
-                  {footer}
-                </p>
-              )}
-              {trend?.label && (
-                <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                  {trend.label}
-                </p>
-              )}
-            </>
-          )}
+          <StatCardValueContent
+            isCompact={isCompact}
+            displayValue={displayValue}
+            description={description}
+            trend={trend}
+            footer={footer}
+          />
         </CardContent>
       </Card>
     );
@@ -560,63 +582,13 @@ export function StatCard({
           <CardContent
             className={cn("relative py-0", isCompact ? "px-0" : "px-4")}
           >
-            {isCompact ? (
-              <>
-                <div className="mt-2 min-w-0">
-                  <span className="block text-2xl md:text-3xl font-semibold tracking-tight tabular-nums leading-none md:leading-tight truncate">
-                    {displayValue}
-                  </span>
-                </div>
-                {(description || trend) && (
-                  <div className="mt-1.5 flex items-center gap-2 min-w-0">
-                    {trend && <TrendBadge trend={trend} />}
-                    {description && (
-                      <p className="text-xs text-muted-foreground truncate">
-                        {description}
-                      </p>
-                    )}
-                  </div>
-                )}
-                {trend?.label && (
-                  <p className="text-xs text-muted-foreground mt-1 truncate">
-                    {trend.label}
-                  </p>
-                )}
-                {footer && (
-                  <p className="text-xs text-muted-foreground mt-1 truncate">
-                    {footer}
-                  </p>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="relative overflow-hidden">
-                  <span className="block text-7xl md:text-8xl font-black tabular-nums leading-none tracking-tighter text-foreground/10 truncate">
-                    {displayValue}
-                  </span>
-                </div>
-                {(description || trend) && (
-                  <div className="-mt-6 flex items-center gap-2 min-w-0">
-                    {trend && <TrendBadge trend={trend} />}
-                    {description && (
-                      <p className="text-xs text-foreground/80 truncate">
-                        {description}
-                      </p>
-                    )}
-                  </div>
-                )}
-                {footer && (
-                  <p className="text-xs text-muted-foreground mt-1 truncate">
-                    {footer}
-                  </p>
-                )}
-                {trend?.label && (
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                    {trend.label}
-                  </p>
-                )}
-              </>
-            )}
+            <StatCardValueContent
+              isCompact={isCompact}
+              displayValue={displayValue}
+              description={description}
+              trend={trend}
+              footer={footer}
+            />
           </CardContent>
           <FlipIndicator activeSide={activeSide} />
         </Card>

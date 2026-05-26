@@ -3,6 +3,7 @@ import { ThemedButton } from "../components/ThemedButton";
 import { ThemedLayout } from "../components/ThemedLayout";
 import type { EmailThemeConfig } from "../index";
 import type { EmailThemeTokens } from "../tokens";
+import { createThemedTextStyles } from "./styles";
 
 interface MagicLinkProps {
   magicLinkUrl: string;
@@ -17,20 +18,8 @@ export function MagicLink({
   tokens,
   config,
 }: MagicLinkProps) {
-  const headingStyle = {
-    color: tokens.headingColor,
-    fontSize: "28px",
-    fontWeight: "700",
-    margin: "0 0 16px",
-    fontFamily: tokens.fontFamily,
-  };
-  const bodyStyle = {
-    color: tokens.bodyColor,
-    fontSize: "16px",
-    lineHeight: "1.7",
-    margin: "0 0 8px",
-    fontFamily: tokens.fontFamily,
-  };
+  const { headingStyle, bodyStyle, mutedBodyStyle } =
+    createThemedTextStyles(tokens);
 
   return (
     <ThemedLayout
@@ -44,9 +33,7 @@ export function MagicLink({
       <Text style={bodyStyle}>
         Click below to sign in to {config.appName}. This link expires in 1 hour.
       </Text>
-      <Text
-        style={{ ...bodyStyle, fontSize: "14px", color: tokens.mutedColor }}
-      >
+      <Text style={mutedBodyStyle}>
         If you didn't request this, you can safely ignore this email.
       </Text>
       <ThemedButton url={magicLinkUrl} text="Sign in" tokens={tokens} />

@@ -9,7 +9,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "../../components/ui/tabs";
-import { cn } from "../../utils";
+import { PageLayoutShell } from "./BasePageLayout";
 
 export interface PageTab {
   /** Unique value identifier for the tab */
@@ -84,61 +84,46 @@ export function UserPageLayout({
   const showHeader = !backLink && Boolean(title || description || actions);
 
   return (
-    <div className={cn("flex flex-1 flex-col min-w-0 min-h-full", className)}>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        {/* Back link mode */}
-        {backLink && <BackLink href={backLink.href}>{backLink.label}</BackLink>}
+    <PageLayoutShell
+      title={title}
+      description={description}
+      actions={actions}
+      className={className}
+      contentClassName={contentClassName}
+      footer={footer}
+      showHeader={showHeader}
+      beforeHeader={
+        backLink ? (
+          <BackLink href={backLink.href}>{backLink.label}</BackLink>
+        ) : null
+      }
+    >
+      {loading && loadingSkeleton ? (
+        loadingSkeleton
+      ) : tabs && tabs.length > 0 ? (
+        <Tabs
+          defaultValue={defaultTab || tabs[0].value}
+          onValueChange={onTabChange}
+          className="space-y-4"
+        >
+          <TabsList>
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
+                {tab.icon && <tab.icon className="h-4 w-4" />}
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {/* Standard header mode */}
-        {showHeader && (
-          <div className="flex items-center justify-between">
-            <div>
-              {title && <h1 className="text-2xl font-semibold">{title}</h1>}
-              {description && (
-                <p className="text-sm text-muted-foreground">{description}</p>
-              )}
-            </div>
-            {actions && (
-              <div className="flex items-center gap-2">{actions}</div>
-            )}
-          </div>
-        )}
-
-        {/* Content */}
-        <div className={cn("flex-1", contentClassName)}>
-          {loading && loadingSkeleton ? (
-            loadingSkeleton
-          ) : tabs && tabs.length > 0 ? (
-            <Tabs
-              defaultValue={defaultTab || tabs[0].value}
-              onValueChange={onTabChange}
-              className="space-y-4"
-            >
-              <TabsList>
-                {tabs.map((tab) => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className="gap-2"
-                  >
-                    {tab.icon && <tab.icon className="h-4 w-4" />}
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              {tabs.map((tab) => (
-                <TabsContent key={tab.value} value={tab.value} className="mt-2">
-                  {tab.content}
-                </TabsContent>
-              ))}
-            </Tabs>
-          ) : (
-            children
-          )}
-        </div>
-      </div>
-      {footer}
-    </div>
+          {tabs.map((tab) => (
+            <TabsContent key={tab.value} value={tab.value} className="mt-2">
+              {tab.content}
+            </TabsContent>
+          ))}
+        </Tabs>
+      ) : (
+        children
+      )}
+    </PageLayoutShell>
   );
 }
