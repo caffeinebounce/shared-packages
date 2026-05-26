@@ -13,13 +13,11 @@ radius. Keep changes scoped, verified, and explicit about package boundaries.
   framework-specific integrations.
 - Read [docs/SECURITY.md](./docs/SECURITY.md) before reporting or handling
   security issues.
-- Read [LICENSE](./LICENSE) before assuming source availability grants usage,
-  redistribution, or sublicensing rights.
+- Read [LICENSE](./LICENSE) before copying, modifying, distributing, or
+  sublicensing the code.
 
-This repository is source-available, not open-source. The code is visible for
-review and collaboration, but no license is granted to copy, modify, distribute,
-sublicense, or use it outside permissions separately granted by the copyright
-holder.
+This repository is MIT-licensed. Contributions are accepted under the same MIT
+license unless a separate written agreement says otherwise.
 
 ## Access
 
@@ -132,8 +130,7 @@ Before marking a PR ready:
   match the intended public contract.
 - Confirm no secrets, tokens, credentials, private data, token-shaped
   placeholders, or consumer-specific runbooks are included.
-- Confirm public documentation remains source-available and does not imply an
-  open-source license.
+- Confirm public documentation remains consistent with the MIT license.
 
 For the full public-readiness proof set, run:
 

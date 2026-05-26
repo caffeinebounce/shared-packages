@@ -5,4 +5,4 @@ contact_links:
     about: Report suspected vulnerabilities privately. If private reporting is unavailable, follow docs/SECURITY.md.
   - name: Contribution guide
     url: https://github.com/caffeinebounce/shared-packages/blob/main/CONTRIBUTING.md
-    about: Read the source-available contribution boundary and PR expectations.
+    about: Read the MIT-licensed contribution guide and PR expectations.

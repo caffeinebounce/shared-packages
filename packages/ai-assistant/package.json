@@ -50,5 +50,5 @@
     "@caffeinebounce/ui": "^0.61.1",
     "lucide-react": "^0.577.0"
   },
-  "license": "UNLICENSED"
+  "license": "MIT"
 }

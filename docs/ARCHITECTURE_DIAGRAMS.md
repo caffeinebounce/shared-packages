@@ -66,7 +66,7 @@ within the configured limit.
 
 ```mermaid
 flowchart LR
-  repo["public source repository"] --> rights["source-available rights notice"]
+  repo["public source repository"] --> rights["MIT license"]
   repo --> workflows["read-only default workflow permissions"]
   repo --> codeql["public-only CodeQL workflow"]
   repo --> gitleaks["full-history secret scan"]
@@ -74,6 +74,6 @@ flowchart LR
   packages --> noMaps["no source maps in tarballs"]
 ```
 
-The repository can be public while packages remain restricted on GitHub
+The repository can be MIT-licensed while packages remain restricted on GitHub
 Packages. That posture should stay explicit in manifests, workflow permissions,
 and public documentation.

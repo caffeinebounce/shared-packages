@@ -60,5 +60,5 @@
   "dependencies": {
     "@logtail/next": "^0.2.1"
   },
-  "license": "UNLICENSED"
+  "license": "MIT"
 }

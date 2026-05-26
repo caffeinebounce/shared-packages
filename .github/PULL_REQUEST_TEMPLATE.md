@@ -37,5 +37,5 @@ yarn verify:pre-public
 
 - [ ] No secrets, tokens, credentials, or private data are included
 - [ ] No new token-shaped placeholders are included in examples or docs
-- [ ] Public documentation remains source-available and does not imply an open-source license
+- [ ] Public documentation remains consistent with the MIT license
 - [ ] Suspected vulnerabilities are not described in this public PR
