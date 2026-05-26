@@ -12,12 +12,9 @@ import {
   PasswordInput,
   PasswordRequirements,
 } from "@caffeinebounce/ui/primitives";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   type ComponentType,
-  type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
   useEffect,
   useMemo,
   useRef,
@@ -29,9 +26,10 @@ import type { AuthFormConfig, AuthLinks, OAuthProvider } from "../../types";
 import { defaultAuthLinks } from "../../types";
 import { AuthFormLayout } from "../shared/AuthFormLayout";
 import { AuthHeader } from "../shared/AuthHeader";
-import { GoogleIcon, MicrosoftIcon } from "../shared/OAuthIcons";
 import { OrDivider } from "../shared/OrDivider";
+import { AuthLegalFooter } from "./AuthLegalFooter";
 import { EmailVerificationPending } from "./EmailVerificationPending";
+import { OAuthButtons } from "./OAuthButtons";
 import {
   buildOAuthRedirectTo,
   buildOAuthSignInOptions,
@@ -161,8 +159,6 @@ export function SignupForm({
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
-  const [hoveredOAuthProvider, setHoveredOAuthProvider] =
-    useState<OAuthProvider | null>(null);
   const oauthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Dynamic consent state - initialize from consentItems defaults
@@ -366,27 +362,9 @@ export function SignupForm({
     );
   }
 
-  const showGoogle = oauthProviders.includes("google");
-  const showMicrosoft = oauthProviders.includes("azure");
-
-  function handleOAuthHover(provider: OAuthProvider) {
-    setHoveredOAuthProvider(provider);
-  }
-
-  function handleOAuthHoverEnd(
-    event:
-      | ReactMouseEvent<HTMLButtonElement>
-      | ReactPointerEvent<HTMLButtonElement>,
-  ) {
-    const relatedTarget = event.relatedTarget;
-    if (
-      relatedTarget instanceof Node &&
-      event.currentTarget.contains(relatedTarget)
-    ) {
-      return;
-    }
-    setHoveredOAuthProvider(null);
-  }
+  const showOAuth = oauthProviders.some(
+    (provider) => provider === "google" || provider === "azure",
+  );
 
   return (
     <AuthFormLayout
@@ -394,31 +372,7 @@ export function SignupForm({
       showHomeLink={showHomeLink}
       LinkComponent={Link}
       className={className}
-      footer={
-        (termsUrl || privacyUrl) && (
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            By continuing, you agree to our{" "}
-            {termsUrl && (
-              <a
-                href={termsUrl}
-                className="underline underline-offset-4 hover:text-foreground"
-              >
-                Terms
-              </a>
-            )}
-            {termsUrl && privacyUrl && " and "}
-            {privacyUrl && (
-              <a
-                href={privacyUrl}
-                className="underline underline-offset-4 hover:text-foreground"
-              >
-                Privacy Policy
-              </a>
-            )}
-            .
-          </p>
-        )
-      }
+      footer={<AuthLegalFooter termsUrl={termsUrl} privacyUrl={privacyUrl} />}
     >
       {/* Header */}
       <div className="space-y-2">
@@ -439,117 +393,18 @@ export function SignupForm({
       </div>
 
       {/* OAuth Buttons */}
-      {(showGoogle || showMicrosoft) && (
-        <div className="grid gap-3">
-          {showGoogle && (
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={googleComingSoon || loading || oauthLoading !== null}
-              onClick={
-                googleComingSoon ? undefined : () => handleOAuthSignIn("google")
-              }
-              onMouseOver={() => handleOAuthHover("google")}
-              onMouseOut={handleOAuthHoverEnd}
-              onPointerEnter={() => handleOAuthHover("google")}
-              onPointerLeave={handleOAuthHoverEnd}
-              onFocus={() => handleOAuthHover("google")}
-              onBlur={() => setHoveredOAuthProvider(null)}
-              className={cn(
-                "w-full bg-muted/50 border-border hover:bg-muted relative overflow-hidden",
-                googleComingSoon
-                  ? "text-muted-foreground justify-center"
-                  : "text-foreground",
-              )}
-            >
-              <span
-                className={cn(
-                  "inline-flex items-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "google" ? "opacity-0" : "opacity-100",
-                )}
-              >
-                <GoogleIcon
-                  className={cn("size-5", googleComingSoon && "opacity-50")}
-                  monochrome={
-                    oauthIconMonochromeOnHover &&
-                    hoveredOAuthProvider === "google"
-                  }
-                />
-                Continue with Google
-                {googleComingSoon && (
-                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                    Soon
-                  </span>
-                )}
-              </span>
-              <span
-                className={cn(
-                  "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "google" ? "opacity-100" : "opacity-0",
-                )}
-              >
-                <Loader2 className="size-5 animate-spin" />
-                Redirecting...
-              </span>
-            </Button>
-          )}
-          {showMicrosoft && (
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={
-                azureComingSoon ? undefined : () => handleOAuthSignIn("azure")
-              }
-              disabled={azureComingSoon || loading || oauthLoading !== null}
-              onMouseOver={() => handleOAuthHover("azure")}
-              onMouseOut={handleOAuthHoverEnd}
-              onPointerEnter={() => handleOAuthHover("azure")}
-              onPointerLeave={handleOAuthHoverEnd}
-              onFocus={() => handleOAuthHover("azure")}
-              onBlur={() => setHoveredOAuthProvider(null)}
-              className={cn(
-                "w-full bg-muted/50 border-border hover:bg-muted relative overflow-hidden",
-                azureComingSoon ? "text-muted-foreground" : "text-foreground",
-              )}
-            >
-              <span
-                className={cn(
-                  "inline-flex items-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "azure" ? "opacity-0" : "opacity-100",
-                )}
-              >
-                <MicrosoftIcon
-                  className={cn("size-5", azureComingSoon && "opacity-50")}
-                  monochrome={
-                    oauthIconMonochromeOnHover &&
-                    hoveredOAuthProvider === "azure"
-                  }
-                />
-                Continue with Microsoft
-                {azureComingSoon && (
-                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                    Soon
-                  </span>
-                )}
-              </span>
-              <span
-                className={cn(
-                  "absolute inset-0 inline-flex items-center justify-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "azure" ? "opacity-100" : "opacity-0",
-                )}
-              >
-                <Loader2 className="size-5 animate-spin" />
-                Redirecting...
-              </span>
-            </Button>
-          )}
-        </div>
-      )}
+      <OAuthButtons
+        providers={oauthProviders}
+        googleComingSoon={googleComingSoon}
+        azureComingSoon={azureComingSoon}
+        disabled={loading}
+        loadingProvider={oauthLoading}
+        oauthIconMonochromeOnHover={oauthIconMonochromeOnHover}
+        onProviderSelect={handleOAuthSignIn}
+      />
 
       {/* Divider */}
-      {(showGoogle || showMicrosoft) && <OrDivider />}
+      {showOAuth && <OrDivider />}
 
       {/* Form */}
       <form onSubmit={handleSignUp} className="space-y-4">

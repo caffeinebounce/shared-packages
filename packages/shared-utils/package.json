@@ -3,34 +3,34 @@
   "version": "0.7.134",
   "description": "Shared utility functions for caffeinebounce applications",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "require": "./dist/index.cjs"
     },
     "./analytics": {
       "types": "./dist/analytics.d.ts",
       "import": "./dist/analytics.mjs",
-      "require": "./dist/analytics.js"
+      "require": "./dist/analytics.cjs"
     },
     "./formatters": {
       "types": "./dist/formatters.d.ts",
       "import": "./dist/formatters.mjs",
-      "require": "./dist/formatters.js"
+      "require": "./dist/formatters.cjs"
     },
     "./string": {
       "types": "./dist/string.d.ts",
       "import": "./dist/string.mjs",
-      "require": "./dist/string.js"
+      "require": "./dist/string.cjs"
     },
     "./image": {
       "types": "./dist/image.d.ts",
       "import": "./dist/image.mjs",
-      "require": "./dist/image.js"
+      "require": "./dist/image.cjs"
     }
   },
   "files": [

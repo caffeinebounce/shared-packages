@@ -3,31 +3,23 @@
 import { useErrorLoggerSafe as useErrorLogger } from "@caffeinebounce/logger/client";
 import {
   Button,
-  cn,
   FieldLabel,
   Input,
   PasswordInput,
 } from "@caffeinebounce/ui/primitives";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  type ComponentType,
-  type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type ComponentType, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { SignInMethod } from "../../hooks/useLastSignIn";
 import { useLastSignIn } from "../../hooks/useLastSignIn";
 import type { AuthFormConfig, AuthLinks, OAuthProvider } from "../../types";
 import { defaultAuthLinks } from "../../types";
 import { AuthFormLayout } from "../shared/AuthFormLayout";
 import { AuthHeader } from "../shared/AuthHeader";
-import { GoogleIcon, MicrosoftIcon } from "../shared/OAuthIcons";
 import { OrDivider } from "../shared/OrDivider";
+import { AuthLegalFooter } from "./AuthLegalFooter";
 import { EmailVerificationPending } from "./EmailVerificationPending";
+import { OAuthButtons } from "./OAuthButtons";
 import {
   buildOAuthRedirectTo,
   buildOAuthSignInOptions,
@@ -142,12 +134,9 @@ export function SigninForm({
   const Image = ImageComponent;
 
   // Last sign-in tracking
-  const {
-    lastSignIn,
-    isLoaded: lastSignInLoaded,
-    recordSignIn,
-    clearLastSignIn,
-  } = useLastSignIn({ storageKey: lastSignInStorageKey });
+  const { lastSignIn, recordSignIn, markPendingOAuthSignIn } = useLastSignIn({
+    storageKey: lastSignInStorageKey,
+  });
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -155,8 +144,6 @@ export function SigninForm({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
-  const [hoveredOAuthProvider, setHoveredOAuthProvider] =
-    useState<OAuthProvider | null>(null);
   const [emailVerificationPending, setEmailVerificationPending] =
     useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -236,12 +223,8 @@ export function SigninForm({
       setOauthLoading(null);
     }, 5000);
 
-    // Store pending OAuth method for recording after successful callback
-    try {
-      sessionStorage.setItem("pending_oauth_method", provider);
-    } catch {
-      // Ignore sessionStorage errors
-    }
+    // Store a pending OAuth flag for recording after successful callback.
+    markPendingOAuthSignIn(provider);
 
     // Always use active browser origin so dev/preview/Tailscale callbacks return to the same environment.
     const siteUrl = window.location.origin.replace(/\/$/, "");
@@ -454,30 +437,12 @@ export function SigninForm({
     );
   }
 
-  const showGoogle = oauthProviders.includes("google");
-  const showMicrosoft = oauthProviders.includes("azure");
-
-  function handleOAuthHover(provider: OAuthProvider) {
-    setHoveredOAuthProvider(provider);
-  }
-
-  function handleOAuthHoverEnd(
-    event:
-      | ReactMouseEvent<HTMLButtonElement>
-      | ReactPointerEvent<HTMLButtonElement>,
-  ) {
-    const relatedTarget = event.relatedTarget;
-    if (
-      relatedTarget instanceof Node &&
-      event.currentTarget.contains(relatedTarget)
-    ) {
-      return;
-    }
-    setHoveredOAuthProvider(null);
-  }
+  const showOAuth = oauthProviders.some(
+    (provider) => provider === "google" || provider === "azure",
+  );
 
   // Check if a method matches the last sign-in for highlighting
-  const isLastMethod = (method: SignInMethod) =>
+  const isLastMethod = (method: OAuthProvider) =>
     showLastSignInHint && lastSignIn?.method === method;
 
   return (
@@ -486,31 +451,7 @@ export function SigninForm({
       showHomeLink={showHomeLink && !mfaRequired}
       LinkComponent={Link}
       className={className}
-      footer={
-        (termsUrl || privacyUrl) && (
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            By continuing, you agree to our{" "}
-            {termsUrl && (
-              <a
-                href={termsUrl}
-                className="underline underline-offset-4 hover:text-foreground"
-              >
-                Terms
-              </a>
-            )}
-            {termsUrl && privacyUrl && " and "}
-            {privacyUrl && (
-              <a
-                href={privacyUrl}
-                className="underline underline-offset-4 hover:text-foreground"
-              >
-                Privacy Policy
-              </a>
-            )}
-            .
-          </p>
-        )
-      }
+      footer={<AuthLegalFooter termsUrl={termsUrl} privacyUrl={privacyUrl} />}
     >
       {/* Header */}
       <div className="space-y-2">
@@ -531,129 +472,21 @@ export function SigninForm({
       </div>
 
       {/* OAuth Buttons */}
-      {(showGoogle || showMicrosoft) && (
-        <div className="grid gap-3">
-          {showGoogle && (
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={googleComingSoon || loading || oauthLoading !== null}
-              onClick={
-                googleComingSoon ? undefined : () => handleOAuthSignIn("google")
-              }
-              onMouseOver={() => handleOAuthHover("google")}
-              onMouseOut={handleOAuthHoverEnd}
-              onPointerEnter={() => handleOAuthHover("google")}
-              onPointerLeave={handleOAuthHoverEnd}
-              onFocus={() => handleOAuthHover("google")}
-              onBlur={() => setHoveredOAuthProvider(null)}
-              className={cn(
-                "w-full bg-muted/50 border-border hover:bg-muted relative",
-                googleComingSoon
-                  ? "text-muted-foreground justify-center"
-                  : "text-foreground",
-                !googleComingSoon && isLastMethod("google")
-                  ? "justify-between"
-                  : "justify-center",
-              )}
-            >
-              <span
-                className={cn(
-                  "inline-flex items-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "google" ? "opacity-0" : "opacity-100",
-                )}
-              >
-                <GoogleIcon
-                  className={cn("size-5", googleComingSoon && "opacity-50")}
-                  monochrome={
-                    oauthIconMonochromeOnHover &&
-                    hoveredOAuthProvider === "google"
-                  }
-                />
-                Continue with Google
-                {googleComingSoon && (
-                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                    Soon
-                  </span>
-                )}
-              </span>
-              {isLastMethod("google") && !oauthLoading && (
-                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/30 rounded z-10 relative">
-                  Last Used
-                </span>
-              )}
-              {oauthLoading === "google" && (
-                <span className="absolute inset-0 inline-flex items-center justify-center gap-2 bg-muted/50">
-                  <Loader2 className="size-5 animate-spin" />
-                  Redirecting...
-                </span>
-              )}
-            </Button>
-          )}
-          {showMicrosoft && (
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={
-                azureComingSoon ? undefined : () => handleOAuthSignIn("azure")
-              }
-              disabled={azureComingSoon || loading || oauthLoading !== null}
-              onMouseOver={() => handleOAuthHover("azure")}
-              onMouseOut={handleOAuthHoverEnd}
-              onPointerEnter={() => handleOAuthHover("azure")}
-              onPointerLeave={handleOAuthHoverEnd}
-              onFocus={() => handleOAuthHover("azure")}
-              onBlur={() => setHoveredOAuthProvider(null)}
-              className={cn(
-                "w-full bg-muted/50 border-border hover:bg-muted relative",
-                azureComingSoon
-                  ? "text-muted-foreground justify-center"
-                  : "text-foreground",
-                !azureComingSoon && isLastMethod("azure")
-                  ? "justify-between"
-                  : "justify-center",
-              )}
-            >
-              <span
-                className={cn(
-                  "inline-flex items-center gap-2 transition-opacity duration-150",
-                  oauthLoading === "azure" ? "opacity-0" : "opacity-100",
-                )}
-              >
-                <MicrosoftIcon
-                  className={cn("size-5", azureComingSoon && "opacity-50")}
-                  monochrome={
-                    oauthIconMonochromeOnHover &&
-                    hoveredOAuthProvider === "azure"
-                  }
-                />
-                Continue with Microsoft
-                {azureComingSoon && (
-                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                    Soon
-                  </span>
-                )}
-              </span>
-              {isLastMethod("azure") && !azureComingSoon && !oauthLoading && (
-                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary border border-primary/30 rounded z-10 relative">
-                  Last Used
-                </span>
-              )}
-              {oauthLoading === "azure" && (
-                <span className="absolute inset-0 inline-flex items-center justify-center gap-2 bg-muted/50">
-                  <Loader2 className="size-5 animate-spin" />
-                  Redirecting...
-                </span>
-              )}
-            </Button>
-          )}
-        </div>
-      )}
+      <OAuthButtons
+        providers={oauthProviders}
+        googleComingSoon={googleComingSoon}
+        azureComingSoon={azureComingSoon}
+        disabled={loading}
+        loadingProvider={oauthLoading}
+        oauthIconMonochromeOnHover={oauthIconMonochromeOnHover}
+        onProviderSelect={handleOAuthSignIn}
+        isLastMethod={isLastMethod}
+        showLastUsedBadge
+        mode="signin"
+      />
 
       {/* Divider */}
-      {(showGoogle || showMicrosoft) && <OrDivider />}
+      {showOAuth && <OrDivider />}
 
       {/* Email/Password Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
