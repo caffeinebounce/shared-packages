@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/identity",
-  "version": "0.11.6",
+  "version": "0.11.7",
   "description": "Authentication components and handlers for Caffeine Bounce projects",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -59,9 +59,9 @@
     }
   },
   "dependencies": {
-    "@caffeinebounce/logger": "^0.9.130",
-    "@caffeinebounce/shared-utils": "^0.7.133",
-    "@caffeinebounce/ui": "^0.61.0",
+    "@caffeinebounce/logger": "^0.9.131",
+    "@caffeinebounce/shared-utils": "^0.7.134",
+    "@caffeinebounce/ui": "^0.61.1",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.49.4",
     "input-otp": "^1.4.2",
