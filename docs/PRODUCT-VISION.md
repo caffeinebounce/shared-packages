@@ -1,6 +1,6 @@
 # Product Vision: shared-packages
 
-> MIT-licensed shared packages for `@caffeinebounce/*` applications
+> MIT-licensed shared packages for @caffeinebounce applications
 
 ---
 
