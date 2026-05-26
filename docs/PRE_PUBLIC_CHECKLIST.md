@@ -80,7 +80,8 @@ GitHub Packages unless a separate package-publishing decision is made.
 - [x] Rotate `GH_PAT` before public launch if cross-repository dispatch should
   remain enabled. Prefer keeping it as a 90-day fine-grained token with access only to
   `caffeinebounce/shared-packages` and `caffeinebounce/compass`, and grant only
-  repository `Contents: Read and write` plus `Pull requests: Read and write`.
+  repository `Contents: Read and write`, `Pull requests: Read and write`, and
+  `Packages: Read and write` for release publishing.
 
 ## Workflows And Automation
 

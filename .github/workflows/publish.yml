@@ -75,7 +75,8 @@ jobs:
           title: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          YARN_NPM_AUTH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }}
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Check consumer dispatch configuration
         id: consumer_dispatch_config
