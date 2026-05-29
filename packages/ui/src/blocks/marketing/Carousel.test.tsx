@@ -114,6 +114,34 @@ describe("Carousel", () => {
     );
   });
 
+  it("normalizes the initial index with wrap navigation", () => {
+    render(<Carousel initialIndex={-1} items={slides} navigationMode="wrap" />);
+
+    expect(screen.getByRole("button", { name: "Slide 3" })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+  });
+
+  it("keeps wrap-mode index normalization after items update", () => {
+    const { rerender } = render(
+      <Carousel initialIndex={2} items={slides} navigationMode="wrap" />,
+    );
+
+    rerender(
+      <Carousel
+        initialIndex={2}
+        items={slides.slice(0, 2)}
+        navigationMode="wrap"
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Slide 1" })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+  });
+
   it("supports keyboard navigation when the carousel is focused", async () => {
     const user = userEvent.setup();
 
@@ -125,6 +153,52 @@ describe("Carousel", () => {
 
     expect(screen.getByRole("button", { name: "Slide 3" })).toHaveAttribute(
       "aria-current",
+      "true",
+    );
+  });
+
+  it("does not handle navigation keys from editable slide content", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <Carousel
+        items={slides}
+        renderItem={() => <input aria-label="Slide field" defaultValue="A" />}
+      />,
+    );
+
+    await user.click(screen.getAllByLabelText("Slide field")[0]);
+    await user.keyboard("{ArrowRight}");
+
+    expect(screen.getByRole("button", { name: "Slide 1" })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+  });
+
+  it("reports previous and next render context across wrap boundaries", () => {
+    render(
+      <Carousel
+        items={slides}
+        navigationMode="wrap"
+        renderItem={(item, { isPrevious, isNext }) => (
+          <article
+            data-next={isNext}
+            data-previous={isPrevious}
+            data-testid={`context-${item.id}`}
+          >
+            {item.title}
+          </article>
+        )}
+      />,
+    );
+
+    expect(screen.getByTestId("context-mexico-salon")).toHaveAttribute(
+      "data-previous",
+      "true",
+    );
+    expect(screen.getByTestId("context-family-mixer")).toHaveAttribute(
+      "data-next",
       "true",
     );
   });

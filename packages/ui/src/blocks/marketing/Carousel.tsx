@@ -91,6 +91,24 @@ function getWrappedIndex(index: number, length: number) {
   return ((index % length) + length) % length;
 }
 
+function getNormalizedIndex(
+  index: number,
+  length: number,
+  navigationMode: CarouselNavigationMode,
+) {
+  return navigationMode === "wrap"
+    ? getWrappedIndex(index, length)
+    : getBoundedIndex(index, length);
+}
+
+function isEditableKeyboardTarget(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName))
+  );
+}
+
 function DefaultCarouselSlide({
   item,
   cardClassName,
@@ -218,7 +236,7 @@ export function Carousel<TItem extends CarouselSlide = CarouselSlide>({
   slideGap = "2rem",
 }: CarouselProps<TItem>) {
   const [currentIndex, setCurrentIndex] = useState(() =>
-    getBoundedIndex(initialIndex, items.length),
+    getNormalizedIndex(initialIndex, items.length, navigationMode),
   );
   const lastNotifiedIndexRef = useRef(currentIndex);
   const hasItems = items.length > 0;
@@ -227,10 +245,7 @@ export function Carousel<TItem extends CarouselSlide = CarouselSlide>({
   const isLast = currentIndex === items.length - 1;
 
   const resolveIndex = useCallback(
-    (index: number) =>
-      navigationMode === "wrap"
-        ? getWrappedIndex(index, items.length)
-        : getBoundedIndex(index, items.length),
+    (index: number) => getNormalizedIndex(index, items.length, navigationMode),
     [items.length, navigationMode],
   );
 
@@ -254,8 +269,10 @@ export function Carousel<TItem extends CarouselSlide = CarouselSlide>({
   }, [currentIndex, goTo]);
 
   useEffect(() => {
-    setCurrentIndex((index) => getBoundedIndex(index, items.length));
-  }, [items.length]);
+    setCurrentIndex((index) =>
+      getNormalizedIndex(index, items.length, navigationMode),
+    );
+  }, [items.length, navigationMode]);
 
   useEffect(() => {
     if (!hasItems) {
@@ -273,6 +290,10 @@ export function Carousel<TItem extends CarouselSlide = CarouselSlide>({
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLElement>) => {
       if (!keyboardControls || !hasMultipleItems) {
+        return;
+      }
+
+      if (event.defaultPrevented || isEditableKeyboardTarget(event.target)) {
         return;
       }
 
@@ -394,12 +415,20 @@ export function Carousel<TItem extends CarouselSlide = CarouselSlide>({
               {items.map((item, index) => {
                 const key =
                   getItemKey?.(item, index) ?? item.id ?? String(index);
+                const previousIndex =
+                  navigationMode === "wrap"
+                    ? getWrappedIndex(currentIndex - 1, items.length)
+                    : currentIndex - 1;
+                const nextIndex =
+                  navigationMode === "wrap"
+                    ? getWrappedIndex(currentIndex + 1, items.length)
+                    : currentIndex + 1;
                 const context: CarouselRenderContext<TItem> = {
                   index,
                   currentIndex,
                   isActive: index === currentIndex,
-                  isPrevious: index === currentIndex - 1,
-                  isNext: index === currentIndex + 1,
+                  isPrevious: hasMultipleItems && index === previousIndex,
+                  isNext: hasMultipleItems && index === nextIndex,
                   item,
                   goTo,
                 };
