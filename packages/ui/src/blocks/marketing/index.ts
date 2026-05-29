@@ -38,6 +38,15 @@ export {
   type BlurLogoCloudProps,
 } from "./BlurLogoCloud";
 export {
+  Carousel,
+  type CarouselControlPlacement,
+  type CarouselNavigationMode,
+  type CarouselProps,
+  type CarouselRenderContext,
+  type CarouselSlide,
+  type CarouselSlideImage,
+} from "./Carousel";
+export {
   ConnectedCardsSection,
   type ConnectedCardsSectionItem,
   type ConnectedCardsSectionProps,

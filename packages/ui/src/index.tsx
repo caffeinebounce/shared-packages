@@ -247,6 +247,12 @@ export type {
   ActionCard,
   Benefit,
   BenefitsSectionProps,
+  CarouselControlPlacement,
+  CarouselNavigationMode,
+  CarouselProps,
+  CarouselRenderContext,
+  CarouselSlide,
+  CarouselSlideImage,
   CTAWithDashedGridLinesProps,
   CtaWithDashedGridLinesProps,
   EditorialHeroProps,
@@ -270,6 +276,7 @@ export type {
 } from "./blocks/marketing";
 export {
   BenefitsSection,
+  Carousel,
   CTAWithDashedGridLines,
   CtaWithDashedGridLines,
   EditorialHero,
