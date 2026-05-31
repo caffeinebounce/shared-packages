@@ -10,8 +10,8 @@ GitHub Packages unless a separate package-publishing decision is made.
 - [x] Decide repository visibility target: public GitHub repository.
 - [x] Decide package visibility target: keep `@caffeinebounce/*` packages
   restricted on GitHub Packages for now.
-- [x] Decide licensing posture: source-available, all rights reserved, with
-  package manifests marked `UNLICENSED` until an open-source license is chosen.
+- [x] Decide licensing posture: MIT license, with package manifests marked
+  `MIT`.
 - [x] Decide whether to keep consumer-specific business context public in docs:
   sanitize public docs and keep product-specific operational runbooks in
   consuming repositories.
@@ -73,7 +73,7 @@ GitHub Packages unless a separate package-publishing decision is made.
 - [x] Add CODEOWNERS for default ownership plus release, workflow, package
   manifest, script, security, and public-readiness files.
 - [x] Update GitHub repository metadata and public support surface: generic
-  source-available description, Issues enabled, Wiki/Projects/Discussions
+  MIT-licensed description, Issues enabled, Wiki/Projects/Discussions
   disabled, forking allowed, and update-branch enabled.
 - [x] Review repository secrets. Current Actions secrets list contains only
   `GH_PAT`, last updated 2026-05-25.
@@ -110,7 +110,7 @@ GitHub Packages unless a separate package-publishing decision is made.
 - [x] Verify package manifests use explicit `files` allowlists.
 - [x] Verify package manifests publish to GitHub Packages with
   `access: restricted`.
-- [x] Add explicit `UNLICENSED` metadata to each publishable package.
+- [x] Add explicit `MIT` metadata to each publishable package.
 - [x] Run `npm pack --dry-run` after build and confirm packages contain only
   built `dist` assets, package metadata, and expected CSS.
 - [x] Disable package source maps so tarballs do not include embedded source
@@ -123,7 +123,7 @@ GitHub Packages unless a separate package-publishing decision is made.
 
 ## Documentation And Public Messaging
 
-- [x] Add an explicit source-available rights notice.
+- [x] Add an explicit MIT license.
 - [x] Add this pre-public checklist.
 - [x] Add [PRE_PUBLIC_LAUNCH_RUNBOOK.md](PRE_PUBLIC_LAUNCH_RUNBOOK.md) for the
   exact branch, token, visibility, and post-public verification steps.
@@ -138,12 +138,12 @@ GitHub Packages unless a separate package-publishing decision is made.
   guidance and remove tracked `.claude/audit/*` local audit notes.
 - [x] Add a concise public support/contact section if outside contributors are
   expected to open issues.
-- [x] Add [CONTRIBUTING.md](../CONTRIBUTING.md) with source-available
-  contribution boundaries, changeset expectations, and security-report routing.
+- [x] Add [CONTRIBUTING.md](../CONTRIBUTING.md) with MIT license alignment,
+  changeset expectations, and security-report routing.
 - [x] Add public issue templates that route normal bugs into reproducible
   reports and direct suspected vulnerabilities to private security reporting.
 - [x] Add a pull request template covering changesets, verification, secrets,
-  and source-available public messaging.
+  and MIT-license public messaging.
 - [x] Generalize local CI documentation so it no longer references a specific
   maintainer machine.
 

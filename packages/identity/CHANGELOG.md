@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- e3d1867: Disable published source maps and mark package metadata as source-available for
+- e3d1867: Disable published source maps and update package metadata for
   the public-readiness sweep.
 - Updated dependencies [f389e8e]
 - Updated dependencies [e3d1867]

@@ -4,7 +4,7 @@
 set -euo pipefail
 
 REPO="${1:-caffeinebounce/shared-packages}"
-EXPECTED_DESCRIPTION="Source-available shared packages for @caffeinebounce applications"
+EXPECTED_DESCRIPTION="MIT-licensed shared packages for @caffeinebounce applications"
 CURRENT_BRANCH="$(git branch --show-current 2>/dev/null || true)"
 ALLOWED_EXTRA_REMOTE_BRANCHES="${ALLOWED_EXTRA_REMOTE_BRANCHES:-}"
 
