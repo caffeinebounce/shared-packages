@@ -2,4 +2,4 @@
 "@caffeinebounce/ui": minor
 ---
 
-Add a flexible marketing Carousel component with default image-card rendering, custom item rendering, controls, indicators, progress, keyboard navigation, wrapping support, and layout styling hooks.
+Add flexible marketing carousel components: a general-purpose Carousel with image-card rendering and an Apple Cards-style carousel/card pair with expandable modal content.

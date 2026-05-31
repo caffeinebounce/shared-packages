@@ -23,6 +23,13 @@ export {
   type AlternatingTimelineProps,
 } from "./AlternatingTimeline";
 export {
+  AppleCard,
+  type AppleCardProps,
+  AppleCardsCarousel,
+  type AppleCardsCarouselCard,
+  type AppleCardsCarouselProps,
+} from "./AppleCardsCarousel";
+export {
   BackgroundBeamsCTASection,
   type BackgroundBeamsCTASectionProps,
 } from "./BackgroundBeamsCTASection";
