@@ -23,6 +23,13 @@ export {
   type AlternatingTimelineProps,
 } from "./AlternatingTimeline";
 export {
+  AppleCard,
+  type AppleCardProps,
+  AppleCardsCarousel,
+  type AppleCardsCarouselCard,
+  type AppleCardsCarouselProps,
+} from "./AppleCardsCarousel";
+export {
   BackgroundBeamsCTASection,
   type BackgroundBeamsCTASectionProps,
 } from "./BackgroundBeamsCTASection";
@@ -37,6 +44,15 @@ export {
   type BlurLogoCloudItem,
   type BlurLogoCloudProps,
 } from "./BlurLogoCloud";
+export {
+  Carousel,
+  type CarouselControlPlacement,
+  type CarouselNavigationMode,
+  type CarouselProps,
+  type CarouselRenderContext,
+  type CarouselSlide,
+  type CarouselSlideImage,
+} from "./Carousel";
 export {
   ConnectedCardsSection,
   type ConnectedCardsSectionItem,

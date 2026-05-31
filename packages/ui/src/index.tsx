@@ -245,8 +245,17 @@ export type {
 export { ContactInfo, DisclosureFootnotes } from "./blocks/legal";
 export type {
   ActionCard,
+  AppleCardProps,
+  AppleCardsCarouselCard,
+  AppleCardsCarouselProps,
   Benefit,
   BenefitsSectionProps,
+  CarouselControlPlacement,
+  CarouselNavigationMode,
+  CarouselProps,
+  CarouselRenderContext,
+  CarouselSlide,
+  CarouselSlideImage,
   CTAWithDashedGridLinesProps,
   CtaWithDashedGridLinesProps,
   EditorialHeroProps,
@@ -269,7 +278,10 @@ export type {
   TestimonialsSectionProps,
 } from "./blocks/marketing";
 export {
+  AppleCard,
+  AppleCardsCarousel,
   BenefitsSection,
+  Carousel,
   CTAWithDashedGridLines,
   CtaWithDashedGridLines,
   EditorialHero,
