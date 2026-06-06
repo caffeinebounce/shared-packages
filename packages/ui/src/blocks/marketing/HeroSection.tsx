@@ -10,6 +10,8 @@ import {
   useState,
 } from "react";
 import { Button } from "../../components/ui/button";
+import { Container } from "../../components/ui/container";
+import { cn } from "../../utils";
 
 export interface CarouselState {
   currentIndex: number;
@@ -44,10 +46,30 @@ export interface HeroSectionProps {
   };
   /** Background variant */
   background?: "default" | "muted" | "accent";
+  /** Custom media/background layer rendered behind the hero content. */
+  backgroundLayer?: ReactNode;
+  /** Optional overlay rendered above the background layer and below content. */
+  overlay?: ReactNode;
   /** Padding size */
   padding?: "sm" | "md" | "lg";
   /** Custom class name */
   className?: string;
+  /** Custom class name for the full-height content container. */
+  containerClassName?: string;
+  /** Custom class name for the copy/content pane. */
+  contentClassName?: string;
+  /** Custom class name applied to string headings. */
+  headingClassName?: string;
+  /** Custom class name applied to string subheadings. */
+  subheadingClassName?: string;
+  /** Custom class name applied to the default CTA button. */
+  ctaClassName?: string;
+  /** Custom actions rendered after the default CTA. */
+  actions?: ReactNode;
+  /** Vertical position for the content container. */
+  contentPosition?: "start" | "center" | "end";
+  /** Horizontal text alignment for default hero copy. */
+  contentAlignment?: "start" | "center";
   children?: ReactNode;
 }
 
@@ -63,6 +85,17 @@ const backgroundClasses = {
   accent: "bg-accent/10",
 };
 
+const contentPositionClasses = {
+  start: "items-start justify-center",
+  center: "items-center justify-center",
+  end: "items-end justify-center",
+};
+
+const contentAlignmentClasses = {
+  start: "text-left",
+  center: "text-center",
+};
+
 export function HeroSection({
   heading,
   subheading,
@@ -73,8 +106,18 @@ export function HeroSection({
   carouselState,
   logo,
   background = "default",
+  backgroundLayer,
+  overlay,
   padding = "lg",
   className = "",
+  containerClassName,
+  contentClassName,
+  headingClassName,
+  subheadingClassName,
+  ctaClassName,
+  actions,
+  contentPosition = "center",
+  contentAlignment = "center",
   children,
 }: HeroSectionProps) {
   const [internalIndex, setInternalIndex] = useState(0);
@@ -161,11 +204,23 @@ export function HeroSection({
   return (
     <div
       ref={containerRef}
-      className={`relative flex flex-col items-center justify-center min-h-dvh text-center overflow-hidden ${backgroundClasses[background]} ${paddingClasses[padding]} ${className}`}
+      className={cn(
+        "relative flex min-h-dvh flex-col overflow-hidden",
+        backgroundClasses[background],
+        paddingClasses[padding],
+        className,
+      )}
+      data-slot="hero-section"
     >
+      {backgroundLayer ? (
+        <div className="absolute inset-0 z-0" data-slot="hero-background">
+          {backgroundLayer}
+        </div>
+      ) : null}
+
       {/* Background Image Slider */}
-      {hasImages && (
-        <div className="absolute inset-0 -z-10">
+      {!backgroundLayer && hasImages && (
+        <div className="absolute inset-0 z-0" data-slot="hero-background">
           {backgroundImages.map((image, index) => (
             <div
               key={image}
@@ -186,6 +241,15 @@ export function HeroSection({
           ))}
         </div>
       )}
+
+      {overlay ? (
+        <div
+          className="pointer-events-none absolute inset-0 z-0"
+          data-slot="hero-overlay"
+        >
+          {overlay}
+        </div>
+      ) : null}
 
       {/* Navigation Arrows */}
       {showArrows && hasMultipleImages && (
@@ -222,36 +286,64 @@ export function HeroSection({
         </div>
       )}
 
-      {/* Hero Content */}
-      <div className="z-10 px-4">
-        {typeof heading === "string" ? (
-          // Responsive heading: clamp between 2.25rem (~36px) and 3.75rem (~60px),
-          // scaling with viewport width via 5vw + 1rem to keep hero titles legible on all screens.
-          <h1
-            className="font-bold tracking-tight text-foreground mb-4"
-            style={{ fontSize: "clamp(2.25rem, 5vw + 1rem, 3.75rem)" }}
-          >
-            {heading}
-          </h1>
-        ) : (
-          heading
+      <Container
+        className={cn(
+          "relative z-10 flex flex-1",
+          contentPositionClasses[contentPosition],
+          containerClassName,
         )}
+        data-slot="hero-section-container"
+      >
+        {/* Hero Content */}
+        <div
+          className={cn(
+            "z-10",
+            contentAlignmentClasses[contentAlignment],
+            contentClassName,
+          )}
+          data-slot="hero-section-content"
+        >
+          {typeof heading === "string" ? (
+            // Responsive heading: clamp between 2.25rem (~36px) and 3.75rem (~60px),
+            // scaling with viewport width via 5vw + 1rem to keep hero titles legible on all screens.
+            <h1
+              className={cn(
+                "mb-4 font-bold tracking-tight text-foreground",
+                headingClassName,
+              )}
+              style={{ fontSize: "clamp(2.25rem, 5vw + 1rem, 3.75rem)" }}
+            >
+              {heading}
+            </h1>
+          ) : (
+            heading
+          )}
 
-        {subheading && (
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 mx-auto">
-            {subheading}
-          </p>
-        )}
+          {subheading && typeof subheading === "string" ? (
+            <p
+              className={cn(
+                "mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl",
+                contentAlignment === "start" ? "mx-0" : undefined,
+                subheadingClassName,
+              )}
+            >
+              {subheading}
+            </p>
+          ) : (
+            subheading
+          )}
 
-        {/* CTA Button */}
-        {cta && (
-          <Button asChild size="lg" className="px-12">
-            <a href={cta.href}>{cta.label}</a>
-          </Button>
-        )}
+          {/* CTA Button */}
+          {cta && (
+            <Button asChild size="lg" className={cn("px-12", ctaClassName)}>
+              <a href={cta.href}>{cta.label}</a>
+            </Button>
+          )}
 
-        {children}
-      </div>
+          {actions}
+          {children}
+        </div>
+      </Container>
 
       {/* Dot Indicators */}
       {hasMultipleSlides && (
