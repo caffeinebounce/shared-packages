@@ -306,6 +306,8 @@ export type {
   FooterLinkGroup,
   FooterProps,
   NavbarLogoProps,
+  NavbarMenuClassNames,
+  NavbarMenuGroup,
   NavbarProps,
   NavbarUser,
   NavbarUserMenuItem,
@@ -565,6 +567,19 @@ export type { LocationMapProps } from "./components/ui/location-map";
 export { LocationMap } from "./components/ui/location-map";
 export type { ModernCalendarProps } from "./components/ui/modern-calendar";
 export { ModernCalendar } from "./components/ui/modern-calendar";
+export {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuIndicator,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuPrimitive,
+  NavigationMenuTrigger,
+  NavigationMenuViewport,
+  NavigationMenuViewportPrimitive,
+  navigationMenuTriggerStyle,
+} from "./components/ui/navigation-menu";
 export type { NumberStepperProps } from "./components/ui/number-stepper";
 export { NumberStepper } from "./components/ui/number-stepper";
 export type { PageHeaderProps } from "./components/ui/page-header";

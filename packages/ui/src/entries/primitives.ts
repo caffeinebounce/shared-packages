@@ -60,6 +60,19 @@ export {
   InputOTPSlot,
 } from "../components/ui/input-otp";
 export { Label } from "../components/ui/label";
+export {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuIndicator,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuPrimitive,
+  NavigationMenuTrigger,
+  NavigationMenuViewport,
+  NavigationMenuViewportPrimitive,
+  navigationMenuTriggerStyle,
+} from "../components/ui/navigation-menu";
 export { PasswordInput } from "../components/ui/password-input";
 export type { PasswordRule } from "../components/ui/password-requirements";
 export {

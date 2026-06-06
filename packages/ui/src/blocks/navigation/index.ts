@@ -20,6 +20,8 @@ export {
 } from "./Footer";
 export {
   Navbar,
+  type NavbarMenuClassNames,
+  type NavbarMenuGroup,
   type NavbarProps,
   type NavLink,
 } from "./Navbar";
