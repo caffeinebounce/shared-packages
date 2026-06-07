@@ -1,4 +1,17 @@
 export {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuIndicator,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuPrimitive,
+  NavigationMenuTrigger,
+  NavigationMenuViewport,
+  NavigationMenuViewportPrimitive,
+  navigationMenuTriggerStyle,
+} from "../../components/ui/navigation-menu";
+export {
   type AppDefinition,
   AppSwitcher,
   type AppSwitcherProps,
@@ -20,6 +33,8 @@ export {
 } from "./Footer";
 export {
   Navbar,
+  type NavbarMenuClassNames,
+  type NavbarMenuGroup,
   type NavbarProps,
   type NavLink,
 } from "./Navbar";

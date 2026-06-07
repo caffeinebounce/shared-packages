@@ -87,6 +87,73 @@ describe("Navbar", () => {
     expect(navbarContainer).not.toHaveClass("md:px-8");
   });
 
+  it("renders grouped desktop menus with restylable shared menu slots", () => {
+    const { container } = render(
+      <Navbar
+        logo={<span>Logo</span>}
+        menuGroups={[
+          {
+            label: "Services",
+            links: [
+              {
+                description: "Integrated capital and planning support.",
+                href: "/services/wealth",
+                label: "Wealth",
+              },
+              { href: "/services/media", label: "Media" },
+            ],
+          },
+        ]}
+        menuClassNames={{
+          content: "factory-menu-panel",
+          item: "factory-menu-item",
+          root: "factory-menu-root",
+          trigger: "factory-menu-trigger",
+          triggerIcon: "factory-menu-trigger-icon",
+          itemDescription: "factory-menu-description",
+          itemLabel: "factory-menu-label",
+        }}
+        LinkComponent={TestLink}
+      />,
+    );
+
+    expect(container.querySelector('[data-slot="navbar-menu"]')).toHaveClass(
+      "factory-menu-root",
+    );
+    const servicesTrigger = screen.getByRole("button", { name: "Services" });
+
+    expect(servicesTrigger).toHaveAttribute("data-slot", "navbar-menu-trigger");
+    expect(servicesTrigger).toHaveClass("factory-menu-trigger");
+    expect(
+      servicesTrigger.querySelector('[data-slot="navbar-menu-trigger-icon"]'),
+    ).toHaveClass(
+      "group-data-[state=open]:rotate-180",
+      "duration-300",
+      "factory-menu-trigger-icon",
+    );
+    fireEvent.click(servicesTrigger);
+
+    expect(
+      container.querySelector('[data-slot="navbar-menu-content"]'),
+    ).toHaveClass("factory-menu-panel");
+    expect(screen.getByRole("link", { name: /Wealth/ })).toHaveAttribute(
+      "href",
+      "/services/wealth",
+    );
+    expect(screen.getByRole("link", { name: /Wealth/ })).toHaveClass(
+      "factory-menu-item",
+    );
+    expect(
+      container.querySelector('[data-slot="navbar-menu-item-label"]'),
+    ).toHaveClass("factory-menu-label");
+    expect(
+      container.querySelector('[data-slot="navbar-menu-item-description"]'),
+    ).toHaveTextContent("Integrated capital and planning support.");
+    expect(
+      container.querySelector('[data-slot="navbar-menu-item-description"]'),
+    ).toHaveClass("factory-menu-description");
+  });
+
   it("uses the shared container defaults in the mobile menu content", () => {
     const { container } = render(
       <Navbar

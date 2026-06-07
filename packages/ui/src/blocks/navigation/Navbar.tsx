@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import {
   motion,
   useAnimation,
@@ -11,6 +11,14 @@ import type { ReactNode } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Container } from "../../components/ui/container";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "../../components/ui/navigation-menu";
 import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { cn } from "../../utils";
 
@@ -20,12 +28,48 @@ import { cn } from "../../utils";
 export interface NavLink {
   /** Display label */
   label: string;
+  /** Optional supporting copy rendered under the label in grouped menus */
+  description?: ReactNode;
   /** Link destination */
   href: string;
   /** Whether link opens in new tab */
   external?: boolean;
   /** Optional icon to display */
   icon?: ReactNode;
+}
+
+export interface NavbarMenuGroup {
+  /** Trigger label for the grouped desktop menu */
+  label: string;
+  /** Navigation links rendered in the menu content */
+  links: NavLink[];
+  /** Accessible label for the menu content */
+  ariaLabel?: string;
+  /** Whether to render the menu label inside the content panel */
+  showHeading?: boolean;
+}
+
+export interface NavbarMenuClassNames {
+  /** Classes for the shared navigation menu root */
+  root?: string;
+  /** Classes for the navigation menu list */
+  list?: string;
+  /** Classes for each navigation menu item wrapper */
+  menuItem?: string;
+  /** Classes for each menu trigger button */
+  trigger?: string;
+  /** Classes for the trigger chevron icon */
+  triggerIcon?: string;
+  /** Classes for each content panel */
+  content?: string;
+  /** Classes for the optional content heading */
+  heading?: string;
+  /** Classes for each link inside a content panel */
+  item?: string;
+  /** Classes for each content-panel link label */
+  itemLabel?: string;
+  /** Classes for each content-panel link description */
+  itemDescription?: string;
 }
 
 /**
@@ -38,6 +82,10 @@ export interface NavbarProps {
   preset?: "default" | "keenan";
   /** Navigation links to display in desktop view */
   links?: NavLink[];
+  /** Grouped desktop menus rendered with the shared navigation menu primitive */
+  menuGroups?: NavbarMenuGroup[];
+  /** Slot class hooks for restyling grouped desktop menus */
+  menuClassNames?: NavbarMenuClassNames;
   /** Right side content (user menu, theme toggle, etc.) */
   rightContent?: ReactNode;
   /** Content to render in mobile menu (replaces default link rendering) */
@@ -180,6 +228,8 @@ export function Navbar({
   logo,
   preset = "default",
   links = [],
+  menuGroups = [],
+  menuClassNames,
   rightContent,
   mobileContent,
   sticky = true,
@@ -326,6 +376,128 @@ export function Navbar({
         <div className="hidden md:flex items-center gap-2">
           {/* Navigation Links */}
           <nav className="flex items-center gap-6">
+            {menuGroups.length > 0 ? (
+              <NavigationMenu
+                data-slot="navbar-menu"
+                className={cn("justify-start", menuClassNames?.root)}
+              >
+                <NavigationMenuList
+                  data-slot="navbar-menu-list"
+                  className={cn("justify-start gap-1", menuClassNames?.list)}
+                >
+                  {menuGroups.map((group, groupIndex) => (
+                    <NavigationMenuItem
+                      data-slot="navbar-menu-item"
+                      className={menuClassNames?.menuItem}
+                      key={`${group.label}-${groupIndex}`}
+                    >
+                      <NavigationMenuTrigger
+                        data-slot="navbar-menu-trigger"
+                        className={cn(
+                          "gap-1.5 bg-transparent px-2 text-foreground/70 hover:bg-transparent hover:text-foreground focus:bg-transparent focus:text-foreground",
+                          menuClassNames?.trigger,
+                        )}
+                      >
+                        {group.label}
+                        <ChevronDown
+                          aria-hidden="true"
+                          className={cn(
+                            "relative top-px size-3.5 transition-transform duration-300 group-data-[state=open]:rotate-180",
+                            menuClassNames?.triggerIcon,
+                          )}
+                          data-slot="navbar-menu-trigger-icon"
+                        />
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent
+                        aria-label={
+                          group.ariaLabel ?? `${group.label} navigation`
+                        }
+                        data-slot="navbar-menu-content"
+                        className={menuClassNames?.content}
+                      >
+                        {group.showHeading === false ? null : (
+                          <p
+                            className={cn(
+                              "px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground",
+                              menuClassNames?.heading,
+                            )}
+                          >
+                            {group.label}
+                          </p>
+                        )}
+                        {group.links.map((link) =>
+                          link.external ? (
+                            <NavigationMenuLink asChild key={link.href}>
+                              <a
+                                href={link.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={cn(
+                                  "group flex min-w-48 items-start gap-2 whitespace-nowrap",
+                                  menuClassNames?.item,
+                                )}
+                              >
+                                {link.icon}
+                                <span className="flex flex-col gap-1">
+                                  <span
+                                    data-slot="navbar-menu-item-label"
+                                    className={menuClassNames?.itemLabel}
+                                  >
+                                    {link.label}
+                                  </span>
+                                  {link.description ? (
+                                    <span
+                                      data-slot="navbar-menu-item-description"
+                                      className={cn(
+                                        "max-w-72 whitespace-normal text-xs leading-5 text-muted-foreground",
+                                        menuClassNames?.itemDescription,
+                                      )}
+                                    >
+                                      {link.description}
+                                    </span>
+                                  ) : null}
+                                </span>
+                              </a>
+                            </NavigationMenuLink>
+                          ) : (
+                            <NavigationMenuLink asChild key={link.href}>
+                              <LinkEl
+                                href={link.href}
+                                className={cn(
+                                  "group flex min-w-48 items-start gap-2 whitespace-nowrap",
+                                  menuClassNames?.item,
+                                )}
+                              >
+                                {link.icon}
+                                <span className="flex flex-col gap-1">
+                                  <span
+                                    data-slot="navbar-menu-item-label"
+                                    className={menuClassNames?.itemLabel}
+                                  >
+                                    {link.label}
+                                  </span>
+                                  {link.description ? (
+                                    <span
+                                      data-slot="navbar-menu-item-description"
+                                      className={cn(
+                                        "max-w-72 whitespace-normal text-xs leading-5 text-muted-foreground",
+                                        menuClassNames?.itemDescription,
+                                      )}
+                                    >
+                                      {link.description}
+                                    </span>
+                                  ) : null}
+                                </span>
+                              </LinkEl>
+                            </NavigationMenuLink>
+                          ),
+                        )}
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
+            ) : null}
             {links.map((link) =>
               link.external ? (
                 <a
