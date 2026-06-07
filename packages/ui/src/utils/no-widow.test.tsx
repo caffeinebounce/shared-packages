@@ -36,6 +36,12 @@ describe("preventWidowsInReactNode", () => {
     );
   });
 
+  it("preserves array identity when no child changes", () => {
+    const children = [<code key="code">Factory helps clients build</code>];
+
+    expect(preventWidowsInReactNode(children)).toBe(children);
+  });
+
   it("skips code and opted-out elements", () => {
     const result = preventWidowsInReactNode(
       <div>
@@ -69,6 +75,19 @@ describe("NoWidowText", () => {
 
     expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(
       "We turn culture and influence into capital\u00A0and\u00A0ownership.",
+    );
+  });
+
+  it("accepts element-specific props when rendered polymorphically", () => {
+    render(
+      <NoWidowText as="a" href="/start">
+        Start ownership journey
+      </NoWidowText>,
+    );
+
+    expect(screen.getByRole("link")).toHaveAttribute("href", "/start");
+    expect(screen.getByRole("link").textContent).toBe(
+      "Start ownership\u00A0journey",
     );
   });
 });
@@ -109,6 +128,26 @@ describe("NoWidowProvider", () => {
         "We turn culture into capital\u00A0and\u00A0ownership.",
       );
     });
+  });
+
+  it("preserves selector entries that contain commas", async () => {
+    const { container } = render(
+      <Fragment>
+        <NoWidowProvider selectors={["p:not(.skip, .other)"]} />
+        <p>Factory helps clients build</p>
+        <p className="skip">Factory helps clients build</p>
+      </Fragment>,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector("p")?.textContent).toBe(
+        "Factory\u00A0helps clients\u00A0build",
+      );
+    });
+
+    expect(container.querySelector(".skip")?.textContent).toBe(
+      "Factory helps clients build",
+    );
   });
 
   it("ignores excluded and opted-out DOM nodes", async () => {

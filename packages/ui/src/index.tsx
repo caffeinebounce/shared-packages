@@ -802,21 +802,26 @@ export {
 } from "./hooks/useWizardForm";
 export {
   type AvatarGradient,
-  applyNoWidowText,
   type CanonicalDataState,
   cn,
   type DataStateMetadata,
   getAvatarGradient,
   getGradientIndex,
   getGradientPairs,
-  type NoWidowDomOptions,
-  type NoWidowOptions,
-  NoWidowProvider,
-  type NoWidowProviderProps,
-  NoWidowText,
-  type NoWidowTextProps,
-  preventWidowsInReactNode,
   type ResolveDataStateInput,
   type ResolvedDataState,
   resolveDataState,
 } from "./utils/index";
+export {
+  applyNoWidowText,
+  type NoWidowDomOptions,
+  type NoWidowOptions,
+  NoWidowText,
+  type NoWidowTextOwnProps,
+  type NoWidowTextProps,
+  preventWidowsInReactNode,
+} from "./utils/no-widow";
+export {
+  NoWidowProvider,
+  type NoWidowProviderProps,
+} from "./utils/no-widow-provider";

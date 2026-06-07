@@ -3,10 +3,10 @@ import {
   preventWidows,
 } from "@caffeinebounce/shared-utils";
 import {
+  type ComponentPropsWithoutRef,
   cloneElement,
   createElement,
   type ElementType,
-  type HTMLAttributes,
   isValidElement,
   type ReactElement,
   type ReactNode,
@@ -20,11 +20,18 @@ export type NoWidowDomOptions = NoWidowOptions & {
   selectors?: string[];
 };
 
-export type NoWidowTextProps = HTMLAttributes<HTMLElement> &
+export type NoWidowTextOwnProps<TElement extends ElementType = "span"> =
   NoWidowOptions & {
-    as?: ElementType;
+    as?: TElement;
     children: ReactNode;
   };
+
+export type NoWidowTextProps<TElement extends ElementType = "span"> =
+  NoWidowTextOwnProps<TElement> &
+    Omit<
+      ComponentPropsWithoutRef<TElement>,
+      keyof NoWidowTextOwnProps<TElement>
+    >;
 
 const SKIPPED_REACT_TYPES = new Set([
   "code",
@@ -134,7 +141,14 @@ export function preventWidowsInReactNode(
   }
 
   if (Array.isArray(children)) {
-    return children.map((child) => preventWidowsInReactNode(child, options));
+    let hasChanged = false;
+    const transformedChildren = children.map((child) => {
+      const transformedChild = preventWidowsInReactNode(child, options);
+      hasChanged ||= transformedChild !== child;
+      return transformedChild;
+    });
+
+    return hasChanged ? transformedChildren : children;
   }
 
   if (!isValidElement(children) || shouldSkipReactElement(children)) {
@@ -162,14 +176,15 @@ export function preventWidowsInReactNode(
   return cloneElement(children, undefined, transformedChildren);
 }
 
-export function NoWidowText({
-  as: Component = "span",
+export function NoWidowText<TElement extends ElementType = "span">({
+  as,
   children,
   minWords,
   preserveExistingNbsp,
   wordCount,
   ...props
-}: NoWidowTextProps) {
+}: NoWidowTextProps<TElement>) {
+  const Component = as ?? "span";
   const dataProps = props as Record<string, unknown>;
 
   return createElement(

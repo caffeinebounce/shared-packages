@@ -16,8 +16,6 @@ export function NoWidowProvider({
   selectors,
   wordCount,
 }: NoWidowProviderProps) {
-  const selectorsKey = selectors?.join(",");
-
   useEffect(() => {
     if (typeof document === "undefined") return;
 
@@ -26,9 +24,10 @@ export function NoWidowProvider({
       minWords,
       preserveExistingNbsp,
       selector,
-      selectors: selectorsKey ? selectorsKey.split(",") : undefined,
+      selectors,
       wordCount,
     };
+    const pendingRoots = new Set<ParentNode>();
     let queuedFrame: number | null = null;
     const requestFrame =
       window.requestAnimationFrame ??
@@ -44,17 +43,52 @@ export function NoWidowProvider({
 
     const run = () => {
       queuedFrame = null;
-      applyNoWidowText(document.body, options);
+      const roots = Array.from(pendingRoots);
+      pendingRoots.clear();
+
+      for (const root of roots) {
+        applyNoWidowText(root, options);
+      }
     };
 
-    const schedule = () => {
+    const schedule = (root: ParentNode) => {
+      pendingRoots.add(root);
       cancelQueuedFrame();
       queuedFrame = requestFrame(run);
     };
 
-    schedule();
+    schedule(document.body);
 
-    const observer = new MutationObserver(schedule);
+    const addMutationRoot = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node.parentElement) {
+          pendingRoots.add(node.parentElement);
+        }
+        return;
+      }
+
+      if (node instanceof Element) {
+        pendingRoots.add(node);
+        return;
+      }
+
+      if (node.parentElement) {
+        pendingRoots.add(node.parentElement);
+      }
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        addMutationRoot(mutation.target);
+
+        for (const node of Array.from(mutation.addedNodes)) {
+          addMutationRoot(node);
+        }
+      }
+
+      cancelQueuedFrame();
+      queuedFrame = requestFrame(run);
+    });
     observer.observe(document.body, {
       characterData: true,
       childList: true,
@@ -70,7 +104,7 @@ export function NoWidowProvider({
     minWords,
     preserveExistingNbsp,
     selector,
-    selectorsKey,
+    selectors,
     wordCount,
   ]);
 
