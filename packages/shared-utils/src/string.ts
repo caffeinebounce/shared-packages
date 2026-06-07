@@ -182,3 +182,128 @@ export function pluralize(
   if (count === 1) return singular;
   return plural ?? `${singular}s`;
 }
+
+export type PreventWidowsOptions = {
+  /**
+   * Number of trailing words to keep together.
+   *
+   * @default 2
+   */
+  wordCount?: number;
+  /**
+   * Minimum number of words required before widow prevention is applied.
+   *
+   * @default Math.max(wordCount, 3)
+   */
+  minWords?: number;
+  /**
+   * Keep existing non-breaking spaces inside the locked phrase.
+   *
+   * @default true
+   */
+  preserveExistingNbsp?: boolean;
+};
+
+const NON_BREAKING_SPACE = "\u00A0";
+
+function normalizePositiveInteger(value: number | undefined): number | null {
+  if (value === undefined || !Number.isFinite(value)) return null;
+
+  const normalized = Math.floor(value);
+
+  return normalized > 0 ? normalized : null;
+}
+
+/**
+ * Keep the final words of a string together by replacing separating whitespace
+ * with non-breaking spaces.
+ *
+ * @param text - Text to normalize
+ * @param options - Widow-prevention options
+ * @returns Text with the trailing phrase locked together
+ *
+ * @example
+ * ```ts
+ * preventWidows("A purpose-built platform for the culture.")
+ * // "A purpose-built platform for the\u00A0culture."
+ * ```
+ */
+export function preventWidows(
+  text: string | null | undefined,
+  options: PreventWidowsOptions = {},
+): string {
+  if (!text) return "";
+
+  const wordCount = normalizePositiveInteger(options.wordCount) ?? 2;
+  const minWords =
+    normalizePositiveInteger(options.minWords) ?? Math.max(wordCount, 3);
+  const preserveExistingNbsp = options.preserveExistingNbsp ?? true;
+  const tokens = text.split(/(\s+)/u);
+  const wordTokenIndexes = tokens.reduce<number[]>((indexes, token, index) => {
+    if (token && !/^\s+$/u.test(token)) {
+      indexes.push(index);
+    }
+
+    return indexes;
+  }, []);
+
+  if (wordTokenIndexes.length < minWords) {
+    return text;
+  }
+
+  const lockedWhitespaceIndexes = new Set<number>();
+
+  if (wordTokenIndexes.length === 4 && wordCount === 2) {
+    for (const [firstWordIndex, secondWordIndex] of [
+      [0, 1],
+      [2, 3],
+    ] as const) {
+      const firstTokenIndex = wordTokenIndexes[firstWordIndex];
+      const secondTokenIndex = wordTokenIndexes[secondWordIndex];
+
+      if (firstTokenIndex === undefined || secondTokenIndex === undefined) {
+        continue;
+      }
+
+      for (let index = firstTokenIndex + 1; index < secondTokenIndex; index++) {
+        if (/^\s+$/u.test(tokens[index] ?? "")) {
+          lockedWhitespaceIndexes.add(index);
+        }
+      }
+    }
+  }
+
+  const lockStartWordIndex = Math.max(wordTokenIndexes.length - wordCount, 0);
+  const lockStartTokenIndex = wordTokenIndexes[lockStartWordIndex];
+  const lockEndTokenIndex = wordTokenIndexes[wordTokenIndexes.length - 1];
+
+  if (
+    lockStartTokenIndex === undefined ||
+    lockEndTokenIndex === undefined ||
+    lockStartTokenIndex === lockEndTokenIndex
+  ) {
+    return text;
+  }
+
+  return tokens
+    .map((token, index) => {
+      const shouldLock =
+        lockedWhitespaceIndexes.has(index) ||
+        (index > lockStartTokenIndex && index < lockEndTokenIndex);
+
+      if (!shouldLock) {
+        return token;
+      }
+
+      if (!/^\s+$/u.test(token)) {
+        return token;
+      }
+
+      if (preserveExistingNbsp && token.includes(NON_BREAKING_SPACE)) {
+        return token;
+      }
+
+      return NON_BREAKING_SPACE;
+    })
+    .join("");
+}

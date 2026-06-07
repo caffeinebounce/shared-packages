@@ -816,17 +816,27 @@ export {
   type WizardStep,
 } from "./hooks/useWizardForm";
 export {
-  type CanonicalDataState,
-  type DataStateMetadata,
-  type ResolveDataStateInput,
-  type ResolvedDataState,
-  resolveDataState,
-} from "./utils/data-state";
-// Utilities
-export {
   type AvatarGradient,
+  type CanonicalDataState,
   cn,
+  type DataStateMetadata,
   getAvatarGradient,
   getGradientIndex,
   getGradientPairs,
+  type ResolveDataStateInput,
+  type ResolvedDataState,
+  resolveDataState,
 } from "./utils/index";
+export {
+  applyNoWidowText,
+  type NoWidowDomOptions,
+  type NoWidowOptions,
+  NoWidowText,
+  type NoWidowTextOwnProps,
+  type NoWidowTextProps,
+  preventWidowsInReactNode,
+} from "./utils/no-widow";
+export {
+  NoWidowProvider,
+  type NoWidowProviderProps,
+} from "./utils/no-widow-provider";

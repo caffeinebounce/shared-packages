@@ -4,6 +4,7 @@ import {
   ensureAbsoluteUrl,
   getInitials,
   pluralize,
+  preventWidows,
   slugify,
   truncate,
 } from "../string";
@@ -141,5 +142,79 @@ describe("pluralize", () => {
     expect(pluralize(0, "child", "children")).toBe("children");
     expect(pluralize(1, "child", "children")).toBe("child");
     expect(pluralize(2, "child", "children")).toBe("children");
+  });
+});
+
+describe("preventWidows", () => {
+  it("locks the last 2 words by default", () => {
+    expect(preventWidows("A purpose-built platform for the culture.")).toBe(
+      "A purpose-built platform for the\u00A0culture.",
+    );
+  });
+
+  it("locks four-word strings into balanced 2-word pairs", () => {
+    expect(preventWidows("One coordinated advisory view")).toBe(
+      "One\u00A0coordinated advisory\u00A0view",
+    );
+  });
+
+  it("locks the configured number of trailing words", () => {
+    expect(
+      preventWidows(
+        "We turn culture and influence into capital and ownership.",
+        {
+          wordCount: 3,
+        },
+      ),
+    ).toBe(
+      "We turn culture and influence into capital\u00A0and\u00A0ownership.",
+    );
+  });
+
+  it("returns short strings unchanged by default", () => {
+    expect(preventWidows("Factory")).toBe("Factory");
+    expect(preventWidows("Get Started")).toBe("Get Started");
+  });
+
+  it("respects custom minimum word counts", () => {
+    expect(preventWidows("One two three", { minWords: 4 })).toBe(
+      "One two three",
+    );
+    expect(preventWidows("One two three four", { minWords: 4 })).toBe(
+      "One\u00A0two three\u00A0four",
+    );
+  });
+
+  it("preserves leading and trailing whitespace", () => {
+    expect(preventWidows("  durable wealth-building plan  ")).toBe(
+      "  durable wealth-building\u00A0plan  ",
+    );
+  });
+
+  it("preserves existing non-breaking spaces by default", () => {
+    expect(preventWidows("capital and\u00A0ownership", { wordCount: 3 })).toBe(
+      "capital\u00A0and\u00A0ownership",
+    );
+  });
+
+  it("can normalize existing non-breaking spaces", () => {
+    expect(
+      preventWidows("capital and\u00A0ownership", {
+        preserveExistingNbsp: false,
+        wordCount: 3,
+      }),
+    ).toBe("capital\u00A0and\u00A0ownership");
+  });
+
+  it("keeps earlier multiline whitespace unchanged while locking final words", () => {
+    expect(preventWidows("Factory helps\nclients build durable wealth")).toBe(
+      "Factory helps\nclients build durable\u00A0wealth",
+    );
+  });
+
+  it("returns empty strings for empty, null, and undefined inputs", () => {
+    expect(preventWidows("")).toBe("");
+    expect(preventWidows(null)).toBe("");
+    expect(preventWidows(undefined)).toBe("");
   });
 });
