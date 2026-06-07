@@ -385,11 +385,11 @@ export function Navbar({
                   data-slot="navbar-menu-list"
                   className={cn("justify-start gap-1", menuClassNames?.list)}
                 >
-                  {menuGroups.map((group) => (
+                  {menuGroups.map((group, groupIndex) => (
                     <NavigationMenuItem
                       data-slot="navbar-menu-item"
                       className={menuClassNames?.menuItem}
-                      key={group.label}
+                      key={`${group.label}-${groupIndex}`}
                     >
                       <NavigationMenuTrigger
                         data-slot="navbar-menu-trigger"
