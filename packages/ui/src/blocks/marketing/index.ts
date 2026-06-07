@@ -112,6 +112,12 @@ export {
   type GridPatternProps,
 } from "./FeaturesSectionPattern";
 export {
+  type FocusCard,
+  FocusCardItem,
+  FocusCards,
+  type FocusCardsProps,
+} from "./FocusCards";
+export {
   FrequentlyAskedQuestionsAccordion,
   type FrequentlyAskedQuestionsAccordionItem,
   type FrequentlyAskedQuestionsAccordionProps,
