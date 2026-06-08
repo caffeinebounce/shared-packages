@@ -31,16 +31,19 @@ export const FocusCardItem = React.memo(
     setHovered: React.Dispatch<React.SetStateAction<number | null>>;
   }) => {
     return (
-      // biome-ignore lint/a11y/noStaticElementInteractions: focus card hover effect requires mouse tracking on the visual card container (non-button grid item)
-      <div
+      <button
+        type="button"
         onMouseEnter={() => setHovered(index)}
         onMouseLeave={() => setHovered(null)}
+        onFocus={() => setHovered(index)}
+        onBlur={() => setHovered(null)}
         className={cn(
-          "rounded-lg relative bg-gray-100 dark:bg-neutral-900 overflow-hidden h-60 md:h-96 w-full transition-all duration-300 ease-out cursor-pointer",
+          "block rounded-lg relative bg-gray-100 dark:bg-neutral-900 overflow-hidden h-60 md:h-96 w-full border-0 p-0 text-left appearance-none transition-all duration-300 ease-out cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF4426] focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           hovered !== null && hovered !== index && "blur-sm scale-[0.98]",
           hovered === index &&
             "ring-1 ring-[#FF4426]/40 shadow-[0_0_0_1px_rgba(255,68,38,0.15)]",
         )}
+        aria-label={card.title}
         data-slot="focus-card"
       >
         <img
@@ -73,7 +76,7 @@ export const FocusCardItem = React.memo(
             {card.title}
           </div>
         </div>
-      </div>
+      </button>
     );
   },
 );
@@ -81,7 +84,7 @@ export const FocusCardItem = React.memo(
 FocusCardItem.displayName = "FocusCardItem";
 
 /**
- * FocusCards - Aceternity-style image grid where hovering a card brings it into focus
+ * FocusCards - Aceternity-style image grid where hovering or focusing a card brings it into focus
  * (sharp, full opacity) while blurring + scaling down sibling cards.
  *
  * Intended aesthetic: base images in grayscale (B&W photoreal), on hover the focused card

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FocusCards } from "./FocusCards";
@@ -49,5 +49,36 @@ describe("FocusCards", () => {
     expect(root).toBeInTheDocument();
     expect(root?.className).toContain("max-w-4xl");
     expect(root?.className).toContain("md:grid-cols-2");
+  });
+
+  it("focuses a card and blurs sibling cards on hover and keyboard focus", () => {
+    const { container } = render(<FocusCards cards={cards} />);
+
+    const cardEls = container.querySelectorAll('[data-slot="focus-card"]');
+    const [firstCard, secondCard] = cardEls;
+
+    expect(screen.getByRole("button", { name: "Forest Adventure" })).toBe(
+      firstCard,
+    );
+
+    fireEvent.mouseEnter(firstCard);
+
+    expect(firstCard.className).toContain("ring-1");
+    expect(secondCard.className).toContain("blur-sm");
+
+    fireEvent.mouseLeave(firstCard);
+
+    expect(firstCard.className).not.toContain("ring-1");
+    expect(secondCard.className).not.toContain("blur-sm");
+
+    fireEvent.focus(secondCard);
+
+    expect(secondCard.className).toContain("ring-1");
+    expect(firstCard.className).toContain("blur-sm");
+
+    fireEvent.blur(secondCard);
+
+    expect(secondCard.className).not.toContain("ring-1");
+    expect(firstCard.className).not.toContain("blur-sm");
   });
 });
