@@ -307,10 +307,13 @@ describe("createAuthCallbackHandler", () => {
     });
 
     it("allows consumers to provide product-specific linking error copy", async () => {
+      const resolveLinkingErrorMessage = vi.fn(
+        ({ defaultMessage }) =>
+          `${defaultMessage} Contact your workspace admin.`,
+      );
       const handler = createAuthCallbackHandler({
         createClient: mockCreateClient,
-        resolveLinkingErrorMessage: ({ message }) =>
-          `${message}. Contact your workspace admin if this looks wrong.`,
+        resolveLinkingErrorMessage,
       });
 
       const request = new Request(
@@ -320,7 +323,17 @@ describe("createAuthCallbackHandler", () => {
 
       const url = new URL(response.url);
       expect(url.searchParams.get("link_error")).toBe(
-        "identity already exists. Contact your workspace admin if this looks wrong.",
+        "This account is already connected to another account. Each external account can only be linked to one account. Contact your workspace admin.",
+      );
+      expect(resolveLinkingErrorMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: "identity_exists",
+          errorDescription: "identity already exists",
+          message: "identity already exists",
+          defaultMessage:
+            "This account is already connected to another account. Each external account can only be linked to one account.",
+          source: "oauth_error",
+        }),
       );
     });
 
@@ -338,6 +351,40 @@ describe("createAuthCallbackHandler", () => {
 
       expect(response.url).toContain("/account/security");
       expect(response.url).toContain("link_error=");
+    });
+
+    it("passes code-exchange error names to linking error resolvers when available", async () => {
+      const resolveLinkingErrorMessage = vi.fn(
+        ({ error }) => `Handled ${error}`,
+      );
+      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({
+        error: {
+          name: "AuthApiError",
+          message: "identity already exists",
+        },
+      });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        resolveLinkingErrorMessage,
+      });
+
+      const request = new Request(
+        "https://example.com/callback?code=abc&next=/profile",
+      );
+      const response = await handler(request);
+
+      const url = new URL(response.url);
+      expect(url.searchParams.get("link_error")).toBe("Handled AuthApiError");
+      expect(resolveLinkingErrorMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: "AuthApiError",
+          message: "identity already exists",
+          defaultMessage:
+            "This account is already connected to another account. Each external account can only be linked to one account.",
+          source: "code_exchange",
+        }),
+      );
     });
   });
 
@@ -578,6 +625,26 @@ describe("createAuthCallbackHandler", () => {
       const response = await handler(request);
 
       expect(response.url).toBe("http://localhost:3000/admin/dashboard");
+    });
+
+    it("ignores absolute string redirects from custom success resolvers", async () => {
+      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({
+        error: null,
+      });
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "123" } },
+      });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+        resolveSuccessRedirect: () => "https://evil.example.com/redirect",
+      });
+
+      const request = new Request("https://example.com/callback?code=valid");
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://example.com/dashboard");
     });
 
     it("can redirect pending admin to /admin-pending", async () => {

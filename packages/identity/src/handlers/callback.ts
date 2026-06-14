@@ -55,8 +55,10 @@ export interface AuthCallbackLinkingErrorContext
   error: string;
   /** OAuth error description, when supplied by the provider */
   errorDescription: string | null;
-  /** Default error message selected for the user */
+  /** Raw provider or exchange error message */
   message: string;
+  /** Product-neutral fallback message selected by the handler */
+  defaultMessage: string;
   /** Callback phase that produced the error */
   source: AuthCallbackErrorSource;
 }
@@ -190,6 +192,7 @@ async function createLinkingErrorRedirect({
       error,
       errorDescription,
       message,
+      defaultMessage,
       source,
     })) ?? defaultMessage;
 
@@ -267,7 +270,7 @@ function createRedirectResponse(
     return NextResponse.redirect(`${origin}${target}`);
   }
 
-  return NextResponse.redirect(target);
+  return null;
 }
 
 async function redirectAfterSuccessfulAuth({
@@ -435,7 +438,7 @@ export function createAuthCallbackHandler({
         request,
         origin,
         redirectPath: next,
-        error: "code_exchange",
+        error: exchangeError.name || "code_exchange",
         errorDescription: null,
         message: errorMessage,
         source: "code_exchange",
