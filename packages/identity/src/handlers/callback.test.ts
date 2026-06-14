@@ -32,6 +32,50 @@ describe("createAuthCallbackHandler", () => {
     async () => mockSupabase as unknown as SupabaseClient,
   );
 
+  const resolveConsumerAdminRedirect = async ({
+    supabase,
+    user,
+    origin,
+  }: Parameters<
+    NonNullable<
+      Parameters<typeof createAuthCallbackHandler>[0]["resolveSuccessRedirect"]
+    >
+  >[0]) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, admin_approval_status")
+      .eq("id", user.id)
+      .single();
+
+    const isAdmin = profile?.role?.startsWith("admin:");
+    const isPendingApproval = profile?.admin_approval_status === "pending";
+
+    if (!isAdmin) {
+      return null;
+    }
+
+    if (isPendingApproval) {
+      return "/admin-pending";
+    }
+
+    const url = new URL(origin);
+    const hostname = url.hostname;
+    const isProductionHost =
+      hostname === "thecapitalcompass.ai" ||
+      hostname === "app.thecapitalcompass.ai" ||
+      hostname.endsWith(".thecapitalcompass.ai");
+
+    if (isProductionHost) {
+      url.hostname = hostname.startsWith("admin.")
+        ? hostname
+        : "admin.thecapitalcompass.ai";
+      url.pathname = "/dashboard";
+      return url;
+    }
+
+    return "/admin/dashboard";
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({ error: null });
@@ -239,8 +283,8 @@ describe("createAuthCallbackHandler", () => {
 
       const url = new URL(response.url);
       const linkError = url.searchParams.get("link_error");
-      expect(linkError).toContain(
-        "already connected to another Compass account",
+      expect(linkError).toBe(
+        "This account is already connected to another account. Each external account can only be linked to one account.",
       );
     });
 
@@ -259,6 +303,40 @@ describe("createAuthCallbackHandler", () => {
       const response = await handler(request);
 
       expect(response.url).toContain("/profile");
+      expect(response.url).toContain("link_error=");
+    });
+
+    it("allows consumers to provide product-specific linking error copy", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        resolveLinkingErrorMessage: ({ message }) =>
+          `${message}. Contact your workspace admin if this looks wrong.`,
+      });
+
+      const request = new Request(
+        "https://example.com/callback?error=identity_exists&error_description=identity%20already%20exists&next=/settings",
+      );
+      const response = await handler(request);
+
+      const url = new URL(response.url);
+      expect(url.searchParams.get("link_error")).toBe(
+        "identity already exists. Contact your workspace admin if this looks wrong.",
+      );
+    });
+
+    it("allows consumers to define which redirects are account-linking flows", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        isLinkingFlow: ({ redirectPath }) =>
+          redirectPath.startsWith("/account/security"),
+      });
+
+      const request = new Request(
+        "https://example.com/callback?error=identity_exists&error_description=identity%20already%20exists&next=/account/security",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toContain("/account/security");
       expect(response.url).toContain("link_error=");
     });
   });
@@ -281,6 +359,40 @@ describe("createAuthCallbackHandler", () => {
       const response = await handler(request);
 
       expect(response.url).toBe("https://example.com/home");
+    });
+
+    it("does not query app-specific profile tables or admin-route by default", async () => {
+      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({
+        error: null,
+      });
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "123" } },
+      });
+      mockSupabase.from.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: {
+                role: "admin:super",
+                admin_approval_status: "approved",
+              },
+            }),
+          }),
+        }),
+      });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+      });
+
+      const request = new Request(
+        "https://app.thecapitalcompass.ai/callback?code=valid",
+      );
+      const response = await handler(request);
+
+      expect(response.url).toBe("https://app.thecapitalcompass.ai/dashboard");
+      expect(mockSupabase.from).not.toHaveBeenCalled();
     });
 
     it("calls postAuthHook after OAuth success with the authenticated user", async () => {
@@ -437,8 +549,8 @@ describe("createAuthCallbackHandler", () => {
     });
   });
 
-  describe("admin user handling", () => {
-    it("redirects admin to /admin/dashboard in development", async () => {
+  describe("consumer-provided success redirect resolver", () => {
+    it("can redirect admin to /admin/dashboard in development", async () => {
       const mockProfile = {
         role: "admin:super",
         admin_approval_status: "approved",
@@ -459,6 +571,7 @@ describe("createAuthCallbackHandler", () => {
 
       const handler = createAuthCallbackHandler({
         createClient: mockCreateClient,
+        resolveSuccessRedirect: resolveConsumerAdminRedirect,
       });
 
       const request = new Request("http://localhost:3000/callback?code=valid");
@@ -467,7 +580,7 @@ describe("createAuthCallbackHandler", () => {
       expect(response.url).toBe("http://localhost:3000/admin/dashboard");
     });
 
-    it("redirects pending admin to /admin-pending", async () => {
+    it("can redirect pending admin to /admin-pending", async () => {
       const mockProfile = {
         role: "admin:program",
         admin_approval_status: "pending",
@@ -488,6 +601,7 @@ describe("createAuthCallbackHandler", () => {
 
       const handler = createAuthCallbackHandler({
         createClient: mockCreateClient,
+        resolveSuccessRedirect: resolveConsumerAdminRedirect,
       });
 
       const request = new Request("http://localhost:3000/callback?code=valid");
@@ -496,7 +610,7 @@ describe("createAuthCallbackHandler", () => {
       expect(response.url).toBe("http://localhost:3000/admin-pending");
     });
 
-    it("redirects admin to admin subdomain in Compass production", async () => {
+    it("can redirect admin to a consumer admin subdomain in production", async () => {
       const mockProfile = {
         role: "admin:super",
         admin_approval_status: "approved",
@@ -517,6 +631,7 @@ describe("createAuthCallbackHandler", () => {
 
       const handler = createAuthCallbackHandler({
         createClient: mockCreateClient,
+        resolveSuccessRedirect: resolveConsumerAdminRedirect,
       });
 
       const request = new Request(
@@ -527,7 +642,7 @@ describe("createAuthCallbackHandler", () => {
       expect(response.url).toBe("https://admin.thecapitalcompass.ai/dashboard");
     });
 
-    it("keeps non-production hosts on same origin /admin/dashboard", async () => {
+    it("can keep non-production hosts on same origin /admin/dashboard", async () => {
       const mockProfile = {
         role: "admin:super",
         admin_approval_status: "approved",
@@ -548,6 +663,7 @@ describe("createAuthCallbackHandler", () => {
 
       const handler = createAuthCallbackHandler({
         createClient: mockCreateClient,
+        resolveSuccessRedirect: resolveConsumerAdminRedirect,
       });
 
       const request = new Request(
@@ -560,7 +676,7 @@ describe("createAuthCallbackHandler", () => {
       );
     });
 
-    it("applies admin redirects after OTP verification", async () => {
+    it("can apply custom redirects after OTP verification", async () => {
       const mockProfile = {
         role: "admin:super",
         admin_approval_status: "approved",
@@ -581,6 +697,7 @@ describe("createAuthCallbackHandler", () => {
 
       const handler = createAuthCallbackHandler({
         createClient: mockCreateClient,
+        resolveSuccessRedirect: resolveConsumerAdminRedirect,
       });
 
       const request = new Request(

@@ -3,6 +3,13 @@ import { NextResponse } from "next/server";
 
 export type AuthCallbackFlow = "oauth" | "otp";
 export type AuthCallbackHookErrorMode = "block" | "ignore";
+export type AuthCallbackRedirectTarget =
+  | string
+  | URL
+  | Response
+  | null
+  | undefined;
+export type AuthCallbackErrorSource = "oauth_error" | "code_exchange";
 
 export interface AuthCallbackHookContext {
   /** Resolved Supabase client after callback exchange/verification succeeds */
@@ -25,6 +32,39 @@ export type AuthCallbackHook = (
   context: AuthCallbackHookContext,
 ) => void | Promise<void>;
 
+export type AuthCallbackSuccessRedirectResolver = (
+  context: AuthCallbackHookContext,
+) => AuthCallbackRedirectTarget | Promise<AuthCallbackRedirectTarget>;
+
+export interface AuthCallbackLinkingFlowContext {
+  /** Original callback request */
+  request: Request;
+  /** Request origin used for redirects */
+  origin: string;
+  /** Safe relative redirect path selected for this callback */
+  redirectPath: string;
+}
+
+export type AuthCallbackLinkingFlowDetector = (
+  context: AuthCallbackLinkingFlowContext,
+) => boolean;
+
+export interface AuthCallbackLinkingErrorContext
+  extends AuthCallbackLinkingFlowContext {
+  /** OAuth error code or code-exchange error name when available */
+  error: string;
+  /** OAuth error description, when supplied by the provider */
+  errorDescription: string | null;
+  /** Default error message selected for the user */
+  message: string;
+  /** Callback phase that produced the error */
+  source: AuthCallbackErrorSource;
+}
+
+export type AuthCallbackLinkingErrorMessageResolver = (
+  context: AuthCallbackLinkingErrorContext,
+) => string | Promise<string>;
+
 export interface AuthCallbackConfig {
   /** Async Supabase client factory (for server-side) */
   createClient: () => Promise<SupabaseClient>;
@@ -43,10 +83,27 @@ export interface AuthCallbackConfig {
    * "ignore" allows the normal success redirect to continue.
    */
   postAuthHookErrorMode?: AuthCallbackHookErrorMode;
+  /**
+   * Optional resolver for app-specific success redirects after auth succeeds.
+   * Use this for product-owned routing such as admin approval or subdomains.
+   */
+  resolveSuccessRedirect?: AuthCallbackSuccessRedirectResolver;
+  /**
+   * Optional detector for deciding whether an auth error came from account
+   * linking. Defaults to common profile/settings redirect paths.
+   */
+  isLinkingFlow?: AuthCallbackLinkingFlowDetector;
+  /**
+   * Optional resolver for product-specific account-linking error copy.
+   * Defaults remain product-neutral.
+   */
+  resolveLinkingErrorMessage?: AuthCallbackLinkingErrorMessageResolver;
 }
 
 const POST_AUTH_HOOK_ERROR_MESSAGE =
   "Authentication completed, but setup failed. Please try again.";
+const DEFAULT_LINKING_ACCOUNT_ERROR_MESSAGE =
+  "This account is already connected to another account. Each external account can only be linked to one account.";
 const EMAIL_OTP_TYPES = [
   "signup",
   "invite",
@@ -75,6 +132,70 @@ function getEmailOtpType(value: string | null) {
   return (EMAIL_OTP_TYPES as readonly string[]).includes(value)
     ? (value as EmailOtpType)
     : null;
+}
+
+function isDefaultLinkingFlow({
+  redirectPath,
+}: AuthCallbackLinkingFlowContext) {
+  return (
+    redirectPath.includes("/profile") || redirectPath.includes("/settings")
+  );
+}
+
+function isAlreadyLinkedAccountError(message: string) {
+  return (
+    message.includes("already linked") ||
+    message.includes("identity already exists") ||
+    message.includes("already registered")
+  );
+}
+
+function getDefaultLinkingErrorMessage(message: string) {
+  return isAlreadyLinkedAccountError(message)
+    ? DEFAULT_LINKING_ACCOUNT_ERROR_MESSAGE
+    : message;
+}
+
+async function createLinkingErrorRedirect({
+  request,
+  origin,
+  redirectPath,
+  error,
+  errorDescription,
+  message,
+  source,
+  isLinkingFlow,
+  resolveLinkingErrorMessage,
+}: {
+  request: Request;
+  origin: string;
+  redirectPath: string;
+  error: string;
+  errorDescription: string | null;
+  message: string;
+  source: AuthCallbackErrorSource;
+  isLinkingFlow: AuthCallbackLinkingFlowDetector;
+  resolveLinkingErrorMessage?: AuthCallbackLinkingErrorMessageResolver;
+}) {
+  const linkingFlowContext = { request, origin, redirectPath };
+
+  if (!isLinkingFlow(linkingFlowContext)) {
+    return null;
+  }
+
+  const defaultMessage = getDefaultLinkingErrorMessage(message);
+  const userMessage =
+    (await resolveLinkingErrorMessage?.({
+      ...linkingFlowContext,
+      error,
+      errorDescription,
+      message,
+      source,
+    })) ?? defaultMessage;
+
+  const nextUrl = new URL(redirectPath, origin);
+  nextUrl.searchParams.set("link_error", userMessage);
+  return NextResponse.redirect(nextUrl.toString());
 }
 
 async function runPostAuthHook({
@@ -126,6 +247,29 @@ async function runPostAuthHook({
   }
 }
 
+function createRedirectResponse(
+  target: AuthCallbackRedirectTarget,
+  origin: string,
+) {
+  if (!target) {
+    return null;
+  }
+
+  if (target instanceof Response) {
+    return target;
+  }
+
+  if (target instanceof URL) {
+    return NextResponse.redirect(target.toString());
+  }
+
+  if (target.startsWith("/") && !target.startsWith("//")) {
+    return NextResponse.redirect(`${origin}${target}`);
+  }
+
+  return NextResponse.redirect(target);
+}
+
 async function redirectAfterSuccessfulAuth({
   supabase,
   request,
@@ -136,6 +280,7 @@ async function redirectAfterSuccessfulAuth({
   postAuthHook,
   postAuthHookErrorMode,
   signInPath,
+  resolveSuccessRedirect,
 }: {
   supabase: SupabaseClient;
   request: Request;
@@ -146,6 +291,7 @@ async function redirectAfterSuccessfulAuth({
   postAuthHook?: AuthCallbackHook;
   postAuthHookErrorMode: AuthCallbackHookErrorMode;
   signInPath: string;
+  resolveSuccessRedirect?: AuthCallbackSuccessRedirectResolver;
 }) {
   const {
     data: { user },
@@ -172,44 +318,19 @@ async function redirectAfterSuccessfulAuth({
     return postAuthHookRedirect;
   }
 
-  // Fetch user's role and admin approval status from profiles
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, admin_approval_status")
-    .eq("id", user.id)
-    .single();
+  const customRedirect = await resolveSuccessRedirect?.({
+    supabase,
+    user,
+    request,
+    origin,
+    redirectPath,
+    flow,
+    otpType,
+  });
+  const customRedirectResponse = createRedirectResponse(customRedirect, origin);
 
-  // Check if user has an admin role (admin:super or admin:program)
-  const isAdmin = profile?.role?.startsWith("admin:");
-  const isPendingApproval = profile?.admin_approval_status === "pending";
-
-  if (isAdmin) {
-    // If admin is pending approval, redirect to pending page
-    if (isPendingApproval) {
-      return NextResponse.redirect(`${origin}/admin-pending`);
-    }
-
-    // Check if we should use admin subdomain
-    const url = new URL(origin);
-    const hostname = url.hostname;
-
-    // Only use admin subdomain on known production Compass domains.
-    // For local/Tailscale/dev hosts, keep same host and use /admin/dashboard.
-    const isCompassProductionHost =
-      hostname === "thecapitalcompass.ai" ||
-      hostname === "app.thecapitalcompass.ai" ||
-      hostname.endsWith(".thecapitalcompass.ai");
-
-    if (isCompassProductionHost) {
-      url.hostname = hostname.startsWith("admin.")
-        ? hostname
-        : "admin.thecapitalcompass.ai";
-      url.pathname = "/dashboard"; // On subdomain, we use /dashboard not /admin/dashboard
-      return NextResponse.redirect(url.toString());
-    }
-
-    // In development/non-prod hosts, use /admin/dashboard path
-    return NextResponse.redirect(`${origin}/admin/dashboard`);
+  if (customRedirectResponse) {
+    return customRedirectResponse;
   }
 
   return NextResponse.redirect(`${origin}${redirectPath}`);
@@ -247,6 +368,9 @@ export function createAuthCallbackHandler({
   signInPath = "/signin",
   postAuthHook,
   postAuthHookErrorMode = "block",
+  resolveSuccessRedirect,
+  isLinkingFlow = isDefaultLinkingFlow,
+  resolveLinkingErrorMessage,
 }: AuthCallbackConfig) {
   return async function GET(request: Request) {
     const requestUrl = new URL(request.url);
@@ -265,30 +389,25 @@ export function createAuthCallbackHandler({
     const error = requestUrl.searchParams.get("error");
     const errorDescription = requestUrl.searchParams.get("error_description");
     if (error) {
-      // Check if this is a linking error (user came from security settings)
-      const isLinkingFlow =
-        next.includes("/profile") || next.includes("/settings");
+      const message = errorDescription || error;
+      const linkingErrorRedirect = await createLinkingErrorRedirect({
+        request,
+        origin,
+        redirectPath: next,
+        error,
+        errorDescription,
+        message,
+        source: "oauth_error",
+        isLinkingFlow,
+        resolveLinkingErrorMessage,
+      });
 
-      // For linking errors, redirect back to the security page with the error
-      if (isLinkingFlow) {
-        // Create user-friendly error messages for common linking errors
-        let userMessage = errorDescription || error;
-        if (
-          errorDescription?.includes("already linked") ||
-          errorDescription?.includes("identity already exists")
-        ) {
-          userMessage =
-            "This account is already connected to another Compass account. Each external account can only be linked to one Compass account.";
-        }
-
-        // Parse next to handle hash fragments properly
-        const nextUrl = new URL(next, origin);
-        nextUrl.searchParams.set("link_error", userMessage);
-        return NextResponse.redirect(nextUrl.toString());
+      if (linkingErrorRedirect) {
+        return linkingErrorRedirect;
       }
 
       return NextResponse.redirect(
-        `${origin}${signInPath}?error=${encodeURIComponent(errorDescription || error)}`,
+        `${origin}${signInPath}?error=${encodeURIComponent(message)}`,
       );
     }
 
@@ -307,29 +426,25 @@ export function createAuthCallbackHandler({
           postAuthHook,
           postAuthHookErrorMode,
           signInPath,
+          resolveSuccessRedirect,
         });
       }
 
-      // Check if this is a linking error
-      const isLinkingFlow =
-        next.includes("/profile") || next.includes("/settings");
       const errorMessage = exchangeError.message;
+      const linkingErrorRedirect = await createLinkingErrorRedirect({
+        request,
+        origin,
+        redirectPath: next,
+        error: "code_exchange",
+        errorDescription: null,
+        message: errorMessage,
+        source: "code_exchange",
+        isLinkingFlow,
+        resolveLinkingErrorMessage,
+      });
 
-      if (isLinkingFlow) {
-        // Create user-friendly error messages for common linking errors
-        let userMessage = errorMessage;
-        if (
-          errorMessage.includes("already linked") ||
-          errorMessage.includes("identity already exists") ||
-          errorMessage.includes("already registered")
-        ) {
-          userMessage =
-            "This account is already connected to another Compass account. Each external account can only be linked to one Compass account.";
-        }
-
-        const nextUrl = new URL(next, origin);
-        nextUrl.searchParams.set("link_error", userMessage);
-        return NextResponse.redirect(nextUrl.toString());
+      if (linkingErrorRedirect) {
+        return linkingErrorRedirect;
       }
 
       return NextResponse.redirect(
@@ -361,6 +476,7 @@ export function createAuthCallbackHandler({
           postAuthHook,
           postAuthHookErrorMode,
           signInPath,
+          resolveSuccessRedirect,
         });
       }
 
