@@ -10,6 +10,17 @@ identity utilities.
 - `@caffeinebounce/identity/server` exports server-safe callback handlers and
   utilities without client component directives.
 
+## Auth Callback Policy
+
+`createAuthCallbackHandler` owns reusable OAuth and OTP callback mechanics:
+safe redirect parsing, Supabase exchange/verification, authenticated user
+lookup, post-auth hooks, and error redirects.
+
+Consumers own product-specific policy. Use `postAuthHook` for app-local setup,
+`resolveSuccessRedirect` for role or approval routing, `isLinkingFlow` for
+consumer account-linking routes, and `resolveLinkingErrorMessage` for branded
+linking-error copy.
+
 ## Belongs Here
 
 - Shared sign-in, sign-up, password reset, MFA, account settings, callback, and
