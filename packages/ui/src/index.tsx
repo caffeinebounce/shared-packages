@@ -494,6 +494,14 @@ export type {
   DisplayFieldProps,
 } from "./components/ui/display-field";
 export { DisplayField, DisplayFieldGroup } from "./components/ui/display-field";
+export type {
+  DraggableCardBodyProps,
+  DraggableCardContainerProps,
+} from "./components/ui/draggable-card";
+export {
+  DraggableCardBody,
+  DraggableCardContainer,
+} from "./components/ui/draggable-card";
 export { DraggableStickyModal } from "./components/ui/draggable-sticky-modal";
 export {
   DropdownMenu,
