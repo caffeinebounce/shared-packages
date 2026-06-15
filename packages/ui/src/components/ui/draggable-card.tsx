@@ -1,13 +1,11 @@
 "use client";
 
 import {
-  animate,
   motion,
   useAnimationControls,
   useMotionValue,
   useSpring,
   useTransform,
-  useVelocity,
 } from "motion/react";
 import type * as React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -33,9 +31,6 @@ export const DraggableCardBody = ({
     right: 0,
     bottom: 0,
   });
-
-  const velocityX = useVelocity(mouseX);
-  const velocityY = useVelocity(mouseY);
 
   const springConfig = {
     stiffness: 100,
@@ -113,8 +108,8 @@ export const DraggableCardBody = ({
       onDragStart={() => {
         document.body.style.cursor = "grabbing";
       }}
-      onDragEnd={(_event, info) => {
-        document.body.style.cursor = "default";
+      onDragEnd={() => {
+        document.body.style.cursor = "";
 
         controls.start({
           rotateX: 0,
@@ -124,35 +119,8 @@ export const DraggableCardBody = ({
             ...springConfig,
           },
         });
-        const currentVelocityX = velocityX.get();
-        const currentVelocityY = velocityY.get();
-
-        const velocityMagnitude = Math.sqrt(
-          currentVelocityX * currentVelocityX +
-            currentVelocityY * currentVelocityY,
-        );
-        const bounce = Math.min(0.8, velocityMagnitude / 1000);
-
-        animate(info.point.x, info.point.x + currentVelocityX * 0.3, {
-          duration: 0.8,
-          ease: [0.2, 0, 0, 1],
-          bounce,
-          type: "spring",
-          stiffness: 50,
-          damping: 15,
-          mass: 0.8,
-        });
-
-        animate(info.point.y, info.point.y + currentVelocityY * 0.3, {
-          duration: 0.8,
-          ease: [0.2, 0, 0, 1],
-          bounce,
-          type: "spring",
-          stiffness: 50,
-          damping: 15,
-          mass: 0.8,
-        });
       }}
+      dragTransition={{ bounceStiffness: 50, bounceDamping: 15 }}
       style={{
         rotateX,
         rotateY,
@@ -164,7 +132,7 @@ export const DraggableCardBody = ({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative min-h-96 w-80 transform-3d overflow-hidden rounded-md bg-card p-6 text-card-foreground shadow-2xl",
+        "relative min-h-96 w-80 overflow-hidden rounded-md bg-card p-6 text-card-foreground shadow-2xl [transform-style:preserve-3d]",
         className,
       )}
     >
