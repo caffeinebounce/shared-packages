@@ -1,5 +1,12 @@
 # @caffeinebounce/email
 
+## 0.6.128
+
+### Patch Changes
+
+- d790a44: Refactor duplicated auth, email, layout, stat card, and data-table internals while preserving existing public APIs and behavior. Align shared-utils CommonJS package exports with its module package type.
+- f672ce8: Switch package license metadata from `UNLICENSED` to `MIT`.
+
 ## 0.6.127
 
 ### Patch Changes
