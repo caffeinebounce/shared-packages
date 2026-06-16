@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/shared-utils",
-  "version": "0.7.134",
+  "version": "0.7.135",
   "description": "Shared utility functions for caffeinebounce applications",
   "type": "module",
   "main": "./dist/index.cjs",

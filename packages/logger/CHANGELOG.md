@@ -1,5 +1,11 @@
 # @caffeinebounce/logger
 
+## 0.9.132
+
+### Patch Changes
+
+- f672ce8: Switch package license metadata from `UNLICENSED` to `MIT`.
+
 ## 0.9.131
 
 ### Patch Changes

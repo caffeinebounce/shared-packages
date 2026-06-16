@@ -1,5 +1,20 @@
 # @caffeinebounce/ai-assistant
 
+## 0.5.61
+
+### Patch Changes
+
+- f672ce8: Switch package license metadata from `UNLICENSED` to `MIT`.
+- Updated dependencies [2183270]
+- Updated dependencies [2872825]
+- Updated dependencies [d790a44]
+- Updated dependencies [03e9401]
+- Updated dependencies [65cea7a]
+- Updated dependencies [dccd989]
+- Updated dependencies [f672ce8]
+- Updated dependencies [e225b3d]
+  - @caffeinebounce/ui@0.62.0
+
 ## 0.5.60
 
 ### Patch Changes
