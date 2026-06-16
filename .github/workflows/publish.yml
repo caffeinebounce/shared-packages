@@ -73,10 +73,11 @@ jobs:
           publish: yarn release
           commit: "chore: version packages"
           title: "chore: version packages"
+          github-token: ${{ secrets.GH_PAT }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          NODE_AUTH_TOKEN: ${{ secrets.GH_PAT }}
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
+          YARN_NPM_AUTH_TOKEN: ${{ github.token }}
 
       - name: Check consumer dispatch configuration
         id: consumer_dispatch_config
