@@ -32,6 +32,11 @@ export {
   type FooterProps,
 } from "./Footer";
 export {
+  MarketingHeaderPreset,
+  type MarketingHeaderPresetCta,
+  type MarketingHeaderPresetProps,
+} from "./MarketingHeaderPreset";
+export {
   Navbar,
   type NavbarMenuClassNames,
   type NavbarMenuGroup,
@@ -49,6 +54,11 @@ export {
   type NavbarUserMenuProps,
   type NavbarUserProfile,
 } from "./NavbarUserMenu";
+export {
+  NonprofitFooterPreset,
+  type NonprofitFooterPresetLink,
+  type NonprofitFooterPresetProps,
+} from "./NonprofitFooterPreset";
 export {
   RouteSegmentedSwitcher,
   type RouteSegmentedSwitcherItem,

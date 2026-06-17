@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.62.1
+
+### Patch Changes
+
+- Add reusable marketing page blocks, nonprofit navigation presets, and compact mobile Stepper variants.
+
 ## 0.62.0
 
 ### Minor Changes

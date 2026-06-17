@@ -22,6 +22,10 @@ export {
   EmailText,
   type EmailTextProps,
 } from "./components/EmailPrimitives";
+export {
+  MarketingEmailFooter,
+  type MarketingEmailFooterProps,
+} from "./components/MarketingEmailFooter";
 // Mock Transport (for testing)
 export {
   createMockEmailTransport,
@@ -39,9 +43,18 @@ export {
 // SMTP Adapter
 export { createSmtpTransport } from "./smtp-adapter";
 export {
+  ContactConfirmationTemplate,
+  type ContactConfirmationTemplateNextStep,
+  type ContactConfirmationTemplateProps,
+} from "./templates/ContactConfirmationTemplate";
+export {
   MagicLinkTemplate,
   type MagicLinkTemplateProps,
 } from "./templates/MagicLinkTemplate";
+export {
+  NewsletterConfirmationTemplate,
+  type NewsletterConfirmationTemplateProps,
+} from "./templates/NewsletterConfirmationTemplate";
 export {
   NewsletterWelcomeTemplate,
   type NewsletterWelcomeTemplateProps,

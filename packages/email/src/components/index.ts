@@ -15,3 +15,7 @@ export {
   EmailText,
   type EmailTextProps,
 } from "./EmailPrimitives";
+export {
+  MarketingEmailFooter,
+  type MarketingEmailFooterProps,
+} from "./MarketingEmailFooter";

@@ -1,5 +1,11 @@
 # @caffeinebounce/email
 
+## 0.6.129
+
+### Patch Changes
+
+- Add reusable marketing email footer, contact confirmation, and newsletter confirmation templates.
+
 ## 0.6.128
 
 ### Patch Changes

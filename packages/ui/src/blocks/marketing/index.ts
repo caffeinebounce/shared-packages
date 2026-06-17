@@ -74,6 +74,11 @@ export {
   type EditorialHeroProps,
 } from "./EditorialHero";
 export {
+  FaqAccordion,
+  type FaqAccordionItem,
+  type FaqAccordionProps,
+} from "./FaqAccordion";
+export {
   DottedGlowBackground,
   type DottedGlowBackgroundProps,
   FeatureGridLargeSkeletonAction,
@@ -155,9 +160,17 @@ export {
 } from "./LampHero";
 export { LogoGrid, type LogoGridItem, type LogoGridProps } from "./LogoGrid";
 export {
+  MarketingProse,
+  type MarketingProseProps,
+} from "./MarketingProse";
+export {
   MediaTextHero,
   type MediaTextHeroProps,
 } from "./MediaTextHero";
+export {
+  MetricStory,
+  type MetricStoryProps,
+} from "./MetricStory";
 export {
   MissionSection,
   type MissionSectionProps,
@@ -175,11 +188,30 @@ export {
   type NextStepsSectionProps,
 } from "./NextStepsSection";
 export {
+  PageHero,
+  type PageHeroAction,
+  type PageHeroMedia,
+  type PageHeroProps,
+} from "./PageHero";
+export {
+  PartnerLogoGrid,
+  type PartnerLogoGridGroup,
+  type PartnerLogoGridProps,
+} from "./PartnerLogoGrid";
+export {
   PricingMinimal,
   type PricingMinimalProps,
   type PricingMinimalTier,
 } from "./PricingMinimal";
+export {
+  ProgramCard,
+  type ProgramCardProps,
+} from "./ProgramCard";
 export { QuoteBlock, type QuoteBlockProps } from "./QuoteBlock";
+export {
+  SectionShell,
+  type SectionShellProps,
+} from "./SectionShell";
 export {
   type SpotlightHeroAction,
   SpotlightHeroSection,
@@ -196,6 +228,11 @@ export {
   StickyScrollStorySection,
   type StickyScrollStorySectionProps,
 } from "./StickyScrollStorySection";
+export {
+  TeamCard,
+  type TeamCardLink,
+  type TeamCardProps,
+} from "./TeamCard";
 export {
   type Testimonial,
   TestimonialsSection,
