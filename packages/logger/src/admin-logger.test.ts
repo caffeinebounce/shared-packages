@@ -36,7 +36,7 @@ describe("adminLogger", () => {
           event: "admin.user.passwordReset",
           adminId: "admin-123",
           targetUserId: "user-456",
-          targetEmail: "user@example.com",
+          targetAccountDomain: "example.com",
         },
       );
     });
@@ -48,7 +48,7 @@ describe("adminLogger", () => {
         event: "admin.user.mfaReset",
         adminId: "admin-123",
         targetUserId: "user-456",
-        targetEmail: "user@example.com",
+        targetAccountDomain: "example.com",
       });
     });
 
@@ -149,7 +149,7 @@ describe("adminLogger", () => {
           event: "admin.impersonate.start",
           adminId: "admin-123",
           targetUserId: "user-456",
-          targetEmail: "user@example.com",
+          targetAccountDomain: "example.com",
         },
       );
     });

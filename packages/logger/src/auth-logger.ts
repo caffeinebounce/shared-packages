@@ -6,6 +6,19 @@
 
 import { logger } from "./logger";
 
+function accountDomainContext(email: string): { accountDomain?: string } {
+  const trimmedEmail = email.trim();
+  const separatorIndex = trimmedEmail.lastIndexOf("@");
+
+  if (separatorIndex <= 0 || separatorIndex === trimmedEmail.length - 1) {
+    return {};
+  }
+
+  const accountDomain = trimmedEmail.slice(separatorIndex + 1).trim();
+
+  return accountDomain ? { accountDomain: accountDomain.toLowerCase() } : {};
+}
+
 /**
  * Auth event logging helpers
  */
@@ -13,7 +26,7 @@ export const authLogger = {
   signInAttempt: (email: string, provider = "email") => {
     logger.auth("info", "User attempting to sign in", {
       event: "auth.signin.attempt",
-      email,
+      ...accountDomainContext(email),
       provider,
     });
   },
@@ -22,7 +35,7 @@ export const authLogger = {
     logger.auth("info", "User signed in successfully", {
       event: "auth.signin.success",
       userId,
-      email,
+      ...accountDomainContext(email),
       mfaUsed,
     });
   },
@@ -30,7 +43,7 @@ export const authLogger = {
   signInFailure: (email: string, reason: string) => {
     logger.auth("warn", "Sign in failed", {
       event: "auth.signin.failure",
-      email,
+      ...accountDomainContext(email),
       reason,
     });
   },
@@ -39,7 +52,7 @@ export const authLogger = {
     logger.auth("info", "MFA challenge triggered", {
       event: "auth.signin.mfa_required",
       userId,
-      email,
+      ...accountDomainContext(email),
     });
   },
 
@@ -47,7 +60,7 @@ export const authLogger = {
     logger.auth("info", "MFA verification passed", {
       event: "auth.signin.mfa_success",
       userId,
-      email,
+      ...accountDomainContext(email),
       mfaUsed: true,
     });
   },
@@ -56,7 +69,7 @@ export const authLogger = {
     logger.auth("warn", "MFA verification failed", {
       event: "auth.signin.mfa_failure",
       userId,
-      email,
+      ...accountDomainContext(email),
       reason,
     });
   },
@@ -64,7 +77,7 @@ export const authLogger = {
   signUpAttempt: (email: string, provider = "email") => {
     logger.auth("info", "User attempting to sign up", {
       event: "auth.signup.attempt",
-      email,
+      ...accountDomainContext(email),
       provider,
     });
   },
@@ -73,14 +86,14 @@ export const authLogger = {
     logger.auth("info", "Account created successfully", {
       event: "auth.signup.success",
       userId,
-      email,
+      ...accountDomainContext(email),
     });
   },
 
   signUpFailure: (email: string, reason: string) => {
     logger.auth("warn", "Sign up failed", {
       event: "auth.signup.failure",
-      email,
+      ...accountDomainContext(email),
       reason,
     });
   },
@@ -88,14 +101,14 @@ export const authLogger = {
   emailVerificationSent: (email: string) => {
     logger.auth("info", "Verification email sent", {
       event: "auth.signup.email_verification_sent",
-      email,
+      ...accountDomainContext(email),
     });
   },
 
   passwordResetRequested: (email: string) => {
     logger.auth("info", "Password reset requested", {
       event: "auth.password_reset.requested",
-      email,
+      ...accountDomainContext(email),
     });
   },
 
@@ -103,14 +116,14 @@ export const authLogger = {
     logger.auth("info", "Password reset completed", {
       event: "auth.password_reset.completed",
       userId,
-      email,
+      ...accountDomainContext(email),
     });
   },
 
   passwordResetFailed: (email: string, reason: string) => {
     logger.auth("warn", "Password reset failed", {
       event: "auth.password_reset.failed",
-      email,
+      ...accountDomainContext(email),
       reason,
     });
   },
@@ -119,7 +132,7 @@ export const authLogger = {
     logger.auth("info", "User signed out", {
       event: "auth.signout",
       userId,
-      email,
+      ...accountDomainContext(email),
     });
   },
 

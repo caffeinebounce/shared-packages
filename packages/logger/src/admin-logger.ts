@@ -6,6 +6,23 @@
 
 import { logger } from "./logger";
 
+function targetAccountDomainContext(targetEmail: string): {
+  targetAccountDomain?: string;
+} {
+  const trimmedEmail = targetEmail.trim();
+  const separatorIndex = trimmedEmail.lastIndexOf("@");
+
+  if (separatorIndex <= 0 || separatorIndex === trimmedEmail.length - 1) {
+    return {};
+  }
+
+  const targetAccountDomain = trimmedEmail.slice(separatorIndex + 1).trim();
+
+  return targetAccountDomain
+    ? { targetAccountDomain: targetAccountDomain.toLowerCase() }
+    : {};
+}
+
 /**
  * Admin event logging helpers
  */
@@ -33,7 +50,7 @@ export const adminLogger = {
       event: "admin.user.passwordReset",
       adminId,
       targetUserId,
-      targetEmail,
+      ...targetAccountDomainContext(targetEmail),
     });
   },
 
@@ -46,7 +63,7 @@ export const adminLogger = {
       event: "admin.user.mfaReset",
       adminId,
       targetUserId,
-      targetEmail,
+      ...targetAccountDomainContext(targetEmail),
     });
   },
 
@@ -138,7 +155,7 @@ export const adminLogger = {
       event: "admin.impersonate.start",
       adminId,
       targetUserId,
-      targetEmail,
+      ...targetAccountDomainContext(targetEmail),
     });
   },
 
