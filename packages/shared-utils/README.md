@@ -30,5 +30,7 @@ corepack yarn turbo run lint typecheck test build --filter=@caffeinebounce/share
 
 - Keep utilities server-safe and browser-safe unless an entrypoint clearly says
   otherwise.
+- `getClientIP` prefers trusted CDN edge headers before forwarded-chain
+  fallbacks; consumers should confirm their deployment preserves those headers.
 - Prefer narrow subpaths when consumers only need a utility family.
 - Add a changeset for published behavior, source, manifest, or export changes.
