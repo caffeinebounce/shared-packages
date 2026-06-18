@@ -25,6 +25,18 @@ interface UseNotificationsReturn {
   markAllAsRead: () => Promise<void>;
 }
 
+function buildNotificationsUrl(fetchEndpoint: string, limit: number): string {
+  const url = new URL(fetchEndpoint, "http://localhost");
+  url.searchParams.set("limit", String(limit));
+
+  const isAbsoluteUrl = /^[a-z][a-z\d+\-.]*:/i.test(fetchEndpoint);
+  if (isAbsoluteUrl) {
+    return url.toString();
+  }
+
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 /**
  * Hook for fetching and managing notifications
  */
@@ -52,7 +64,7 @@ export function useNotifications({
     try {
       setIsLoading(true);
       setError(null);
-      const res = await fetch(`${fetchEndpoint}?limit=${limit}`);
+      const res = await fetch(buildNotificationsUrl(fetchEndpoint, limit));
       if (res.ok) {
         const data: NotificationsResponse = await res.json();
         setNotifications(data.notifications);
@@ -76,7 +88,7 @@ export function useNotifications({
       }
 
       const notification = notificationsRef.current.find((n) => n.id === id);
-      if (notification?.isRead) {
+      if (!notification || notification.isRead) {
         return;
       }
 
