@@ -10,16 +10,13 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-function toUrlSafeBase64(value: string): string {
-  return Buffer.from(value, "utf8").toString("base64url");
-}
-
-function fromUrlSafeBase64(value: string): string | null {
-  try {
-    return Buffer.from(value, "base64url").toString("utf8");
-  } catch {
-    return null;
+function normalizeSecret(secret?: string): string {
+  const normalizedSecret = secret?.trim();
+  if (!normalizedSecret) {
+    throw new Error("unsubscribeSecret is required for unsubscribe tokens");
   }
+
+  return normalizedSecret;
 }
 
 export function generateUnsubscribeToken({
@@ -27,12 +24,11 @@ export function generateUnsubscribeToken({
   secret,
 }: UnsubscribeTokenInput): string {
   const normalizedEmail = normalizeEmail(email);
+  const normalizedSecret = normalizeSecret(secret);
 
-  if (!secret) {
-    return toUrlSafeBase64(normalizedEmail);
-  }
-
-  return createHmac("sha256", secret).update(normalizedEmail).digest("hex");
+  return createHmac("sha256", normalizedSecret)
+    .update(normalizedEmail)
+    .digest("hex");
 }
 
 export function verifyUnsubscribeToken({
@@ -41,14 +37,19 @@ export function verifyUnsubscribeToken({
   secret,
 }: UnsubscribeTokenInput & { token: string }): boolean {
   const normalizedEmail = normalizeEmail(email);
+  let normalizedSecret: string;
 
-  if (!secret) {
-    const decoded = fromUrlSafeBase64(token);
-    return decoded === normalizedEmail;
+  try {
+    normalizedSecret = normalizeSecret(secret);
+  } catch {
+    return false;
   }
 
   const expected = Buffer.from(
-    generateUnsubscribeToken({ email: normalizedEmail, secret }),
+    generateUnsubscribeToken({
+      email: normalizedEmail,
+      secret: normalizedSecret,
+    }),
     "utf8",
   );
   const received = Buffer.from(token, "utf8");
