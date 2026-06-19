@@ -35,7 +35,9 @@ export interface GeolocationInfo {
  * ```
  */
 export function getClientIP(headers: Headers): string | null {
-  // Prefer trusted CDN edge headers before forwarded-chain fallbacks.
+  // Prefer trusted CDN edge headers before forwarded-chain fallbacks. Only use
+  // this helper behind infrastructure that strips client-supplied copies of
+  // these headers before setting trusted values.
   const cfConnectingIP = headers.get("cf-connecting-ip");
   if (cfConnectingIP) {
     return cfConnectingIP.trim();
