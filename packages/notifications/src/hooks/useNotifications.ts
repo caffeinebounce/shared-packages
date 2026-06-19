@@ -26,15 +26,23 @@ interface UseNotificationsReturn {
 }
 
 function buildNotificationsUrl(fetchEndpoint: string, limit: number): string {
-  const url = new URL(fetchEndpoint, "http://localhost");
-  url.searchParams.set("limit", String(limit));
+  const hashIndex = fetchEndpoint.indexOf("#");
+  const endpointWithoutHash =
+    hashIndex === -1 ? fetchEndpoint : fetchEndpoint.slice(0, hashIndex);
+  const hash = hashIndex === -1 ? "" : fetchEndpoint.slice(hashIndex);
 
-  const isAbsoluteUrl = /^[a-z][a-z\d+\-.]*:/i.test(fetchEndpoint);
-  if (isAbsoluteUrl) {
-    return url.toString();
-  }
+  const queryIndex = endpointWithoutHash.indexOf("?");
+  const endpointPrefix =
+    queryIndex === -1
+      ? endpointWithoutHash
+      : endpointWithoutHash.slice(0, queryIndex);
+  const queryString =
+    queryIndex === -1 ? "" : endpointWithoutHash.slice(queryIndex + 1);
 
-  return `${url.pathname}${url.search}${url.hash}`;
+  const query = new URLSearchParams(queryString);
+  query.set("limit", String(limit));
+
+  return `${endpointPrefix}?${query.toString()}${hash}`;
 }
 
 /**

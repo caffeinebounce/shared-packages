@@ -137,6 +137,50 @@ describe("useNotifications", () => {
         "https://example.test/api/notifications?teamId=team-1&limit=5",
       );
     });
+
+    it("preserves path-relative fetch endpoints", async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ notifications: [], unreadCount: 0 }),
+      });
+
+      const { result } = renderHook(() =>
+        useNotifications({
+          fetchEndpoint: "api/notifications?teamId=team-1",
+          limit: 20,
+        }),
+      );
+
+      await act(async () => {
+        await result.current.fetchNotifications();
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "api/notifications?teamId=team-1&limit=20",
+      );
+    });
+
+    it("preserves protocol-relative fetch endpoints", async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ notifications: [], unreadCount: 0 }),
+      });
+
+      const { result } = renderHook(() =>
+        useNotifications({
+          fetchEndpoint: "//example.test/api/notifications?teamId=team-1",
+          limit: 5,
+        }),
+      );
+
+      await act(async () => {
+        await result.current.fetchNotifications();
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "//example.test/api/notifications?teamId=team-1&limit=5",
+      );
+    });
   });
 
   describe("markAsRead", () => {
