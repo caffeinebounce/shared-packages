@@ -3,7 +3,20 @@ import type { EmailThemeConfig } from "./themes";
 
 export type UnsubscribeTokenInput = {
   email: string;
+  secret: string;
+};
+
+export type VerifyUnsubscribeTokenInput = {
+  email: string;
+  token: string;
   secret?: string;
+};
+
+export type UnsubscribeHeadersConfig = Pick<
+  EmailThemeConfig,
+  "siteUrl" | "unsubscribeUrl"
+> & {
+  unsubscribeSecret: string;
 };
 
 function normalizeEmail(email: string): string {
@@ -35,7 +48,7 @@ export function verifyUnsubscribeToken({
   email,
   token,
   secret,
-}: UnsubscribeTokenInput & { token: string }): boolean {
+}: VerifyUnsubscribeTokenInput): boolean {
   const normalizedEmail = normalizeEmail(email);
   let normalizedSecret: string;
 
@@ -83,10 +96,7 @@ export function buildUnsubscribeUrlFromConfig(
 }
 
 export function getUnsubscribeHeadersFromConfig(
-  config: Pick<
-    EmailThemeConfig,
-    "siteUrl" | "unsubscribeUrl" | "unsubscribeSecret"
-  >,
+  config: UnsubscribeHeadersConfig,
   email: string,
 ): Record<string, string> {
   const token = generateUnsubscribeToken({

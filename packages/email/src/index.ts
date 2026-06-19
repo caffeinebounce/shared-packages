@@ -104,6 +104,8 @@ export {
   generateUnsubscribeToken,
   getUnsubscribeHeadersFromConfig,
   parseListUnsubscribeHeader,
+  type UnsubscribeHeadersConfig,
   type UnsubscribeTokenInput,
+  type VerifyUnsubscribeTokenInput,
   verifyUnsubscribeToken,
 } from "./unsubscribe";

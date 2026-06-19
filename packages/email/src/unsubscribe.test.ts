@@ -35,6 +35,7 @@ describe("unsubscribe helpers", () => {
 
   it("throws when generating a token without a secret", () => {
     expect(() =>
+      // @ts-expect-error Runtime guard still protects JavaScript callers.
       generateUnsubscribeToken({
         email: "user@example.com",
       }),
@@ -100,6 +101,7 @@ describe("unsubscribe helpers", () => {
   it("throws when creating unsubscribe headers without a secret", () => {
     expect(() =>
       getUnsubscribeHeadersFromConfig(
+        // @ts-expect-error Runtime guard still protects JavaScript callers.
         {
           siteUrl: "https://partners.thefactoryhq.com",
         },
