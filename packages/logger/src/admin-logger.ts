@@ -4,23 +4,15 @@
  * Convenience functions for logging admin events with consistent structure.
  */
 
+import { extractAccountDomain } from "./email-domain";
 import { logger } from "./logger";
 
 function targetAccountDomainContext(targetEmail: string): {
   targetAccountDomain?: string;
 } {
-  const trimmedEmail = targetEmail.trim();
-  const separatorIndex = trimmedEmail.lastIndexOf("@");
+  const targetAccountDomain = extractAccountDomain(targetEmail);
 
-  if (separatorIndex <= 0 || separatorIndex === trimmedEmail.length - 1) {
-    return {};
-  }
-
-  const targetAccountDomain = trimmedEmail.slice(separatorIndex + 1).trim();
-
-  return targetAccountDomain
-    ? { targetAccountDomain: targetAccountDomain.toLowerCase() }
-    : {};
+  return targetAccountDomain ? { targetAccountDomain } : {};
 }
 
 /**

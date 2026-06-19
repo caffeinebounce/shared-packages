@@ -4,19 +4,13 @@
  * Convenience functions for logging auth events with consistent structure.
  */
 
+import { extractAccountDomain } from "./email-domain";
 import { logger } from "./logger";
 
 function accountDomainContext(email: string): { accountDomain?: string } {
-  const trimmedEmail = email.trim();
-  const separatorIndex = trimmedEmail.lastIndexOf("@");
+  const accountDomain = extractAccountDomain(email);
 
-  if (separatorIndex <= 0 || separatorIndex === trimmedEmail.length - 1) {
-    return {};
-  }
-
-  const accountDomain = trimmedEmail.slice(separatorIndex + 1).trim();
-
-  return accountDomain ? { accountDomain: accountDomain.toLowerCase() } : {};
+  return accountDomain ? { accountDomain } : {};
 }
 
 /**
