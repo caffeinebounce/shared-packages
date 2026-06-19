@@ -25,6 +25,7 @@ scripts/
 ├── setup-devops.sh             # One-command setup for apps
 ├── setup-hooks.sh              # Git hooks setup
 ├── publish-local.sh            # Publish packages locally
+├── sync-secrets.ts             # Sync selected env vars to GitHub and Render
 └── README.md                   # This file
 ```
 
@@ -130,6 +131,14 @@ This installs:
 2. Create a changeset for publishable package changes
 3. Merge to `main` and let `publish.yml` handle release automation
 4. Or run manually for local-only publishing: `./scripts/publish-local.sh`
+
+### Secrets Sync
+
+`sync-secrets.ts` can add or update GitHub Actions secrets and Render
+environment variables from local env files. By default, it preserves remote-only
+keys. Use `--check` or `--dry-run` to inspect drift without writing. Use
+`--check --prune` to review remote-only keys that would be deleted, and use
+live `--prune` only after reviewing that output.
 
 ## Git Hooks
 

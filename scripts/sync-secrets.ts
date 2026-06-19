@@ -20,19 +20,21 @@
  *   --github    Sync only to GitHub
  *   --render    Sync only to Render
  *   --check     Check if secrets are in sync (no changes made)
+ *   --prune     Delete remote keys that are missing from local env files
  *   --verbose   Show detailed output
  *   --help      Show help
  */
 
+import { createRequire } from "node:module";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 
 const require = createRequire(import.meta.url);
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-interface EnvConfig {
+export interface EnvConfig {
   [key: string]: string;
 }
 
@@ -41,7 +43,7 @@ interface SyncSecretsConfig {
   prodUrls?: Record<string, string>;
 }
 
-interface SyncResult {
+export interface SyncResult {
   provider: string;
   added: string[];
   updated: string[];
@@ -49,11 +51,13 @@ interface SyncResult {
   errors: string[];
 }
 
-interface Options {
+export interface Options {
   github: boolean;
   render: boolean;
   checkOnly: boolean;
   verbose: boolean;
+  prune: boolean;
+  encryptSecret?: (publicKey: string, secretValue: string) => Promise<string>;
 }
 
 // ─── Configuration Loading ──────────────────────────────────────────────────
@@ -229,7 +233,7 @@ async function encryptSecretForGitHub(
   return sodium.to_base64(encryptedBytes, sodium.base64_variants.ORIGINAL);
 }
 
-async function syncToGitHub(
+export async function syncToGitHub(
   secrets: EnvConfig,
   repo: string,
   options: Options
@@ -286,6 +290,7 @@ async function syncToGitHub(
 
     const existingSet = new Set(existingSecrets);
     const desiredSet = new Set(Object.keys(secrets));
+    const prunableSecrets = existingSecrets.filter((name) => !desiredSet.has(name));
 
     if (options.checkOnly) {
       for (const key of Object.keys(secrets)) {
@@ -295,18 +300,17 @@ async function syncToGitHub(
           result.updated.push(key);
         }
       }
-      for (const key of existingSecrets) {
-        if (!desiredSet.has(key)) {
-          result.deleted.push(key);
-        }
+      if (options.prune) {
+        result.deleted.push(...prunableSecrets);
       }
       return result;
     }
 
+    const encryptSecret = options.encryptSecret ?? encryptSecretForGitHub;
     const encryptionPromises = Object.entries(secrets).map(
       async ([name, value]) => ({
         name,
-        encrypted: await encryptSecretForGitHub(publicKey, value),
+        encrypted: await encryptSecret(publicKey, value),
       })
     );
     const encryptedSecrets = await Promise.all(encryptionPromises);
@@ -332,9 +336,8 @@ async function syncToGitHub(
       }
     });
 
-    const deletePromises = existingSecrets
-      .filter((name) => !desiredSet.has(name))
-      .map(async (name) => {
+    const deletePromises = options.prune
+      ? prunableSecrets.map(async (name) => {
         const response = await fetch(
           `https://api.github.com/repos/${repo}/actions/secrets/${name}`,
           { method: "DELETE", headers }
@@ -345,7 +348,8 @@ async function syncToGitHub(
         } else {
           result.errors.push(`Failed to delete ${name}: ${response.status}`);
         }
-      });
+      })
+      : [];
 
     await Promise.all([...updatePromises, ...deletePromises]);
   } catch (error) {
@@ -357,7 +361,7 @@ async function syncToGitHub(
 
 // ─── Render Secrets Provider ─────────────────────────────────────────────────
 
-async function syncToRender(
+export async function syncToRender(
   secrets: EnvConfig,
   options: Options
 ): Promise<SyncResult> {
@@ -418,17 +422,28 @@ async function syncToRender(
       existingMap.delete(key);
     }
 
-    for (const key of Array.from(existingMap.keys())) {
-      if (key && key.trim()) {
-        result.deleted.push(key);
-      }
+    const prunableKeys = Array.from(existingMap.keys()).filter(
+      (key) => key && key.trim()
+    );
+    if (options.prune) {
+      result.deleted.push(...prunableKeys);
     }
 
     if (options.checkOnly) {
       return result;
     }
 
-    const allVars = Object.entries(secrets).map(([key, value]) => ({
+    const allVarsMap = new Map<string, string>();
+    if (!options.prune) {
+      for (const variable of existingVars) {
+        allVarsMap.set(variable.envVar.key, variable.envVar.value);
+      }
+    }
+    for (const [key, value] of Object.entries(secrets)) {
+      allVarsMap.set(key, value);
+    }
+
+    const allVars = Array.from(allVarsMap.entries()).map(([key, value]) => ({
       key,
       value,
     }));
@@ -455,8 +470,8 @@ async function syncToRender(
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 
-function parseArgs(): Options {
-  const args = new Set(process.argv.slice(2));
+export function parseArgs(argv = process.argv.slice(2)): Options {
+  const args = new Set(argv);
 
   if (args.has("--help") || args.has("-h")) {
     console.log(`
@@ -468,6 +483,7 @@ Options:
   --github    Sync only to GitHub Actions secrets
   --render    Sync only to Render environment variables
   --check     Check what would change (dry run)
+  --prune     Delete remote keys that are missing locally
   --verbose   Show detailed output
   --help      Show this help message
 
@@ -494,6 +510,7 @@ Environment Variables Required:
     render: args.has("--render") || (!args.has("--render") && !args.has("--github")),
     checkOnly: args.has("--check") || args.has("--dry-run"),
     verbose: args.has("--verbose") || args.has("-v"),
+    prune: args.has("--prune"),
   };
 }
 
@@ -625,7 +642,12 @@ async function main(): Promise<void> {
   if (options.github) providers.push("GitHub");
   if (options.render) providers.push("Render");
 
-  console.log(`${options.checkOnly ? "🔍" : "🚀"} ${mode} secrets → ${providers.join(", ")}\n`);
+  const pruneMode = options.prune
+    ? "prune enabled"
+    : "preserving remote-only keys";
+  console.log(
+    `${options.checkOnly ? "🔍" : "🚀"} ${mode} secrets → ${providers.join(", ")} (${pruneMode})\n`
+  );
 
   const syncPromises: Promise<SyncResult>[] = [];
 
@@ -662,7 +684,16 @@ async function main(): Promise<void> {
   process.exit(hasErrors ? 1 : 0);
 }
 
-main().catch((error) => {
-  console.error("Fatal error:", error);
-  process.exit(1);
-});
+function isDirectExecution(): boolean {
+  const entrypoint = process.argv[1];
+  return entrypoint
+    ? import.meta.url === pathToFileURL(path.resolve(entrypoint)).href
+    : false;
+}
+
+if (isDirectExecution()) {
+  main().catch((error) => {
+    console.error("Fatal error:", error);
+    process.exit(1);
+  });
+}
