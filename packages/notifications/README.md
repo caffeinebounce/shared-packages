@@ -30,4 +30,6 @@ corepack yarn turbo run lint typecheck test build --filter=@caffeinebounce/notif
 - `next` is an optional peer; avoid requiring Next-specific behavior for every
   consumer.
 - Keep delivery and data fetching injectable or app-owned.
+- `fetchEndpoint` may be relative or absolute and may already include query
+  parameters; `useNotifications` sets or replaces the `limit` parameter.
 - Add a changeset for published behavior, source, manifest, or export changes.

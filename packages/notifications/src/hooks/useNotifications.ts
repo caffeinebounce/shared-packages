@@ -25,6 +25,26 @@ interface UseNotificationsReturn {
   markAllAsRead: () => Promise<void>;
 }
 
+function buildNotificationsUrl(fetchEndpoint: string, limit: number): string {
+  const hashIndex = fetchEndpoint.indexOf("#");
+  const endpointWithoutHash =
+    hashIndex === -1 ? fetchEndpoint : fetchEndpoint.slice(0, hashIndex);
+  const hash = hashIndex === -1 ? "" : fetchEndpoint.slice(hashIndex);
+
+  const queryIndex = endpointWithoutHash.indexOf("?");
+  const endpointPrefix =
+    queryIndex === -1
+      ? endpointWithoutHash
+      : endpointWithoutHash.slice(0, queryIndex);
+  const queryString =
+    queryIndex === -1 ? "" : endpointWithoutHash.slice(queryIndex + 1);
+
+  const query = new URLSearchParams(queryString);
+  query.set("limit", String(limit));
+
+  return `${endpointPrefix}?${query.toString()}${hash}`;
+}
+
 /**
  * Hook for fetching and managing notifications
  */
@@ -52,7 +72,7 @@ export function useNotifications({
     try {
       setIsLoading(true);
       setError(null);
-      const res = await fetch(`${fetchEndpoint}?limit=${limit}`);
+      const res = await fetch(buildNotificationsUrl(fetchEndpoint, limit));
       if (res.ok) {
         const data: NotificationsResponse = await res.json();
         setNotifications(data.notifications);
@@ -76,7 +96,7 @@ export function useNotifications({
       }
 
       const notification = notificationsRef.current.find((n) => n.id === id);
-      if (notification?.isRead) {
+      if (!notification || notification.isRead) {
         return;
       }
 
