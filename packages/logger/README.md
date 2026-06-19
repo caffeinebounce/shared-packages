@@ -29,6 +29,8 @@ corepack yarn turbo run lint typecheck test build --filter=@caffeinebounce/logge
 ## Gotchas
 
 - Keep metadata useful but safe.
+- Do not pass raw email addresses into log context; use account-domain metadata
+  such as `accountDomain` or `targetAccountDomain` when the domain is useful.
 - Expected negative paths should return clear status codes without noisy error
   logs.
 - Keep client-safe exports free of server-only dependencies.

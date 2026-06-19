@@ -4,7 +4,16 @@
  * Convenience functions for logging admin events with consistent structure.
  */
 
+import { extractAccountDomain } from "./email-domain";
 import { logger } from "./logger";
+
+function targetAccountDomainContext(targetEmail: string): {
+  targetAccountDomain?: string;
+} {
+  const targetAccountDomain = extractAccountDomain(targetEmail);
+
+  return targetAccountDomain ? { targetAccountDomain } : {};
+}
 
 /**
  * Admin event logging helpers
@@ -33,7 +42,7 @@ export const adminLogger = {
       event: "admin.user.passwordReset",
       adminId,
       targetUserId,
-      targetEmail,
+      ...targetAccountDomainContext(targetEmail),
     });
   },
 
@@ -46,7 +55,7 @@ export const adminLogger = {
       event: "admin.user.mfaReset",
       adminId,
       targetUserId,
-      targetEmail,
+      ...targetAccountDomainContext(targetEmail),
     });
   },
 
@@ -138,7 +147,7 @@ export const adminLogger = {
       event: "admin.impersonate.start",
       adminId,
       targetUserId,
-      targetEmail,
+      ...targetAccountDomainContext(targetEmail),
     });
   },
 

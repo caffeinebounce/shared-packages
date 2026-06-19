@@ -54,10 +54,10 @@ describe("sanitizeContext", () => {
   });
 
   describe("sensitive field removal", () => {
-    it("removes password field", () => {
+    it("removes password and email fields", () => {
       const input = { email: "test@example.com", password: "test123" }; // pragma: allowlist secret
       const output = sanitizeContext(input);
-      expect(output).toEqual({ email: "test@example.com" });
+      expect(output).toEqual({});
     });
 
     it("removes token field", () => {
@@ -109,6 +109,12 @@ describe("sanitizeContext", () => {
       expect(output).toEqual({ userId: "123" });
     });
 
+    it("removes email field", () => {
+      const input = { userId: "123", email: "test@example.com" };
+      const output = sanitizeContext(input);
+      expect(output).toEqual({ userId: "123" });
+    });
+
     it("is case-insensitive", () => {
       const input = {
         PASSWORD: "test123", // pragma: allowlist secret
@@ -121,10 +127,10 @@ describe("sanitizeContext", () => {
   });
 
   describe("substring matching (intentional behavior)", () => {
-    it("removes fields containing password substring", () => {
+    it("removes fields containing password and email substrings", () => {
       const input = { userPasswordHint: "hint", email: "test@example.com" }; // pragma: allowlist secret
       const output = sanitizeContext(input);
-      expect(output).toEqual({ email: "test@example.com" });
+      expect(output).toEqual({});
     });
 
     it("removes fields containing token substring", () => {
@@ -139,6 +145,20 @@ describe("sanitizeContext", () => {
       const output = sanitizeContext(input);
       expect(output).toEqual({ name: "Alice" });
     });
+
+    it("removes fields containing email substring", () => {
+      const input = {
+        accountEmail: "test@example.com",
+        targetEmail: "user@example.com",
+        accountDomain: "example.com",
+        targetAccountDomain: "example.com",
+      };
+      const output = sanitizeContext(input);
+      expect(output).toEqual({
+        accountDomain: "example.com",
+        targetAccountDomain: "example.com",
+      });
+    });
   });
 
   describe("nested objects", () => {
@@ -152,7 +172,7 @@ describe("sanitizeContext", () => {
       };
       const output = sanitizeContext(input);
       expect(output).toEqual({
-        user: { email: "test@example.com" },
+        user: {},
         event: "login",
       });
     });
@@ -188,7 +208,7 @@ describe("sanitizeContext", () => {
         { email: "b@b.com", password: "p2" }, // pragma: allowlist secret
       ];
       const output = sanitizeContext(input);
-      expect(output).toEqual([{ email: "a@a.com" }, { email: "b@b.com" }]);
+      expect(output).toEqual([{}, {}]);
     });
 
     it("handles arrays of primitives", () => {
@@ -212,5 +232,6 @@ describe("SENSITIVE_KEYS", () => {
     expect(SENSITIVE_KEYS).toContain("secret"); // pragma: allowlist secret
     expect(SENSITIVE_KEYS).toContain("apiKey");
     expect(SENSITIVE_KEYS).toContain("authorization");
+    expect(SENSITIVE_KEYS).toContain("email");
   });
 });
