@@ -31,4 +31,6 @@ corepack yarn turbo run lint typecheck test build --filter=@caffeinebounce/email
 - Keep provider mocks deterministic so apps can test email flows without real
   delivery.
 - Do not log or embed secrets, tokens, raw payloads, or private recipient data.
+- Unsubscribe headers and marketing unsubscribe links require a stable per-app
+  `unsubscribeSecret`; unsigned tokens are not supported.
 - Add a changeset for published behavior, source, manifest, or export changes.

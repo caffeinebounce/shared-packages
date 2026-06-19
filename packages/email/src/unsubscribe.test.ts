@@ -10,13 +10,13 @@ import {
 describe("unsubscribe helpers", () => {
   it("generates and verifies hmac token when secret is provided", () => {
     const token = generateUnsubscribeToken({
-      email: "Doug@TheFactoryHQ.com",
+      email: "User@Example.com",
       secret: "top-secret",
     });
 
     expect(
       verifyUnsubscribeToken({
-        email: "doug@thefactoryhq.com",
+        email: "user@example.com",
         token,
         secret: "top-secret",
       }),
@@ -26,35 +26,59 @@ describe("unsubscribe helpers", () => {
   it("fails verification for invalid token", () => {
     expect(
       verifyUnsubscribeToken({
-        email: "doug@thefactoryhq.com",
+        email: "user@example.com",
         token: "invalid",
         secret: "top-secret",
       }),
     ).toBe(false);
   });
 
-  it("generates and verifies fallback token without secret", () => {
-    const token = generateUnsubscribeToken({
-      email: "Doug@TheFactoryHQ.com",
-    });
+  it("throws when generating a token without a secret", () => {
+    expect(() =>
+      // @ts-expect-error Runtime guard still protects JavaScript callers.
+      generateUnsubscribeToken({
+        email: "user@example.com",
+      }),
+    ).toThrow("unsubscribeSecret is required");
+  });
 
+  it("throws when generating a token with a blank secret", () => {
+    expect(() =>
+      generateUnsubscribeToken({
+        email: "user@example.com",
+        secret: "   ",
+      }),
+    ).toThrow("unsubscribeSecret is required");
+  });
+
+  it("fails verification without a secret", () => {
     expect(
       verifyUnsubscribeToken({
-        email: "doug@thefactoryhq.com",
-        token,
+        email: "user@example.com",
+        token: "token",
       }),
-    ).toBe(true);
+    ).toBe(false);
+  });
+
+  it("fails verification with a blank secret", () => {
+    expect(
+      verifyUnsubscribeToken({
+        email: "user@example.com",
+        token: "token",
+        secret: "   ",
+      }),
+    ).toBe(false);
   });
 
   it("builds a complete unsubscribe url", () => {
     const url = buildUnsubscribeUrl({
       baseUrl: "https://partners.thefactoryhq.com/unsubscribe",
-      email: "doug@thefactoryhq.com",
+      email: "user@example.com",
       token: "abc",
     });
 
     expect(url).toBe(
-      "https://partners.thefactoryhq.com/unsubscribe?email=doug%40thefactoryhq.com&token=abc",
+      "https://partners.thefactoryhq.com/unsubscribe?email=user%40example.com&token=abc",
     );
   });
 
@@ -64,13 +88,25 @@ describe("unsubscribe helpers", () => {
         siteUrl: "https://partners.thefactoryhq.com",
         unsubscribeSecret: "top-secret",
       },
-      "doug@thefactoryhq.com",
+      "user@example.com",
     );
 
     expect(headers["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
 
     const url = parseListUnsubscribeHeader(headers["List-Unsubscribe"]);
     expect(url).toContain("https://partners.thefactoryhq.com/unsubscribe?");
-    expect(url).toContain("email=doug%40thefactoryhq.com");
+    expect(url).toContain("email=user%40example.com");
+  });
+
+  it("throws when creating unsubscribe headers without a secret", () => {
+    expect(() =>
+      getUnsubscribeHeadersFromConfig(
+        // @ts-expect-error Runtime guard still protects JavaScript callers.
+        {
+          siteUrl: "https://partners.thefactoryhq.com",
+        },
+        "user@example.com",
+      ),
+    ).toThrow("unsubscribeSecret is required");
   });
 });
