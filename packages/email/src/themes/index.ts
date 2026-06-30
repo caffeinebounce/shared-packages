@@ -2,6 +2,7 @@ import React from "react";
 import { getUnsubscribeHeadersFromConfig } from "../unsubscribe";
 import { compassThemeTokens } from "./compass";
 import { factoryThemeTokens } from "./factory";
+import { tccThemeTokens } from "./tcc";
 import { AccountApproved } from "./templates/AccountApproved";
 import { Confirmation } from "./templates/Confirmation";
 import { MagicLink } from "./templates/MagicLink";
@@ -38,7 +39,7 @@ export interface EmailThemeConfig {
   unsubscribeSecret?: string;
 }
 
-export type ThemeName = "compass" | "factory" | "custom";
+export type ThemeName = "compass" | "factory" | "tcc" | "custom";
 
 export interface CreateEmailThemeOptions {
   theme: ThemeName;
@@ -92,6 +93,8 @@ export function createEmailTheme(
     baseTokens = factoryThemeTokens;
   } else if (theme === "compass") {
     baseTokens = compassThemeTokens;
+  } else if (theme === "tcc") {
+    baseTokens = tccThemeTokens;
   } else {
     // "custom" — caller must supply tokens; start from compass as fallback base
     baseTokens = compassThemeTokens;

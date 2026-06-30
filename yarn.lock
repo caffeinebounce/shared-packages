@@ -359,6 +359,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@caffeinebounce/scheduling@workspace:packages/scheduling":
+  version: 0.0.0-use.local
+  resolution: "@caffeinebounce/scheduling@workspace:packages/scheduling"
+  dependencies:
+    "@types/node": "npm:^25.5.0"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^5.9.3"
+    zod: "npm:^4.3.6"
+  languageName: unknown
+  linkType: soft
+
 "@caffeinebounce/shared-utils@npm:^0.7.133, @caffeinebounce/shared-utils@workspace:packages/shared-utils":
   version: 0.0.0-use.local
   resolution: "@caffeinebounce/shared-utils@workspace:packages/shared-utils"
