@@ -1,5 +1,57 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.62.1
+
+### Patch Changes
+
+- Add reusable marketing page blocks, nonprofit navigation presets, and compact mobile Stepper variants.
+
+## 0.62.0
+
+### Minor Changes
+
+- 65cea7a: Add a FocusCards marketing block with hover focus treatment and export it from the marketing entrypoint.
+- dccd989: Add flexible marketing carousel components: a general-purpose Carousel with image-card rendering and an Apple Cards-style carousel/card pair with expandable modal content.
+
+### Patch Changes
+
+- 2183270: Add no-widow text utilities and React/UI helpers for global widow prevention.
+- 2872825: Add the Aceternity draggable card component.
+- d790a44: Refactor duplicated auth, email, layout, stat card, and data-table internals while preserving existing public APIs and behavior. Align shared-utils CommonJS package exports with its module package type.
+- 03e9401: Extend HeroSection with custom media layers, overlay support, and configurable content anchoring for full-bleed page heroes.
+- f672ce8: Switch package license metadata from `UNLICENSED` to `MIT`.
+- e225b3d: Add a Radix-backed navigation menu primitive and grouped menu support for the shared Navbar.
+- Updated dependencies [2183270]
+- Updated dependencies [d790a44]
+- Updated dependencies [f672ce8]
+  - @caffeinebounce/shared-utils@0.7.135
+  - @caffeinebounce/logger@0.9.132
+
+## 0.61.1
+
+### Patch Changes
+
+- f389e8e: Replace several regex-based helpers with bounded string logic to clear
+  post-public CodeQL alerts.
+- e3d1867: Disable published source maps and update package metadata for
+  the public-readiness sweep.
+- Updated dependencies [f389e8e]
+- Updated dependencies [e3d1867]
+  - @caffeinebounce/logger@0.9.131
+  - @caffeinebounce/shared-utils@0.7.134
+
+## 0.61.0
+
+### Minor Changes
+
+- 5aaf5a2: Add the alternating timeline marketing block.
+
+## 0.60.0
+
+### Minor Changes
+
+- e9878bb: Add the lightweight `@caffeinebounce/ui/primitives` entrypoint, render `AuthPageLayout` external logos, and migrate primitive-only internal consumers to the new UI subpath.
+
 ## 0.59.1
 
 ### Patch Changes

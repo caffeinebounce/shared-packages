@@ -1,0 +1,11 @@
+title = "shared-packages gitleaks config"
+
+[allowlist]
+description = "Repository-maintained false positives and test placeholders"
+paths = [
+  '''^\.secrets\.baseline$''',
+]
+regexes = [
+  '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.placeholder''',
+  '''placeholder-secret-key-for-ci''',
+]

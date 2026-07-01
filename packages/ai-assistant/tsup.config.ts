@@ -6,9 +6,9 @@ export default defineConfig({
   format: ["esm", "cjs"],
   dts: true,
   splitting: false,
-  sourcemap: true,
+  sourcemap: false,
   clean: true,
-  external: ["react", "react-dom", "@caffeinebounce/ui"],
+  external: ["react", "react-dom", "@caffeinebounce/ui", "@caffeinebounce/ui/primitives"],
   treeshake: true,
   minify: false,
   outExtension({ format }) {

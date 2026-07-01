@@ -9,7 +9,7 @@ export default defineConfig({
   format: ["esm", "cjs"],
   dts: true,
   splitting: false,
-  sourcemap: true,
+  sourcemap: false,
   clean: true,
   external: [
     "react",
@@ -22,6 +22,7 @@ export default defineConfig({
     "@supabase/ssr",
     "@supabase/supabase-js",
     "@caffeinebounce/ui",
+    "@caffeinebounce/ui/primitives",
   ],
   treeshake: true,
   minify: false,

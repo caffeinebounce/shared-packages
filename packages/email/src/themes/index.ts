@@ -73,7 +73,7 @@ export interface EmailThemeResult {
 }
 
 export async function getUnsubscribeHeaders(
-  config: EmailThemeConfig,
+  config: EmailThemeConfig & { unsubscribeSecret: string },
   email: string,
 ): Promise<Record<string, string>> {
   return getUnsubscribeHeadersFromConfig(config, email);
@@ -161,7 +161,14 @@ export function createEmailTheme(
       }),
 
     getUnsubscribeHeaders: (email: string) => {
-      return getUnsubscribeHeadersFromConfig(config, email);
+      return getUnsubscribeHeadersFromConfig(
+        {
+          siteUrl: config.siteUrl,
+          unsubscribeUrl: config.unsubscribeUrl,
+          unsubscribeSecret: config.unsubscribeSecret ?? "",
+        },
+        email,
+      );
     },
   };
 }

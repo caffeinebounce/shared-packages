@@ -245,43 +245,76 @@ export type {
 export { ContactInfo, DisclosureFootnotes } from "./blocks/legal";
 export type {
   ActionCard,
+  AppleCardProps,
+  AppleCardsCarouselCard,
+  AppleCardsCarouselProps,
   Benefit,
   BenefitsSectionProps,
+  CarouselControlPlacement,
+  CarouselNavigationMode,
+  CarouselProps,
+  CarouselRenderContext,
+  CarouselSlide,
+  CarouselSlideImage,
   CTAWithDashedGridLinesProps,
   CtaWithDashedGridLinesProps,
   EditorialHeroProps,
+  FaqAccordionItem,
+  FaqAccordionProps,
   HeroSectionProps,
   HeroSectionWithRippleProps,
   ImpactSectionProps,
   LampHeroProps,
   LampHeroSocialLink,
   LocationCard,
+  MarketingProseProps,
   MediaTextHeroProps,
+  MetricStoryProps,
   MissionSectionProps,
   NewsletterSignupProps,
   NextStepsSectionProps,
   Outcome,
+  PageHeroAction,
+  PageHeroMedia,
+  PageHeroProps,
+  PartnerLogoGridGroup,
+  PartnerLogoGridProps,
   Program,
+  ProgramCardProps,
+  SectionShellProps,
   StackedIsometricFeatureItem,
   StackedIsometricFeaturesProps,
   Stat,
+  TeamCardLink,
+  TeamCardProps,
   Testimonial,
   TestimonialsSectionProps,
 } from "./blocks/marketing";
 export {
+  AppleCard,
+  AppleCardsCarousel,
   BenefitsSection,
+  Carousel,
   CTAWithDashedGridLines,
   CtaWithDashedGridLines,
   EditorialHero,
+  FaqAccordion,
   HeroSection,
   HeroSectionWithRipple,
   ImpactSection,
   LampHero,
+  MarketingProse,
   MediaTextHero,
+  MetricStory,
   MissionSection,
   NewsletterSignup,
   NextStepsSection,
+  PageHero,
+  PartnerLogoGrid,
+  ProgramCard,
+  SectionShell,
   StackedIsometricFeatures,
+  TeamCard,
   TestimonialsSection,
 } from "./blocks/marketing";
 export type {
@@ -293,13 +326,19 @@ export type {
   EntitySwitcherShortcut,
   FooterLinkGroup,
   FooterProps,
+  MarketingHeaderPresetCta,
+  MarketingHeaderPresetProps,
   NavbarLogoProps,
+  NavbarMenuClassNames,
+  NavbarMenuGroup,
   NavbarProps,
   NavbarUser,
   NavbarUserMenuItem,
   NavbarUserMenuProps,
   NavbarUserProfile,
   NavLink,
+  NonprofitFooterPresetLink,
+  NonprofitFooterPresetProps,
   RouteSegmentedSwitcherItem,
   RouteSegmentedSwitcherProps,
   SegmentedSwitcherItem,
@@ -311,9 +350,11 @@ export {
   ComingSoonButton,
   EntitySwitcher,
   Footer,
+  MarketingHeaderPreset,
   Navbar,
   NavbarLogo,
   NavbarUserMenu,
+  NonprofitFooterPreset,
   RouteSegmentedSwitcher,
   SegmentedSwitcher,
 } from "./blocks/navigation";
@@ -480,6 +521,14 @@ export type {
   DisplayFieldProps,
 } from "./components/ui/display-field";
 export { DisplayField, DisplayFieldGroup } from "./components/ui/display-field";
+export type {
+  DraggableCardBodyProps,
+  DraggableCardContainerProps,
+} from "./components/ui/draggable-card";
+export {
+  DraggableCardBody,
+  DraggableCardContainer,
+} from "./components/ui/draggable-card";
 export { DraggableStickyModal } from "./components/ui/draggable-sticky-modal";
 export {
   DropdownMenu,
@@ -553,6 +602,19 @@ export type { LocationMapProps } from "./components/ui/location-map";
 export { LocationMap } from "./components/ui/location-map";
 export type { ModernCalendarProps } from "./components/ui/modern-calendar";
 export { ModernCalendar } from "./components/ui/modern-calendar";
+export {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuIndicator,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuPrimitive,
+  NavigationMenuTrigger,
+  NavigationMenuViewport,
+  NavigationMenuViewportPrimitive,
+  navigationMenuTriggerStyle,
+} from "./components/ui/navigation-menu";
 export type { NumberStepperProps } from "./components/ui/number-stepper";
 export { NumberStepper } from "./components/ui/number-stepper";
 export type { PageHeaderProps } from "./components/ui/page-header";
@@ -789,17 +851,27 @@ export {
   type WizardStep,
 } from "./hooks/useWizardForm";
 export {
-  type CanonicalDataState,
-  type DataStateMetadata,
-  type ResolveDataStateInput,
-  type ResolvedDataState,
-  resolveDataState,
-} from "./utils/data-state";
-// Utilities
-export {
   type AvatarGradient,
+  type CanonicalDataState,
   cn,
+  type DataStateMetadata,
   getAvatarGradient,
   getGradientIndex,
   getGradientPairs,
+  type ResolveDataStateInput,
+  type ResolvedDataState,
+  resolveDataState,
 } from "./utils/index";
+export {
+  applyNoWidowText,
+  type NoWidowDomOptions,
+  type NoWidowOptions,
+  NoWidowText,
+  type NoWidowTextOwnProps,
+  type NoWidowTextProps,
+  preventWidowsInReactNode,
+} from "./utils/no-widow";
+export {
+  NoWidowProvider,
+  type NoWidowProviderProps,
+} from "./utils/no-widow-provider";

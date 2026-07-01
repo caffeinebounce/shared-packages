@@ -1,5 +1,22 @@
 # @caffeinebounce/shared-utils
 
+## 0.7.135
+
+### Patch Changes
+
+- 2183270: Add no-widow text utilities and React/UI helpers for global widow prevention.
+- d790a44: Refactor duplicated auth, email, layout, stat card, and data-table internals while preserving existing public APIs and behavior. Align shared-utils CommonJS package exports with its module package type.
+- f672ce8: Switch package license metadata from `UNLICENSED` to `MIT`.
+
+## 0.7.134
+
+### Patch Changes
+
+- f389e8e: Replace several regex-based helpers with bounded string logic to clear
+  post-public CodeQL alerts.
+- e3d1867: Disable published source maps and update package metadata for
+  the public-readiness sweep.
+
 ## 0.7.133
 
 ### Patch Changes

@@ -92,8 +92,10 @@ Reporters may be credited if they want attribution.
 ## Security Maintenance
 
 The repository uses automated checks to reduce security regressions, including
-dependency review, CodeQL, package contract validation, tests, type checks, and
-secret scanning hooks.
+package contract validation, tests, type checks, dependency alerting, and local
+secret scanning hooks. Before or during any public visibility change,
+maintainers should also enable GitHub secret scanning and CodeQL/code scanning
+where the repository plan supports them.
 
 Maintainers should:
 

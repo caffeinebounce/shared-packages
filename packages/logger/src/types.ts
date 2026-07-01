@@ -20,7 +20,7 @@ export interface LogContext {
  */
 export interface AuthLogContext extends LogContext {
   userId?: string;
-  email?: string;
+  accountDomain?: string;
   provider?: string;
   mfaUsed?: boolean;
   requestId?: string;
@@ -42,4 +42,5 @@ export const SENSITIVE_KEYS = [
   "authorization",
   "cookie",
   "sessionId",
+  "email",
 ] as const;

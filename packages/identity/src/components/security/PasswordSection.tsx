@@ -13,7 +13,7 @@ import {
   Label,
   PasswordInput,
   PasswordRequirements,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import { CheckCircle2, KeyRound, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";

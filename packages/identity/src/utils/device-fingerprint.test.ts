@@ -1,10 +1,29 @@
 import { describe, expect, it } from "vitest";
 import {
+  generateDeviceFingerprint,
   generateSecureToken,
   getClientIP,
   getGeolocationFromIP,
   hashString,
 } from "./device-fingerprint";
+
+describe("generateDeviceFingerprint", () => {
+  it("classifies Android before generic Linux platforms", () => {
+    const userAgentSpy = vi
+      .spyOn(window.navigator, "userAgent", "get")
+      .mockReturnValue("Mozilla/5.0 (Linux; Android 15)");
+    const platformSpy = vi
+      .spyOn(window.navigator, "platform", "get")
+      .mockReturnValue("Linux armv8l");
+
+    const fingerprint = generateDeviceFingerprint();
+
+    expect(fingerprint.osName).toBe("Android");
+
+    userAgentSpy.mockRestore();
+    platformSpy.mockRestore();
+  });
+});
 
 describe("getClientIP", () => {
   it("extracts IP from x-forwarded-for header (single IP)", () => {
@@ -35,25 +54,36 @@ describe("getClientIP", () => {
     expect(getClientIP(headers)).toBe("10.0.0.5");
   });
 
-  it("falls back to cf-connecting-ip header (Cloudflare)", () => {
+  it("extracts IP from cf-connecting-ip header (Cloudflare)", () => {
     const headers = new Headers({
       "cf-connecting-ip": "172.16.0.10",
     });
     expect(getClientIP(headers)).toBe("172.16.0.10");
   });
 
-  it("prefers x-forwarded-for over x-real-ip", () => {
+  it("prefers cf-connecting-ip over forwarded-chain fallbacks", () => {
     const headers = new Headers({
       "x-forwarded-for": "192.168.1.1",
       "x-real-ip": "10.0.0.5",
+      "true-client-ip": "203.0.113.10",
+      "cf-connecting-ip": "172.16.0.10",
     });
-    expect(getClientIP(headers)).toBe("192.168.1.1");
+    expect(getClientIP(headers)).toBe("172.16.0.10");
   });
 
-  it("prefers x-real-ip over cf-connecting-ip", () => {
+  it("prefers true-client-ip when cf-connecting-ip is absent", () => {
     const headers = new Headers({
+      "x-forwarded-for": "192.168.1.1",
       "x-real-ip": "10.0.0.5",
-      "cf-connecting-ip": "172.16.0.10",
+      "true-client-ip": "203.0.113.10",
+    });
+    expect(getClientIP(headers)).toBe("203.0.113.10");
+  });
+
+  it("prefers x-real-ip before x-forwarded-for when CDN headers are absent", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "192.168.1.1",
+      "x-real-ip": "10.0.0.5",
     });
     expect(getClientIP(headers)).toBe("10.0.0.5");
   });

@@ -93,6 +93,94 @@ describe("useNotifications", () => {
 
       expect(global.fetch).toHaveBeenCalledWith("/custom/endpoint?limit=20");
     });
+
+    it("preserves existing query params on relative fetch endpoints", async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ notifications: [], unreadCount: 0 }),
+      });
+
+      const { result } = renderHook(() =>
+        useNotifications({
+          fetchEndpoint: "/api/notifications?teamId=team-1",
+          limit: 20,
+        }),
+      );
+
+      await act(async () => {
+        await result.current.fetchNotifications();
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/notifications?teamId=team-1&limit=20",
+      );
+    });
+
+    it("preserves existing query params on absolute fetch endpoints", async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ notifications: [], unreadCount: 0 }),
+      });
+
+      const { result } = renderHook(() =>
+        useNotifications({
+          fetchEndpoint: "https://example.test/api/notifications?teamId=team-1",
+          limit: 5,
+        }),
+      );
+
+      await act(async () => {
+        await result.current.fetchNotifications();
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://example.test/api/notifications?teamId=team-1&limit=5",
+      );
+    });
+
+    it("preserves path-relative fetch endpoints", async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ notifications: [], unreadCount: 0 }),
+      });
+
+      const { result } = renderHook(() =>
+        useNotifications({
+          fetchEndpoint: "api/notifications?teamId=team-1",
+          limit: 20,
+        }),
+      );
+
+      await act(async () => {
+        await result.current.fetchNotifications();
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "api/notifications?teamId=team-1&limit=20",
+      );
+    });
+
+    it("preserves protocol-relative fetch endpoints", async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ notifications: [], unreadCount: 0 }),
+      });
+
+      const { result } = renderHook(() =>
+        useNotifications({
+          fetchEndpoint: "//example.test/api/notifications?teamId=team-1",
+          limit: 5,
+        }),
+      );
+
+      await act(async () => {
+        await result.current.fetchNotifications();
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "//example.test/api/notifications?teamId=team-1&limit=5",
+      );
+    });
   });
 
   describe("markAsRead", () => {
@@ -210,6 +298,46 @@ describe("useNotifications", () => {
       });
 
       // Should not make additional API call for already read notification
+      expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBe(
+        fetchCallCount,
+      );
+    });
+
+    it("skips unknown notification IDs", async () => {
+      const mockData = {
+        notifications: [
+          {
+            id: "1",
+            title: "Test",
+            message: "Message",
+            type: "info",
+            isRead: false,
+            createdAt: "2024-01-01T00:00:00Z",
+          },
+        ],
+        unreadCount: 1,
+      };
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockData,
+      });
+
+      const { result } = renderHook(() => useNotifications());
+
+      await act(async () => {
+        await result.current.fetchNotifications();
+      });
+
+      const fetchCallCount = (global.fetch as ReturnType<typeof vi.fn>).mock
+        .calls.length;
+
+      await act(async () => {
+        await result.current.markAsRead("missing-id");
+      });
+
+      expect(result.current.notifications).toEqual(mockData.notifications);
+      expect(result.current.unreadCount).toBe(1);
       expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBe(
         fetchCallCount,
       );

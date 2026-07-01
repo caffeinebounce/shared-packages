@@ -1,36 +1,36 @@
 {
   "name": "@caffeinebounce/shared-utils",
-  "version": "0.7.133",
-  "description": "Shared utility functions for Capital Collective projects",
+  "version": "0.7.135",
+  "description": "Shared utility functions for caffeinebounce applications",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "require": "./dist/index.cjs"
     },
     "./analytics": {
       "types": "./dist/analytics.d.ts",
       "import": "./dist/analytics.mjs",
-      "require": "./dist/analytics.js"
+      "require": "./dist/analytics.cjs"
     },
     "./formatters": {
       "types": "./dist/formatters.d.ts",
       "import": "./dist/formatters.mjs",
-      "require": "./dist/formatters.js"
+      "require": "./dist/formatters.cjs"
     },
     "./string": {
       "types": "./dist/string.d.ts",
       "import": "./dist/string.mjs",
-      "require": "./dist/string.js"
+      "require": "./dist/string.cjs"
     },
     "./image": {
       "types": "./dist/image.d.ts",
       "import": "./dist/image.mjs",
-      "require": "./dist/image.js"
+      "require": "./dist/image.cjs"
     }
   },
   "files": [
@@ -60,5 +60,6 @@
   "devDependencies": {
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
-  }
+  },
+  "license": "MIT"
 }

@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
+  packages: read
 
 jobs:
   build:
@@ -21,12 +21,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 25
           package-manager-cache: false
@@ -49,39 +50,58 @@ jobs:
             yarn-cache-${{ runner.os }}-
 
       - name: Install dependencies
-        run: yarn install
-        env:
-          YARN_ENABLE_IMMUTABLE_INSTALLS: false
+        run: yarn install --immutable
 
-      - name: Check for lockfile changes
-        id: lockfile-check
-        run: |
-          if [[ -n $(git status --porcelain yarn.lock) ]]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
+      - name: Check changelog discipline
+        if: github.event_name == 'pull_request'
+        run: yarn check:changelog
 
-      - name: Commit lockfile changes
-        if: steps.lockfile-check.outputs.changed == 'true' && github.event_name == 'push'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add yarn.lock
-          git commit -m "chore: update yarn.lock [skip ci]"
-          git push
+      - name: Root lint
+        if: github.event_name == 'pull_request'
+        run: yarn format:check
 
       - name: Lint
+        if: github.event_name == 'pull_request'
+        run: timeout 5m yarn lint
+
+      - name: Typecheck
+        if: github.event_name == 'pull_request'
+        run: timeout 5m yarn typecheck
+
+      - name: Test
+        if: github.event_name == 'pull_request'
+        run: timeout 5m yarn test
+
+      - name: Build
+        if: github.event_name == 'pull_request'
+        run: timeout 10m yarn build
+
+      - name: Lint
+        if: github.event_name == 'push'
         run: yarn lint
 
       - name: Typecheck
+        if: github.event_name == 'push'
         run: yarn typecheck
 
       - name: Test
+        if: github.event_name == 'push'
         run: yarn test
 
       - name: Build
+        if: github.event_name == 'push'
         run: yarn build
+
+      - name: Consumer package smoke
+        if: github.event_name == 'pull_request'
+        run: timeout 5m yarn test:consumer-smoke
+
+      - name: Consumer package smoke
+        if: github.event_name == 'push'
+        run: yarn test:consumer-smoke
+
+      - name: UI entrypoint sizes
+        run: yarn size:ui
 
       - name: Validate package contracts
         run: yarn validate:packages
@@ -92,7 +112,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Test Swift package
         run: swift test

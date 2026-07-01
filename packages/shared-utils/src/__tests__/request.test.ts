@@ -28,13 +28,32 @@ describe("getClientIP", () => {
     expect(getClientIP(headers)).toBe("203.0.113.42");
   });
 
-  it("prefers x-forwarded-for over other headers", () => {
+  it("prefers cf-connecting-ip over forwarded-chain fallbacks", () => {
     const headers = new Headers({
       "x-forwarded-for": "1.1.1.1",
       "x-real-ip": "2.2.2.2",
-      "cf-connecting-ip": "3.3.3.3",
+      "true-client-ip": "3.3.3.3",
+      "cf-connecting-ip": "4.4.4.4",
     });
-    expect(getClientIP(headers)).toBe("1.1.1.1");
+    expect(getClientIP(headers)).toBe("4.4.4.4");
+  });
+
+  it("prefers true-client-ip when cf-connecting-ip is absent", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "1.1.1.1",
+      "x-real-ip": "2.2.2.2",
+      "true-client-ip": "3.3.3.3",
+    });
+
+    expect(getClientIP(headers)).toBe("3.3.3.3");
+  });
+
+  it("prefers x-real-ip before x-forwarded-for when CDN headers are absent", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "1.1.1.1",
+      "x-real-ip": "2.2.2.2",
+    });
+    expect(getClientIP(headers)).toBe("2.2.2.2");
   });
 
   it("returns null when no IP headers present", () => {

@@ -35,20 +35,27 @@ export interface GeolocationInfo {
  * ```
  */
 export function getClientIP(headers: Headers): string | null {
-  // Try various headers in order of preference
-  const forwardedFor = headers.get("x-forwarded-for");
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0].trim();
+  // Prefer trusted CDN edge headers before forwarded-chain fallbacks. Only use
+  // this helper behind infrastructure that strips client-supplied copies of
+  // these headers before setting trusted values.
+  const cfConnectingIP = headers.get("cf-connecting-ip");
+  if (cfConnectingIP) {
+    return cfConnectingIP.trim();
+  }
+
+  const trueClientIP = headers.get("true-client-ip");
+  if (trueClientIP) {
+    return trueClientIP.trim();
   }
 
   const realIP = headers.get("x-real-ip");
   if (realIP) {
-    return realIP;
+    return realIP.trim();
   }
 
-  const cfConnectingIP = headers.get("cf-connecting-ip");
-  if (cfConnectingIP) {
-    return cfConnectingIP;
+  const forwardedFor = headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0].trim();
   }
 
   return null;

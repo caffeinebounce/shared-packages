@@ -52,6 +52,11 @@ export interface ExportToCsvOptions<TData> {
   formatters?: Record<string, (value: unknown) => string>;
 }
 
+interface SerializedTableExport {
+  headers: string[];
+  rows: string[][];
+}
+
 /**
  * Escapes a field for CSV format
  * - Wraps in quotes if contains comma, quote, or newline
@@ -92,6 +97,42 @@ function formatCsvValue(value: unknown): string {
   return String(value);
 }
 
+function serializeTableExport<TData>({
+  table,
+  visibleColumnsOnly = true,
+  selectedRowsOnly = false,
+  customHeaders = {},
+  excludeColumns = [],
+  formatters = {},
+}: Omit<ExportToCsvOptions<TData>, "filename">): SerializedTableExport {
+  const allColumns = visibleColumnsOnly
+    ? table.getVisibleLeafColumns()
+    : table.getAllLeafColumns();
+
+  const columns = allColumns.filter((col) => {
+    const colId = col.id;
+    if (["select", "selection", "actions", "_actions"].includes(colId)) {
+      return false;
+    }
+    return !excludeColumns.includes(colId);
+  });
+
+  const tableRows = selectedRowsOnly
+    ? table.getFilteredSelectedRowModel().rows
+    : table.getFilteredRowModel().rows;
+
+  return {
+    headers: columns.map((col) => customHeaders[col.id] ?? col.id),
+    rows: tableRows.map((row) =>
+      columns.map((col) => {
+        const cellValue = row.getValue(col.id);
+        const formatter = formatters[col.id];
+        return formatter ? formatter(cellValue) : formatCsvValue(cellValue);
+      }),
+    ),
+  };
+}
+
 /**
  * Exports table data to CSV and triggers download
  */
@@ -104,52 +145,19 @@ export function exportToCsv<TData>({
   excludeColumns = [],
   formatters = {},
 }: ExportToCsvOptions<TData>): void {
-  // Get columns to export
-  const allColumns = visibleColumnsOnly
-    ? table.getVisibleLeafColumns()
-    : table.getAllLeafColumns();
-
-  // Filter out excluded columns and non-data columns (like selection, actions)
-  const columns = allColumns.filter((col) => {
-    const colId = col.id;
-    // Skip common non-data columns
-    if (["select", "selection", "actions", "_actions"].includes(colId)) {
-      return false;
-    }
-    // Skip explicitly excluded columns
-    if (excludeColumns.includes(colId)) {
-      return false;
-    }
-    return true;
-  });
-
-  // Get rows to export
-  const rows = selectedRowsOnly
-    ? table.getFilteredSelectedRowModel().rows
-    : table.getFilteredRowModel().rows;
-
-  // Build header row
-  const headers = columns.map((col) => {
-    const header = customHeaders[col.id] ?? col.id;
-    return escapeCsvField(header);
-  });
-
-  // Build data rows
-  const dataRows = rows.map((row) => {
-    return columns.map((col) => {
-      const cellValue = row.getValue(col.id);
-      const formatter = formatters[col.id];
-      const formattedValue = formatter
-        ? formatter(cellValue)
-        : formatCsvValue(cellValue);
-      return escapeCsvField(formattedValue);
-    });
+  const { headers, rows } = serializeTableExport({
+    table,
+    visibleColumnsOnly,
+    selectedRowsOnly,
+    customHeaders,
+    excludeColumns,
+    formatters,
   });
 
   // Combine headers and data
   const csvContent = [
-    headers.join(","),
-    ...dataRows.map((row) => row.join(",")),
+    headers.map(escapeCsvField).join(","),
+    ...rows.map((row) => row.map(escapeCsvField).join(",")),
   ].join("\n");
 
   // Create and trigger download
@@ -197,45 +205,18 @@ export function exportToExcel<TData>({
   excludeColumns = [],
   formatters = {},
 }: ExportToExcelOptions<TData>): void {
-  // Get columns to export
-  const allColumns = visibleColumnsOnly
-    ? table.getVisibleLeafColumns()
-    : table.getAllLeafColumns();
-
-  // Filter out excluded columns and non-data columns (like selection, actions)
-  const columns = allColumns.filter((col) => {
-    const colId = col.id;
-    // Skip common non-data columns
-    if (["select", "selection", "actions", "_actions"].includes(colId)) {
-      return false;
-    }
-    // Skip explicitly excluded columns
-    if (excludeColumns.includes(colId)) {
-      return false;
-    }
-    return true;
-  });
-
-  // Get rows to export
-  const rows = selectedRowsOnly
-    ? table.getFilteredSelectedRowModel().rows
-    : table.getFilteredRowModel().rows;
-
-  // Build header row
-  const headers = columns.map((col) => customHeaders[col.id] ?? col.id);
-
-  // Build data rows
-  const dataRows = rows.map((row) => {
-    return columns.map((col) => {
-      const cellValue = row.getValue(col.id);
-      const formatter = formatters[col.id];
-      return formatter ? formatter(cellValue) : formatCsvValue(cellValue);
-    });
+  const { headers, rows } = serializeTableExport({
+    table,
+    visibleColumnsOnly,
+    selectedRowsOnly,
+    customHeaders,
+    excludeColumns,
+    formatters,
   });
 
   const sheetRows: SpreadsheetCell[][] = [
     headers.map((header) => ({ value: header, style: "header" })),
-    ...dataRows.map((row) =>
+    ...rows.map((row) =>
       row.map((cell) => {
         const trimmed = cell.trim();
         const isNumericPattern =

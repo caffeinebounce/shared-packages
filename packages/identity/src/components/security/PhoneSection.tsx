@@ -13,7 +13,7 @@ import {
   Input,
   Label,
   VerificationCodeInput,
-} from "@caffeinebounce/ui";
+} from "@caffeinebounce/ui/primitives";
 import { AlertCircle, CheckCircle2, Loader2, Phone } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

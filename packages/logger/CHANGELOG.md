@@ -1,5 +1,26 @@
 # @caffeinebounce/logger
 
+## 0.9.132
+
+### Patch Changes
+
+- f672ce8: Switch package license metadata from `UNLICENSED` to `MIT`.
+
+## 0.9.131
+
+### Patch Changes
+
+- f389e8e: Replace several regex-based helpers with bounded string logic to clear
+  post-public CodeQL alerts.
+- e3d1867: Disable published source maps and update package metadata for
+  the public-readiness sweep.
+
+## 0.9.130
+
+### Patch Changes
+
+- Sync the changelog header with the current package version so CI can enforce current changelog coverage going forward.
+
 ## 0.9.7
 
 ### Patch Changes

@@ -38,6 +38,28 @@ describe("Stepper", () => {
 
       expect(screen.getByText("Step 2 of 3")).toBeInTheDocument();
     });
+
+    it("can render compact visual steps on mobile", () => {
+      const { container } = render(
+        <Stepper
+          steps={mockSteps}
+          currentStep="step2"
+          completedSteps={["step1"]}
+          mobileVariant="steps"
+          size="compact"
+          onStepClick={vi.fn()}
+        />,
+      );
+
+      const mobileSteps = container.querySelector(
+        '[data-slot="stepper-mobile-steps"]',
+      );
+      expect(mobileSteps).toBeInTheDocument();
+      expect(mobileSteps).toHaveTextContent("Step 1");
+      expect(mobileSteps).toHaveTextContent("Step 2");
+      expect(mobileSteps).toHaveTextContent("Step 3");
+      expect(screen.queryByText("Step 2 of 3")).not.toBeInTheDocument();
+    });
   });
 
   describe("current step highlighting", () => {

@@ -882,7 +882,6 @@ const lightCanvasStyles = `
 
 /** JavaScript for conditional logic in forms */
 const conditionalLogicScript = `
-<script>
 (function() {
   function initConditionalLogic() {
     var conditionalFields = document.querySelectorAll('[data-condition-field]');
@@ -950,7 +949,6 @@ const conditionalLogicScript = `
 
   observer.observe(document.body, { childList: true, subtree: true });
 })();
-</script>
 `;
 
 /** Dark mode canvas styles for the form builder - Typeform-inspired design */
@@ -1594,10 +1592,7 @@ export function StudioEditor({
             if (!existingScript) {
               const scriptEl = canvasDoc.createElement("script");
               scriptEl.id = "conditional-logic-script";
-              scriptEl.textContent = conditionalLogicScript.replace(
-                /<\/?script>/g,
-                "",
-              );
+              scriptEl.textContent = conditionalLogicScript;
               canvasDoc.body.appendChild(scriptEl);
             }
           }

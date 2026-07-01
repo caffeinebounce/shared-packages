@@ -13,9 +13,18 @@
     "lint:fix": "biome check --write . && turbo run lint",
     "format": "biome check --write .",
     "format:check": "biome check .",
+    "check:conventions": "bash scripts/check-conventions.sh",
+    "ci:affected": "turbo run lint typecheck test build --filter=\"...[${TURBO_SCM_BASE:-origin/main}]\" --output-logs=errors-only",
+    "test:consumer-smoke": "node tests/consumer-smoke/package-imports.mjs",
+    "size:ui": "node scripts/check-ui-entrypoint-sizes.mjs",
     "validate:packages": "node ./scripts/validate-workspace-packages.mjs",
+    "validate:packages:affected": "node ./scripts/validate-workspace-packages.mjs --affected ${TURBO_SCM_BASE:-origin/main}",
+    "verify:github-public-readiness": "./scripts/github-public-readiness-check.sh",
+    "verify:pre-public": "./scripts/pre-public-verify.sh",
+    "check:changelog": "node ./scripts/check-changelog-discipline.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version",
+    "version-packages:ci": "changeset version && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
     "release": "changeset publish",
     "clean": "turbo run clean && rm -rf node_modules",
     "publish:local": "./scripts/publish-local.sh",
@@ -52,5 +61,6 @@
   "resolutions": {
     "postcss@npm:8.4.31": "npm:8.5.15"
   },
-  "packageManager": "yarn@4.12.0"
+  "packageManager": "yarn@4.12.0",
+  "license": "MIT"
 }

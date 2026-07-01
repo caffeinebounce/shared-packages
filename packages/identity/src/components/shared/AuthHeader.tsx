@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@caffeinebounce/ui";
+import { cn } from "@caffeinebounce/ui/primitives";
 import type { ComponentType } from "react";
 
 export interface AuthHeaderProps {

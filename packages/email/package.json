@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/email",
-  "version": "0.6.126",
+  "version": "0.6.129",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -52,5 +52,6 @@
     "@react-email/components": "^1.0.1",
     "nodemailer": "^8.0.8",
     "resend": "^6.12.3"
-  }
+  },
+  "license": "MIT"
 }

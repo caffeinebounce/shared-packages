@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CreateClientFn } from "../../types";
 import { EmailSection } from "./EmailSection";
 
-vi.mock("@caffeinebounce/ui", () => {
+vi.mock("@caffeinebounce/ui/primitives", () => {
   return {
     Button: ({
       children,

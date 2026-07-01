@@ -87,6 +87,60 @@ function getColorValue(color?: string): string | undefined {
   return colorMap[color.toLowerCase()] ?? color;
 }
 
+function TextLikeFilterBody({
+  type,
+  placeholder,
+  value,
+  onValueChange,
+  onApply,
+  onClear,
+}: {
+  type?: "text" | "number";
+  placeholder: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  onApply: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <div className="px-2 py-2">
+      <Input
+        type={type === "number" ? "number" : undefined}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onValueChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            onApply();
+          }
+        }}
+        className="h-8 text-xs"
+        autoFocus
+      />
+      <div className="flex items-center justify-between mt-2 gap-2">
+        {value && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs px-2 text-muted-foreground hover:text-foreground"
+            onClick={onClear}
+          >
+            Clear
+          </Button>
+        )}
+        <Button
+          size="sm"
+          className="h-7 text-xs px-3 ml-auto"
+          onClick={onApply}
+        >
+          Apply
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Filter UI content (reusable) - Notion-style
  */
@@ -210,78 +264,24 @@ export function DataTableColumnFilterContent({
       {/* Filter content based on type */}
       <div className="p-1">
         {filterType === "text" && (
-          <div className="px-2 py-2">
-            <Input
-              placeholder={placeholder ?? `Search ${title.toLowerCase()}...`}
-              value={localValue}
-              onChange={(e) => setLocalValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleApply();
-                }
-              }}
-              className="h-8 text-xs"
-              autoFocus
-            />
-            <div className="flex items-center justify-between mt-2 gap-2">
-              {localValue && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-xs px-2 text-muted-foreground hover:text-foreground"
-                  onClick={handleClear}
-                >
-                  Clear
-                </Button>
-              )}
-              <Button
-                size="sm"
-                className="h-7 text-xs px-3 ml-auto"
-                onClick={handleApply}
-              >
-                Apply
-              </Button>
-            </div>
-          </div>
+          <TextLikeFilterBody
+            placeholder={placeholder ?? `Search ${title.toLowerCase()}...`}
+            value={localValue}
+            onValueChange={setLocalValue}
+            onApply={handleApply}
+            onClear={handleClear}
+          />
         )}
 
         {filterType === "number" && (
-          <div className="px-2 py-2">
-            <Input
-              type="number"
-              placeholder={placeholder ?? `Enter ${title.toLowerCase()}...`}
-              value={localValue}
-              onChange={(e) => setLocalValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleApply();
-                }
-              }}
-              className="h-8 text-xs"
-              autoFocus
-            />
-            <div className="flex items-center justify-between mt-2 gap-2">
-              {localValue && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-xs px-2 text-muted-foreground hover:text-foreground"
-                  onClick={handleClear}
-                >
-                  Clear
-                </Button>
-              )}
-              <Button
-                size="sm"
-                className="h-7 text-xs px-3 ml-auto"
-                onClick={handleApply}
-              >
-                Apply
-              </Button>
-            </div>
-          </div>
+          <TextLikeFilterBody
+            type="number"
+            placeholder={placeholder ?? `Enter ${title.toLowerCase()}...`}
+            value={localValue}
+            onValueChange={setLocalValue}
+            onApply={handleApply}
+            onClear={handleClear}
+          />
         )}
 
         {filterType === "select" && filterOptions && (

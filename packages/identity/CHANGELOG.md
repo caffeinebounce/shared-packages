@@ -1,5 +1,56 @@
 # @caffeinebounce/identity
 
+## 0.12.0
+
+### Minor Changes
+
+- b111e64: Make auth callback policy configurable by adding success redirect, linking-flow,
+  and linking-error message hooks. The default callback handler now keeps
+  app-specific role, approval, domain, and branded copy out of the shared package.
+
+### Patch Changes
+
+- d790a44: Refactor duplicated auth, email, layout, stat card, and data-table internals while preserving existing public APIs and behavior. Align shared-utils CommonJS package exports with its module package type.
+- f672ce8: Switch package license metadata from `UNLICENSED` to `MIT`.
+- Updated dependencies [2183270]
+- Updated dependencies [2872825]
+- Updated dependencies [d790a44]
+- Updated dependencies [03e9401]
+- Updated dependencies [65cea7a]
+- Updated dependencies [dccd989]
+- Updated dependencies [f672ce8]
+- Updated dependencies [e225b3d]
+  - @caffeinebounce/shared-utils@0.7.135
+  - @caffeinebounce/ui@0.62.0
+  - @caffeinebounce/logger@0.9.132
+
+## 0.11.7
+
+### Patch Changes
+
+- e3d1867: Disable published source maps and update package metadata for
+  the public-readiness sweep.
+- Updated dependencies [f389e8e]
+- Updated dependencies [e3d1867]
+  - @caffeinebounce/logger@0.9.131
+  - @caffeinebounce/shared-utils@0.7.134
+  - @caffeinebounce/ui@0.61.1
+
+## 0.11.6
+
+### Patch Changes
+
+- Updated dependencies [5aaf5a2]
+  - @caffeinebounce/ui@0.61.0
+
+## 0.11.5
+
+### Patch Changes
+
+- e9878bb: Add the lightweight `@caffeinebounce/ui/primitives` entrypoint, render `AuthPageLayout` external logos, and migrate primitive-only internal consumers to the new UI subpath.
+- Updated dependencies [e9878bb]
+  - @caffeinebounce/ui@0.60.0
+
 ## 0.11.4
 
 ### Patch Changes

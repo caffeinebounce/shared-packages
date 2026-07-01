@@ -12,7 +12,7 @@
   "platformAutomerge": true,
   "packageRules": [
     {
-      "description": "Disable Renovate for internal @caffeinebounce packages (managed via Changesets)",
+      "description": "Disable Renovate for workspace @caffeinebounce packages (managed via Changesets)",
       "matchPackagePatterns": ["^@caffeinebounce/"],
       "enabled": false
     },

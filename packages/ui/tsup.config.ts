@@ -9,6 +9,7 @@ export default defineConfig({
   entry: {
     // Main entry point (all exports for backwards compatibility)
     index: "src/index.tsx",
+    primitives: "src/entries/primitives.ts",
     // Subpath exports for tree-shaking heavy modules
     "data-table": "src/entries/data-table.ts",
     editor: "src/entries/editor.ts",
@@ -27,7 +28,7 @@ export default defineConfig({
   format: ["esm", "cjs"],
   dts: true,
   splitting: true,
-  sourcemap: true,
+  sourcemap: false,
   clean: true,
   external: [
     "react",

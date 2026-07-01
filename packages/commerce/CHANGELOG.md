@@ -1,5 +1,18 @@
 # @caffeinebounce/commerce
 
+## 0.1.3
+
+### Patch Changes
+
+- f672ce8: Switch package license metadata from `UNLICENSED` to `MIT`.
+
+## 0.1.2
+
+### Patch Changes
+
+- e3d1867: Disable published source maps and update package metadata for
+  the public-readiness sweep.
+
 ## 0.1.1
 
 ### Patch Changes

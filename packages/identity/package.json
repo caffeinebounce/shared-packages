@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/identity",
-  "version": "0.11.4",
+  "version": "0.12.0",
   "description": "Authentication components and handlers for Caffeine Bounce projects",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -59,9 +59,9 @@
     }
   },
   "dependencies": {
-    "@caffeinebounce/logger": "^0.9.130",
-    "@caffeinebounce/shared-utils": "^0.7.133",
-    "@caffeinebounce/ui": "^0.59.1",
+    "@caffeinebounce/logger": "^0.9.132",
+    "@caffeinebounce/shared-utils": "^0.7.135",
+    "@caffeinebounce/ui": "^0.62.1",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.49.4",
     "input-otp": "^1.4.2",
@@ -79,5 +79,6 @@
     "react-dom": "^19.2.4",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
-  }
+  },
+  "license": "MIT"
 }

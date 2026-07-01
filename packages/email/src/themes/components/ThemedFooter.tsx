@@ -57,7 +57,7 @@ export function ThemedFooter({
               email,
               generateUnsubscribeToken({
                 email,
-                secret: config.unsubscribeSecret,
+                secret: config.unsubscribeSecret ?? "",
               }),
             )}
             style={linkStyle}

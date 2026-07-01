@@ -20,18 +20,18 @@ jobs:
     timeout-minutes: 30
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
+      NODE_AUTH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 25
           package-manager-cache: false
@@ -56,6 +56,12 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Consumer package smoke
+        run: yarn test:consumer-smoke
+
+      - name: UI entrypoint sizes
+        run: yarn size:ui
+
       - name: Validate package contracts
         run: yarn validate:packages
 
@@ -63,31 +69,34 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          version: yarn version-packages
+          version: yarn version-packages:ci
           publish: yarn release
           commit: "chore: version packages"
           title: "chore: version packages"
+          github-token: ${{ secrets.GH_PAT }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          YARN_NPM_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ github.token }}
+          YARN_NPM_AUTH_TOKEN: ${{ github.token }}
 
-      - name: Check Compass dispatch token availability
-        id: compass_dispatch_token
+      - name: Check consumer dispatch configuration
+        id: consumer_dispatch_config
         run: |
-          if [ -n "${GH_PAT}" ]; then
+          if [ -n "${GH_PAT}" ] && [ -n "${CONSUMER_REPOSITORY}" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
             echo "available=false" >> "$GITHUB_OUTPUT"
           fi
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
+          CONSUMER_REPOSITORY: ${{ vars.SHARED_PACKAGES_CONSUMER_REPOSITORY }}
 
-      - name: Notify Compass about published packages
-        if: steps.changesets.outputs.published == 'true' && steps.compass_dispatch_token.outputs.available == 'true'
+      - name: Notify consumer about published packages
+        if: steps.changesets.outputs.published == 'true' && steps.consumer_dispatch_config.outputs.available == 'true'
         uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.GH_PAT }}
-          repository: caffeinebounce/compass
+          repository: ${{ vars.SHARED_PACKAGES_CONSUMER_REPOSITORY }}
           event-type: update-shared-packages
           client-payload: |
             {

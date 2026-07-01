@@ -3,23 +3,33 @@ import type { EmailThemeConfig } from "./themes";
 
 export type UnsubscribeTokenInput = {
   email: string;
+  secret: string;
+};
+
+export type VerifyUnsubscribeTokenInput = {
+  email: string;
+  token: string;
   secret?: string;
+};
+
+export type UnsubscribeHeadersConfig = Pick<
+  EmailThemeConfig,
+  "siteUrl" | "unsubscribeUrl"
+> & {
+  unsubscribeSecret: string;
 };
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-function toUrlSafeBase64(value: string): string {
-  return Buffer.from(value, "utf8").toString("base64url");
-}
-
-function fromUrlSafeBase64(value: string): string | null {
-  try {
-    return Buffer.from(value, "base64url").toString("utf8");
-  } catch {
-    return null;
+function normalizeSecret(secret?: string): string {
+  const normalizedSecret = secret?.trim();
+  if (!normalizedSecret) {
+    throw new Error("unsubscribeSecret is required for unsubscribe tokens");
   }
+
+  return normalizedSecret;
 }
 
 export function generateUnsubscribeToken({
@@ -27,28 +37,32 @@ export function generateUnsubscribeToken({
   secret,
 }: UnsubscribeTokenInput): string {
   const normalizedEmail = normalizeEmail(email);
+  const normalizedSecret = normalizeSecret(secret);
 
-  if (!secret) {
-    return toUrlSafeBase64(normalizedEmail);
-  }
-
-  return createHmac("sha256", secret).update(normalizedEmail).digest("hex");
+  return createHmac("sha256", normalizedSecret)
+    .update(normalizedEmail)
+    .digest("hex");
 }
 
 export function verifyUnsubscribeToken({
   email,
   token,
   secret,
-}: UnsubscribeTokenInput & { token: string }): boolean {
+}: VerifyUnsubscribeTokenInput): boolean {
   const normalizedEmail = normalizeEmail(email);
+  let normalizedSecret: string;
 
-  if (!secret) {
-    const decoded = fromUrlSafeBase64(token);
-    return decoded === normalizedEmail;
+  try {
+    normalizedSecret = normalizeSecret(secret);
+  } catch {
+    return false;
   }
 
   const expected = Buffer.from(
-    generateUnsubscribeToken({ email: normalizedEmail, secret }),
+    generateUnsubscribeToken({
+      email: normalizedEmail,
+      secret: normalizedSecret,
+    }),
     "utf8",
   );
   const received = Buffer.from(token, "utf8");
@@ -82,10 +96,7 @@ export function buildUnsubscribeUrlFromConfig(
 }
 
 export function getUnsubscribeHeadersFromConfig(
-  config: Pick<
-    EmailThemeConfig,
-    "siteUrl" | "unsubscribeUrl" | "unsubscribeSecret"
-  >,
+  config: UnsubscribeHeadersConfig,
   email: string,
 ): Record<string, string> {
   const token = generateUnsubscribeToken({
@@ -103,6 +114,11 @@ export function parseListUnsubscribeHeader(
   value?: string | null,
 ): string | undefined {
   if (!value) return undefined;
-  const match = value.match(/<([^>]+)>/);
-  return match?.[1];
+  const start = value.indexOf("<");
+  if (start === -1) return undefined;
+
+  const end = value.indexOf(">", start + 1);
+  if (end === -1 || end === start + 1) return undefined;
+
+  return value.slice(start + 1, end);
 }

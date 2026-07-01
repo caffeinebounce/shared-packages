@@ -1,5 +1,27 @@
 # @caffeinebounce/email
 
+## 0.6.129
+
+### Patch Changes
+
+- Add reusable marketing email footer, contact confirmation, and newsletter confirmation templates.
+
+## 0.6.128
+
+### Patch Changes
+
+- d790a44: Refactor duplicated auth, email, layout, stat card, and data-table internals while preserving existing public APIs and behavior. Align shared-utils CommonJS package exports with its module package type.
+- f672ce8: Switch package license metadata from `UNLICENSED` to `MIT`.
+
+## 0.6.127
+
+### Patch Changes
+
+- f389e8e: Replace several regex-based helpers with bounded string logic to clear
+  post-public CodeQL alerts.
+- e3d1867: Disable published source maps and update package metadata for
+  the public-readiness sweep.
+
 ## 0.6.126
 
 ### Patch Changes

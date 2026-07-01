@@ -1,43 +1,43 @@
 # Product Vision: shared-packages
 
-> Reusable packages for Capital Collective projects
+> MIT-licensed shared packages for @caffeinebounce applications
 
 ---
 
 ## Mission
 
-**One-liner:** Provide consistent, high-quality UI components and utilities across
-all Capital Collective applications.
+**One-liner:** Provide consistent, high-quality UI components and utilities
+across applications that consume the `@caffeinebounce/*` package scope.
 
-**Why it matters:** Multiple apps (Compass, ZenBid, douglasebanks.com) share common
-patterns. Centralizing these reduces duplication, ensures consistency, and accelerates
-development across the portfolio.
+**Why it matters:** Multiple applications share common interface, auth,
+messaging, logging, and utility patterns. Centralizing these reduces
+duplication, improves consistency, and accelerates development.
 
 ---
 
 ## User Personas
 
-### Primary: Internal Developer
+### Primary: Maintainer
 
-- **Who:** Developer working on Compass, ZenBid, or other Capital Collective apps
+- **Who:** Developer maintaining packages or consuming them from an application
 - **Goals:** Ship features fast with consistent, polished UI; avoid reinventing patterns
 - **Pain points:** Duplicated code, inconsistent styling, hunting for component APIs
 - **Success looks like:** Import a component, it works, types are excellent, docs are clear
 
-### Secondary: Future External Consumer
+### Secondary: External Reader
 
-- **Who:** Developer in another org who might use these packages
-- **Goals:** Reliable, well-documented components with predictable behavior
+- **Who:** Developer reviewing the MIT-licensed repository or evaluating package behavior
+- **Goals:** Understand the package surface, release process, and support boundary
 - **Pain points:** Breaking changes, poor documentation, opaque dependencies
-- **Success looks like:** Stable semver, clear changelogs, no surprises
+- **Success looks like:** Clear MIT license, stable semver, clear changelogs, no surprises
 
 ---
 
 ## Core User Journeys
 
-### Journey 1: Add a UI Component to Compass
+### Journey 1: Add A UI Component To A Consumer App
 
-**Persona:** Internal Developer
+**Persona:** Maintainer
 **Goal:** Use a shared component in an app
 
 1. Find the component in `@caffeinebounce/ui`
@@ -48,13 +48,13 @@ development across the portfolio.
 
 **Must work flawlessly.** This is the primary use case.
 
-### Journey 2: Update Shared Packages in Consumer App
+### Journey 2: Update Shared Packages In A Consumer App
 
-**Persona:** Internal Developer
-**Goal:** Get latest shared-packages in Compass
+**Persona:** Maintainer
+**Goal:** Get the latest shared packages into a consumer repository
 
 1. Shared-packages publishes new version
-2. Compass receives automated update PR
+2. Consumer receives or manually creates an update PR
 3. Review changes, verify lint/build/test pass
 4. Merge PR
 5. App has latest packages without breakage
@@ -63,7 +63,7 @@ development across the portfolio.
 
 ### Journey 3: Add New Component to Shared Packages
 
-**Persona:** Internal Developer
+**Persona:** Maintainer
 **Goal:** Create a reusable component
 
 1. Create component in appropriate package
@@ -125,10 +125,10 @@ development across the portfolio.
 
 Things we're explicitly NOT trying to do:
 
-- Build a public component library for external orgs (yet)
+- Build a general-purpose public component library for external organizations
 - Support non-React frameworks
 - Provide theme customization beyond Tailwind
-- Maintain backwards compatibility indefinitely (internal use allows iteration)
+- Maintain backwards compatibility indefinitely
 
 ---
 

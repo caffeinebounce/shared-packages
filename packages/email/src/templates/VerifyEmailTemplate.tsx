@@ -1,14 +1,6 @@
-import { BaseEmailLayout } from "../components/BaseEmailLayout";
-import { EmailFooter } from "../components/EmailFooter";
-import { EmailHeader } from "../components/EmailHeader";
-import {
-  EmailButton,
-  EmailContent,
-  EmailHeading,
-  EmailText,
-} from "../components/EmailPrimitives";
 import type { BrandConfig, ColorPalette } from "../types/brand";
-import { defaultBrandConfig, defaultColors } from "../types/brand";
+import { defaultBrandConfig } from "../types/brand";
+import { TransactionalActionTemplate } from "./TransactionalActionTemplate";
 
 export interface VerifyEmailTemplateProps {
   /** The verification link */
@@ -40,42 +32,25 @@ export function VerifyEmailTemplate({
   buttonText = "Verify Email Address",
   expiryText = "This link will expire in 24 hours.",
 }: VerifyEmailTemplateProps) {
-  const config = { ...defaultBrandConfig, ...brand };
-  // Use brand's primaryColor for button if not explicitly overridden
-  const palette = {
-    ...defaultColors,
-    ...(config.primaryColor ? { buttonBg: config.primaryColor } : {}),
-    ...colors,
-  };
-
-  const defaultBodyText = `Thanks for joining ${config.name}! Please verify your email to get started.`;
+  const brandName = brand.name ?? defaultBrandConfig.name;
 
   return (
-    <BaseEmailLayout
-      preview={`Verify your email address for ${config.name}`}
-      colors={palette}
-    >
-      <EmailHeader brand={config} />
-
-      <EmailContent>
-        <EmailHeading>{heading}</EmailHeading>
-
-        <EmailText colors={palette}>{bodyText || defaultBodyText}</EmailText>
-
-        <EmailButton href={verificationLink} colors={palette}>
-          {buttonText}
-        </EmailButton>
-
-        <EmailText variant="expiry" colors={palette}>
-          {expiryText}
-        </EmailText>
-      </EmailContent>
-
-      <EmailFooter
-        brand={config}
-        reasonText={`You received this email because you signed up for ${config.name}.`}
-      />
-    </BaseEmailLayout>
+    <TransactionalActionTemplate
+      actionLink={verificationLink}
+      brand={brand}
+      colors={colors}
+      heading={heading}
+      bodyText={
+        bodyText ??
+        `Thanks for joining ${brandName}! Please verify your email to get started.`
+      }
+      buttonText={buttonText}
+      expiryText={expiryText}
+      preview={(name) => `Verify your email address for ${name}`}
+      reasonText={(name) =>
+        `You received this email because you signed up for ${name}.`
+      }
+    />
   );
 }
 

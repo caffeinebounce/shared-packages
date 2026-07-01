@@ -1,6 +1,7 @@
-# Local CI on the Mac mini
+# Local CI Runner
 
-Shared-packages can run PR, branch, and manual CI locally on the Mac mini without burning GitHub-hosted runner minutes.
+Shared-packages can run PR, branch, and manual CI locally on a maintainer-owned
+machine without using GitHub-hosted runner minutes.
 
 ## What it does
 
@@ -46,7 +47,7 @@ Manual-only lane for release readiness smoke:
 
 ## Required local setup
 
-1. Clone the repo on the Mac mini.
+1. Clone the repository on the local runner host.
 2. Bootstrap dependencies once in the base checkout:
 
    ```bash
@@ -62,12 +63,12 @@ Manual-only lane for release readiness smoke:
    cp config/local-ci.env.example .local-ci/local-ci.env
    ```
 
-4. Edit `.local-ci/local-ci.env` for the Mac mini.
+4. Edit `.local-ci/local-ci.env` for the local runner host.
 
 At minimum:
 
 ```bash
-export LOCAL_CI_GITHUB_TOKEN=ghp_xxx
+export LOCAL_CI_GITHUB_TOKEN=replace_with_github_token
 export LOCAL_CI_GITHUB_REPO=caffeinebounce/shared-packages
 export LOCAL_CI_BRANCHES=main
 export LOCAL_CI_PR_LANES=pr-fast
@@ -130,6 +131,9 @@ bash ci/run_lane.sh --lane live-smoke --artifacts-dir .local-ci/manual-live-smok
 
 ## LaunchAgent install
 
+The included LaunchAgent helper is macOS-specific. On other platforms, run
+`scripts/local_ci_runner.py` from your scheduler of choice.
+
 Install or update the polling service:
 
 ```bash
@@ -154,7 +158,7 @@ launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.caffeinebounce.shared-
 
 ## Rollout plan
 
-1. Pull this branch on the Mac mini checkout.
+1. Pull this branch on the local runner checkout.
 2. Bootstrap `node_modules` once.
 3. Create `.local-ci/local-ci.env` and add the GitHub token.
 4. Run a smoke pass locally:

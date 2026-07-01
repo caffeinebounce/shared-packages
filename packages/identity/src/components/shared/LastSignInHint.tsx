@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, cn } from "@caffeinebounce/ui";
+import { Button, cn } from "@caffeinebounce/ui/primitives";
 import { Lightbulb, X } from "lucide-react";
 import type { SignInMethod } from "../../hooks/useLastSignIn";
 import { maskEmail } from "../../hooks/useLastSignIn";

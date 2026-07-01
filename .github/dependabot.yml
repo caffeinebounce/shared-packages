@@ -1,11 +1,11 @@
 # .github/dependabot.yml
-# Canonical opinionated Dependabot configuration for Capital Collective projects.
+# Canonical Dependabot configuration for this repository.
 #
 # This file is the single source of truth for dependency update behavior.
 #
 # Usage:
 #   - Keep update entries aligned with this repository's package manager and workflows.
-#   - Keep the private GitHub Packages registry registration when the project consumes @caffeinebounce/* packages.
+#   - Keep the GitHub Packages registry registration while the project consumes restricted @caffeinebounce/* packages.
 
 version: 2
 
@@ -69,7 +69,8 @@ updates:
     rebase-strategy: "auto"
 
   # === Example for Turborepo monorepos ===
-  # Uncomment and adjust the directories below for repos like shared-packages, zenbid, douglasebanks.com, etc.
+  # Uncomment and adjust package directories if this repository starts managing
+  # separate lockfiles below the root.
   #
   # - package-ecosystem: "npm"
   #   directory: "/apps/web"
