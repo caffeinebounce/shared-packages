@@ -2,6 +2,7 @@
   "name": "@caffeinebounce/scheduling",
   "version": "0.1.0",
   "description": "Framework-agnostic scheduling kernel: availability/slot engine, Microsoft Graph + Google calendar clients, ICS generation, and token encryption. Powers the TCC Scheduler.",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
