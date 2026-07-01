@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/notifications",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -16,8 +16,7 @@
     "dist"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "access": "public"
   },
   "repository": {
     "type": "git",

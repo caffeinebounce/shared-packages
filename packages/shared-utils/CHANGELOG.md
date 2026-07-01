@@ -1,5 +1,12 @@
 # @caffeinebounce/shared-utils
 
+## 0.7.136
+
+### Patch Changes
+
+- Publish `@caffeinebounce/*` to the public npm registry. Migrates `publishConfig` from restricted GitHub Packages to public npm (`access: public`), so the packages install without a token.
+- ef976f1: Prefer trusted CDN client IP headers before forwarded-chain fallbacks.
+
 ## 0.7.135
 
 ### Patch Changes

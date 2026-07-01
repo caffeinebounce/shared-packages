@@ -1,5 +1,15 @@
 # @caffeinebounce/logger
 
+## 0.10.0
+
+### Minor Changes
+
+- 2918d64: Stop emitting raw email addresses from auth and admin logging helpers, and treat email-like context keys as sensitive during auth log sanitization.
+
+### Patch Changes
+
+- Publish `@caffeinebounce/*` to the public npm registry. Migrates `publishConfig` from restricted GitHub Packages to public npm (`access: public`), so the packages install without a token.
+
 ## 0.9.132
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @caffeinebounce/ai-assistant
 
+## 0.5.62
+
+### Patch Changes
+
+- Publish `@caffeinebounce/*` to the public npm registry. Migrates `publishConfig` from restricted GitHub Packages to public npm (`access: public`), so the packages install without a token.
+- Updated dependencies
+  - @caffeinebounce/ui@0.62.2
+
 ## 0.5.61
 
 ### Patch Changes

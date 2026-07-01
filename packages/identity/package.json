@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/identity",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Authentication components and handlers for Caffeine Bounce projects",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -40,8 +40,7 @@
     "lint": "biome check src/"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "access": "public"
   },
   "repository": {
     "type": "git",
@@ -59,9 +58,9 @@
     }
   },
   "dependencies": {
-    "@caffeinebounce/logger": "^0.9.132",
-    "@caffeinebounce/shared-utils": "^0.7.135",
-    "@caffeinebounce/ui": "^0.62.1",
+    "@caffeinebounce/logger": "^0.10.0",
+    "@caffeinebounce/shared-utils": "^0.7.136",
+    "@caffeinebounce/ui": "^0.62.2",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.49.4",
     "input-otp": "^1.4.2",
