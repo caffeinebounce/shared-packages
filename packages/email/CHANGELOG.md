@@ -1,5 +1,16 @@
 # @caffeinebounce/email
 
+## 0.7.0
+
+### Minor Changes
+
+- f7a363f: Require signed unsubscribe tokens and fail closed when unsubscribe helpers are called without a secret.
+
+### Patch Changes
+
+- Publish `@caffeinebounce/*` to the public npm registry. Migrates `publishConfig` from restricted GitHub Packages to public npm (`access: public`), so the packages install without a token.
+- e662d7a: Land the `@caffeinebounce/scheduling` kernel — slot engine (timezone/DST-correct expansion, recurrence, exception-aware `computeAvailableSlots`), Microsoft Graph/Teams client (app-only auth, hybrid online-meeting + calendar event, transcripts/recordings, change-notification subscriptions), Google + Microsoft delegated OAuth + free/busy, AES-256-GCM token crypto, hand-rolled RFC-5545 ICS, and DI ports — and add a reusable `tcc` email theme to `@caffeinebounce/email`. Powers the TCC Scheduler app.
+
 ## 0.6.129
 
 ### Patch Changes

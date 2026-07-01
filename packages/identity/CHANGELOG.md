@@ -1,5 +1,17 @@
 # @caffeinebounce/identity
 
+## 0.12.1
+
+### Patch Changes
+
+- Publish `@caffeinebounce/*` to the public npm registry. Migrates `publishConfig` from restricted GitHub Packages to public npm (`access: public`), so the packages install without a token.
+- Updated dependencies
+- Updated dependencies [2918d64]
+- Updated dependencies [ef976f1]
+  - @caffeinebounce/logger@0.10.0
+  - @caffeinebounce/shared-utils@0.7.136
+  - @caffeinebounce/ui@0.62.2
+
 ## 0.12.0
 
 ### Minor Changes

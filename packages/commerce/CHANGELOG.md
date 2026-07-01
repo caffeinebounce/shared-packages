@@ -1,5 +1,11 @@
 # @caffeinebounce/commerce
 
+## 0.1.4
+
+### Patch Changes
+
+- Publish `@caffeinebounce/*` to the public npm registry. Migrates `publishConfig` from restricted GitHub Packages to public npm (`access: public`), so the packages install without a token.
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/ui",
-  "version": "0.62.1",
+  "version": "0.62.2",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -91,8 +91,8 @@
     "**/*.css"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "repository": {
     "type": "git",
@@ -149,8 +149,8 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@caffeinebounce/logger": "^0.9.132",
-    "@caffeinebounce/shared-utils": "^0.7.135",
+    "@caffeinebounce/logger": "^0.10.0",
+    "@caffeinebounce/shared-utils": "^0.7.136",
     "@grapesjs/studio-sdk": "^1.1.1",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-collapsible": "^1.1.12",

@@ -1,6 +1,6 @@
 {
   "name": "@caffeinebounce/scheduling",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic scheduling kernel: availability/slot engine, Microsoft Graph + Google calendar clients, ICS generation, and token encryption. Powers the TCC Scheduler.",
   "license": "MIT",
   "type": "module",
@@ -53,8 +53,8 @@
     "dist"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "repository": {
     "type": "git",
