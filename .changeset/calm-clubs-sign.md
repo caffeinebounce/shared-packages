@@ -2,4 +2,4 @@
 "@caffeinebounce/identity": patch
 ---
 
-Add optional `SignupForm` title and initial-email values, carry validated internal redirects through each signup flow, and prevent repeated updates when consent items are omitted.
+Add optional `SignupForm` title and initial-email values, enforce strict same-origin redirects across auth flows, preserve signup callback redirects on resend, and prevent repeated updates when consent items are omitted.

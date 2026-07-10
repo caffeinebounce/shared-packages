@@ -3,10 +3,46 @@ import {
   buildOAuthRedirectTo,
   buildOAuthSignInOptions,
   clearStalePKCEState,
+  getSafeInternalRedirect,
   sanitizeAuthError,
   sanitizeSigninError,
   sanitizeSignupError,
 } from "./utils";
+
+describe("getSafeInternalRedirect", () => {
+  it.each([
+    "https://evil.example/settings",
+    "//evil.example/settings",
+    "///evil.example/settings",
+    "/\\evil.example/settings",
+    "/\\\\evil.example/settings",
+    "/%2Fevil.example/settings",
+    "/%2f%2fevil.example/settings",
+    "/%5Cevil.example/settings",
+    "/%5c%5cevil.example/settings",
+    "javascript:alert(1)",
+  ])("rejects a non-internal redirect: %s", (candidate) => {
+    expect(getSafeInternalRedirect(candidate, "/dashboard")).toBe("/dashboard");
+  });
+
+  it("preserves valid internal paths with query strings and hashes", () => {
+    expect(
+      getSafeInternalRedirect(
+        "/club/settings?returnTo=%2Fdashboard&tab=profile#security",
+        "/dashboard",
+      ),
+    ).toBe("/club/settings?returnTo=%2Fdashboard&tab=profile#security");
+  });
+
+  it("uses a safe root fallback when both values are unsafe", () => {
+    expect(
+      getSafeInternalRedirect(
+        "/%2F%2Fevil.example/settings",
+        "https://evil.example/fallback",
+      ),
+    ).toBe("/");
+  });
+});
 
 describe("sanitizeAuthError", () => {
   describe("user already exists errors", () => {

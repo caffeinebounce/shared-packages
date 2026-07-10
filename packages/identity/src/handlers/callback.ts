@@ -1,5 +1,6 @@
 import type { EmailOtpType, SupabaseClient, User } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { getSafeInternalRedirect } from "../utils/redirect";
 
 export type AuthCallbackFlow = "oauth" | "otp";
 export type AuthCallbackHookErrorMode = "block" | "ignore";
@@ -114,17 +115,6 @@ const EMAIL_OTP_TYPES = [
   "email_change",
   "email",
 ] as const satisfies readonly EmailOtpType[];
-
-function getSafeRedirectPath(
-  candidate: string | null | undefined,
-  fallback: string,
-) {
-  if (candidate?.startsWith("/") && !candidate.startsWith("//")) {
-    return candidate;
-  }
-
-  return fallback;
-}
 
 function getEmailOtpType(value: string | null) {
   if (!value) {
@@ -266,8 +256,9 @@ function createRedirectResponse(
     return NextResponse.redirect(target.toString());
   }
 
-  if (target.startsWith("/") && !target.startsWith("//")) {
-    return NextResponse.redirect(`${origin}${target}`);
+  const safeTarget = getSafeInternalRedirect(target, null);
+  if (safeTarget) {
+    return NextResponse.redirect(`${origin}${safeTarget}`);
   }
 
   return null;
@@ -375,16 +366,22 @@ export function createAuthCallbackHandler({
   isLinkingFlow = isDefaultLinkingFlow,
   resolveLinkingErrorMessage,
 }: AuthCallbackConfig) {
+  const safeDefaultRedirect = getSafeInternalRedirect(
+    defaultRedirect,
+    "/dashboard",
+  );
+  const safeSignInPath = getSafeInternalRedirect(signInPath, "/signin");
+
   return async function GET(request: Request) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
     const tokenHash = requestUrl.searchParams.get("token_hash");
     const rawOtpType = requestUrl.searchParams.get("type");
     const otpType = getEmailOtpType(rawOtpType);
-    const next = getSafeRedirectPath(
+    const next = getSafeInternalRedirect(
       requestUrl.searchParams.get("next") ??
         requestUrl.searchParams.get("redirect_to"),
-      defaultRedirect,
+      safeDefaultRedirect,
     );
     const origin = requestUrl.origin;
 
@@ -410,7 +407,7 @@ export function createAuthCallbackHandler({
       }
 
       return NextResponse.redirect(
-        `${origin}${signInPath}?error=${encodeURIComponent(message)}`,
+        `${origin}${safeSignInPath}?error=${encodeURIComponent(message)}`,
       );
     }
 
@@ -428,7 +425,7 @@ export function createAuthCallbackHandler({
           flow: "oauth",
           postAuthHook,
           postAuthHookErrorMode,
-          signInPath,
+          signInPath: safeSignInPath,
           resolveSuccessRedirect,
         });
       }
@@ -451,14 +448,14 @@ export function createAuthCallbackHandler({
       }
 
       return NextResponse.redirect(
-        `${origin}${signInPath}?error=${encodeURIComponent(errorMessage)}`,
+        `${origin}${safeSignInPath}?error=${encodeURIComponent(errorMessage)}`,
       );
     }
 
     if (tokenHash || rawOtpType) {
       if (!tokenHash || !otpType) {
         return NextResponse.redirect(
-          `${origin}${signInPath}?error=${encodeURIComponent("Invalid verification link")}`,
+          `${origin}${safeSignInPath}?error=${encodeURIComponent("Invalid verification link")}`,
         );
       }
 
@@ -478,18 +475,18 @@ export function createAuthCallbackHandler({
           otpType,
           postAuthHook,
           postAuthHookErrorMode,
-          signInPath,
+          signInPath: safeSignInPath,
           resolveSuccessRedirect,
         });
       }
 
       return NextResponse.redirect(
-        `${origin}${signInPath}?error=${encodeURIComponent(verifyError.message)}`,
+        `${origin}${safeSignInPath}?error=${encodeURIComponent(verifyError.message)}`,
       );
     }
 
     return NextResponse.redirect(
-      `${origin}${signInPath}?error=No authorization code received`,
+      `${origin}${safeSignInPath}?error=No authorization code received`,
     );
   };
 }

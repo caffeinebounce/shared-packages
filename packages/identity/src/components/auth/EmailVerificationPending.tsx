@@ -10,7 +10,9 @@ import {
   useRef,
   useState,
 } from "react";
+import { defaultAuthLinks } from "../../types";
 import { AuthFormLayout } from "../shared/AuthFormLayout";
+import { buildOAuthRedirectTo, getSafeInternalRedirect } from "./utils";
 
 // Polling configuration
 const POLL_INTERVAL_MS = 60_000; // 1 minute
@@ -133,9 +135,19 @@ export function EmailVerificationPending({
     setResendStatus("sending");
     try {
       const supabase = createClient();
+      const safeRedirectTo = getSafeInternalRedirect(
+        redirectTo,
+        defaultAuthLinks.defaultRedirect,
+      );
       const { error } = await supabase.auth.resend({
         type: "signup",
         email,
+        options: {
+          emailRedirectTo: buildOAuthRedirectTo(
+            window.location.origin,
+            safeRedirectTo,
+          ),
+        },
       });
 
       if (error) {

@@ -1,7 +1,10 @@
 import { copyFileSync } from "node:fs";
 import { defineConfig } from "tsup";
 import { createUseClientOnSuccess } from "../../scripts/tsup/use-client";
-import { listUiBuiltClientJavaScriptFiles } from "./build/client-entries";
+import {
+  listUiBuiltClientJavaScriptFiles,
+  removeUiBuildMetafiles,
+} from "./build/client-entries";
 
 export default defineConfig({
   entry: {
@@ -27,6 +30,7 @@ export default defineConfig({
   dts: true,
   splitting: true,
   sourcemap: false,
+  metafile: true,
   clean: true,
   external: [
     "react",
@@ -52,6 +56,7 @@ export default defineConfig({
     files: () => listUiBuiltClientJavaScriptFiles("dist"),
     afterSuccess: () => {
       copyFileSync("src/styles/base.css", "dist/styles.css");
+      removeUiBuildMetafiles("dist");
       console.log("Copied styles.css to dist/");
     },
   }),

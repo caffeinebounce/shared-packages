@@ -77,7 +77,7 @@ function getFirstStatementIndex(content: string): number {
   return index;
 }
 
-function hasUseClientDirective(content: string): boolean {
+export function hasUseClientDirective(content: string): boolean {
   return USE_CLIENT_DIRECTIVE_PREFIX.test(
     content.slice(getFirstStatementIndex(content)),
   );
