@@ -43,10 +43,21 @@ export interface EmailSendResult {
 }
 
 /**
+ * Provider-level options for a single email send.
+ */
+export interface EmailSendOptions {
+  /** Stable key used by providers to deduplicate retries */
+  idempotencyKey?: string;
+}
+
+/**
  * Generic email transport interface
  */
 export interface EmailTransport {
-  send(payload: EmailPayload): Promise<EmailSendResult>;
+  send(
+    payload: EmailPayload,
+    options?: EmailSendOptions,
+  ): Promise<EmailSendResult>;
 }
 
 /**

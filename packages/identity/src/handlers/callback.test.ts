@@ -188,6 +188,81 @@ describe("createAuthCallbackHandler", () => {
 
       expect(response.url).toBe("https://example.com/dashboard");
     });
+
+    it.each([
+      "/\\evil.example/settings",
+      "/\\\\evil.example/settings",
+      "/%2Fevil.example/settings",
+      "/%2f%2fevil.example/settings",
+      "/%5Cevil.example/settings",
+      "/%5c%5cevil.example/settings",
+    ])("blocks ambiguous and encoded path separators: %s", async (next) => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+      });
+      const requestUrl = new URL("https://example.com/callback");
+      requestUrl.searchParams.set("error", "identity_exists");
+      requestUrl.searchParams.set(
+        "error_description",
+        "identity already exists",
+      );
+      requestUrl.searchParams.set("next", next);
+
+      const response = await handler(new Request(requestUrl));
+      const responseUrl = new URL(response.url);
+
+      expect(responseUrl.origin).toBe("https://example.com");
+      expect(responseUrl.pathname).toBe("/signin");
+    });
+
+    it.each([
+      ["OAuth success", { code: "abc" }, "/dashboard"],
+      [
+        "OTP success",
+        { token_hash: "token-123", type: "signup" },
+        "/dashboard",
+      ],
+      [
+        "OAuth error",
+        { error: "identity_exists", error_description: "already linked" },
+        "/signin",
+      ],
+    ])("uses the safe redirect in the %s branch", async (_name, params, expectedPath) => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+      });
+      const requestUrl = new URL("https://example.com/callback");
+      for (const [key, value] of Object.entries(params)) {
+        requestUrl.searchParams.set(key, value);
+      }
+      requestUrl.searchParams.set("next", "/\\evil.example/settings");
+
+      const response = await handler(new Request(requestUrl));
+      const responseUrl = new URL(response.url);
+
+      expect(responseUrl.origin).toBe("https://example.com");
+      expect(responseUrl.pathname).toBe(expectedPath);
+    });
+
+    it("sanitizes configured fallback and error paths", async () => {
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/\\evil.example/dashboard",
+        signInPath: "/\\evil.example/signin",
+      });
+
+      const successResponse = await handler(
+        new Request("https://example.com/callback?code=abc"),
+      );
+      const errorResponse = await handler(
+        new Request("https://example.com/callback"),
+      );
+
+      expect(new URL(successResponse.url).pathname).toBe("/dashboard");
+      expect(new URL(errorResponse.url).pathname).toBe("/signin");
+    });
   });
 
   describe("error handling", () => {
@@ -645,6 +720,29 @@ describe("createAuthCallbackHandler", () => {
       const response = await handler(request);
 
       expect(response.url).toBe("https://example.com/dashboard");
+    });
+
+    it("ignores ambiguous internal-looking strings from custom success resolvers", async () => {
+      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({
+        error: null,
+      });
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "123" } },
+      });
+
+      const handler = createAuthCallbackHandler({
+        createClient: mockCreateClient,
+        defaultRedirect: "/dashboard",
+        resolveSuccessRedirect: () => "/\\evil.example/settings",
+      });
+
+      const response = await handler(
+        new Request(
+          "https://example.com/callback?code=valid&next=/profile/security",
+        ),
+      );
+
+      expect(response.url).toBe("https://example.com/profile/security");
     });
 
     it("can redirect pending admin to /admin-pending", async () => {

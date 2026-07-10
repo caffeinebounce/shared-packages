@@ -4,6 +4,7 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import {
   Sidebar,
@@ -35,6 +36,35 @@ Object.defineProperty(window, "innerWidth", {
 });
 
 describe("Sidebar - Overflow Control", () => {
+  it("uses identical server and browser markup before viewport hydration", () => {
+    const browserWindow = window;
+    const previousInnerWidth = browserWindow.innerWidth;
+
+    const renderSidebar = () =>
+      renderToString(
+        <SidebarProvider>
+          <Sidebar collapsible="icon">
+            <SidebarContent>Sidebar content</SidebarContent>
+          </Sidebar>
+        </SidebarProvider>,
+      );
+
+    try {
+      vi.stubGlobal("window", undefined);
+      const serverMarkup = renderSidebar();
+
+      vi.stubGlobal("window", browserWindow);
+      browserWindow.innerWidth = 500;
+      const browserMarkup = renderSidebar();
+
+      expect(browserMarkup).toBe(serverMarkup);
+    } finally {
+      vi.stubGlobal("window", browserWindow);
+      browserWindow.innerWidth = previousInnerWidth;
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("should have overflow-x-hidden class on desktop sidebar container (#832)", () => {
     const { container } = render(
       <SidebarProvider>

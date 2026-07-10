@@ -94,6 +94,7 @@ export {
   DEFAULT_MAILPIT_CONFIG,
   type EmailPayload,
   type EmailProvider,
+  type EmailSendOptions,
   type EmailSendResult,
   type EmailTransport,
   type SmtpConfig,

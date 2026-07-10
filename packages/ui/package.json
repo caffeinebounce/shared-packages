@@ -102,9 +102,10 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "NODE_OPTIONS='--max-old-space-size=4096 --localstorage-file=.vitest-localstorage' yarn run -T vitest run",
-    "test:coverage": "NODE_OPTIONS='--max-old-space-size=4096 --localstorage-file=.vitest-localstorage-coverage' yarn run -T vitest run --coverage",
-    "test:watch": "NODE_OPTIONS='--localstorage-file=.vitest-localstorage' vitest",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096 --localstorage-file=.vitest-localstorage' yarn run -T vitest run --exclude src/build/use-client-artifacts.test.ts && yarn test:artifacts",
+    "test:artifacts": "NODE_OPTIONS='--max-old-space-size=4096' yarn run -T vitest run src/build/use-client-artifacts.test.ts",
+    "test:coverage": "NODE_OPTIONS='--max-old-space-size=4096 --localstorage-file=.vitest-localstorage-coverage' yarn run -T vitest run --coverage --exclude src/build/use-client-artifacts.test.ts && yarn test:artifacts",
+    "test:watch": "NODE_OPTIONS='--localstorage-file=.vitest-localstorage' vitest --exclude src/build/use-client-artifacts.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "clean": "rm -rf dist",
     "lint": "biome check src/"

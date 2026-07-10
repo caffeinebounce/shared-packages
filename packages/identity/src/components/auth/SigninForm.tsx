@@ -24,6 +24,8 @@ import {
   buildOAuthRedirectTo,
   buildOAuthSignInOptions,
   clearStalePKCEState,
+  getSafeInternalRedirect,
+  hardRedirect,
   warnAboutSupabaseRedirectAllowlist,
 } from "./utils";
 
@@ -150,8 +152,14 @@ export function SigninForm({
   const oauthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo =
-    searchParams.get("redirect") || mergedLinks.defaultRedirect;
+  const defaultRedirect = getSafeInternalRedirect(
+    mergedLinks.defaultRedirect,
+    defaultAuthLinks.defaultRedirect,
+  );
+  const redirectTo = getSafeInternalRedirect(
+    searchParams.get("redirect"),
+    defaultRedirect,
+  );
   const message = searchParams.get("message");
   const mfaRequired = searchParams.get("mfa") === "required";
 
@@ -394,7 +402,7 @@ export function SigninForm({
         recordSignIn("email", email.trim());
 
         // Use hard redirect to ensure middleware runs with fresh session
-        window.location.href = redirectTo;
+        hardRedirect(redirectTo);
       }
     } catch (err) {
       logError(err, {

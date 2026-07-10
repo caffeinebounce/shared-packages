@@ -2,9 +2,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockEmailTransport } from "./mock";
 import { createUniversalEmailClient } from "./provider";
 
+const resendSend = vi.hoisted(() => vi.fn());
+
+vi.mock("resend", () => ({
+  Resend: class {
+    emails = { send: resendSend };
+  },
+}));
+
 describe("createUniversalEmailClient", () => {
   beforeEach(() => {
     mockEmailTransport.clear();
+    resendSend.mockReset();
+    resendSend.mockResolvedValue({
+      data: { id: "resend-email-1" },
+      error: null,
+    });
     vi.resetModules();
   });
 
@@ -56,6 +69,34 @@ describe("createUniversalEmailClient", () => {
 
       expect(result.success).toBe(true);
       expect(result.id).toBeDefined();
+    });
+  });
+
+  describe("provider send options", () => {
+    it("forwards an optional idempotency key to Resend", async () => {
+      const client = createUniversalEmailClient({
+        provider: "resend",
+        resendApiKey: "test-key", // pragma: allowlist secret
+      });
+
+      const result = await client.send(
+        {
+          from: "test@example.com",
+          to: "member@example.com",
+          subject: "Factory Club invitation",
+          html: "<p>Welcome</p>",
+        },
+        { idempotencyKey: "club-invite-invite-1" },
+      );
+
+      expect(resendSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: "Factory Club invitation",
+          to: "member@example.com",
+        }),
+        { idempotencyKey: "club-invite-invite-1" },
+      );
+      expect(result).toEqual({ success: true, id: "resend-email-1" });
     });
   });
 

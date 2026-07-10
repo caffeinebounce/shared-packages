@@ -6,6 +6,7 @@ import {
   createUseClientOnSuccess,
   listBuiltClientJavaScriptFiles,
 } from "../../../../scripts/tsup/use-client";
+import { listUiBuiltClientJavaScriptFiles } from "../../build/client-entries";
 
 const tempDirs: string[] = [];
 
@@ -93,5 +94,17 @@ describe("use-client build helper", () => {
     );
 
     expect(listBuiltClientJavaScriptFiles(distDir)).toEqual([clientFile]);
+  });
+
+  it("includes explicit client entries when bundling removes their directives", () => {
+    const distDir = createTempDir();
+    const clientEntry = path.join(distDir, "index.mjs");
+    writeFileSync(clientEntry, "export const clientComponent = true;\n");
+    writeFileSync(
+      path.join(distDir, "server.mjs"),
+      "export const serverUtility = true;\n",
+    );
+
+    expect(listUiBuiltClientJavaScriptFiles(distDir)).toEqual([clientEntry]);
   });
 });

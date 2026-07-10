@@ -34,9 +34,12 @@ import {
   buildOAuthRedirectTo,
   buildOAuthSignInOptions,
   clearStalePKCEState,
+  getSafeInternalRedirect,
   sanitizeSignupError,
   warnAboutSupabaseRedirectAllowlist,
 } from "./utils";
+
+const EMPTY_CONSENT_ITEMS: ConsentItem[] = [];
 
 /**
  * Authentication event logging callbacks for sign-up
@@ -71,6 +74,10 @@ export interface ConsentItem {
 }
 
 export interface SignupFormProps extends AuthFormConfig {
+  /** Optional heading override for the sign-up form */
+  title?: string;
+  /** Optional initial value for the email field */
+  initialEmail?: string;
   /** Navigation links configuration */
   links?: AuthLinks;
   /** Image component to use (e.g., Next.js Image) */
@@ -118,6 +125,8 @@ export function SignupForm({
   createClient,
   logo,
   appName = "your account",
+  title,
+  initialEmail = "",
   termsUrl = "/terms",
   privacyUrl = "/privacy",
   links = {},
@@ -139,7 +148,7 @@ export function SignupForm({
   oauthIconMonochromeOnHover = false,
   className,
   onAuthEvent,
-  consentItems = [],
+  consentItems = EMPTY_CONSENT_ITEMS,
   consentPosition = "above",
   consentSize = "default",
   showHomeLink = true,
@@ -149,8 +158,12 @@ export function SignupForm({
   const Link = LinkComponent;
   const Image = ImageComponent;
   const router = useRouter();
+  const redirectTo = getSafeInternalRedirect(
+    mergedLinks.defaultRedirect,
+    defaultAuthLinks.defaultRedirect,
+  );
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [emailTouched, setEmailTouched] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -257,7 +270,7 @@ export function SignupForm({
       provider,
       options: buildOAuthSignInOptions(
         provider,
-        buildOAuthRedirectTo(siteUrl, mergedLinks.defaultRedirect),
+        buildOAuthRedirectTo(siteUrl, redirectTo),
       ),
     });
 
@@ -305,7 +318,7 @@ export function SignupForm({
       email: email.trim(),
       password,
       options: {
-        emailRedirectTo: `${siteUrl}/callback`,
+        emailRedirectTo: buildOAuthRedirectTo(siteUrl, redirectTo),
         // Pass all consent values as user metadata
         data: consentState,
       },
@@ -338,7 +351,7 @@ export function SignupForm({
       // Log sign-up success
       onAuthEvent?.onSignUpSuccess?.(userId, email.trim());
 
-      router.push(mergedLinks.defaultRedirect);
+      router.push(redirectTo);
       router.refresh();
     } else {
       // Defensive fallback: should never happen as Supabase always returns
@@ -356,7 +369,7 @@ export function SignupForm({
         logo={logo}
         ImageComponent={Image}
         createClient={createClient}
-        redirectTo={mergedLinks.home}
+        redirectTo={redirectTo}
         className={className}
       />
     );
@@ -378,7 +391,7 @@ export function SignupForm({
       <div className="space-y-2">
         <AuthHeader
           logo={showLogo !== false ? logo : undefined}
-          title={`Sign up for ${appName}`}
+          title={title ?? `Sign up for ${appName}`}
           ImageComponent={Image}
         />
         <p className="text-sm text-muted-foreground text-center">

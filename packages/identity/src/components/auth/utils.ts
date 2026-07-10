@@ -1,6 +1,8 @@
 import { isPreviewEnvironment } from "@caffeinebounce/shared-utils";
 import type { OAuthProvider } from "../../types";
 
+export { getSafeInternalRedirect } from "../../utils/redirect";
+
 const warnedSupabaseRedirectOrigins = new Set<string>();
 
 type OAuthSignInOptions = {
@@ -8,6 +10,10 @@ type OAuthSignInOptions = {
   scopes?: string;
   skipBrowserRedirect?: boolean;
 };
+
+export function hardRedirect(redirectTo: string): void {
+  window.location.href = redirectTo;
+}
 
 /**
  * Sanitize error messages to hide internal/technical details from users.
