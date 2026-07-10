@@ -1,5 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.62.3
+
+### Patch Changes
+
+- 45507d7: Restore client boundaries on broad, layouts, marketing, and navigation entrypoints and their client chunks, and make sidebar hydration deterministic across server and browser renders.
+
 ## 0.62.2
 
 ### Patch Changes

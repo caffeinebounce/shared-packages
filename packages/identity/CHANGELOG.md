@@ -1,5 +1,13 @@
 # @caffeinebounce/identity
 
+## 0.12.2
+
+### Patch Changes
+
+- 45507d7: Add optional `SignupForm` title and initial-email values, enforce strict same-origin redirects across auth flows, preserve signup callback redirects on resend, and prevent repeated updates when consent items are omitted.
+- Updated dependencies [45507d7]
+  - @caffeinebounce/ui@0.62.3
+
 ## 0.12.1
 
 ### Patch Changes
