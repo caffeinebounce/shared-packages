@@ -145,10 +145,10 @@ const SidebarProvider = React.forwardRef<
     ref,
   ) => {
     const [machine, dispatch] = React.useReducer(sidebarReducer, {
-      viewportWidth: typeof window === "undefined" ? 1024 : window.innerWidth,
+      viewportWidth: 1024,
       desktopPref: toDesktopPreference(defaultOpen),
       openMobile: false,
-      hydrated: typeof window === "undefined",
+      hydrated: false,
     });
 
     React.useLayoutEffect(() => {

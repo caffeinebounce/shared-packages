@@ -8,6 +8,7 @@ import { createSmtpTransport } from "./smtp-adapter";
 import type {
   EmailPayload,
   EmailProvider,
+  EmailSendOptions,
   EmailSendResult,
   EmailTransport,
   SmtpConfig,
@@ -138,19 +139,25 @@ export function createUniversalEmailClient(
  */
 function createResendTransport(resend: Resend): EmailTransport {
   return {
-    async send(payload: EmailPayload): Promise<EmailSendResult> {
+    async send(
+      payload: EmailPayload,
+      options?: EmailSendOptions,
+    ): Promise<EmailSendResult> {
       try {
-        const result = await resend.emails.send({
-          from: payload.from,
-          to: payload.to,
-          subject: payload.subject,
-          html: payload.html,
-          text: payload.text,
-          react: payload.react,
-          replyTo: payload.replyTo,
-          cc: payload.cc,
-          bcc: payload.bcc,
-        });
+        const result = await resend.emails.send(
+          {
+            from: payload.from,
+            to: payload.to,
+            subject: payload.subject,
+            html: payload.html,
+            text: payload.text,
+            react: payload.react,
+            replyTo: payload.replyTo,
+            cc: payload.cc,
+            bcc: payload.bcc,
+          },
+          options,
+        );
 
         if (result.error) {
           return {

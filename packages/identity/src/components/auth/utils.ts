@@ -9,6 +9,30 @@ type OAuthSignInOptions = {
   skipBrowserRedirect?: boolean;
 };
 
+const INTERNAL_REDIRECT_BASE = new URL("https://identity.invalid");
+
+/**
+ * Keep post-auth redirects on the current origin.
+ * The fallback is expected to be a trusted root-relative path.
+ */
+export function getSafeInternalRedirect(
+  candidate: string | null | undefined,
+  fallback: string,
+): string {
+  if (!candidate?.startsWith("/")) {
+    return fallback;
+  }
+
+  try {
+    const target = new URL(candidate, INTERNAL_REDIRECT_BASE);
+    return target.origin === INTERNAL_REDIRECT_BASE.origin
+      ? candidate
+      : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 /**
  * Sanitize error messages to hide internal/technical details from users.
  * Returns a user-friendly message for known error patterns.
