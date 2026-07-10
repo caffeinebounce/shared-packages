@@ -1,5 +1,12 @@
 # @caffeinebounce/email
 
+## 0.7.1
+
+### Patch Changes
+
+- 6328002: Update Nodemailer to v9 and refresh vulnerable transitive dependency resolutions.
+- 45507d7: Add optional provider send options with idempotency-key support and forward them to Resend without changing existing one-argument email sends.
+
 ## 0.7.0
 
 ### Minor Changes
