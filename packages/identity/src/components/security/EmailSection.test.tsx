@@ -1,6 +1,12 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ChangeEvent, MouseEventHandler, ReactNode } from "react";
+import {
+  type ChangeEvent,
+  cloneElement,
+  type MouseEventHandler,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CreateClientFn } from "../../types";
@@ -11,6 +17,7 @@ vi.mock("@caffeinebounce/ui/primitives", () => {
     Button: ({
       "aria-label": ariaLabel,
       children,
+      "data-slot": dataSlot,
       disabled,
       onClick,
       size,
@@ -19,6 +26,7 @@ vi.mock("@caffeinebounce/ui/primitives", () => {
     }: {
       "aria-label"?: string;
       children: ReactNode;
+      "data-slot"?: string;
       disabled?: boolean;
       onClick?: MouseEventHandler<HTMLButtonElement>;
       size?: string;
@@ -27,6 +35,7 @@ vi.mock("@caffeinebounce/ui/primitives", () => {
     }) => (
       <button
         aria-label={ariaLabel}
+        data-slot={dataSlot}
         data-size={size}
         type={type}
         disabled={disabled}
@@ -91,7 +100,13 @@ vi.mock("@caffeinebounce/ui/primitives", () => {
       <span role="tooltip">{children}</span>
     ),
     TooltipProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
-    TooltipTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+    TooltipTrigger: ({
+      children,
+      "data-slot": dataSlot,
+    }: {
+      children: ReactElement<{ "data-slot"?: string }>;
+      "data-slot"?: string;
+    }) => cloneElement(children, { "data-slot": dataSlot }),
   };
 });
 
@@ -214,6 +229,7 @@ describe("EmailSection", () => {
 
     const changeButton = screen.getByRole("button", { name: "Change email" });
     expect(changeButton).toHaveAttribute("data-size", "icon-sm");
+    expect(changeButton).toHaveAttribute("data-slot", "button");
     expect(changeButton).not.toHaveTextContent("Change");
     expect(screen.getByRole("tooltip")).toHaveTextContent("Change email");
   });

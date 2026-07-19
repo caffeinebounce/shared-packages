@@ -198,7 +198,9 @@ export function EmailSection({
       {changeButtonPresentation === "icon" ? (
         <TooltipProvider delayDuration={300}>
           <Tooltip>
-            <TooltipTrigger asChild>{changeButton}</TooltipTrigger>
+            <TooltipTrigger asChild data-slot="button">
+              {changeButton}
+            </TooltipTrigger>
             <TooltipContent side="top">Change email</TooltipContent>
           </Tooltip>
         </TooltipProvider>
