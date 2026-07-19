@@ -9,19 +9,25 @@ import { EmailSection } from "./EmailSection";
 vi.mock("@caffeinebounce/ui/primitives", () => {
   return {
     Button: ({
+      "aria-label": ariaLabel,
       children,
       disabled,
       onClick,
+      size,
       type = "button",
       variant,
     }: {
+      "aria-label"?: string;
       children: ReactNode;
       disabled?: boolean;
       onClick?: MouseEventHandler<HTMLButtonElement>;
+      size?: string;
       type?: "button" | "submit" | "reset";
       variant?: string;
     }) => (
       <button
+        aria-label={ariaLabel}
+        data-size={size}
         type={type}
         disabled={disabled}
         data-variant={variant}
@@ -80,6 +86,12 @@ vi.mock("@caffeinebounce/ui/primitives", () => {
       children: ReactNode;
       htmlFor?: string;
     }) => <label htmlFor={htmlFor}>{children}</label>,
+    Tooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
+    TooltipContent: ({ children }: { children: ReactNode }) => (
+      <span role="tooltip">{children}</span>
+    ),
+    TooltipProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
+    TooltipTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
   };
 });
 
@@ -181,5 +193,28 @@ describe("EmailSection", () => {
     await waitFor(() => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
+  });
+
+  it("offers an accessible compact pencil action without changing the default", () => {
+    const supabase = createMockSupabase();
+    const createClient = vi.fn(
+      () => supabase as unknown as ReturnType<CreateClientFn>,
+    );
+
+    render(
+      <EmailSection
+        changeButtonPresentation="icon"
+        createClient={createClient}
+        userId="user-1"
+        email="person@example.com"
+        isVerified={true}
+        onEmailChanged={vi.fn()}
+      />,
+    );
+
+    const changeButton = screen.getByRole("button", { name: "Change email" });
+    expect(changeButton).toHaveAttribute("data-size", "icon-sm");
+    expect(changeButton).not.toHaveTextContent("Change");
+    expect(screen.getByRole("tooltip")).toHaveTextContent("Change email");
   });
 });
