@@ -10,8 +10,18 @@ import {
   DialogTitle,
   Input,
   Label,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@caffeinebounce/ui/primitives";
-import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Mail,
+  PencilLine,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -19,6 +29,8 @@ import type { CreateClientFn } from "../../types";
 import { useVerificationFlow } from "./useVerificationFlow";
 
 export interface EmailSectionProps {
+  /** Render the change action as a compact pencil icon instead of a text label */
+  changeButtonPresentation?: "label" | "icon";
   /** Function to create a Supabase client */
   createClient: CreateClientFn;
   /** User ID (reserved for future use) */
@@ -32,6 +44,7 @@ export interface EmailSectionProps {
 }
 
 export function EmailSection({
+  changeButtonPresentation = "label",
   createClient,
   userId: _userId,
   email,
@@ -60,6 +73,28 @@ export function EmailSection({
   const handleStartChange = () => {
     openEntryStep();
   };
+
+  const changeButton =
+    changeButtonPresentation === "icon" ? (
+      <Button
+        aria-label="Change email"
+        onClick={handleStartChange}
+        size="icon-sm"
+        type="button"
+        variant="outline"
+      >
+        <PencilLine aria-hidden="true" className="size-4" />
+      </Button>
+    ) : (
+      <Button
+        onClick={handleStartChange}
+        size="sm"
+        type="button"
+        variant="outline"
+      >
+        Change
+      </Button>
+    );
 
   const handleSendCode = async () => {
     if (!newEmail || !newEmail.includes("@")) {
@@ -160,14 +195,16 @@ export function EmailSection({
           <p className="text-sm text-muted-foreground">{email}</p>
         </div>
       </div>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={handleStartChange}
-      >
-        Change
-      </Button>
+      {changeButtonPresentation === "icon" ? (
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>{changeButton}</TooltipTrigger>
+            <TooltipContent side="top">Change email</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        changeButton
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md">
