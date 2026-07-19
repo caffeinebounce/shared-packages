@@ -1,5 +1,11 @@
 # @caffeinebounce/identity
 
+## 0.12.4
+
+### Patch Changes
+
+- 4e562d8: Preserve shared button styling when the compact email action is wrapped in a tooltip.
+
 ## 0.12.3
 
 ### Patch Changes
