@@ -1,5 +1,11 @@
 # @caffeinebounce/identity
 
+## 0.12.3
+
+### Patch Changes
+
+- ca7510e: Add an accessible compact pencil action option to the shared email settings section.
+
 ## 0.12.2
 
 ### Patch Changes
