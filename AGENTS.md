@@ -175,6 +175,17 @@ The convention check verifies:
 It complements lint, typecheck, tests, build, and Swift tests. It does not
 replace broader checks for runtime or package behavior changes.
 
+## Organization development knowledge
+
+After a durable change to architecture, deployment, CI, infrastructure,
+repository relationships, lifecycle, or operating procedures, update the
+repository changelog. Capture the operating meaning to each materially affected
+company brain: `factory`, `capital-collective`, or both. Do not create an
+organization capture when the change has no durable impact on that organization.
+Link that organization’s `[[sources/topics/development-hub|development hub]]`
+and current evidence. Skip ordinary patches. Keep credentials, private data,
+and detailed threat information out of general development pages.
+
 ## Working Rules
 
 - Keep changes scoped to the package or tooling surface in the task.
