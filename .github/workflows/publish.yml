@@ -68,7 +68,7 @@ jobs:
 
       - name: Version or publish packages
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           version: yarn version-packages:ci
           publish: yarn release
