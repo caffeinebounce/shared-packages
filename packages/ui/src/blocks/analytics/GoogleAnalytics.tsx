@@ -56,8 +56,10 @@ export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
 
     // Initialize dataLayer and gtag function
     window.dataLayer = window.dataLayer || [];
-    function gtag(...args: unknown[]) {
-      window.dataLayer?.push(args);
+    function gtag(..._args: unknown[]) {
+      // Google dispatches Arguments objects as commands; arrays are model calls.
+      // biome-ignore lint/complexity/noArguments: gtag requires the native Arguments object.
+      window.dataLayer?.push(arguments);
     }
     window.gtag = gtag;
 
