@@ -2,9 +2,9 @@
 
 import { endOfMonth, format, parseISO, startOfMonth } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
-import type { ComparisonMode } from "../blocks/data-table/ComparisonSelector";
-import type { TimeUnit } from "../blocks/data-table/FinancialStatementTable";
-import type { PeriodGranularity } from "../blocks/data-table/PeriodSelector";
+import type { ComparisonMode } from "../blocks/finance/ComparisonSelector";
+import type { TimeUnit } from "../blocks/finance/FinancialStatementTable";
+import type { PeriodGranularity } from "../blocks/finance/PeriodSelector";
 
 export interface DateRange {
   start: string;

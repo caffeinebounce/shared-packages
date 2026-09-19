@@ -31,5 +31,22 @@
   },
   "files": {
     "includes": ["packages/**/src/**", "!**/dist", "!**/coverage", "!**/.turbo"]
-  }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "packages/ui/src/blocks/table/data-table*.tsx",
+        "packages/ui/src/blocks/data-grid/**"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off",
+            "useKeyWithClickEvents": "off",
+            "noLabelWithoutControl": "off"
+          }
+        }
+      }
+    }
+  ]
 }

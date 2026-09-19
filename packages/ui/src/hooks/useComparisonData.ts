@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import type { ComparisonMode } from "../blocks/data-table/ComparisonSelector";
-import type { FinancialStatementEntry } from "../blocks/data-table/FinancialStatementTable";
+import type { ComparisonMode } from "../blocks/finance/ComparisonSelector";
+import type { FinancialStatementEntry } from "../blocks/finance/FinancialStatementTable";
 import type { DateRange } from "./useFinancialStatementState";
 
 interface ComparisonHookParams {

@@ -16,7 +16,6 @@ import {
 import { Switch } from "../../components/ui/switch";
 import { Textarea } from "../../components/ui/textarea";
 import { cn } from "../../utils";
-import { useDataTableContext } from "../data-table";
 import { useEditableCellSave } from "./useEditableCellSave";
 
 interface BaseEditableCellProps {
@@ -56,8 +55,7 @@ export function EditableCell({
   );
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const context = useDataTableContext();
-  const isCompact = context?.density === "compact";
+  const isCompact = false; // density mode was a feature of the removed table engine
   const { isLoading, save } = useEditableCellSave();
 
   useEffect(() => {
