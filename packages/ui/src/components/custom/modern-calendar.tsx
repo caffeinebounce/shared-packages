@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import * as React from "react";
 import { cn } from "../../utils/cn";
-import { Button } from "./button";
+import { Button } from "../ui/button";
 
 type ViewMode = "days" | "months" | "years";
 

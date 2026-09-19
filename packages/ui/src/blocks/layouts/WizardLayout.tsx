@@ -5,10 +5,10 @@ import { type ReactNode, useEffect, useState } from "react";
 import {
   AutoSaveIndicator,
   type SaveStatus,
-} from "../../components/ui/auto-save-indicator";
-import { ProgressBar } from "../../components/ui/progress-bar";
-import { Stepper, type StepperStep } from "../../components/ui/stepper";
-import { TimeEstimate } from "../../components/ui/time-estimate";
+} from "../../components/custom/auto-save-indicator";
+import { ProgressBar } from "../../components/custom/progress-bar";
+import { Stepper, type StepperStep } from "../../components/custom/stepper";
+import { TimeEstimate } from "../../components/custom/time-estimate";
 import { cn } from "../../utils";
 
 export interface WizardLayoutProps {

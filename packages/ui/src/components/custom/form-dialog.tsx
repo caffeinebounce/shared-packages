@@ -1,5 +1,5 @@
 import type * as React from "react";
-import { Button } from "./button";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./dialog";
+} from "../ui/dialog";
 
 interface FormDialogProps {
   open: boolean;

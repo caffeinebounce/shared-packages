@@ -2,7 +2,10 @@
 
 import type { ReactNode } from "react";
 
-import { Container, type ContainerSize } from "../../components/ui/container";
+import {
+  Container,
+  type ContainerSize,
+} from "../../components/custom/container";
 import {
   cx,
   type MarketingSectionPadding,

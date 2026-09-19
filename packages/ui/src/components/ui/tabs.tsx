@@ -42,7 +42,9 @@ const tabsListVariants = cva(
 
 function TabsList({
   className,
-  variant = "default",
+  // Local change over shadcn: consumers were built on the underline look, so
+  // "line" stays the default; pass variant="default" for the upstream pill.
+  variant = "line",
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.List> &
   VariantProps<typeof tabsListVariants>) {

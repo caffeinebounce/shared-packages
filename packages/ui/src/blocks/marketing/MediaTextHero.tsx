@@ -2,8 +2,8 @@
 
 import type { CSSProperties, ReactNode } from "react";
 
-import { Container } from "../../components/ui/container";
-import type { PixelatedCanvasProps } from "../../components/ui/pixelated-canvas";
+import { Container } from "../../components/custom/container";
+import type { PixelatedCanvasProps } from "../../components/custom/pixelated-canvas";
 import { cn } from "../../utils";
 import { FocalMediaFrame } from "./FocalMediaFrame";
 

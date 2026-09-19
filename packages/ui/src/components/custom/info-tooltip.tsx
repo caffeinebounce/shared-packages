@@ -3,7 +3,7 @@
 import { Info } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "../../utils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export interface InfoTooltipProps {
   /** Content to display in the tooltip */

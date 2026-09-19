@@ -2,8 +2,8 @@
 
 import type { ComponentType, ReactNode } from "react";
 import { useState } from "react";
-import { Container } from "../../components/ui/container";
-import { PageHeader } from "../../components/ui/page-header";
+import { Container } from "../../components/custom/container";
+import { PageHeader } from "../../components/custom/page-header";
 import { SettingsTabContent } from "./SettingsTabContent";
 import { type SettingsTab, SettingsTabs } from "./SettingsTabs";
 

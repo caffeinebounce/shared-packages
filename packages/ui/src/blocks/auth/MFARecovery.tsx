@@ -3,6 +3,7 @@
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { AlertTriangle, ArrowLeft, Check, Mail, Monitor } from "lucide-react";
 import { useState } from "react";
+import { LocationMap } from "../../components/custom/location-map";
 import { Button } from "../../components/ui/button";
 import {
   InputOTP,
@@ -10,7 +11,6 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "../../components/ui/input-otp";
-import { LocationMap } from "../../components/ui/location-map";
 import { Spinner } from "../../components/ui/spinner";
 
 /**

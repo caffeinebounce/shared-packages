@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../../utils";
-import { Separator } from "./separator";
+import { Separator } from "../ui/separator";
 
 interface PageSectionProps {
   children: React.ReactNode;

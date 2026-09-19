@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import type * as React from "react";
-import { BackLink } from "../../components/ui/back-link";
+import { BackLink } from "../../components/custom/back-link";
 import {
   Tabs,
   TabsContent,

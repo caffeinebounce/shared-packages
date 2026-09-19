@@ -10,7 +10,7 @@ import {
 import type { ReactNode } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import { Container } from "../../components/ui/container";
+import { Container } from "../../components/custom/container";
 import {
   NavigationMenu,
   NavigationMenuContent,

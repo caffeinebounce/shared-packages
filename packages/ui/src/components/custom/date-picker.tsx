@@ -5,10 +5,10 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import * as React from "react";
 import type { DateRange, Matcher } from "react-day-picker";
 import { cn } from "../../utils/cn";
-import { Button } from "./button";
-import { Calendar } from "./calendar";
+import { Button } from "../ui/button";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ModernCalendar } from "./modern-calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 export interface DatePickerProps {
   /** The selected date value */

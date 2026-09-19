@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { BackLink } from "../../components/ui/back-link";
+import { BackLink } from "../../components/custom/back-link";
 import { PageLayoutShell } from "./BasePageLayout";
 
 export interface AdminPageLayoutBackLink {

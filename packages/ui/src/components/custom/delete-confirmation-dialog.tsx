@@ -3,7 +3,7 @@
 import { AlertTriangle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "../../utils/cn";
-import { Button } from "./button";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,8 +11,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./dialog";
-import { Input } from "./input";
+} from "../ui/dialog";
+import { Input } from "../ui/input";
 
 export interface DeleteConfirmationDialogProps {
   /** Whether the dialog is open */

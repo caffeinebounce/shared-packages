@@ -1,3 +1,12 @@
+export { PasswordInput } from "../components/custom/password-input";
+export type { PasswordRule } from "../components/custom/password-requirements";
+export {
+  defaultPasswordRules,
+  extendedPasswordRules,
+  PasswordRequirements,
+} from "../components/custom/password-requirements";
+export type { VerificationCodeInputProps } from "../components/custom/verification-code-input";
+export { VerificationCodeInput } from "../components/custom/verification-code-input";
 export {
   Alert,
   AlertDescription,
@@ -60,13 +69,6 @@ export {
   InputOTPSlot,
 } from "../components/ui/input-otp";
 export { Label } from "../components/ui/label";
-export { PasswordInput } from "../components/ui/password-input";
-export type { PasswordRule } from "../components/ui/password-requirements";
-export {
-  defaultPasswordRules,
-  extendedPasswordRules,
-  PasswordRequirements,
-} from "../components/ui/password-requirements";
 export {
   Select,
   SelectContent,
@@ -95,6 +97,4 @@ export {
   TooltipProvider,
   TooltipTrigger,
 } from "../components/ui/tooltip";
-export type { VerificationCodeInputProps } from "../components/ui/verification-code-input";
-export { VerificationCodeInput } from "../components/ui/verification-code-input";
 export { cn } from "../utils/cn";

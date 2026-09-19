@@ -1,22 +1,22 @@
 export {
   EncryptedText,
   type EncryptedTextProps,
-} from "../../components/ui/encrypted-text";
+} from "../../components/custom/encrypted-text";
 export {
   GlowingEffect,
   type GlowingEffectCorners,
   type GlowingEffectProps,
   type GlowingEffectVariant,
-} from "../../components/ui/glowing-effect";
+} from "../../components/custom/glowing-effect";
 export {
   PixelatedCanvas,
   type PixelatedCanvasProps,
-} from "../../components/ui/pixelated-canvas";
+} from "../../components/custom/pixelated-canvas";
 export {
   ThemeLogo,
   type ThemeLogoProps,
   type ThemeLogoVariant,
-} from "../../components/ui/theme-logo";
+} from "../../components/custom/theme-logo";
 export {
   AlternatingTimeline,
   type AlternatingTimelineItem,

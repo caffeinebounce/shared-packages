@@ -6,7 +6,7 @@ import {
   getDataStateIcon,
   getDataStateIconClassName,
 } from "../../utils/data-state";
-import { Button } from "./button";
+import { Button } from "../ui/button";
 
 interface DataStateBaseProps {
   state: CanonicalDataState;
