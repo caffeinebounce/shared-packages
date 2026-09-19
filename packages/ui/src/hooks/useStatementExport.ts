@@ -7,7 +7,7 @@ import {
   flattenStatementForExport,
   type SubtotalRulesConfig,
   type TimeUnit,
-} from "../blocks/data-table/FinancialStatementTable";
+} from "../blocks/finance/FinancialStatementTable";
 import {
   buildSpreadsheetWorkbookXml,
   downloadExcelXml,

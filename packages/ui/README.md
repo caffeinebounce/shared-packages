@@ -9,7 +9,7 @@ settings, portal, media, and CSS exports.
 - `@caffeinebounce/ui/primitives` is the lightweight primitive-only entrypoint.
 - Feature subpaths include `./forms`, `./hooks`, `./layouts`, `./navigation`,
   `./marketing`, `./marketing-3d`, `./settings`, `./portal`, `./blog`,
-  `./data-table`, `./charts`, `./editor`, `./media`, and `./styles.css`.
+  `./data-table` (tablecn/shadcn table + add-ons), `./finance` (financial statement table and controls), `./data-grid` (tablecn editable grid), `./charts`, `./editor`, `./media`, and `./styles.css`.
 
 ## Belongs Here
 

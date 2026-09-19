@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../utils";
-import { useDataTableContext } from "../data-table";
 import { useEditableCellSave } from "./useEditableCellSave";
 
 interface CompanyNameEditableCellProps {
@@ -27,8 +26,7 @@ export function CompanyNameEditableCell({
   const [name, setName] = useState(initialName || "");
   const [dbaName, setDbaName] = useState(initialDbaName || "");
   const firstInputRef = useRef<HTMLInputElement>(null);
-  const context = useDataTableContext();
-  const isCompact = context?.density === "compact";
+  const isCompact = false; // density mode was a feature of the removed table engine
   const { isLoading, save } = useEditableCellSave();
 
   useEffect(() => {

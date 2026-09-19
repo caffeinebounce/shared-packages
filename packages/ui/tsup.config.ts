@@ -13,6 +13,8 @@ export default defineConfig({
     primitives: "src/entries/primitives.ts",
     // Subpath exports for tree-shaking heavy modules
     "data-table": "src/entries/data-table.ts",
+    finance: "src/entries/finance.ts",
+    "data-grid": "src/entries/data-grid.ts",
     editor: "src/entries/editor.ts",
     layouts: "src/entries/layouts.ts",
     charts: "src/entries/charts.ts",
