@@ -858,13 +858,13 @@ export function CheckboxCell<TData>({
         disabled={readOnly}
         className="border-primary"
         onClick={
-          onCheckboxClick as unknown as React.MouseEventHandler<HTMLInputElement>
+          onCheckboxClick as unknown as React.MouseEventHandler<HTMLElement>
         }
         onMouseDown={
-          onCheckboxMouseDown as unknown as React.MouseEventHandler<HTMLInputElement>
+          onCheckboxMouseDown as unknown as React.MouseEventHandler<HTMLElement>
         }
         onDoubleClick={
-          onCheckboxDoubleClick as unknown as React.MouseEventHandler<HTMLInputElement>
+          onCheckboxDoubleClick as unknown as React.MouseEventHandler<HTMLElement>
         }
       />
     </DataGridCellWrapper>
