@@ -183,6 +183,7 @@ export function DateRangePicker({
       <PopoverContent className="w-auto p-0" align={align}>
         <Calendar
           mode="range"
+          captionLayout="dropdown"
           selected={value}
           onSelect={onChange}
           disabled={disabledMatcher}

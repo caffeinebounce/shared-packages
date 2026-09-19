@@ -11,14 +11,15 @@ type FormFieldKey<TValues extends Record<string, unknown>> = Extract<
 /**
  * Generic form interface for data restoration helper.
  * Compatible with TanStack Form's useForm return type.
- * Uses generic function signatures to accept TanStack Form's complex type structure.
+ * Uses the same non-generic method shape as WizardFormInstance so TanStack Form's
+ * `setFieldValue` (optional fields, `Updater` values) stays assignable.
  */
 export interface FormWithSetFieldValue<
   TValues extends Record<string, unknown>,
 > {
-  setFieldValue: <TField extends FormFieldKey<TValues>>(
-    field: TField,
-    value: TValues[TField],
+  setFieldValue: (
+    field: FormFieldKey<TValues>,
+    value: TValues[FormFieldKey<TValues>],
   ) => void;
   validateField: (
     field: FormFieldKey<TValues>,

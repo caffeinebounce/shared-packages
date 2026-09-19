@@ -299,7 +299,14 @@ export type {
   AutocompleteProps,
 } from "./components/ui/autocomplete";
 export { Autocomplete } from "./components/ui/autocomplete";
-export { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
+export {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "./components/ui/avatar";
 export type { BackLinkProps } from "./components/ui/back-link";
 export { BackLink } from "./components/ui/back-link";
 export type { BadgeProps, BadgeShape, BadgeSize } from "./components/ui/badge";
@@ -315,9 +322,10 @@ export {
   ButtonGroup,
   ButtonGroupSeparator,
   ButtonGroupText,
+  buttonGroupVariants,
 } from "./components/ui/button-group";
 export type { CalendarProps } from "./components/ui/calendar";
-export { Calendar } from "./components/ui/calendar";
+export { Calendar, CalendarDayButton } from "./components/ui/calendar";
 export type {
   CardBorder,
   CardElevation,
@@ -427,6 +435,14 @@ export {
   DropdownMenuTrigger,
 } from "./components/ui/dropdown-menu";
 export {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "./components/ui/empty";
+export {
   Field,
   FieldContent,
   FieldDescription,
@@ -473,6 +489,18 @@ export {
   InputOTPSeparator,
   InputOTPSlot,
 } from "./components/ui/input-otp";
+export {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+} from "./components/ui/item";
 export { Kbd, KbdGroup } from "./components/ui/kbd";
 export { Label } from "./components/ui/label";
 export type { LampColorTheme, LampContainerProps } from "./components/ui/lamp";
@@ -518,6 +546,9 @@ export {
   Popover,
   PopoverAnchor,
   PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
   PopoverTrigger,
 } from "./components/ui/popover";
 export type { ProfileSectionProps } from "./components/ui/profile-section";
@@ -612,7 +643,13 @@ export {
   TableHeader,
   TableRow,
 } from "./components/ui/table";
-export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
+export {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  tabsListVariants,
+} from "./components/ui/tabs";
 export type { TextGenerateEffectProps } from "./components/ui/text-generate-effect";
 export { TextGenerateEffect } from "./components/ui/text-generate-effect";
 export type { TextHighlightProps } from "./components/ui/text-highlight";
@@ -620,6 +657,7 @@ export { TextHighlight } from "./components/ui/text-highlight";
 export { Textarea } from "./components/ui/textarea";
 export type { TimeEstimateProps } from "./components/ui/time-estimate";
 export { TimeEstimate } from "./components/ui/time-estimate";
+export { Toggle, toggleVariants } from "./components/ui/toggle";
 export { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
 export {
   Tooltip,
