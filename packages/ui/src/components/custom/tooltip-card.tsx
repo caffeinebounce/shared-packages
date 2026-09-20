@@ -3,7 +3,7 @@
 import type { ComponentProps, ReactNode } from "react";
 
 import { cn } from "../../utils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 type TooltipRootProps = Omit<ComponentProps<typeof Tooltip>, "children">;
 type TooltipContentProps = ComponentProps<typeof TooltipContent>;

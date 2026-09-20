@@ -1,15 +1,31 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { Loader2 } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
+import type * as React from "react";
 
 import { cn } from "../../utils";
 
-const spinnerVariants = cva("animate-spin text-muted-foreground", {
+function Spinner({ className, ...props }: React.ComponentProps<"svg">) {
+  return (
+    <Loader2Icon
+      role="status"
+      aria-label="Loading"
+      className={cn("size-4 animate-spin", className)}
+      {...props}
+    />
+  );
+}
+
+// --- local extension over shadcn ---
+// Consumers size the spinner through `size="xs" | "sm" | "md" | "lg"`, and the
+// pre-sync spinner inherited the muted foreground colour. Layer both on top of
+// the upstream component instead of forking it.
+const spinnerVariants = cva("text-muted-foreground", {
   variants: {
     size: {
-      xs: "h-3 w-3",
-      sm: "h-4 w-4",
-      md: "h-6 w-6",
-      lg: "h-8 w-8",
+      xs: "size-3",
+      sm: "size-4",
+      md: "size-6",
+      lg: "size-8",
     },
   },
   defaultVariants: {
@@ -17,23 +33,15 @@ const spinnerVariants = cva("animate-spin text-muted-foreground", {
   },
 });
 
-export interface SpinnerProps
-  extends React.ComponentProps<"svg">,
+interface SpinnerProps
+  extends React.ComponentProps<typeof Spinner>,
     VariantProps<typeof spinnerVariants> {}
 
-/**
- * Spinner - Loading indicator with customizable size
- *
- * @example
- * <Spinner size="md" />
- *
- * @example
- * <Spinner size="lg" className="text-primary" />
- */
-function Spinner({ className, size, ...props }: SpinnerProps) {
+function SizedSpinner({ className, size, ...props }: SpinnerProps) {
   return (
-    <Loader2 className={cn(spinnerVariants({ size, className }))} {...props} />
+    <Spinner className={cn(spinnerVariants({ size }), className)} {...props} />
   );
 }
 
-export { Spinner, spinnerVariants };
+export type { SpinnerProps };
+export { SizedSpinner as Spinner, spinnerVariants };

@@ -266,6 +266,155 @@ export type {
   UserAvatarMenuUser,
 } from "./blocks/user";
 export { UserAvatarMenu } from "./blocks/user";
+export type { SaveStatus } from "./components/custom/auto-save-indicator";
+export { AutoSaveIndicator } from "./components/custom/auto-save-indicator";
+export type {
+  AutocompleteOption,
+  AutocompleteProps,
+} from "./components/custom/autocomplete";
+export { Autocomplete } from "./components/custom/autocomplete";
+export type { BackLinkProps } from "./components/custom/back-link";
+export { BackLink } from "./components/custom/back-link";
+export type {
+  HoverEffectCardDescriptionProps,
+  HoverEffectCardProps,
+  HoverEffectCardTitleProps,
+  HoverEffectItem,
+  HoverEffectProps,
+} from "./components/custom/card-hover-effect";
+export {
+  HoverEffect,
+  HoverEffectCard,
+  HoverEffectCardDescription,
+  HoverEffectCardTitle,
+} from "./components/custom/card-hover-effect";
+// Layout components
+export type {
+  ContainerProps,
+  ContainerSize,
+} from "./components/custom/container";
+export { Container } from "./components/custom/container";
+// Data state utilities
+export {
+  DataStateBanner,
+  DataStateInline,
+} from "./components/custom/data-state";
+export type {
+  DatePickerProps,
+  DateRangePickerProps,
+} from "./components/custom/date-picker";
+export { DatePicker, DateRangePicker } from "./components/custom/date-picker";
+export type { DeleteConfirmationDialogProps } from "./components/custom/delete-confirmation-dialog";
+export { DeleteConfirmationDialog } from "./components/custom/delete-confirmation-dialog";
+export type {
+  DisplayFieldGroupProps,
+  DisplayFieldProps,
+} from "./components/custom/display-field";
+export {
+  DisplayField,
+  DisplayFieldGroup,
+} from "./components/custom/display-field";
+export type {
+  DraggableCardBodyProps,
+  DraggableCardContainerProps,
+} from "./components/custom/draggable-card";
+export {
+  DraggableCardBody,
+  DraggableCardContainer,
+} from "./components/custom/draggable-card";
+export { DraggableStickyModal } from "./components/custom/draggable-sticky-modal";
+export { FormDialog } from "./components/custom/form-dialog";
+export type {
+  GlowingEffectCorners,
+  GlowingEffectProps,
+  GlowingEffectVariant,
+} from "./components/custom/glowing-effect";
+export { GlowingEffect } from "./components/custom/glowing-effect";
+export type {
+  GooeyInputClassNames,
+  GooeyInputProps,
+} from "./components/custom/gooey-input";
+export { GooeyInput } from "./components/custom/gooey-input";
+export type { IconButtonProps } from "./components/custom/icon-button";
+export {
+  IconButton,
+  iconButtonVariants,
+} from "./components/custom/icon-button";
+export type { InfoTooltipProps } from "./components/custom/info-tooltip";
+export { InfoTooltip } from "./components/custom/info-tooltip";
+export type {
+  InlineEditableDateProps,
+  InlineEditableSelectProps,
+  InlineEditableTextProps,
+  SelectOption,
+} from "./components/custom/inline-editable";
+export {
+  InlineEditableDate,
+  InlineEditableSelect,
+  InlineEditableText,
+} from "./components/custom/inline-editable";
+export type {
+  LampColorTheme,
+  LampContainerProps,
+} from "./components/custom/lamp";
+export { LampContainer } from "./components/custom/lamp";
+export type { LocationMapProps } from "./components/custom/location-map";
+export { LocationMap } from "./components/custom/location-map";
+export type { ModernCalendarProps } from "./components/custom/modern-calendar";
+export { ModernCalendar } from "./components/custom/modern-calendar";
+export type { NumberStepperProps } from "./components/custom/number-stepper";
+export { NumberStepper } from "./components/custom/number-stepper";
+export type { PageHeaderProps } from "./components/custom/page-header";
+export { PageHeader } from "./components/custom/page-header";
+export type { PageLoaderProps } from "./components/custom/page-loader";
+export { PageLoader } from "./components/custom/page-loader";
+export type {
+  PageSectionProps,
+  PageSectionsProps,
+} from "./components/custom/page-sections";
+export { PageSection, PageSections } from "./components/custom/page-sections";
+export { PasswordInput } from "./components/custom/password-input";
+export type { PasswordRule } from "./components/custom/password-requirements";
+export {
+  defaultPasswordRules,
+  extendedPasswordRules,
+  PasswordRequirements,
+} from "./components/custom/password-requirements";
+export type { PixelatedCanvasProps } from "./components/custom/pixelated-canvas";
+export { PixelatedCanvas } from "./components/custom/pixelated-canvas";
+export type { ProfileSectionProps } from "./components/custom/profile-section";
+export { ProfileSection } from "./components/custom/profile-section";
+export type { ProgressBarProps } from "./components/custom/progress-bar";
+export { ProgressBar } from "./components/custom/progress-bar";
+export type { SectionProps, SectionSpacing } from "./components/custom/section";
+export { Section } from "./components/custom/section";
+export type {
+  SocialIconProps,
+  SocialPlatform,
+} from "./components/custom/social-icon";
+export { SocialIcon, socialPlatforms } from "./components/custom/social-icon";
+export type {
+  StatCardChartConfig,
+  StatCardProps,
+  StatCardsContainerProps,
+  StatCardTrend,
+  StatChartDataPoint,
+  StatValueFormat,
+  TrendDirection,
+} from "./components/custom/stat-card";
+export { StatCard, StatCardsContainer } from "./components/custom/stat-card";
+export type { StepperProps, StepperStep } from "./components/custom/stepper";
+export { Stepper } from "./components/custom/stepper";
+export type { TextGenerateEffectProps } from "./components/custom/text-generate-effect";
+export { TextGenerateEffect } from "./components/custom/text-generate-effect";
+export type { TextHighlightProps } from "./components/custom/text-highlight";
+export { TextHighlight } from "./components/custom/text-highlight";
+export type { TimeEstimateProps } from "./components/custom/time-estimate";
+export { TimeEstimate } from "./components/custom/time-estimate";
+export type { TooltipCardProps } from "./components/custom/tooltip-card";
+export { TooltipCard } from "./components/custom/tooltip-card";
+export type { VerificationCodeInputProps } from "./components/custom/verification-code-input";
+export { VerificationCodeInput } from "./components/custom/verification-code-input";
 export type {
   HelpArticle,
   HelpArticleGroup,
@@ -292,16 +441,14 @@ export {
   AlertDescription,
   AlertTitle,
 } from "./components/ui/alert";
-export type { SaveStatus } from "./components/ui/auto-save-indicator";
-export { AutoSaveIndicator } from "./components/ui/auto-save-indicator";
-export type {
-  AutocompleteOption,
-  AutocompleteProps,
-} from "./components/ui/autocomplete";
-export { Autocomplete } from "./components/ui/autocomplete";
-export { Avatar, AvatarFallback, AvatarImage } from "./components/ui/avatar";
-export type { BackLinkProps } from "./components/ui/back-link";
-export { BackLink } from "./components/ui/back-link";
+export {
+  Avatar,
+  AvatarBadge,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "./components/ui/avatar";
 export type { BadgeProps, BadgeShape, BadgeSize } from "./components/ui/badge";
 export { Badge, badgeVariants } from "./components/ui/badge";
 export type {
@@ -315,9 +462,10 @@ export {
   ButtonGroup,
   ButtonGroupSeparator,
   ButtonGroupText,
+  buttonGroupVariants,
 } from "./components/ui/button-group";
 export type { CalendarProps } from "./components/ui/calendar";
-export { Calendar } from "./components/ui/calendar";
+export { Calendar, CalendarDayButton } from "./components/ui/calendar";
 export type {
   CardBorder,
   CardElevation,
@@ -332,19 +480,6 @@ export {
   CardHeader,
   CardTitle,
 } from "./components/ui/card";
-export type {
-  HoverEffectCardDescriptionProps,
-  HoverEffectCardProps,
-  HoverEffectCardTitleProps,
-  HoverEffectItem,
-  HoverEffectProps,
-} from "./components/ui/card-hover-effect";
-export {
-  HoverEffect,
-  HoverEffectCard,
-  HoverEffectCardDescription,
-  HoverEffectCardTitle,
-} from "./components/ui/card-hover-effect";
 export type { ChartConfig } from "./components/ui/chart";
 export {
   ChartContainer,
@@ -371,18 +506,6 @@ export {
   CommandSeparator,
   CommandShortcut,
 } from "./components/ui/command";
-// Layout components
-export type { ContainerProps, ContainerSize } from "./components/ui/container";
-export { Container } from "./components/ui/container";
-// Data state utilities
-export { DataStateBanner, DataStateInline } from "./components/ui/data-state";
-export type {
-  DatePickerProps,
-  DateRangePickerProps,
-} from "./components/ui/date-picker";
-export { DatePicker, DateRangePicker } from "./components/ui/date-picker";
-export type { DeleteConfirmationDialogProps } from "./components/ui/delete-confirmation-dialog";
-export { DeleteConfirmationDialog } from "./components/ui/delete-confirmation-dialog";
 export {
   Dialog,
   DialogClose,
@@ -395,20 +518,6 @@ export {
   DialogTitle,
   DialogTrigger,
 } from "./components/ui/dialog";
-export type {
-  DisplayFieldGroupProps,
-  DisplayFieldProps,
-} from "./components/ui/display-field";
-export { DisplayField, DisplayFieldGroup } from "./components/ui/display-field";
-export type {
-  DraggableCardBodyProps,
-  DraggableCardContainerProps,
-} from "./components/ui/draggable-card";
-export {
-  DraggableCardBody,
-  DraggableCardContainer,
-} from "./components/ui/draggable-card";
-export { DraggableStickyModal } from "./components/ui/draggable-sticky-modal";
 export {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -427,6 +536,14 @@ export {
   DropdownMenuTrigger,
 } from "./components/ui/dropdown-menu";
 export {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "./components/ui/empty";
+export {
   Field,
   FieldContent,
   FieldDescription,
@@ -438,33 +555,6 @@ export {
   FieldSet,
   FieldTitle,
 } from "./components/ui/field";
-export { FormDialog } from "./components/ui/form-dialog";
-export type {
-  GlowingEffectCorners,
-  GlowingEffectProps,
-  GlowingEffectVariant,
-} from "./components/ui/glowing-effect";
-export { GlowingEffect } from "./components/ui/glowing-effect";
-export type {
-  GooeyInputClassNames,
-  GooeyInputProps,
-} from "./components/ui/gooey-input";
-export { GooeyInput } from "./components/ui/gooey-input";
-export type { IconButtonProps } from "./components/ui/icon-button";
-export { IconButton, iconButtonVariants } from "./components/ui/icon-button";
-export type { InfoTooltipProps } from "./components/ui/info-tooltip";
-export { InfoTooltip } from "./components/ui/info-tooltip";
-export type {
-  InlineEditableDateProps,
-  InlineEditableSelectProps,
-  InlineEditableTextProps,
-  SelectOption,
-} from "./components/ui/inline-editable";
-export {
-  InlineEditableDate,
-  InlineEditableSelect,
-  InlineEditableText,
-} from "./components/ui/inline-editable";
 export type { InputProps, InputVariant } from "./components/ui/input";
 export { Input, inputVariants } from "./components/ui/input";
 export {
@@ -473,14 +563,20 @@ export {
   InputOTPSeparator,
   InputOTPSlot,
 } from "./components/ui/input-otp";
+export {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+} from "./components/ui/item";
 export { Kbd, KbdGroup } from "./components/ui/kbd";
 export { Label } from "./components/ui/label";
-export type { LampColorTheme, LampContainerProps } from "./components/ui/lamp";
-export { LampContainer } from "./components/ui/lamp";
-export type { LocationMapProps } from "./components/ui/location-map";
-export { LocationMap } from "./components/ui/location-map";
-export type { ModernCalendarProps } from "./components/ui/modern-calendar";
-export { ModernCalendar } from "./components/ui/modern-calendar";
 export {
   NavigationMenu,
   NavigationMenuContent,
@@ -494,40 +590,17 @@ export {
   NavigationMenuViewportPrimitive,
   navigationMenuTriggerStyle,
 } from "./components/ui/navigation-menu";
-export type { NumberStepperProps } from "./components/ui/number-stepper";
-export { NumberStepper } from "./components/ui/number-stepper";
-export type { PageHeaderProps } from "./components/ui/page-header";
-export { PageHeader } from "./components/ui/page-header";
-export type { PageLoaderProps } from "./components/ui/page-loader";
-export { PageLoader } from "./components/ui/page-loader";
-export type {
-  PageSectionProps,
-  PageSectionsProps,
-} from "./components/ui/page-sections";
-export { PageSection, PageSections } from "./components/ui/page-sections";
-export { PasswordInput } from "./components/ui/password-input";
-export type { PasswordRule } from "./components/ui/password-requirements";
-export {
-  defaultPasswordRules,
-  extendedPasswordRules,
-  PasswordRequirements,
-} from "./components/ui/password-requirements";
-export type { PixelatedCanvasProps } from "./components/ui/pixelated-canvas";
-export { PixelatedCanvas } from "./components/ui/pixelated-canvas";
 export {
   Popover,
   PopoverAnchor,
   PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
   PopoverTrigger,
 } from "./components/ui/popover";
-export type { ProfileSectionProps } from "./components/ui/profile-section";
-export { ProfileSection } from "./components/ui/profile-section";
 export { Progress } from "./components/ui/progress";
-export type { ProgressBarProps } from "./components/ui/progress-bar";
-export { ProgressBar } from "./components/ui/progress-bar";
 export { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
-export type { SectionProps, SectionSpacing } from "./components/ui/section";
-export { Section } from "./components/ui/section";
 export {
   Select,
   SelectContent,
@@ -581,26 +654,9 @@ export {
 } from "./components/ui/sidebar";
 export { Skeleton } from "./components/ui/skeleton";
 export { Slider } from "./components/ui/slider";
-export type {
-  SocialIconProps,
-  SocialPlatform,
-} from "./components/ui/social-icon";
-export { SocialIcon, socialPlatforms } from "./components/ui/social-icon";
 export { Toaster } from "./components/ui/sonner";
 export type { SpinnerProps } from "./components/ui/spinner";
 export { Spinner, spinnerVariants } from "./components/ui/spinner";
-export type {
-  StatCardChartConfig,
-  StatCardProps,
-  StatCardsContainerProps,
-  StatCardTrend,
-  StatChartDataPoint,
-  StatValueFormat,
-  TrendDirection,
-} from "./components/ui/stat-card";
-export { StatCard, StatCardsContainer } from "./components/ui/stat-card";
-export type { StepperProps, StepperStep } from "./components/ui/stepper";
-export { Stepper } from "./components/ui/stepper";
 export { Switch } from "./components/ui/switch";
 export {
   Table,
@@ -612,14 +668,15 @@ export {
   TableHeader,
   TableRow,
 } from "./components/ui/table";
-export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
-export type { TextGenerateEffectProps } from "./components/ui/text-generate-effect";
-export { TextGenerateEffect } from "./components/ui/text-generate-effect";
-export type { TextHighlightProps } from "./components/ui/text-highlight";
-export { TextHighlight } from "./components/ui/text-highlight";
+export {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  tabsListVariants,
+} from "./components/ui/tabs";
 export { Textarea } from "./components/ui/textarea";
-export type { TimeEstimateProps } from "./components/ui/time-estimate";
-export { TimeEstimate } from "./components/ui/time-estimate";
+export { Toggle, toggleVariants } from "./components/ui/toggle";
 export { ToggleGroup, ToggleGroupItem } from "./components/ui/toggle-group";
 export {
   Tooltip,
@@ -627,10 +684,6 @@ export {
   TooltipProvider,
   TooltipTrigger,
 } from "./components/ui/tooltip";
-export type { TooltipCardProps } from "./components/ui/tooltip-card";
-export { TooltipCard } from "./components/ui/tooltip-card";
-export type { VerificationCodeInputProps } from "./components/ui/verification-code-input";
-export { VerificationCodeInput } from "./components/ui/verification-code-input";
 // Theme system types and configurations
 // Note: Component variant types (BadgeShape, BadgeSize, ButtonCorners, ButtonHoverEffect,
 // CardBorder, CardElevation, InputVariant) are exported from their respective component files above.

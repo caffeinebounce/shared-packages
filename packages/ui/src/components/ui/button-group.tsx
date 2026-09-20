@@ -1,59 +1,57 @@
-"use client";
-
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 import { cn } from "../../utils";
+import { Separator } from "./separator";
 
-interface ButtonGroupProps extends React.ComponentProps<"div"> {
-  orientation?: "horizontal" | "vertical";
-}
+const buttonGroupVariants = cva(
+  "flex w-fit items-stretch has-[>[data-slot=button-group]]:gap-2 [&>*]:focus-visible:relative [&>*]:focus-visible:z-10 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-r-md [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
+  {
+    variants: {
+      orientation: {
+        horizontal:
+          "[&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l-0 [&>*:not(:last-child)]:rounded-r-none",
+        vertical:
+          "flex-col [&>*:not(:first-child)]:rounded-t-none [&>*:not(:first-child)]:border-t-0 [&>*:not(:last-child)]:rounded-b-none",
+      },
+    },
+    defaultVariants: {
+      orientation: "horizontal",
+    },
+  },
+);
 
-/**
- * ButtonGroup - Group of related buttons with connected appearance
- *
- * @example
- * <ButtonGroup>
- *   <Button>Left</Button>
- *   <Button>Middle</Button>
- *   <Button>Right</Button>
- * </ButtonGroup>
- *
- * @example
- * // Vertical orientation
- * <ButtonGroup orientation="vertical">
- *   <Button>Top</Button>
- *   <Button>Bottom</Button>
- * </ButtonGroup>
- */
 function ButtonGroup({
   className,
-  orientation = "horizontal",
+  orientation,
   ...props
-}: ButtonGroupProps) {
+}: React.ComponentProps<"div"> & VariantProps<typeof buttonGroupVariants>) {
   return (
-    // biome-ignore lint/a11y/useSemanticElements: ButtonGroup is visual grouping, not a form fieldset
+    // biome-ignore lint/a11y/useSemanticElements: upstream shadcn markup; ButtonGroup is a visual grouping, not a form fieldset
     <div
       role="group"
+      data-slot="button-group"
       data-orientation={orientation}
+      className={cn(buttonGroupVariants({ orientation }), className)}
+      {...props}
+    />
+  );
+}
+
+function ButtonGroupText({
+  className,
+  asChild = false,
+  ...props
+}: React.ComponentProps<"div"> & {
+  asChild?: boolean;
+}) {
+  const Comp = asChild ? Slot : "div";
+
+  return (
+    <Comp
       className={cn(
-        "flex",
-        orientation === "horizontal"
-          ? "flex-row items-center -space-x-px"
-          : "flex-col -space-y-px",
-        // Style direct children to have connected appearance
-        // Use !important to override Button's own shared box radius classes
-        "[&>*]:!rounded-none",
-        "[&>*:first-child]:!rounded-l-box",
-        "[&>*:last-child]:!rounded-r-box",
-        orientation === "vertical" && [
-          "[&>*:first-child]:!rounded-t-box [&>*:first-child]:!rounded-l-none",
-          "[&>*:last-child]:!rounded-b-box [&>*:last-child]:!rounded-r-none",
-        ],
-        // Handle nested button groups
-        "**:[role=group]:flex",
-        "**:[role=group]>*:!rounded-none",
-        "[&>[role=group]:first-child>*:first-child]:!rounded-l-box",
-        "[&>[role=group]:last-child>*:last-child]:!rounded-r-box",
+        "flex items-center gap-2 rounded-md border bg-muted px-4 text-sm font-medium shadow-xs [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
@@ -61,22 +59,17 @@ function ButtonGroup({
   );
 }
 
-/**
- * ButtonGroupSeparator - Visual divider between button groups
- */
 function ButtonGroupSeparator({
   className,
   orientation = "vertical",
   ...props
-}: React.ComponentProps<"hr"> & {
-  orientation?: "horizontal" | "vertical";
-}) {
+}: React.ComponentProps<typeof Separator>) {
   return (
-    <hr
-      aria-orientation={orientation}
+    <Separator
+      data-slot="button-group-separator"
+      orientation={orientation}
       className={cn(
-        "bg-border border-0",
-        orientation === "vertical" ? "h-6 w-px" : "h-px w-6",
+        "relative m-0! self-stretch bg-input data-[orientation=vertical]:h-auto",
         className,
       )}
       {...props}
@@ -84,32 +77,14 @@ function ButtonGroupSeparator({
   );
 }
 
-/**
- * ButtonGroupText - Text label within a button group
- */
-function ButtonGroupText({
-  className,
-  asChild = false,
-  children,
-  ...props
-}: React.ComponentProps<"span"> & {
-  asChild?: boolean;
-}) {
-  if (asChild) {
-    return <>{children}</>;
-  }
-  return (
-    <span
-      className={cn(
-        "flex items-center px-3 text-sm text-muted-foreground",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </span>
-  );
-}
+// --- local extension over shadcn ---
+// Consumers import this props type from the package barrel.
+type ButtonGroupProps = React.ComponentProps<typeof ButtonGroup>;
 
 export type { ButtonGroupProps };
-export { ButtonGroup, ButtonGroupSeparator, ButtonGroupText };
+export {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+  buttonGroupVariants,
+};

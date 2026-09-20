@@ -5,8 +5,8 @@ import type * as React from "react";
 import { useState } from "react";
 
 import { cn } from "../../utils";
-import { Badge } from "./badge";
-import { Card, CardContent, CardHeader, CardTitle } from "./card";
+import { Badge } from "../ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 export type TrendDirection = "up" | "down" | "neutral";
 

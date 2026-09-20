@@ -1,5 +1,5 @@
-export { CanvasRevealEffect } from "../../components/ui/canvas-reveal-effect";
-export { CardSpotlight } from "../../components/ui/card-spotlight";
+export { CanvasRevealEffect } from "../../components/custom/canvas-reveal-effect";
+export { CardSpotlight } from "../../components/custom/card-spotlight";
 export {
   type BentoGridItem,
   BentoGridSection,

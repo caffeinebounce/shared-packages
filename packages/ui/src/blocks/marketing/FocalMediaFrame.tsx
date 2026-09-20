@@ -3,8 +3,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
-import type { PixelatedCanvasProps } from "../../components/ui/pixelated-canvas";
-import { PixelatedCanvas } from "../../components/ui/pixelated-canvas";
+import type { PixelatedCanvasProps } from "../../components/custom/pixelated-canvas";
+import { PixelatedCanvas } from "../../components/custom/pixelated-canvas";
 import { cn } from "../../utils";
 
 interface FocalPoint {

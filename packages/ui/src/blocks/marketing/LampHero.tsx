@@ -4,8 +4,11 @@ import type { LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 
-import { type LampColorTheme, LampContainer } from "../../components/ui/lamp";
-import { TextGenerateEffect } from "../../components/ui/text-generate-effect";
+import {
+  type LampColorTheme,
+  LampContainer,
+} from "../../components/custom/lamp";
+import { TextGenerateEffect } from "../../components/custom/text-generate-effect";
 import { cn } from "../../utils";
 
 export interface LampHeroSocialLink {

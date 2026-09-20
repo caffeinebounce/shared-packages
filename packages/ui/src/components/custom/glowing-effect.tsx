@@ -4,7 +4,7 @@ import { animate, useReducedMotion } from "motion/react";
 import type * as React from "react";
 import { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "../../utils";
-import type { ButtonCorners } from "./button";
+import type { ButtonCorners } from "../ui/button";
 
 export type GlowingEffectCorners = ButtonCorners;
 export type GlowingEffectVariant = "default" | "primary" | "white";

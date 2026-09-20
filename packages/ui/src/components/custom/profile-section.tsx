@@ -3,15 +3,15 @@
 import { Check, ChevronDown, Pencil, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../../utils/cn";
-import { Button } from "./button";
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "./card";
-import { Spinner } from "./spinner";
+} from "../ui/card";
+import { Spinner } from "../ui/spinner";
 
 export interface ProfileSectionProps {
   /** Section title */

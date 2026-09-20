@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { cn } from "../../utils";
-import { Button } from "./button";
+import { Button } from "../ui/button";
 
 /**
  * PageHeader component for consistent page titles and descriptions.

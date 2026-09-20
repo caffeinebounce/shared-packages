@@ -14,9 +14,9 @@ import {
 import { createPortal } from "react-dom";
 
 import { cn } from "../../utils";
-import { Badge } from "./badge";
-import { Button } from "./button";
-import { Popover, PopoverAnchor, PopoverContent } from "./popover";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Popover, PopoverAnchor, PopoverContent } from "../ui/popover";
 
 export interface AutocompleteOption {
   /** Unique identifier for the option */

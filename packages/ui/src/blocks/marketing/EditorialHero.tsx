@@ -1,10 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-
+import { Container } from "../../components/custom/container";
+import type { PixelatedCanvasProps } from "../../components/custom/pixelated-canvas";
 import { Button } from "../../components/ui/button";
-import { Container } from "../../components/ui/container";
-import type { PixelatedCanvasProps } from "../../components/ui/pixelated-canvas";
 import { cn } from "../../utils";
 import { FocalMediaFrame } from "./FocalMediaFrame";
 

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
+import { CardSpotlight } from "../../components/custom/card-spotlight";
 import { Button } from "../../components/ui/button";
-import { CardSpotlight } from "../../components/ui/card-spotlight";
 import {
   cx,
   type MarketingSectionPadding,

@@ -1,5 +1,5 @@
 import { cn } from "../../utils";
-import { Spinner } from "./spinner";
+import { Spinner } from "../ui/spinner";
 
 export interface PageLoaderProps extends React.ComponentProps<"div"> {
   /** Optional message to show below the spinner */
