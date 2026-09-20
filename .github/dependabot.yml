@@ -25,6 +25,11 @@ updates:
       time: "06:00"
       timezone: "America/New_York"
     open-pull-requests-limit: 8
+    ignore:
+      # changesets/action v2 requires Changesets CLI v3; this repo runs CLI v2.
+      # Bump both together on purpose rather than through Dependabot.
+      - dependency-name: "changesets/action"
+        update-types: ["version-update:semver-major"]
     labels:
       - "dependencies"
       - "github-actions"
