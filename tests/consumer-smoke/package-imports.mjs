@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
+import { runIsolatedProbe } from "./isolated-install.mjs";
 
 const requirePackage = createRequire(import.meta.url);
 
@@ -28,6 +29,17 @@ const checks = [
     exportName: "logger",
     packageName: "@caffeinebounce/logger",
     mode: "import",
+  },
+  {
+    exportName: "logger",
+    packageName: "@caffeinebounce/logger/node",
+    mode: "import",
+  },
+  {
+    exportName: null,
+    packageName: "@caffeinebounce/logger/node",
+    mode: "isolated",
+    probe: "probes/logger-node-without-next.mjs",
   },
   {
     exportName: "NotificationBell",
@@ -82,10 +94,15 @@ const scopedChecks = affectedPackages
   : checks;
 const failures = [];
 
-for (const { exportName, mode, packageName } of scopedChecks) {
+for (const { exportName, mode, packageName, probe } of scopedChecks) {
   try {
     if (mode === "resolve") {
       import.meta.resolve(packageName);
+      continue;
+    }
+
+    if (mode === "isolated") {
+      runIsolatedProbe({ packageName, probe });
       continue;
     }
 
