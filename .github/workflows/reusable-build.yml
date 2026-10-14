@@ -20,6 +20,8 @@
 #       with:
 #         node-version: '25'
 #         yarn-version: '4.12.0'
+#         # Optional. JSON for the job's runs-on: a label string or an array.
+#         # runs-on: '["self-hosted","macOS","ARM64","my-repo"]'
 #       secrets:
 #         GH_PAT: ${{ secrets.GH_PAT }}
 #
@@ -30,6 +32,14 @@ name: Reusable Build
 on:
   workflow_call:
     inputs:
+      runs-on:
+        description: >-
+          JSON for the build job's runs-on: a quoted label ('"ubuntu-latest"')
+          or an array of labels ('["self-hosted","macOS","ARM64","my-repo"]').
+          Private callers use this to run on their own self-hosted runner.
+        required: false
+        default: '"ubuntu-latest"'
+        type: string
       node-version:
         description: 'Node.js version'
         required: false
@@ -79,7 +89,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
     timeout-minutes: 30
     outputs:
       artifact-name: ${{ steps.artifact.outputs.name }}
