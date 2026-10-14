@@ -1,5 +1,12 @@
 <!-- markdownlint-disable MD024 -->
 
+## 0.63.1
+
+### Patch Changes
+
+- Updated dependencies [8a4d994]
+  - @caffeinebounce/logger@0.11.0
+
 ## 0.63.0
 
 ### Minor Changes
