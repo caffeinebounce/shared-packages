@@ -5,7 +5,7 @@ release workflow for `shared-packages`.
 
 ## Prerequisites
 
-- Node.js 25+
+- Node.js 24.22.3+
 - Yarn 4.12.0
 - Git 2.9+
 - `pre-commit`

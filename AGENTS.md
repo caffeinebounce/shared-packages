@@ -18,7 +18,7 @@ business copy, data fetching, and deployment configuration.
 
 ## Stack
 
-- Node.js 25+
+- Node.js 24.22.3+
 - Yarn 4.12.0 through Corepack
 - Turborepo
 - React 19
