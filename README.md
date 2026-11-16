@@ -33,7 +33,7 @@ logic inside shared packages.
 
 ## Requirements & Registry
 
-- Node.js 25+, Yarn 4.12.0 (Berry)
+- Node.js 24.22.3+, Yarn 4.12.0 (Berry)
 - `GITHUB_TOKEN` with `read:packages` for local installs and `write:packages`
   for maintainers who publish releases
 - `.npmrc` (or user-level config):
